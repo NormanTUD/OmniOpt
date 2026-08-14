@@ -756,6 +756,7 @@ tests:
 smoke_tests:
   - find_typos
   #- test_omniopt_docker_blackbox
+  - unit_tests
   - test_omniopt_evaluate
   - test_omniopt_plot
   - test_omniopt_share

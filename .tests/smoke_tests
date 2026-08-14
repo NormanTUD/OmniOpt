@@ -57,6 +57,10 @@ def _resolve_cmd(name: str) -> Tuple[List[str], str] | None:
         return [sys.executable, str(py_script)], f"python3 {name}.py"
     script = THIS_DIR / name
     if script.exists():
+        # When running with coverage, execute through the current (venv)
+        # interpreter so ``COVERAGE_PROCESS_START`` instruments the test.
+        if os.environ.get("RUN_WITH_COVERAGE"):
+            return [sys.executable, str(script)], f"{name}"
         return [str(script)], name
     return None
 
@@ -112,6 +116,8 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("--no-summary-table", dest="summary_table",
                    action="store_false", default=True,
                    help="Skip the per-test runtime summary table at the end.")
+    p.add_argument("--run_with_coverage", action="store_true",
+                   help="Measure subprocesses with coverage (COVERAGE_PROCESS_START).")
     return p
 
 
@@ -126,6 +132,11 @@ def main(argv=None) -> int:
     if args.help:
         parser.print_help()
         return 0
+
+    if args.run_with_coverage:
+        os.environ["RUN_WITH_COVERAGE"] = "1"
+        coveragerc = Path(__file__).resolve().parent.parent / ".coveragerc"
+        os.environ["COVERAGE_PROCESS_START"] = str(coveragerc)
 
     env_jobs = os.environ.get("SMOKE_JOBS")
     jobs_arg = args.jobs if args.jobs is not None else env_jobs

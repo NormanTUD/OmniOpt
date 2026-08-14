@@ -639,10 +639,10 @@ def get_data(
     old_headers_string: str | None = None,
     drop_columns_with_strings: str | bool = False
 ) -> pd.DataFrame | None:
-    res_col_name = get_result_name_or_default_from_csv_file_path(csv_file_path)
-
     if not isinstance(csv_file_path, str):
         return None
+
+    res_col_name = get_result_name_or_default_from_csv_file_path(csv_file_path)
 
     if not file_exists(csv_file_path):
         return None

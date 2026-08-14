@@ -159,6 +159,9 @@ def _decode_trial(vals: dict, parameters: dict) -> dict:
     for name, raw in vals.items():
         values = list(raw)
         value = values[0] if values else None
+        if value is None:
+            point[name] = None
+            continue
         if name in parameters:
             p = parameters[name]
             if p["parameter_type"] == "RANGE" and p["type"] == "INT":

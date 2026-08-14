@@ -15,6 +15,7 @@ tag/filter system for combining test suites:
 from __future__ import annotations
 
 import os
+import re
 import sys
 import time
 from pathlib import Path
@@ -141,6 +142,25 @@ def _print_test_list(tests) -> None:
     print(f"\n{len(tests)} test(s) selected.")
 
 
+def _setup_coverage_env() -> None:
+    """Honour --run_with_coverage: rewrite ``python3`` commands to run under
+    coverage and measure every venv subprocess (incl. ``./omniopt`` re-execs)
+    via ``COVERAGE_PROCESS_START`` + the repo's ``.coveragerc``."""
+    os.environ["RUN_WITH_COVERAGE"] = "1"
+    repo_root = Path(__file__).resolve().parent.parent
+    coveragerc = repo_root / ".coveragerc"
+    os.environ["COVERAGE_PROCESS_START"] = str(coveragerc)
+    bin_dir = _bootstrap_venv / "bin"
+    if bin_dir.is_dir() and str(bin_dir) not in os.environ.get("PATH", "").split(os.pathsep):
+        os.environ["PATH"] = str(bin_dir) + os.pathsep + os.environ.get("PATH", "")
+
+
+def _render_command_with_coverage(cmd: str) -> str:
+    """Replace ``python3 <script>`` invocations with ``coverage run -p <script>``
+    so the test scripts themselves are measured too."""
+    return re.sub(r"\bpython3(?=\s)", "coverage run -p", cmd)
+
+
 def main(argv=None) -> int:
     os.environ.setdefault("ENABLE_BEARTYPE", "1")
     os.environ.setdefault("install_tests", "1")
@@ -158,6 +178,9 @@ def main(argv=None) -> int:
     )
     args = parse_args(parser, argv if argv is not None else sys.argv[1:])
     args = adjust_quick_flags(args)
+
+    if args.run_with_coverage:
+        _setup_coverage_env()
 
     # Environment-specific toggles.
     in_container = helpers.in_container()
@@ -214,7 +237,10 @@ def main(argv=None) -> int:
     start = time.time()
 
     def render(test):
-        return render_command(test.cmd or "", config, args)
+        cmd = render_command(test.cmd or "", config, args)
+        if os.environ.get("RUN_WITH_COVERAGE"):
+            cmd = _render_command_with_coverage(cmd)
+        return cmd
 
     try:
         run_test_objects(

@@ -1,0 +1,1226 @@
+#!/usr/bin/env python3
+"""Unit tests for OmniOpt's internal helper modules.
+
+Covers the pure (side-effect free or easily mockable) functions in:
+
+  * ``.helpers.py``          - value/lookup helpers
+  * ``.pareto.py``           - Pareto front calculation
+  * ``.random_generator.py`` - random point generation
+  * ``.tpe.py``              - hyperopt TPE translation helpers
+  * ``.general.py``          - console / webserver helpers
+
+Every test is a ``def test_*() -> bool`` function returning ``True`` on
+success. The module exits non-zero if any test fails, so it can be used as a
+standalone test script (``python3 .tests/unit_tests``) or registered in the
+test framework.
+"""
+
+from __future__ import annotations
+
+import contextlib
+import csv
+import io
+import json
+import os
+import sys
+import tempfile
+from importlib.machinery import SourceFileLoader
+from pathlib import Path
+from types import SimpleNamespace
+from unittest import mock
+
+THIS_DIR = Path(__file__).resolve().parent
+REPO_ROOT = THIS_DIR.parent
+
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+import numpy as np  # noqa: E402
+import pandas as pd  # noqa: E402
+from rich.table import Table  # noqa: E402
+
+from _framework.helpers import red_text  # noqa: E402
+
+
+def _load(name: str, location: Path):
+    # pylint: disable-next=deprecated-method
+    return SourceFileLoader(name, str(location)).load_module()
+
+
+helpers_util = _load("helpers_util", REPO_ROOT / ".helpers.py")
+pareto_mod = _load("pareto_mod", REPO_ROOT / ".pareto.py")
+random_gen = _load("random_gen", REPO_ROOT / ".random_generator.py")
+try:
+    tpe_mod = _load("tpe_mod", REPO_ROOT / ".tpe.py")
+except (ImportError, SystemExit):
+    # hyperopt/beartype may be missing outside the venv; the tpe tests
+    # are skipped in that case.
+    tpe_mod = None
+general_mod = _load("general_mod", REPO_ROOT / ".general.py")
+
+
+def _check(condition: bool, message: str) -> bool:
+    if not condition:
+        red_text(f"FAIL: {message}")
+        return False
+    return True
+
+
+@contextlib.contextmanager
+def _env(key: str, value: str | None):
+    """Temporarily set (or unset) an environment variable."""
+    old = os.environ.get(key)
+    if value is None:
+        os.environ.pop(key, None)
+    else:
+        os.environ[key] = value
+    try:
+        yield
+    finally:
+        if old is None:
+            os.environ.pop(key, None)
+        else:
+            os.environ[key] = old
+
+
+def _expect_exit(fn, code: int, message: str) -> bool:
+    try:
+        fn()
+    except SystemExit as exc:
+        return _check(exc.code == code, f"{message}: expected exit {code}, got {exc.code}")
+    return _check(False, f"{message}: expected SystemExit({code}), but no exit happened")
+
+
+# ---------------------------------------------------------------------------
+# .helpers.py
+# ---------------------------------------------------------------------------
+
+def test_starts_with_oo_info() -> bool:
+    ok = _check(helpers_util.starts_with_OO_Info("OO_Info_foo") is True,
+                "starts_with_OO_Info('OO_Info_foo') should be True")
+    ok &= _check(helpers_util.starts_with_OO_Info("foo") is False,
+                 "starts_with_OO_Info('foo') should be False")
+    ok &= _check(helpers_util.starts_with_OO_Info("OO_Info_") is True,
+                 "starts_with_OO_Info('OO_Info_') should be True")
+    return ok
+
+
+def test_starts_with_oo_info_type_error() -> bool:
+    try:
+        helpers_util.starts_with_OO_Info(42)
+    except TypeError:
+        return True
+    return _check(False, "starts_with_OO_Info(42) should raise TypeError")
+
+
+def test_check_environment_variable() -> bool:
+    with _env("OO_TEST_ENV_FLAG", None):
+        ok = _check(helpers_util.check_environment_variable("OO_TEST_ENV_FLAG") is False,
+                    "unset env var should be False")
+    with _env("OO_TEST_ENV_FLAG", "1"):
+        ok &= _check(helpers_util.check_environment_variable("OO_TEST_ENV_FLAG") is True,
+                     "env var == '1' should be True")
+    with _env("OO_TEST_ENV_FLAG", "0"):
+        ok &= _check(helpers_util.check_environment_variable("OO_TEST_ENV_FLAG") is False,
+                     "env var != '1' should be False")
+    return ok
+
+
+def test_in_venv() -> bool:
+    return _check(isinstance(helpers_util.in_venv(), bool), "in_venv() should return a bool")
+
+
+def test_looks_like_float() -> bool:
+    ok = _check(helpers_util.looks_like_float(1) is True, "looks_like_float(1) -> True")
+    ok &= _check(helpers_util.looks_like_float(1.5) is True, "looks_like_float(1.5) -> True")
+    ok &= _check(helpers_util.looks_like_float("1.5") is True, "looks_like_float('1.5') -> True")
+    ok &= _check(helpers_util.looks_like_float("abc") is False, "looks_like_float('abc') -> False")
+    ok &= _check(helpers_util.looks_like_float(None) is False, "looks_like_float(None) -> False")
+    return ok
+
+
+def test_looks_like_int() -> bool:
+    ok = _check(helpers_util.looks_like_int(42) is True, "looks_like_int(42) -> True")
+    ok &= _check(helpers_util.looks_like_int(4.0) is True, "looks_like_int(4.0) -> True")
+    ok &= _check(helpers_util.looks_like_int(4.2) is False, "looks_like_int(4.2) -> False")
+    ok &= _check(helpers_util.looks_like_int("123") is True, "looks_like_int('123') -> True")
+    ok &= _check(helpers_util.looks_like_int("hallo") is False, "looks_like_int('hallo') -> False")
+    ok &= _check(helpers_util.looks_like_int(False) is False, "looks_like_int(False) -> False")
+    ok &= _check(helpers_util.looks_like_int(None) is False, "looks_like_int(None) -> False")
+    return ok
+
+
+def test_looks_like_number() -> bool:
+    ok = _check(helpers_util.looks_like_number(1) is True, "looks_like_number(1) -> True")
+    ok &= _check(helpers_util.looks_like_number(1.5) is True, "looks_like_number(1.5) -> True")
+    ok &= _check(helpers_util.looks_like_number("1.5") is True, "looks_like_number('1.5') -> True")
+    ok &= _check(helpers_util.looks_like_number(np.int64(2)) is True, "looks_like_number(np.int64(2)) -> True")
+    ok &= _check(helpers_util.looks_like_number("hallo") is False, "looks_like_number('hallo') -> False")
+    return ok
+
+
+def test_to_int_when_possible() -> bool:
+    ok = _check(helpers_util.to_int_when_possible(5) == 5, "to_int_when_possible(5) -> 5")
+    ok &= _check(helpers_util.to_int_when_possible(5.0) == 5, "to_int_when_possible(5.0) -> 5")
+    ok &= _check(helpers_util.to_int_when_possible(5.5) == 5.5, "to_int_when_possible(5.5) -> 5.5")
+    ok &= _check(helpers_util.to_int_when_possible("42") == 42, "to_int_when_possible('42') -> 42")
+    ok &= _check(helpers_util.to_int_when_possible("  -42  ") == -42, "to_int_when_possible('  -42  ') -> -42")
+    ok &= _check(helpers_util.to_int_when_possible("4.2") == 4.2, "to_int_when_possible('4.2') -> 4.2")
+    ok &= _check(helpers_util.to_int_when_possible("4.0") == 4, "to_int_when_possible('4.0') -> 4")
+    ok &= _check(helpers_util.to_int_when_possible("1e3") == 1000, "to_int_when_possible('1e3') -> 1000")
+    ok &= _check(helpers_util.to_int_when_possible("hallo") == "hallo", "to_int_when_possible('hallo') -> 'hallo'")
+    ok &= _check(helpers_util.to_int_when_possible(None) is None, "to_int_when_possible(None) -> None")
+    ok &= _check(helpers_util.to_int_when_possible(True) is True, "to_int_when_possible(True) -> True")
+    return ok
+
+
+def test_flatten_extend() -> bool:
+    ok = _check(helpers_util.flatten_extend([[1, 2], [3, 4]]) == [1, 2, 3, 4],
+                "flatten_extend([[1,2],[3,4]]) -> [1,2,3,4]")
+    ok &= _check(helpers_util.flatten_extend([]) == [], "flatten_extend([]) -> []")
+    ok &= _check(helpers_util.flatten_extend([[], [5]]) == [5], "flatten_extend([[], [5]]) -> [5]")
+    return ok
+
+
+def test_convert_string_to_number() -> bool:
+    ok = _check(helpers_util.convert_string_to_number("10") == 10, "convert_string_to_number('10') -> 10")
+    ok &= _check(helpers_util.convert_string_to_number("1.1") == 1.1, "convert_string_to_number('1.1') -> 1.1")
+    ok &= _check(helpers_util.convert_string_to_number("hallo") is None, "convert_string_to_number('hallo') -> None")
+    ok &= _check(helpers_util.convert_string_to_number(True) is None, "convert_string_to_number(True) -> None")
+    ok &= _check(helpers_util.convert_string_to_number("1,5") == 1.5, "convert_string_to_number('1,5') -> 1.5")
+    ok &= _check(helpers_util.convert_string_to_number("abc 3 def") == 3, "convert_string_to_number('abc 3 def') -> 3")
+    return ok
+
+
+def test_log_error() -> bool:
+    return _check(helpers_util.log_error("oops") is None, "log_error should return None")
+
+
+def test_print_color() -> bool:
+    ok = _check(helpers_util.print_color("red", "x") is None, "print_color('red', 'x') -> None")
+    ok &= _check(helpers_util.print_color("nope", "y") is None, "print_color('nope', 'y') -> None")
+    return ok
+
+
+def test_print_diff() -> bool:
+    return _check(helpers_util.print_diff("n", "a", "b") is None, "print_diff should return None")
+
+
+def test_is_equal() -> bool:
+    ok = _check(helpers_util._is_equal("t", 1, 1) is False, "_is_equal('t', 1, 1) -> False")
+    ok &= _check(helpers_util._is_equal("t", 1, 2) is True, "_is_equal('t', 1, 2) -> True")
+    ok &= _check(helpers_util._is_equal("t", "a", 1) is True, "_is_equal('t', 'a', 1) -> True")
+    ok &= _check(helpers_util._is_equal("t", True, False) is True, "_is_equal('t', True, False) -> True")
+    ok &= _check(helpers_util._is_equal("t", None, 1) is True, "_is_equal('t', None, 1) -> True")
+    ok &= _check(helpers_util._is_equal("t", 1, None) is True, "_is_equal('t', 1, None) -> True")
+    ok &= _check(helpers_util.is_equal("t", 1, 1) is False, "is_equal('t', 1, 1) -> False")
+    ok &= _check(helpers_util.is_equal("t", 1, 2) is True, "is_equal('t', 1, 2) -> True")
+    return ok
+
+
+def test_is_not_equal() -> bool:
+    ok = _check(helpers_util._is_not_equal("t", 1, 1) is True, "_is_not_equal('t', 1, 1) -> True")
+    ok &= _check(helpers_util._is_not_equal("t", 1, 2) is False, "_is_not_equal('t', 1, 2) -> False")
+    ok &= _check(helpers_util._is_not_equal("t", True, True) is True, "_is_not_equal('t', True, True) -> True")
+    ok &= _check(helpers_util._is_not_equal("t", None, 1) is True, "_is_not_equal('t', None, 1) -> True")
+    ok &= _check(helpers_util.is_not_equal("t", 1, 2) is False, "is_not_equal('t', 1, 2) -> False")
+    ok &= _check(helpers_util.is_not_equal("t", 1, 1) is True, "is_not_equal('t', 1, 1) -> True")
+    return ok
+
+
+def test_set_min_max() -> bool:
+    _min, _max = helpers_util.set_min_max(None, None, 1.0, 2.0)
+    ok = _check((_min, _max) == (1.0, 2.0), "set_min_max(None, None, 1.0, 2.0) -> (1.0, 2.0)")
+    _min, _max = helpers_util.set_min_max(SimpleNamespace(text="5"), SimpleNamespace(text="7.5"), 1.0, 2.0)
+    ok &= _check((_min, _max) == (5, 7.5), f"set_min_max with text boxes -> (5, 7.5), got {(_min, _max)}")
+    _min, _max = helpers_util.set_min_max(SimpleNamespace(text="abc"), None, 1.0, 2.0)
+    ok &= _check((_min, _max) == (1.0, 2.0), "set_min_max with non-float text keeps value")
+    return ok
+
+
+def test_get_num_subplots_rows_and_cols() -> bool:
+    ok = _check(helpers_util.get_num_subplots_rows_and_cols([1, 2, 3, 4]) == (4, 2, 2),
+                "4 subplots -> (4, 2, 2)")
+    ok &= _check(helpers_util.get_num_subplots_rows_and_cols([1]) == (1, 1, 1),
+                 "1 subplot -> (1, 1, 1)")
+    ok &= _check(helpers_util.get_num_subplots_rows_and_cols([1, 2]) == (2, 2, 1),
+                 "2 subplots -> (2, 2, 1)")
+    return ok
+
+
+def test_get_r() -> bool:
+    ok = _check(helpers_util.get_r(pd.DataFrame({"a": [1]})) == 1, "1 column -> r=1")
+    ok &= _check(helpers_util.get_r(pd.DataFrame({"a": [1], "b": [2]})) == 2, "2 columns -> r=2")
+    return ok
+
+
+def test_check_first_line_max() -> bool:
+    with tempfile.TemporaryDirectory() as tmp:
+        p = Path(tmp) / "result_min_max.txt"
+        p.write_text("max\n", encoding="utf-8")
+        ok = _check(helpers_util.check_first_line_max(tmp) is True, "first line 'max' -> True")
+        p.write_text("Max\n", encoding="utf-8")
+        ok &= _check(helpers_util.check_first_line_max(tmp) is True, "first line 'Max' -> True (case-insensitive)")
+        p.write_text("min\n", encoding="utf-8")
+        ok &= _check(helpers_util.check_first_line_max(tmp) is False, "first line 'min' -> False")
+    ok &= _check(helpers_util.check_first_line_max("/does/not/exist") is False, "missing file -> False")
+    return ok
+
+
+def test_get_result_name_or_default() -> bool:
+    with tempfile.TemporaryDirectory() as tmp:
+        ok = _check(helpers_util.get_result_name_or_default_from_csv_file_path(f"{tmp}/results.csv") == "result",
+                    "no result_names.txt -> 'result'")
+        (Path(tmp) / "result_names.txt").write_text("cost\n", encoding="utf-8")
+        ok &= _check(helpers_util.get_result_name_or_default_from_csv_file_path(f"{tmp}/results.csv") == "cost",
+                     "one-line result_names.txt -> 'cost'")
+        (Path(tmp) / "result_names.txt").write_text("a\nb\n", encoding="utf-8")
+        try:
+            helpers_util.get_result_name_or_default_from_csv_file_path(f"{tmp}/results.csv")
+        except ValueError:
+            ok &= True
+        else:
+            ok &= _check(False, "two-line result_names.txt should raise ValueError")
+    return ok
+
+
+def test_contains_strings() -> bool:
+    ok = _check(bool(helpers_util.contains_strings(pd.Series(["a", "b"]))),
+                "series with strings -> True")
+    ok &= _check(not bool(helpers_util.contains_strings(pd.Series([1, 2]))), "numeric series -> False")
+    ok &= _check(not bool(helpers_util.contains_strings(pd.Series([1.0, 2.0]))), "float series -> False")
+    return ok
+
+
+def test_file_exists() -> bool:
+    with tempfile.TemporaryDirectory() as tmp:
+        f = Path(tmp) / "f.csv"
+        f.write_text("a\n1\n", encoding="utf-8")
+        ok = _check(helpers_util.file_exists(str(f)) is True, "existing file -> True")
+    ok &= _check(helpers_util.file_exists("/nope/does/not/exist.csv") is False, "missing file -> False")
+    ok &= _check(helpers_util.file_exists(None) is False, "None -> False")
+    ok &= _check(helpers_util.file_exists(42) is False, "non-str -> False")
+    return ok
+
+
+def test_headers_match() -> bool:
+    df = pd.DataFrame({"b": [1], "a": [2]})
+    ok = _check(helpers_util.headers_match(df, "a,b") is True, "sorted headers match")
+    ok &= _check(helpers_util.headers_match(df, "a,c") is False, "mismatched headers -> False")
+    ok &= _check(helpers_util.headers_match(df, None) is True, "None old_headers -> True")
+    return ok
+
+
+def test_get_df_without_special_columns() -> bool:
+    df = pd.DataFrame({
+        "result": [1.0],
+        "trial_index": [0],
+        "OO_Info_x": ["a"],
+        "signal": ["ok"],
+        "hostname": ["h"],
+        "queue_time": [1],
+        "exit_code": [0],
+    })
+    out = helpers_util.get_df_without_special_columns(df)
+    return _check(list(out.columns) == ["result"], f"expected only 'result', got {list(out.columns)}")
+
+
+def test_get_df_filtered() -> bool:
+    with tempfile.TemporaryDirectory() as tmp:
+        args = SimpleNamespace(run_dir=tmp, allow_axes=[])
+        df = pd.DataFrame({"result": [1.0], "int_param": [2], "trial_index": [0]})
+        out = helpers_util.get_df_filtered(args, df)
+        ok = _check(list(out.columns) == ["result", "int_param"],
+                    f"expected [result, int_param], got {list(out.columns)}")
+        args = SimpleNamespace(run_dir=tmp, allow_axes=[["int_param"]])
+        out = helpers_util.get_df_filtered(args, df)
+        ok &= _check(list(out.columns) == ["result", "int_param"],
+                     f"allow_axes filtering broken: {list(out.columns)}")
+        return ok
+
+
+def test_get_non_empty_graphs() -> bool:
+    df = pd.DataFrame({"a": [1.0, 2.0]})
+    ok = _check(helpers_util.get_non_empty_graphs([("a",)], df, False) == [("a",)],
+                "single param with data -> [('a',)]")
+    df2 = pd.DataFrame({"a": [1.0, 2.0], "b": [3.0, 4.0]})
+    ok &= _check(helpers_util.get_non_empty_graphs([("a", "b")], df2, False) == [("a", "b")],
+                 "two params with data -> [('a', 'b')]")
+    df_empty = pd.DataFrame({"a": [np.nan, np.nan]})
+    ok &= _check(helpers_util.get_non_empty_graphs([("a",)], df_empty, False) == [],
+                 "all-empty column -> []")
+    df_missing = pd.DataFrame({"b": [1.0]})
+    ok &= _check(helpers_util.get_non_empty_graphs([("a",)], df_missing, False) == [],
+                 "missing column -> []")
+    return ok
+
+
+def test_is_valid_time_format() -> bool:
+    ok = _check(helpers_util.is_valid_time_format("2024-01-01 20:20:02") is True,
+                "valid timestamp -> True")
+    ok &= _check(helpers_util.is_valid_time_format("hallo") is False, "'hallo' -> False")
+    return ok
+
+
+def test_check_if_results_are_empty() -> bool:
+    ok = _check(helpers_util.check_if_results_are_empty(np.array([1.0, np.nan]), "f.csv") is None,
+                "non-empty results -> None")
+    ok &= _expect_exit(lambda: helpers_util.check_if_results_are_empty(np.array([np.nan, np.nan]), "f.csv"), 11,
+                       "all-NaN results")
+    return ok
+
+
+def test_drop_empty_results() -> bool:
+    no_result = helpers_util.NO_RESULT
+    df = pd.DataFrame({"result": [1.0, no_result, "-" + no_result, 3.0]})
+    out = helpers_util.drop_empty_results(df, "result")
+    return _check(list(out["result"]) == [1.0, 3.0], f"expected [1.0, 3.0], got {list(out['result'])}")
+
+
+def test_can_be_plotted() -> bool:
+    with tempfile.TemporaryDirectory() as tmp:
+        ok = _check(helpers_util.can_be_plotted(tmp) is True, "no result_names.txt -> True")
+        (Path(tmp) / "result_names.txt").write_text("r\n", encoding="utf-8")
+        ok &= _check(helpers_util.can_be_plotted(tmp) is True, "one line -> True")
+        (Path(tmp) / "result_names.txt").write_text("a\nb\n", encoding="utf-8")
+        ok &= _check(helpers_util.can_be_plotted(tmp) is False, "two lines -> False")
+    return ok
+
+
+def test_die_if_cannot_be_plotted() -> bool:
+    ok = _expect_exit(lambda: helpers_util.die_if_cannot_be_plotted(None), 2, "None run_dir")
+    with tempfile.TemporaryDirectory() as tmp:
+        (Path(tmp) / "result_names.txt").write_text("a\nb\n", encoding="utf-8")
+        ok &= _expect_exit(lambda: helpers_util.die_if_cannot_be_plotted(tmp), 2, "multiple results")
+        (Path(tmp) / "result_names.txt").write_text("a\n", encoding="utf-8")
+        ok &= _check(helpers_util.die_if_cannot_be_plotted(tmp) is None, "plotable dir -> None")
+    return ok
+
+
+def test_get_colors() -> bool:
+    df = pd.DataFrame({"result": [1.0, 2.0]})
+    colors = helpers_util.get_colors(df, "/tmp/x/results.csv")
+    ok = _check(list(colors) == [1.0, 2.0], "get_colors returns result column")
+    ok &= _expect_exit(lambda: helpers_util.get_colors(pd.DataFrame({"a": [1.0]}), "/tmp/x/results.csv"), 3,
+                       "missing result column")
+    return ok
+
+
+def test_handle_update_graph_exception() -> bool:
+    ok = _check(helpers_util._handle_update_graph_exception("invalid command name x") is None,
+                "'invalid command name' is ignored")
+    ok &= _check(helpers_util._handle_update_graph_exception("boom") is None, "other errors -> None")
+    return ok
+
+
+def test_print_if_not_plot_tests_and_exit() -> bool:
+    with _env("PLOT_TESTS", None):
+        ok = _check(helpers_util.print_if_not_plot_tests_and_exit("msg", None) == "msg",
+                    "exit_code=None returns msg")
+        ok &= _expect_exit(lambda: helpers_util.print_if_not_plot_tests_and_exit("msg", 5), 5,
+                           "exit_code=5")
+    return ok
+
+
+def test_check_min_and_max() -> bool:
+    ok = _check(helpers_util.check_min_and_max(0, 3, "f.csv", _min=1.0, _max=None, _exit=False) is None,
+                "filtered-out results, _exit=False -> None")
+    ok &= _expect_exit(lambda: helpers_util.check_min_and_max(0, 0, "f.csv"), 4, "no results at all")
+    with _env("NO_NO_RESULT_ERROR", "1"):
+        ok &= _check(helpers_util.check_min_and_max(0, 0, "f.csv", _exit=False) is None,
+                     "NO_NO_RESULT_ERROR set -> still returns None with _exit=False")
+    ok &= _check(helpers_util.check_min_and_max(5, 5, "f.csv", _exit=False) is None,
+                 "non-zero num_entries -> None")
+    return ok
+
+
+def test_filter_by_result_range() -> bool:
+    df = pd.DataFrame({"result": [1.0, 5.0, np.nan]})
+    out = helpers_util.filter_by_result_range(df, "result", 2.0, None)
+    ok = _check(list(out["result"]) == [5.0], f"min filter broken: {list(out['result'])}")
+    out = helpers_util.filter_by_result_range(df, "result", None, 1.0)
+    ok &= _check(list(out["result"]) == [1.0], "max filter broken")
+    ok &= _expect_exit(lambda: helpers_util.filter_by_result_range(df, "missing_col", None, None), 10,
+                       "missing result column")
+    return ok
+
+
+def test_handle_missing_result_column() -> bool:
+    with _env("NO_NO_RESULT_ERROR", "1"):
+        return _expect_exit(lambda: helpers_util.handle_missing_result_column("result"), 10,
+                            "handle_missing_result_column")
+
+
+def test_get_data() -> bool:
+    ok = _check(helpers_util.get_data("/nope/results.csv", None, None) is None,
+                "missing file -> None")
+    ok &= _check(helpers_util.get_data(42, None, None) is None, "non-str path -> None")
+    with tempfile.TemporaryDirectory() as tmp:
+        csv_path = f"{tmp}/results.csv"
+        with open(csv_path, "w", newline="", encoding="utf-8") as f:
+            w = csv.writer(f)
+            w.writerow(["trial_index", "result", "param"])
+            w.writerow(["0", "1.5", "3"])
+            w.writerow(["1", "4.0", "4"])
+        df = helpers_util.get_data(csv_path, 2.0, None)
+        ok &= _check(df is not None and len(df) == 1, "get_data should filter by min")
+        ok &= _check(helpers_util.get_data(csv_path, None, None, old_headers_string="zzz") is None,
+                     "header mismatch -> None")
+    return ok
+
+
+def test_show_legend() -> bool:
+    with tempfile.TemporaryDirectory() as tmp:
+        args = SimpleNamespace(no_legend=True, run_dir=tmp)
+        ok = _check(helpers_util.show_legend(args, object(), None, None) is None,
+                    "no_legend=True -> None")
+        args = SimpleNamespace(no_legend=False, run_dir=tmp)
+        ok &= _check(helpers_util.show_legend(args, object(), None, None) is None,
+                     "colorbar failure handled")
+    return ok
+
+
+def test_get_parameter_combinations() -> bool:
+    with tempfile.TemporaryDirectory() as tmp:
+        csv_path = f"{tmp}/results.csv"
+        df = pd.DataFrame({"result": [1.0], "a": [2.0], "b": [3.0]})
+        combos = helpers_util.get_parameter_combinations(df, csv_path)
+        ok = _check(combos == [("a", "b")], f"expected [('a','b')], got {combos}")
+        df1 = pd.DataFrame({"result": [1.0], "a": [2.0]})
+        combos = helpers_util.get_parameter_combinations(df1, csv_path)
+        ok &= _check(combos == ["a"], f"single param: expected ['a'], got {combos}")
+        df0 = pd.DataFrame({"result": [1.0]})
+        combos = helpers_util.get_parameter_combinations(df0, csv_path)
+        ok &= _check(combos == [], f"no params: expected [], got {combos}")
+        return ok
+
+
+def test_unidiff_output() -> bool:
+    diff = helpers_util._unidiff_output("a\nb\n", "a\nc\n")
+    return _check(isinstance(diff, str), "unidiff output should be a string")
+
+
+def test_dier() -> bool:
+    return _check(helpers_util.dier("hello", exit=False) is None, "dier(exit=False) -> None")
+
+
+def test_load_csv() -> bool:
+    with tempfile.TemporaryDirectory() as tmp:
+        p = Path(tmp) / "r.csv"
+        p.write_text("a,b\n1,2\n", encoding="utf-8")
+        df = helpers_util.load_csv(str(p))
+        ok = _check(list(df.columns) == ["b"], f"index_col=0 should drop 'a', got {list(df.columns)}")
+        return ok
+
+
+def test_drop_string_columns() -> bool:
+    df = pd.DataFrame({"result": [1.0, 2.0], "a": ["x", "y"], "b": [3, 4]})
+    out = helpers_util.drop_string_columns(df)
+    ok = _check(list(out.columns) == ["result", "b"], f"expected [result, b], got {list(out.columns)}")
+    df_all_str = pd.DataFrame({"a": ["x", "y"]})
+    ok &= _expect_exit(lambda: helpers_util.drop_string_columns(df_all_str), 19,
+                       "all-string columns")
+    return ok
+
+
+def test_handle_csv_exceptions() -> bool:
+    ok = _expect_exit(lambda: helpers_util.handle_csv_exceptions("f.csv", pd.errors.EmptyDataError()), 19,
+                      "EmptyDataError -> 19")
+    ok &= _expect_exit(lambda: helpers_util.handle_csv_exceptions("f.csv", pd.errors.ParserError("x")), 12,
+                       "ParserError -> 12")
+    ok &= _expect_exit(
+        lambda: helpers_util.handle_csv_exceptions("f.csv", UnicodeDecodeError("utf-8", b"", 0, 1, "x")), 7,
+        "UnicodeDecodeError -> 7",
+    )
+    ok &= _expect_exit(lambda: helpers_util.handle_csv_exceptions("f.csv", ValueError("x")), 1,
+                       "unknown error -> 1")
+    return ok
+
+
+def test_filter_data() -> bool:
+    with tempfile.TemporaryDirectory() as tmp:
+        args = SimpleNamespace(run_dir=tmp)
+        df = pd.DataFrame({"result": [1.0, 5.0]})
+        out = helpers_util.filter_data(args, df, min_value=2.0)
+        ok = _check(list(out["result"]) == [5.0], "min filter broken")
+        out = helpers_util.filter_data(args, df, max_value=1.0)
+        ok &= _check(list(out["result"]) == [1.0], "max filter broken")
+        ok &= _check(helpers_util.filter_data(args, df) is not None, "no filters -> same df")
+        bad = pd.DataFrame({"a": [1.0]})
+        ok &= _expect_exit(lambda: helpers_util.filter_data(args, bad, min_value=1.0), 19,
+                           "missing result column")
+        return ok
+
+
+def test_check_path() -> bool:
+    with tempfile.TemporaryDirectory() as tmp:
+        ok = _check(helpers_util.check_path(tmp) is None, "existing dir -> None")
+    ok &= _expect_exit(lambda: helpers_util.check_path("/does/not/exist"), 1, "missing dir")
+    return ok
+
+
+def test_get_csv_file_path() -> bool:
+    with tempfile.TemporaryDirectory() as tmp:
+        Path(tmp, "results.csv").write_text("a\n1\n", encoding="utf-8")
+        args = SimpleNamespace(run_dir=tmp)
+        ok = _check(helpers_util.get_csv_file_path(args) == f"{tmp}/results.csv",
+                    "happy path returns results.csv path")
+        args = SimpleNamespace(run_dir="/does/not/exist")
+        ok &= _expect_exit(lambda: helpers_util.get_csv_file_path(args), 11, "run_dir not a folder")
+        args = SimpleNamespace(run_dir=tmp)
+        (Path(tmp) / "results.csv").unlink()
+        ok &= _expect_exit(lambda: helpers_util.get_csv_file_path(args), 39, "missing results.csv")
+        return ok
+
+
+def test_print_traceback() -> bool:
+    return _check(helpers_util.print_traceback() is None, "print_traceback -> None")
+
+
+def test_print_filtering_message() -> bool:
+    ok = _check(helpers_util.print_filtering_message(1.0, None) is None, "min only")
+    ok &= _check(helpers_util.print_filtering_message(None, 1.0) is None, "max only")
+    ok &= _check(helpers_util.print_filtering_message(1.0, 2.0) is None, "min and max")
+    ok &= _check(helpers_util.print_filtering_message(None, None) is None, "neither")
+    return ok
+
+
+def test_print_no_results_message() -> bool:
+    ok = _check(helpers_util.print_no_results_message("f.csv", 1.0, 2.0) is None, "min and max")
+    ok &= _check(helpers_util.print_no_results_message("f.csv", 1.0, None) is None, "min only")
+    ok &= _check(helpers_util.print_no_results_message("f.csv", None, 1.0) is None, "max only")
+    ok &= _check(helpers_util.print_no_results_message("f.csv", None, None) is None, "neither")
+    return ok
+
+
+def test_get_result_column_values() -> bool:
+    with tempfile.TemporaryDirectory() as tmp:
+        df = pd.DataFrame({"result": [1.0, 2.0]})
+        vals = helpers_util.get_result_column_values(df, f"{tmp}/results.csv")
+        ok = _check(list(vals) == [1.0, 2.0], f"unexpected values: {list(vals)}")
+        return ok
+
+
+def test_merge_df_with_old_data() -> bool:
+    df = pd.DataFrame({"result": [1.0], "param": [2]})
+    args = SimpleNamespace(merge_with_previous_runs=[])
+    out = helpers_util.merge_df_with_old_data(args, df, None, None, "param,result")
+    ok = _check(len(out) == 1, "no previous runs -> unchanged")
+    with tempfile.TemporaryDirectory() as tmp:
+        prev_dir = Path(tmp) / "prev_run" / "0"
+        prev_dir.mkdir(parents=True)
+        with open(prev_dir / "results.csv", "w", newline="", encoding="utf-8") as f:
+            w = csv.writer(f)
+            w.writerow(["trial_index", "result", "param"])
+            w.writerow(["0", "5.0", "6"])
+        args = SimpleNamespace(merge_with_previous_runs=[[str(prev_dir)]])
+        out = helpers_util.merge_df_with_old_data(args, df, None, None, "param,result")
+        ok &= _check(len(out) == 2, f"expected 2 rows after merge, got {len(out)}")
+        return ok
+
+
+def test_get_color_list() -> bool:
+    import matplotlib.pyplot as plt
+    with tempfile.TemporaryDirectory() as tmp:
+        df = pd.DataFrame({"result": [1.0, 2.0]})
+        cmap, norm, colors = helpers_util.get_color_list(df, SimpleNamespace(run_dir=tmp), plt, f"{tmp}/results.csv")
+        ok = _check(norm is not None and list(colors) == [1.0, 2.0],
+                    f"get_color_list unexpected: colors={list(colors)}")
+        return ok
+
+
+def test_hide_empty_plots() -> bool:
+    import matplotlib.pyplot as plt
+    fig, axs = plt.subplots(2, 2)
+    out = helpers_util.hide_empty_plots(["x"], 2, 2, axs)
+    ok = _check(axs[0, 0].get_visible(), "first subplot stays visible")
+    ok &= _check(not axs[1, 0].get_visible(), "second-row subplot hidden")
+    ok &= _check(out is axs, "returns the axes array")
+    plt.close(fig)
+    return ok
+
+
+def test_random_generator_main_errors() -> bool:
+    old_argv = sys.argv
+    sys.argv = ["script"]
+    ok = _expect_exit(lambda: random_gen.main(), 1, "wrong argv count")
+    sys.argv = ["script", "/does/not/exist"]
+    ok &= _expect_exit(lambda: random_gen.main(), 2, "path not a folder")
+    with tempfile.TemporaryDirectory() as tmp:
+        sys.argv = ["script", tmp]
+        ok &= _expect_exit(lambda: random_gen.main(), 3, "missing input.json")
+        Path(tmp, "input.json").write_text("{not json", encoding="utf-8")
+        ok &= _expect_exit(lambda: random_gen.main(), 4, "invalid JSON")
+    sys.argv = old_argv
+    return ok
+
+
+def test_tpe_main_errors() -> bool:
+    old_argv = sys.argv
+    sys.argv = ["script"]
+    ok = _expect_exit(lambda: tpe_mod.main(), 1, "wrong argv count")
+    sys.argv = ["script", "/does/not/exist"]
+    ok &= _expect_exit(lambda: tpe_mod.main(), 2, "path not a folder")
+    with tempfile.TemporaryDirectory() as tmp:
+        sys.argv = ["script", tmp]
+        ok &= _expect_exit(lambda: tpe_mod.main(), 3, "missing input.json")
+        Path(tmp, "input.json").write_text("{not json", encoding="utf-8")
+        ok &= _expect_exit(lambda: tpe_mod.main(), 4, "invalid JSON")
+    sys.argv = old_argv
+    return ok
+
+
+def test_generate_tpe_point_with_trials() -> bool:
+    data = {
+        "parameters": {"x": {"parameter_type": "RANGE", "range": (0, 10), "type": "INT"}},
+        "constraints": ["x >= 0"],
+        "seed": 1234,
+        "trials": [[{"x": 1}, {"result": 0.5}], [{"x": 2}, {"result": 0.2}]],
+        "objectives": {"result": "min"},
+    }
+    point = tpe_mod.generate_tpe_point(data, extra_iters=2)
+    ok = _check(isinstance(point, dict) and "x" in point, f"unexpected point: {point}")
+    ok &= _check(isinstance(point["x"], int), f"x should be an int, got {type(point['x'])}")
+    return ok
+
+
+# ---------------------------------------------------------------------------
+# .pareto.py
+# ---------------------------------------------------------------------------
+
+def test_validate_xy() -> bool:
+    ok = _check(pareto_mod._validate_xy(np.array([1.0]), np.array([2.0])) is None,
+                "valid inputs -> None")
+    try:
+        pareto_mod._validate_xy(np.array([1.0, 2.0]), np.array([1.0]))
+    except ValueError:
+        ok &= True
+    else:
+        ok &= _check(False, "shape mismatch should raise ValueError")
+    try:
+        pareto_mod._validate_xy(np.array([]), np.array([]))
+    except ValueError:
+        ok &= True
+    else:
+        ok &= _check(False, "empty arrays should raise ValueError")
+    try:
+        pareto_mod._validate_xy(np.array([np.nan]), np.array([1.0]))
+    except ValueError:
+        ok &= True
+    else:
+        ok &= _check(False, "NaN should raise ValueError")
+    return ok
+
+
+def test_point_dominates() -> bool:
+    ok = _check(pareto_mod._point_dominates(2, 2, 1, 1, True, True) is True,
+                "min/min: (1,1) dominates (2,2)")
+    ok &= _check(pareto_mod._point_dominates(1, 1, 2, 2, True, True) is False,
+                 "min/min: (2,2) does not dominate (1,1)")
+    ok &= _check(pareto_mod._point_dominates(2, 2, 1, 2, True, True) is True,
+                 "min/min: strict in x only")
+    ok &= _check(pareto_mod._point_dominates(2, 2, 2, 2, True, True) is False,
+                 "equal points do not dominate")
+    ok &= _check(pareto_mod._point_dominates(1, 1, 2, 2, False, False) is True,
+                 "max/max: (2,2) dominates (1,1)")
+    return ok
+
+
+def test_find_dominated() -> bool:
+    dom = pareto_mod._find_dominated(np.array([3.0, 1.0]), np.array([3.0, 2.0]), True, True)
+    ok = _check(list(dom) == [True, False], f"expected [True, False], got {list(dom)}")
+    dom2 = pareto_mod._find_dominated(np.array([1.0, 1.0]), np.array([1.0, 1.0]), True, True)
+    ok &= _check(list(dom2) == [False, False], f"duplicates should not dominate: {list(dom2)}")
+    return ok
+
+
+def test_pareto_front_general() -> bool:
+    idx = pareto_mod.pareto_front_general(np.array([3.0, 1.0]), np.array([3.0, 2.0]))
+    ok = _check(list(idx) == [1], f"min/min pareto: expected [1], got {list(idx)}")
+    idx = pareto_mod.pareto_front_general(np.array([1.0, 3.0]), np.array([1.0, 3.0]),
+                                          x_minimize=False, y_minimize=False)
+    ok &= _check(list(idx) == [1], f"max/max pareto: expected [1], got {list(idx)}")
+    empty = pareto_mod.pareto_front_general(np.array([1.0, np.nan]), np.array([1.0, 2.0]))
+    ok &= _check(isinstance(empty, np.ndarray) and len(empty) == 0, "non-finite input -> empty array")
+    return ok
+
+
+def test_pareto_front_filter_complete_points() -> bool:
+    records = {
+        (0, "a"): {"means": {"r1": 1.0, "r2": 2.0}},
+        (1, "b"): {"means": {"r1": 3.0}},
+    }
+    points = pareto_mod.pareto_front_filter_complete_points("/tmp", records, "r1", "r2")
+    ok = _check(points == [((0, "a"), 1.0, 2.0)], f"expected single point, got {points}")
+    try:
+        pareto_mod.pareto_front_filter_complete_points("/tmp", {(0, "a"): {"means": {"r1": 1.0}}}, "r1", "r2")
+    except ValueError:
+        ok &= True
+    else:
+        ok &= _check(False, "no complete points should raise ValueError")
+    return ok
+
+
+def test_pareto_front_select_pareto_points() -> bool:
+    x = np.array([1.0, 2.0])
+    y = np.array([1.0, 2.0])
+    points = [(0, 1.0, 1.0), (1, 2.0, 2.0)]
+    selected = pareto_mod.pareto_front_select_pareto_points(x, y, True, True, points, 1)
+    ok = _check(selected == [(0, 1.0, 1.0)], f"expected [(0, 1.0, 1.0)], got {selected}")
+    return ok
+
+
+def test_pareto_front_table_filter_rows() -> bool:
+    rows = [
+        {"trial_index": "1", "trial_status": "COMPLETED"},
+        {"trial_index": "3", "trial_status": "COMPLETED"},
+        {"trial_index": "2", "trial_status": "RUNNING"},
+        {"trial_index": "abc", "trial_status": "COMPLETED"},
+        {},
+    ]
+    out = pareto_mod.pareto_front_table_filter_rows(rows, [1])
+    ok = _check(len(out) == 1 and out[0]["trial_index"] == "1",
+                f"expected one row with index 1, got {out}")
+    return ok
+
+
+def test_pareto_front_table_add_headers() -> bool:
+    table = Table()
+    pareto_mod.pareto_front_table_add_headers(table, ["a", "b"], ["c", "d"])
+    return _check(len(table.columns) == 4, f"expected 4 columns, got {len(table.columns)}")
+
+
+def test_pareto_front_table_add_rows() -> bool:
+    table = Table()
+    pareto_mod.pareto_front_table_add_headers(table, ["a"], ["b"])
+    pareto_mod.pareto_front_table_add_rows(
+        table,
+        [{"a": "1", "b": "2.5"}, {"a": "3", "b": "4"}],
+        ["a"],
+        ["b"],
+    )
+    return _check(table.row_count == 2, f"expected 2 rows, got {table.row_count}")
+
+
+# ---------------------------------------------------------------------------
+# .random_generator.py
+# ---------------------------------------------------------------------------
+
+def test_check_constraint() -> bool:
+    ok = _check(random_gen.check_constraint("x > 3", {"x": 5}) is True, "x > 3 with 5 -> True")
+    ok &= _check(random_gen.check_constraint("x > 3", {"x": 1}) is False, "x > 3 with 1 -> False")
+    return ok
+
+
+def test_constraints_not_ok() -> bool:
+    ok = _check(random_gen.constraints_not_ok([], {}) is True, "empty constraints -> True")
+    ok &= _check(random_gen.constraints_not_ok(["x > 3"], {"x": 5}) is False, "satisfied constraint -> False")
+    ok &= _check(random_gen.constraints_not_ok(["x > 3"], {"x": 1}) is True, "violated constraint -> True")
+    return ok
+
+
+def test_generate_random_value() -> bool:
+    random_gen.random.seed(42)
+    v = random_gen.generate_random_value({"parameter_type": "RANGE", "range": (0, 10), "type": "INT"})
+    ok = _check(isinstance(v, int) and 0 <= v <= 10, f"RANGE INT out of bounds: {v}")
+    v = random_gen.generate_random_value({"parameter_type": "RANGE", "range": (0.0, 1.0), "type": "FLOAT"})
+    ok &= _check(isinstance(v, float) and 0.0 <= v <= 1.0, f"RANGE FLOAT out of bounds: {v}")
+    v = random_gen.generate_random_value({"parameter_type": "CHOICE", "values": [1, 2, 3], "type": "INT"})
+    ok &= _check(v in [1, 2, 3], f"CHOICE INT not in values: {v}")
+    v = random_gen.generate_random_value({"parameter_type": "CHOICE", "values": ["a", "b"], "type": "STRING"})
+    ok &= _check(v in ["a", "b"], f"CHOICE STRING not in values: {v}")
+    v = random_gen.generate_random_value({"parameter_type": "FIXED", "value": 5})
+    ok &= _check(v == 5, f"FIXED -> 5, got {v}")
+    ok &= _expect_exit(
+        lambda: random_gen.generate_random_value({"type": "INT"}), 4,
+        "missing parameter_type -> exit 4",
+    )
+    return ok
+
+
+def test_generate_random_point() -> bool:
+    data = {
+        "constraints": [],
+        "parameters": {
+            "x": {"parameter_type": "RANGE", "range": (0, 10), "type": "INT"},
+            "y": {"parameter_type": "FIXED", "value": "fixed_val"},
+        },
+    }
+    random_gen.random.seed(7)
+    point = random_gen.generate_random_point(data)
+    ok = _check(set(point.keys()) == {"x", "y"}, f"unexpected point: {point}")
+    ok &= _check(point["y"] == "fixed_val", "fixed value should be preserved")
+    data2 = {
+        "constraints": ["x > 5"],
+        "parameters": {"x": {"parameter_type": "RANGE", "range": (0, 10), "type": "INT"}},
+    }
+    random_gen.random.seed(3)
+    point2 = random_gen.generate_random_point(data2)
+    ok &= _check(point2["x"] > 5, f"constraint violated: {point2}")
+    return ok
+
+
+def test_random_generator_main() -> bool:
+    with tempfile.TemporaryDirectory() as tmp:
+        data = {"constraints": [], "parameters": {"x": {"parameter_type": "FIXED", "value": 9}}}
+        with open(f"{tmp}/input.json", "w", encoding="utf-8") as f:
+            json.dump(data, f)
+        old_argv = sys.argv
+        sys.argv = ["script", tmp]
+        try:
+            random_gen.main()
+        finally:
+            sys.argv = old_argv
+        out = json.loads(Path(f"{tmp}/results.json").read_text(encoding="utf-8"))
+        ok = _check(out == {"parameters": {"x": 9}}, f"unexpected results.json: {out}")
+    return ok
+
+
+# ---------------------------------------------------------------------------
+# .tpe.py
+# ---------------------------------------------------------------------------
+
+def test_build_space() -> bool:
+    space = tpe_mod.build_space({
+        "xi": {"parameter_type": "RANGE", "range": (0, 10), "type": "INT"},
+        "xf": {"parameter_type": "RANGE", "range": (0.0, 1.0), "type": "FLOAT"},
+        "c": {"parameter_type": "CHOICE", "values": [1, 2, 3]},
+        "f": {"parameter_type": "FIXED", "value": 7},
+    })
+    ok = _check(set(space.keys()) == {"xi", "xf", "c", "f"}, f"unexpected space: {set(space.keys())}")
+    try:
+        tpe_mod.build_space({"x": {"parameter_type": "RANGE", "range": (0, 1), "type": "STR"}})
+    except ValueError:
+        ok &= True
+    else:
+        ok &= _check(False, "unsupported RANGE type should raise ValueError")
+    try:
+        tpe_mod.build_space({"x": {"parameter_type": "BOGUS"}})
+    except ValueError:
+        ok &= True
+    else:
+        ok &= _check(False, "unknown parameter_type should raise ValueError")
+    return ok
+
+
+def test_tpe_check_constraint() -> bool:
+    ok = _check(tpe_mod.check_constraint("x > 3", {"x": 5}) is True, "x > 3 with 5 -> True")
+    ok &= _check(tpe_mod.check_constraint("x > 3", {"x": 1}) is False, "x > 3 with 1 -> False")
+    return ok
+
+
+def test_constraint_violated() -> bool:
+    ok = _check(tpe_mod.constraint_violated([], {}) is False, "no constraints -> False")
+    ok &= _check(tpe_mod.constraint_violated(["x > 3"], {"x": 1}) is True, "violated -> True")
+    ok &= _check(tpe_mod.constraint_violated(["x > 3"], {"x": 5}) is False, "satisfied -> False")
+    return ok
+
+
+def test_parse_objectives() -> bool:
+    ok = _check(tpe_mod.parse_objectives({"result": "min"}) == ("minimize", "result"),
+                "min -> minimize")
+    ok &= _check(tpe_mod.parse_objectives({"result": "MAX"}) == ("maximize", "result"),
+                 "MAX -> maximize")
+    try:
+        tpe_mod.parse_objectives({"a": "min", "b": "min"})
+    except ValueError:
+        ok &= True
+    else:
+        ok &= _check(False, "multiple objectives should raise ValueError")
+    try:
+        tpe_mod.parse_objectives({"a": "sideways"})
+    except ValueError:
+        ok &= True
+    else:
+        ok &= _check(False, "invalid direction should raise ValueError")
+    return ok
+
+
+def test_extract_known_trials() -> bool:
+    trials = [[{"x": 1, "y": 2}], [{"result": 5.0}]]
+    out = tpe_mod.extract_known_trials(trials, "result")
+    ok = _check(out == [({"x": 1, "y": 2}, 5.0)], f"unexpected trials: {out}")
+    ok &= _check(tpe_mod.extract_known_trials([[{"x": 1}], [{"other": 5.0}]], "result") == [],
+                 "missing result key -> []")
+    ok &= _check(tpe_mod.extract_known_trials([1], "result") == [], "wrong length -> []")
+    ok &= _check(tpe_mod.extract_known_trials([1, 2], "result") == [], "non-list elements -> []")
+    return ok
+
+
+def test_dummy_loss() -> bool:
+    with _env("OMNIOPT_TPE_EXTRA_ITERS", None):
+        out = tpe_mod._dummy_loss({"x": 1}, ["x > 3"], 1e6)
+        ok = _check(out["loss"] == 1e6, f"violated constraint -> penalty, got {out}")
+        out = tpe_mod._dummy_loss({"x": 5}, ["x > 3"], 1e6)
+        ok &= _check(out["loss"] == 0.0, f"valid point -> 0.0, got {out}")
+        return ok
+
+
+def test_make_objective() -> bool:
+    known = [({"x": 1}, 0.5)]
+    objective = tpe_mod.make_objective(known, [], "minimize")
+    r1 = objective({"x": 1})
+    r2 = objective({"x": 2})
+    r3 = objective({"x": 3})
+    ok = _check(r1["loss"] == 0.5, f"replay should return recorded loss, got {r1}")
+    ok &= _check(r2["loss"] == 0.0, f"post-replay -> dummy loss, got {r2}")
+    ok &= _check(r3["loss"] == 0.0, f"post-replay stays dummy, got {r3}")
+    return ok
+
+
+def test_decode_trial() -> bool:
+    parameters = {
+        "xi": {"parameter_type": "RANGE", "range": (0, 10), "type": "INT"},
+        "xf": {"parameter_type": "RANGE", "range": (0.0, 1.0), "type": "FLOAT"},
+        "c": {"parameter_type": "CHOICE", "values": ["a", "b", "c"]},
+        "f": {"parameter_type": "FIXED", "value": 7},
+    }
+    vals = {"xi": [2.7], "xf": [0.5], "c": [1], "f": [99], "unknown": [3]}
+    point = tpe_mod._decode_trial(vals, parameters)
+    ok = _check(point["xi"] == 3, f"INT should round, got {point['xi']}")
+    ok &= _check(point["xf"] == 0.5, f"FLOAT should stay float, got {point['xf']}")
+    ok &= _check(point["c"] == "b", f"CHOICE should map to value, got {point['c']}")
+    ok &= _check(point["f"] == 7, f"FIXED should use configured value, got {point['f']}")
+    ok &= _check(point["unknown"] == 3, f"unknown params pass through, got {point['unknown']}")
+    empty = tpe_mod._decode_trial({"xi": []}, parameters)
+    ok &= _check(empty["xi"] is None, f"empty vals -> None, got {empty['xi']}")
+    return ok
+
+
+def test_generate_tpe_point() -> bool:
+    data = {
+        "parameters": {"x": {"parameter_type": "RANGE", "range": (0, 10), "type": "INT"}},
+        "constraints": [],
+        "seed": 42,
+        "trials": [],
+        "objectives": {"result": "min"},
+    }
+    point = tpe_mod.generate_tpe_point(data, extra_iters=3)
+    ok = _check(isinstance(point, dict) and "x" in point, f"unexpected point: {point}")
+    ok &= _check(isinstance(point["x"], int), f"x should be an int, got {type(point['x'])}")
+    return ok
+
+
+def test_resolve_extra_iters() -> bool:
+    with _env("OMNIOPT_TPE_EXTRA_ITERS", None):
+        ok = _check(tpe_mod._resolve_extra_iters() == 50, "unset -> 50")
+    with _env("OMNIOPT_TPE_EXTRA_ITERS", "10"):
+        ok &= _check(tpe_mod._resolve_extra_iters() == 10, "'10' -> 10")
+    with _env("OMNIOPT_TPE_EXTRA_ITERS", "-5"):
+        ok &= _check(tpe_mod._resolve_extra_iters() == 0, "'-5' -> 0")
+    with _env("OMNIOPT_TPE_EXTRA_ITERS", "abc"):
+        ok &= _check(tpe_mod._resolve_extra_iters() == 50, "'abc' -> 50 (fallback)")
+    return ok
+
+
+# ---------------------------------------------------------------------------
+# .general.py
+# ---------------------------------------------------------------------------
+
+def test_debug_code() -> bool:
+    buf = io.StringIO()
+    with _env("DEBUG", None), contextlib.redirect_stderr(buf):
+        general_mod.debug_code("hi")
+    ok = _check(buf.getvalue() == "", "no DEBUG -> no output")
+    buf = io.StringIO()
+    with _env("DEBUG", "1"), contextlib.redirect_stderr(buf):
+        general_mod.debug_code("hi")
+    ok &= _check("hi" in buf.getvalue(), "DEBUG=1 -> output")
+    return ok
+
+
+def test_echo_red_green() -> bool:
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        general_mod.echo_red("red")
+        general_mod.echo_green("green")
+    out = buf.getvalue()
+    ok = _check("\033[31mred\033[0m" in out, f"red output missing: {out!r}")
+    ok &= _check("\033[32mgreen\033[0m" in out, f"green output missing: {out!r}")
+    return ok
+
+
+def test_terminal_size() -> bool:
+    size = general_mod._terminal_size()
+    return _check(len(size) == 2 and all(isinstance(v, int) for v in size),
+                  f"expected (lines, cols), got {size}")
+
+
+def test_error_message() -> bool:
+    return _check(general_mod.error_message("boom") == 0, "error_message returns 0")
+
+
+def test_find_free_port() -> bool:
+    port = general_mod._find_free_port()
+    return _check(isinstance(port, int) and port > 0, f"expected a positive port, got {port}")
+
+
+def test_hostname_for_forwarding() -> bool:
+    with mock.patch("general_mod.socket.gethostname", return_value="node1.taurus.hr"):
+        host = general_mod._hostname_for_forwarding()
+    ok = _check(host == "node1.hr", f"taurus domain should be stripped, got {host}")
+    with mock.patch("general_mod.socket.gethostname", return_value="node1"):
+        host = general_mod._hostname_for_forwarding()
+    ok &= _check(host == "node1", f"plain hostname unchanged, got {host}")
+    return ok
+
+
+def test_spin_up_temporary_webserver() -> bool:
+    with _env("DISPLAY", None):
+        rc = general_mod.spin_up_temporary_webserver("/does/not/exist", "x.csv")
+        ok = _check(rc == 1, "missing directory -> 1")
+    with tempfile.TemporaryDirectory() as tmp, _env("DISPLAY", None):
+        rc = general_mod.spin_up_temporary_webserver(tmp, "x.csv")
+        ok &= _check(rc == 0, f"existing directory -> 0, got {rc}")
+    return ok
+
+
+def test_is_x86_64() -> bool:
+    return _check(isinstance(general_mod._is_x86_64(), bool), "_is_x86_64() should return a bool")
+
+
+TESTS = [
+    # .helpers.py
+    test_starts_with_oo_info,
+    test_starts_with_oo_info_type_error,
+    test_check_environment_variable,
+    test_in_venv,
+    test_looks_like_float,
+    test_looks_like_int,
+    test_looks_like_number,
+    test_to_int_when_possible,
+    test_flatten_extend,
+    test_convert_string_to_number,
+    test_log_error,
+    test_print_color,
+    test_print_diff,
+    test_is_equal,
+    test_is_not_equal,
+    test_set_min_max,
+    test_get_num_subplots_rows_and_cols,
+    test_get_r,
+    test_check_first_line_max,
+    test_get_result_name_or_default,
+    test_contains_strings,
+    test_file_exists,
+    test_headers_match,
+    test_get_df_without_special_columns,
+    test_get_df_filtered,
+    test_get_non_empty_graphs,
+    test_is_valid_time_format,
+    test_check_if_results_are_empty,
+    test_drop_empty_results,
+    test_can_be_plotted,
+    test_die_if_cannot_be_plotted,
+    test_get_colors,
+    test_handle_update_graph_exception,
+    test_print_if_not_plot_tests_and_exit,
+    test_check_min_and_max,
+    test_filter_by_result_range,
+    test_handle_missing_result_column,
+    test_get_data,
+    test_show_legend,
+    test_get_parameter_combinations,
+    test_unidiff_output,
+    test_dier,
+    test_load_csv,
+    test_drop_string_columns,
+    test_handle_csv_exceptions,
+    test_filter_data,
+    test_check_path,
+    test_get_csv_file_path,
+    test_print_traceback,
+    test_print_filtering_message,
+    test_print_no_results_message,
+    test_get_result_column_values,
+    test_merge_df_with_old_data,
+    test_get_color_list,
+    test_hide_empty_plots,
+    # .pareto.py
+    test_validate_xy,
+    test_point_dominates,
+    test_find_dominated,
+    test_pareto_front_general,
+    test_pareto_front_filter_complete_points,
+    test_pareto_front_select_pareto_points,
+    test_pareto_front_table_filter_rows,
+    test_pareto_front_table_add_headers,
+    test_pareto_front_table_add_rows,
+    # .random_generator.py
+    test_check_constraint,
+    test_constraints_not_ok,
+    test_generate_random_value,
+    test_generate_random_point,
+    test_random_generator_main,
+    test_random_generator_main_errors,
+    # .tpe.py
+    test_build_space,
+    test_tpe_check_constraint,
+    test_constraint_violated,
+    test_parse_objectives,
+    test_extract_known_trials,
+    test_dummy_loss,
+    test_make_objective,
+    test_decode_trial,
+    test_generate_tpe_point,
+    test_generate_tpe_point_with_trials,
+    test_resolve_extra_iters,
+    test_tpe_main_errors,
+    # .general.py
+    test_debug_code,
+    test_echo_red_green,
+    test_terminal_size,
+    test_error_message,
+    test_find_free_port,
+    test_hostname_for_forwarding,
+    test_spin_up_temporary_webserver,
+    test_is_x86_64,
+]
+
+TPE_TESTS = [
+    test_build_space,
+    test_tpe_check_constraint,
+    test_constraint_violated,
+    test_parse_objectives,
+    test_extract_known_trials,
+    test_dummy_loss,
+    test_make_objective,
+    test_decode_trial,
+    test_generate_tpe_point,
+    test_generate_tpe_point_with_trials,
+    test_resolve_extra_iters,
+    test_tpe_main_errors,
+]
+
+
+def main() -> int:
+    failures = 0
+    skipped = 0
+    for t in TESTS:
+        if tpe_mod is None and t in TPE_TESTS:
+            print(f"skipping {t.__name__} (hyperopt not available)")
+            skipped += 1
+            continue
+        print(f"running {t.__name__} ...", end=" ", flush=True)
+        try:
+            ok = t()
+        except Exception as exc:  # noqa: BLE001
+            ok = False
+            red_text(f"\n  EXCEPTION: {exc!r}")
+        if ok:
+            print("ok")
+        else:
+            failures += 1
+            print("FAIL")
+    if failures:
+        red_text(f"\n{failures} test(s) failed")
+        return 1
+    if skipped:
+        print(f"\nAll runnable unit tests passed ({skipped} skipped)")
+    else:
+        print("\nAll unit tests passed")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

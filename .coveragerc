@@ -1,0 +1,24 @@
+[run]
+branch = True
+parallel = True
+include =
+    */omniopt
+    */omniopt_optuna
+    */omniopt_plot
+    */omniopt_docker
+    */omniopt_evaluate
+    */omniopt_share
+    */.helpers.py
+    */.optuna_runner.py
+    */.tpe.py
+    */.random_generator.py
+    */.pareto.py
+    */.shellscript_functions.py
+    */.colorfunctions.py
+    */.general.py
+    */.omniopt_plot_*.py
+
+[report]
+exclude_lines =
+    pragma: no cover
+    if __name__ == .__main__.:

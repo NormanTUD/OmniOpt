@@ -124,3 +124,24 @@ Sources:
 ### EXTERNAL_GENERATOR
 
 External generators allow you to use *any* external program to generate new points. See [External Generators](tutorials?tutorial=external_generator) for more details.
+
+## Optuna Models (OPTUNA_*)
+
+OmniOpt exposes Optuna as a *special case* of its `ExternalProgramGenerationNode`. Every Optuna sampler becomes a drop-in OmniOpt model — `--model=OPTUNA_TPE` runs Optuna's TPE sampler, `--model=OPTUNA_CMAES` runs CMA-ES, and so on. Under the hood the runner reads the same `input.json` that OmniOpt writes and produces the same `results.json` shape, so it slots into OmniOpt's existing plumbing without any changes to `ExternalProgramGenerationNode`.
+
+Available Optuna models:
+
+- **OPTUNA_TPE** — Tree-structured Parzen Estimator (default).
+- **OPTUNA_CMAES** — Covariance Matrix Adaptation Evolution Strategy.
+- **OPTUNA_GP** — Gaussian-Process-based sampler (experimental).
+- **OPTUNA_RANDOM** — Uniform random sampling.
+- **OPTUNA_GRID** — Grid search.
+- **OPTUNA_QMC** — Quasi-Monte-Carlo (experimental).
+- **OPTUNA_BruteForce** — Brute-force enumeration (experimental).
+- **OPTUNA_NSGAII** — NSGA-II for multi-objective optimization.
+- **OPTUNA_NSGAIII** — NSGA-III for many-objective optimization.
+- **OPTUNA_MOTPE** — Multi-Objective TPE.
+
+Each model is further tunable through the `--optuna_*` flags (sampler override, pruner, n-startup-trials, multivariate, group, constraints, n-ei-candidates, persistent storage URL, study name, extra iters per suggest call). The single-objective samplers take exactly one objective; NSGA-II / NSGA-III / MOTPE require at least two.
+
+For a full walkthrough see [Optuna integration](tutorials?tutorial=optuna).

@@ -36,6 +36,20 @@ omniopt_plot --run_dir runs/example/0
 omniopt_plot --run_dir runs/example/0 --min 0 --max 100
 ```
 
+## Use Optuna directly
+
+Every Optuna sampler (TPE, CMA-ES, GP, Random, Grid, NSGA-II, NSGA-III, MOTPE, ...) is reachable as a special case of OmniOpt through the `omniopt_optuna` entry point:
+
+```command
+omniopt_optuna --max-eval=20 --parameter 'x range -10 10 int' \
+    --run-program 'echo "RESULT: $x"'
+omniopt_optuna --model=OPTUNA_NSGAII --max-eval=30 \
+    --result-names RESULT1=min RESULT2=max \
+    --parameter 'x range 0 5 float'
+```
+
+Under the hood this is just `./omniopt --model=OPTUNA_TPE ...`; the entry point adds sensible defaults for every `--optuna_*` flag and forwards the rest verbatim. See the [Optuna integration tutorial](https://imageseg.scads.de/omniax/tutorials?tutorial=optuna) for the full surface (pruners, persistent storage, multi-objective, remote control via `omniopt_optuna study ...`).
+
 ## Using live-share
 
 Use `--live_share` (also enablable via GUI) to automatically share the job. You will get a URL

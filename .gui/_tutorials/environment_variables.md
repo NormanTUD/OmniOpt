@@ -39,6 +39,21 @@ $env_variables = [
         "SKIP_SEARCH_EXIT_CODE" => "The exit code that should be used for this job",
         "DEBUG_PARAM_EVAL" => "Tests if the argparse clone for bash works and creates the required arguments. Must be non-empty exported string in your shell to run a test. Please use it mainly over .tests/test_bash_argparse_clone"
     ],
+    "Optuna backend (.optuna_runner.py)" => [
+        "OMNIOPT_OPTUNA_SAMPLER" => "Default Optuna sampler when --optuna_sampler is not set (tpe/cmaes/gp/random/grid/nsgaii/nsgaiii/motpe/brute_force/qmc)",
+        "OMNIOPT_OPTUNA_PRUNER" => "Default Optuna pruner for single-objective runs (median/hyperband/threshold/successive_halving/none)",
+        "OMNIOPT_OPTUNA_SEED" => "Integer seed (overrides the seed in input.json)",
+        "OMNIOPT_OPTUNA_N_STARTUP_TRIALS" => "Number of random trials Optuna runs before its model kicks in (default: 10)",
+        "OMNIOPT_OPTUNA_MULTIVARIATE" => "Set to 1 to enable TPESampler(multivariate=True)",
+        "OMNIOPT_OPTUNA_GROUP" => "Set to 1 to enable TPESampler(group=True)",
+        "OMNIOPT_OPTUNA_CONSTRAINTS" => "Set to 1 to pass an empty constraints_func to Optuna's samplers",
+        "OMNIOPT_OPTUNA_N_EI_CANDIDATES" => "n_ei_candidates for TPESampler (default: 0 -> Optuna default)",
+        "OMNIOPT_OPTUNA_STORAGE" => "Optuna storage URL (default: sqlite file in workdir)",
+        "OMNIOPT_OPTUNA_STUDY_NAME" => "Optuna study name (default: omniopt_study)",
+        "OMNIOPT_OPTUNA_LOAD_IF_EXISTS" => "1 (default) to load an existing study if present, 0 to always start fresh",
+        "OMNIOPT_OPTUNA_EXTRA_ITERS" => "How many extra trials Optuna runs per OmniOpt suggest call (default: 1)",
+        "OMNIOPT_OPTUNA_LOG_LEVEL" => "Log level for the Optuna runner (DEBUG/INFO/WARNING/ERROR)"
+    ],
     "Plot-Script" => [
         "BUBBLESIZEINPX" => "Size of bubbles in plot scripts in px"
     ],

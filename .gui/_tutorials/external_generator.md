@@ -220,6 +220,15 @@ This is another program. It uses [hyperopt](https://github.com/hyperopt/hyperopt
 
 A legacy Optuna-based version is also kept around for regression testing at `.optuna_tpe.py`.
 
+### Optuna (all samplers)
+
+`.optuna_runner.py` is the recommended external-generator backend when you want any of Optuna's samplers (TPE, CMA-ES, GP, NSGA-II, NSGA-III, MOTPE, …). It is invoked through the dedicated `OPTUNA_*` model values (`--model=OPTUNA_TPE`, etc.) rather than `--model=EXTERNAL_GENERATOR`, so it gets its own CLI surface (`--optuna_*` flags) and integrates with the GUI:
+
+```python[../.optuna_runner.py]
+```
+
+See [Optuna integration](tutorials?tutorial=optuna) for the full surface.
+
 ## Caveats
 
 <div class="caveat warning">

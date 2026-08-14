@@ -25,6 +25,17 @@ def main(argv=None) -> int:  # pylint: disable=unused-argument
 
     omniopt_content = omniopt.read_text(encoding="utf-8", errors="ignore")
 
+    # Also check flags registered by the Optuna entry points so tutorials
+    # that document `omniopt_optuna` and `.optuna_runner.py` can mention
+    # those flags without tripping this test.
+    extra_sources = []
+    for rel in ("omniopt_optuna", ".optuna_runner.py", ".tpe.py",
+                ".random_generator.py"):
+        path = REPO_ROOT / rel
+        if path.exists():
+            extra_sources.append(path.read_text(encoding="utf-8", errors="ignore"))
+    combined_sources = omniopt_content + "\n" + "\n".join(extra_sources)
+
     tutorials_dir = REPO_ROOT / ".gui" / "_tutorials"
     if not tutorials_dir.is_dir():
         green_text("doc_has_outdated_params: No tutorials directory, OK")
@@ -47,7 +58,8 @@ def main(argv=None) -> int:  # pylint: disable=unused-argument
             param = stripped.split("=", 1)[0].split()[0]
             if not re.match(r"^--[A-Za-z0-9_-]+$", param):
                 continue
-            if f"add_argument('{param}" not in omniopt_content:
+            if f"add_argument('{param}" not in combined_sources \
+                    and f'add_argument("{param}"' not in combined_sources:
                 red_text(f"Parameter {param} in {f} was not found")
                 errors += 1
 

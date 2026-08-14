@@ -502,10 +502,10 @@ tests:
     wanted_exit_code: 0
     tags: [suite:full, quick:no]
 
-  - id: tpe_vs_hyperopt
+  - id: tpe_vs_optuna
     class: moo
-    name: "TPE (OmniOpt .tpe.py) vs vanilla hyperopt TPE"
-    cmd: "{REPO_ROOT}/.tests/tpe_vs_hyperopt"
+    name: "TPE (.tpe.py subprocess) vs hyperopt in-process with replayed history"
+    cmd: "{REPO_ROOT}/.tests/tpe_vs_optuna"
     wanted_exit_code: 0
     tags: [suite:full, quick:no, deps:hyperopt]
 

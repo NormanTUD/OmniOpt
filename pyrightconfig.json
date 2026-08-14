@@ -4,6 +4,7 @@
         "**/node_modules",
         ".tests",
         ".tpe.py",
+        ".optuna_tpe.py",
         "**/runs"
     ]
 }

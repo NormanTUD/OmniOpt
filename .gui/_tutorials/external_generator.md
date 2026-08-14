@@ -213,10 +213,12 @@ This is an example python-program that generated random points that lie within t
 
 ### TPE (Tree Parzen Estimator)
 
-This is another program. It uses [Optuna](https://optuna.org/) and a Tree-Parzen-Estimator to generate new points:
+This is another program. It uses [hyperopt](https://github.com/hyperopt/hyperopt) and a Tree-Parzen-Estimator to generate new points:
 
 ```python[../.tpe.py]
 ```
+
+A legacy Optuna-based version is also kept around for regression testing at `.optuna_tpe.py`.
 
 ## Caveats
 

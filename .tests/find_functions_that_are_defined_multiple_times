@@ -21,6 +21,10 @@ EXCLUDE = {
     "set_title", "check_args", "save_to_file_or_show_canvas",
     # Intentional utility duplicates shared between modules.
     "check_constraint", "constraints_not_ok", "handle_error",
+    # Legacy .optuna_tpe.py and the new hyperopt-based .tpe.py share the
+    # same top-level entry points by design (both are drop-in replacements
+    # for OmniOpt's --model=TPE external generator).
+    "generate_tpe_point", "parse_objectives",
 }
 
 # Files that are mid-conversion from bash and still contain duplicate

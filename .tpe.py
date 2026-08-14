@@ -1,20 +1,45 @@
-import sys
-import os
+"""Tree-structured Parzen Estimator (TPE) using hyperopt.
+
+This is the new TPE generator for OmniOpt's ``EXTERNAL_GENERATOR`` interface.
+It reads the same ``input.json`` that the previous Optuna-based implementation
+(``.optuna_tpe.py``) read, and writes a ``results.json`` in the same format.
+
+Behavioral contract (kept identical to the Optuna version so the external
+generator stays a drop-in replacement):
+
+  * Read ``input.json`` with keys ``parameters``, ``constraints``, ``seed``,
+    ``trials`` and ``objectives``.
+  * Replay the recorded trials so hyperopt's TPE model has history to work with.
+  * Run TPE for a fixed number of additional iterations.
+  * Write ``{"parameters": <next point>}`` to ``results.json``.
+
+The objective is the same constraint-aware dummy used by the Optuna version:
+valid points return loss 0.0, constraint-violating points return 1e6 (or -1e6
+for ``maximize``). That keeps the optimizer focused on respecting constraints
+even when the true objective values are not available to the generator.
+
+Usage:
+    python3 .tpe.py <path>
+"""
+
+from __future__ import annotations
+
 import json
-import logging
-from typing import Optional, Any
+import os
+import sys
+from pathlib import Path
+from typing import Any
 
 try:
-    import optuna
-    from optuna.trial import create_trial
-
-    from optuna.distributions import (
-        BaseDistribution,
-        IntUniformDistribution,
-        FloatDistribution,        # Optuna ≥3.6
-    )
+    from hyperopt import fmin, hp, tpe, Trials, STATUS_OK
 except ModuleNotFoundError:
-    print("Optuna not found. Cannot continue.")
+    print("hyperopt not found. Cannot continue.")
+    sys.exit(1)
+
+try:
+    import numpy as np
+except ModuleNotFoundError:
+    print("numpy not found. Cannot continue.")
     sys.exit(1)
 
 try:
@@ -23,96 +48,43 @@ except ModuleNotFoundError:
     print("beartype not found. Cannot continue.")
     sys.exit(1)
 
-logging.getLogger("optuna").setLevel(logging.WARNING)
 
-# Fix for optuna study attribute access issue
-def create_study_with_seed(seed: Optional[int], direction: str) -> Any:
-    try:
-        # Try newer optuna API
-        return optuna.create_study(
-            sampler=optuna.samplers.TPESampler(seed=seed),
-            direction=direction
-        )
-    except AttributeError:
-        # Fallback for older versions
-        return optuna.create_study(
-            sampler=optuna.samplers.TPESampler(seed=seed),
-            study_name="tpe_study",
-            direction=direction
-        )
+@beartype
+def build_space(parameters: dict) -> dict:
+    """Translate the OmniOpt parameter dict into a hyperopt search space."""
+    space: dict = {}
+    for name, p in parameters.items():
+        ptype = p["parameter_type"]
+        if ptype == "RANGE":
+            lo, hi = p["range"]
+            lo_f, hi_f = float(lo), float(hi)
+            if p["type"] == "INT":
+                space[name] = hp.quniform(name, lo_f, hi_f, 1)
+            elif p["type"] == "FLOAT":
+                space[name] = hp.uniform(name, lo_f, hi_f)
+            else:
+                raise ValueError(f"Unsupported RANGE type {p['type']} for {name}")
+        elif ptype == "CHOICE":
+            space[name] = hp.choice(name, list(p["values"]))
+        elif ptype == "FIXED":
+            # hp.choice with a single option keeps the parameter fixed
+            space[name] = hp.choice(name, [p["value"]])
+        else:
+            raise ValueError(f"Unknown parameter_type {ptype} for {name}")
+    return space
 
-
-def get_best_trial_value(study: Any) -> Any:
-    try:
-        return study.best_trial.value
-    except AttributeError:
-        # Fallback for older versions
-        return getattr(study, 'best_value', None)
 
 @beartype
 def check_constraint(constraint: str, params: dict) -> bool:
-    return eval(constraint, {}, params)
+    return bool(eval(constraint, {}, params))  # pylint: disable=eval-used
+
 
 @beartype
-def constraints_not_ok(constraints: list, point: dict) -> bool:
-    if not constraints or constraints is None or len(constraints) == 0:
-        return True
+def constraint_violated(constraints: list, point: dict) -> bool:
+    if not constraints:
+        return False
+    return any(not check_constraint(c, point) for c in constraints)
 
-    for constraint in constraints:
-        if not check_constraint(constraint, point):
-            return True
-
-    return False
-
-@beartype
-def tpe_suggest_point(trial: optuna.Trial, parameters: dict) -> dict:
-    point = {}
-    for param_name, param in parameters.items():
-        ptype = param['parameter_type']
-        pvaltype = param['type']
-
-        try:
-            if ptype == 'RANGE':
-                rmin, rmax = param['range']
-                if pvaltype == 'INT':
-                    point[param_name] = trial.suggest_int(param_name, rmin, rmax)
-                elif pvaltype == 'FLOAT':
-                    point[param_name] = trial.suggest_float(param_name, rmin, rmax) # type: ignore[assignment]
-                else:
-                    raise ValueError(f"Unsupported type {pvaltype} for RANGE")
-
-            elif ptype == 'CHOICE':
-                values = param['values']
-                point[param_name] = trial.suggest_categorical(param_name, values)
-
-            elif ptype == 'FIXED':
-                point[param_name] = param['value']
-
-            else:
-                raise ValueError(f"Unknown parameter_type {ptype}")
-        except KeyboardInterrupt:
-            print("You pressed CTRL-c.")
-            sys.exit(1)
-
-    return point
-
-@beartype
-def generate_tpe_point(data: dict, max_trials: int = 100) -> dict:
-    parameters = data["parameters"]
-    constraints = data.get("constraints", [])
-    seed = data.get("seed", None)
-    trials_data = data.get("trials", [])
-    objectives = data.get("objectives", {})
-
-    direction, result_key = parse_objectives(objectives)
-    study = create_study_with_seed(seed, direction)
-
-    for trial_entry in trials_data:
-        add_existing_trial_to_study(study, trial_entry, parameters, result_key)
-
-    study.optimize(lambda trial: wrapped_objective(trial, parameters, constraints, direction), n_trials=max_trials)
-
-    return get_best_or_new_point(study, parameters, direction)
 
 @beartype
 def parse_objectives(objectives: dict) -> tuple[str, str]:
@@ -121,96 +93,149 @@ def parse_objectives(objectives: dict) -> tuple[str, str]:
     result_key, result_goal = next(iter(objectives.items()))
     if result_goal.lower() not in ("min", "max"):
         raise ValueError(f"Unsupported objective direction: {result_goal}")
-    direction = "maximize" if result_goal.lower() == "max" else "minimize"
+    direction = "minimize" if result_goal.lower() == "min" else "maximize"
     return direction, result_key
 
-@beartype
-def wrapped_objective(trial: optuna.Trial, parameters: dict, constraints: list, direction: str) -> float:
-    point = tpe_suggest_point(trial, parameters)
-    if not constraints_not_ok(constraints, point):
-        return 1e6 if direction == "minimize" else -1e6
-    return 0.0
-
 
 @beartype
-def add_existing_trial_to_study(study: optuna.study.study.Study, trial_entry: list, parameters: dict, result_key: str) -> None:
-    if len(trial_entry) != 2:
-        return
-    param_dict, result_dict = trial_entry
-
-    if not result_dict or result_key not in result_dict:
-        return
-
-    if not all(k in param_dict for k in parameters):
-        return
-
-    final_value = result_dict[result_key]
-
-    trial_params: dict[str, object] = {}
-    trial_distributions: dict[str, BaseDistribution] = {}   # 👈 explicit & correct
-
-    for name, p in parameters.items():
-        value = param_dict[name]
-
-        if p["parameter_type"] == "FIXED":
-            trial_params[name] = value
+def extract_known_trials(trials_data: list, result_key: str) -> list:
+    """Pull the (param_dict, loss) pairs out of the OmniOpt trial format."""
+    out: list = []
+    for entry in trials_data:
+        if not isinstance(entry, list) or len(entry) != 2:
             continue
-
-        dist: BaseDistribution
-        if p["parameter_type"] == "RANGE":
-            if p["type"] == "INT":
-                dist = IntUniformDistribution(p["range"][0], p["range"][1])
-            elif p["type"] == "FLOAT":
-                dist = FloatDistribution(p["range"][0], p["range"][1])
-            else:
-                continue
-        elif p["parameter_type"] == "CHOICE":
-            dist = optuna.distributions.CategoricalDistribution(p["values"])
-        else:
+        param_dict, result_dict = entry
+        if not isinstance(result_dict, dict) or result_key not in result_dict:
             continue
+        out.append((param_dict, float(result_dict[result_key])))
+    return out
 
-        trial_params[name] = value
-        trial_distributions[name] = dist      # keys are str, values are BaseDistribution
 
-    study.add_trial(
-        create_trial(
-            params=trial_params,
-            distributions=trial_distributions,  # ✅ mypy is happy now
-            value=final_value
-        )
+@beartype
+def _dummy_loss(params: dict, constraints: list, penalty: float) -> dict:
+    if constraint_violated(constraints, params):
+        return {"loss": penalty, "status": STATUS_OK}
+    return {"loss": 0.0, "status": STATUS_OK}
+
+
+@beartype
+def make_objective(known_trials: list, constraints: list, direction: str):
+    """Build the hyperopt objective.
+
+    The first ``len(known_trials)`` invocations return the recorded loss for
+    each historic trial, in order, so hyperopt can build its TPE model from
+    real history. Once the replay is exhausted, the objective returns the
+    constraint-aware dummy loss used by the Optuna version.
+    """
+    penalty = 1e6 if direction == "minimize" else -1e6
+    iter_known = iter(known_trials)
+    state = {"replay_done": False}
+
+    def objective(params: dict) -> dict:
+        if not state["replay_done"]:
+            try:
+                _, recorded_loss = next(iter_known)
+            except StopIteration:
+                state["replay_done"] = True
+                return _dummy_loss(params, constraints, penalty)
+            return {"loss": recorded_loss, "status": STATUS_OK}
+        return _dummy_loss(params, constraints, penalty)
+
+    return objective
+
+
+@beartype
+def _decode_trial(vals: dict, parameters: dict) -> dict:
+    """Convert hyperopt's trial result dictionary into OmniOpt's parameter dict."""
+    point: dict = {}
+    for name, raw in vals.items():
+        values = list(raw)
+        value = values[0] if values else None
+        if name in parameters:
+            p = parameters[name]
+            if p["parameter_type"] == "RANGE" and p["type"] == "INT":
+                value = int(round(float(value)))
+            elif p["parameter_type"] == "RANGE" and p["type"] == "FLOAT":
+                value = float(value)
+            elif p["parameter_type"] == "CHOICE":
+                value = list(p["values"])[int(value)]
+            elif p["parameter_type"] == "FIXED":
+                value = p["value"]
+        point[name] = value
+    return point
+
+
+@beartype
+def generate_tpe_point(data: dict, extra_iters: int = 50) -> dict:
+    """Top-level entry point: read input, run TPE, return the next point."""
+    parameters = data["parameters"]
+    constraints = data.get("constraints", []) or []
+    seed = data.get("seed", None)
+    trials_data = data.get("trials", []) or []
+    objectives = data.get("objectives", {})
+
+    direction, result_key = parse_objectives(objectives)
+    space = build_space(parameters)
+    known = extract_known_trials(trials_data, result_key)
+    objective = make_objective(known, constraints, direction)
+
+    trials = Trials()
+    max_evals = max(len(known) + extra_iters, 1)
+    rng = np.random.default_rng(seed)
+
+    fmin(
+        fn=objective,
+        space=space,
+        algo=tpe.suggest,
+        trials=trials,
+        max_evals=max_evals,
+        verbose=False,
+        rstate=rng,
     )
 
+    # Prefer the last TPE-suggested point (after replay) so we return a fresh
+    # suggestion. Fall back to best_trial if every suggested point was filtered
+    # out by constraints.
+    new_suggestions = list(trials.trials[len(known):])
+    if new_suggestions:
+        chosen = new_suggestions[-1]["misc"]["vals"]
+    else:
+        chosen = trials.best_trial["misc"]["vals"]
+
+    return _decode_trial(chosen, parameters)
+
+
 @beartype
-def get_best_or_new_point(study: Any, parameters: dict, direction: str) -> dict:
-    best_trial_value = get_best_trial_value(study)
-    if best_trial_value is not None:
-        if (direction == "minimize" and best_trial_value < 1e6) or \
-           (direction == "maximize" and best_trial_value > -1e6):
-            try:
-                return study.best_params
-            except AttributeError:
-                # Fallback for older versions
-                return {}
-    return tpe_suggest_point(study.best_trial, parameters)
+def _resolve_extra_iters() -> int:
+    """Allow tests to override the TPE iteration count via env var."""
+    raw = os.environ.get("OMNIOPT_TPE_EXTRA_ITERS")
+    if raw is None:
+        return 50
+    try:
+        return max(int(raw), 0)
+    except ValueError:
+        print(f"Warning: OMNIOPT_TPE_EXTRA_ITERS={raw!r} is not an int, ignoring.")
+        return 50
+
 
 @beartype
 def main() -> None:
     if len(sys.argv) != 2:
-        print("Usage: python script.py <path>")
+        print("Usage: python3 .tpe.py <path>")
         sys.exit(1)
 
     path = sys.argv[1]
-
     if not os.path.isdir(path):
         print(f"Error: The path '{path}' is not a valid folder.")
         sys.exit(2)
 
-    json_file_path = os.path.join(path, 'input.json')
-    results_file_path = os.path.join(path, 'results.json')
+    work = Path(path)
+    json_file_path = work / "input.json"
+    results_file_path = work / "results.json"
 
     try:
-        with open(json_file_path, mode='r', encoding="utf-8") as f:
-            data = json.load(f)
+        with json_file_path.open(mode="r", encoding="utf-8") as fh:
+            data: Any = json.load(fh)
     except FileNotFoundError:
         print(f"Error: {json_file_path} not found.")
         sys.exit(3)
@@ -218,10 +243,10 @@ def main() -> None:
         print(f"Error: Failed to decode JSON in {json_file_path}.")
         sys.exit(4)
 
-    random_point = generate_tpe_point(data)
+    next_point = generate_tpe_point(data, extra_iters=_resolve_extra_iters())
 
-    with open(results_file_path, mode='w', encoding="utf-8") as f:
-        json.dump({"parameters": random_point}, f, indent=4)
+    with results_file_path.open(mode="w", encoding="utf-8") as fh:
+        json.dump({"parameters": next_point}, fh, indent=4)
 
 
 if __name__ == "__main__":

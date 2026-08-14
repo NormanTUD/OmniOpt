@@ -14,6 +14,7 @@ COPY ./.general.py ./.general.py
 COPY ./.shellscript_functions.py ./.shellscript_functions.py
 COPY ./.colorfunctions.py ./.colorfunctions.py
 COPY ./.tpe.py ./.tpe.py
+COPY ./.optuna_tpe.py ./.optuna_tpe.py
 COPY ./requirements.txt ./requirements.txt
 COPY ./test_requirements.txt ./test_requirements.txt
 

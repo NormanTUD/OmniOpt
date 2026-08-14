@@ -80,6 +80,17 @@ def main(argv=None) -> int:  # pylint: disable=unused-argument
     raw = match.group(1)
     models = [m.strip().strip('"\'') for m in raw.split(",") if m.strip()]
 
+    skip_models = set(SKIP_MODELS)
+    optuna_single_match = re.search(
+        r"^_OPTUNA_SINGLEOBJECTIVE_ONLY\s*=\s*\{(.*?)\}", content, re.MULTILINE | re.DOTALL
+    )
+    if optuna_single_match:
+        skip_models.update(
+            m.strip().strip('"\'')
+            for m in optuna_single_match.group(1).split(",")
+            if m.strip()
+        )
+
     failed = False
     total = len(models)
     for i, model in enumerate(models, start=1):
@@ -89,7 +100,7 @@ def main(argv=None) -> int:  # pylint: disable=unused-argument
             yellow_text(f"Skipping model {model} because previous models failed")
             continue
 
-        if model in SKIP_MODELS:
+        if model in skip_models:
             yellow_text(f"Skipping incompatible model {model}")
             continue
 

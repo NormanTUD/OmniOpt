@@ -190,7 +190,7 @@ def build_optuna_distribution(p: dict) -> BaseDistribution:
 
 
 @beartype
-def suggest_point_from_trial(trial: "optuna.Trial", parameters: dict) -> dict:
+def suggest_point_from_trial(trial: optuna.Trial, parameters: dict) -> dict:
     point: dict = {}
     for name, p in parameters.items():
         ptype = p["parameter_type"]
@@ -267,7 +267,7 @@ def extract_known_trials(
 
 @beartype
 def replay_trials(
-    study: "optuna.Study",
+    study: optuna.Study,
     known_trials: Iterable[tuple[dict, dict]],
     parameters: dict,
     result_keys: list[str],
@@ -366,7 +366,7 @@ def build_sampler(
     group: bool,
     constraints: bool,
     n_ei_candidates: int,
-) -> "optuna.samplers.BaseSampler":
+) -> optuna.samplers.BaseSampler:
     cls_name = _resolve_sampler_name(sampler_name)
     cls = getattr(optuna.samplers, cls_name)
     kwargs: dict[str, Any] = {"seed": seed}
@@ -401,7 +401,7 @@ def build_sampler(
 
 
 @beartype
-def build_pruner(pruner_name: str) -> "optuna.pruners.BasePruner":
+def build_pruner(pruner_name: str) -> optuna.pruners.BasePruner:
     cls_name = _resolve_pruner_name(pruner_name)
     cls = getattr(optuna.pruners, cls_name)
     if cls_name == "ThresholdPruner":
@@ -419,14 +419,14 @@ def _default_storage(workdir: Path) -> str:
 
 @beartype
 def build_study(
-    sampler: "optuna.samplers.BaseSampler",
+    sampler: optuna.samplers.BaseSampler,
     directions: list[str],
     storage: Optional[str],
     study_name: str,
     load_if_exists: bool,
     workdir: Optional[Path] = None,
     search_space: Optional[dict[str, BaseDistribution]] = None,
-) -> "optuna.Study":
+) -> optuna.Study:
     if storage is None and workdir is not None:
         storage = _default_storage(workdir)
 
@@ -707,9 +707,9 @@ def _build_study_parser() -> argparse.ArgumentParser:
     sc_create.add_argument("--storage", default=None)
     sc_create.add_argument("--study-name", default="omniopt_study")
     sc_create.add_argument("--objectives", default="RESULT",
-                          help="Comma-separated list of result keys for multi-objective")
+                           help="Comma-separated list of result keys for multi-objective")
     sc_create.add_argument("--directions", default=None,
-                          help="Comma-separated directions matching --objectives (minimize/maximize)")
+                           help="Comma-separated directions matching --objectives (minimize/maximize)")
 
     sc_add = sub.add_parser("add", help="Record a trial into a persistent study")
     sc_add.add_argument("--workdir", required=True)
@@ -764,8 +764,8 @@ def _read_json_arg(raw: str) -> Any:
 
 
 @beartype
-def _infer_param_spec(name: str, value: Any) -> dict:
-    """Build an OmniOpt-style parameter spec from a (name, value) pair.
+def _infer_param_spec(value: Any) -> dict:
+    """Build an OmniOpt-style parameter spec from a single value.
 
     Used by ``study add`` so callers can just feed raw ``{name: value}`` pairs
     and let us figure out the type. ``CHOICE`` is used for strings to avoid
@@ -786,11 +786,11 @@ def _infer_param_spec(name: str, value: Any) -> dict:
 @beartype
 def _expand_params_spec(params: dict[str, Any]) -> dict:
     """Wrap a flat ``{name: value}`` mapping in OmniOpt's parameter dict."""
-    return {name: _infer_param_spec(name, v) for name, v in params.items()}
+    return {name: _infer_param_spec(v) for name, v in params.items()}
 
 
 @beartype
-def _resolve_sampler(sampler_name: str, seed: Optional[int]) -> "optuna.samplers.BaseSampler":
+def _resolve_sampler(sampler_name: str, seed: Optional[int]) -> optuna.samplers.BaseSampler:
     return build_sampler(
         sampler_name,
         seed,
@@ -989,7 +989,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     # study parser and ignore the prefix. The prefix may contain study-only
     # flags (--workdir, etc.) that the parent parser doesn't know about, so
     # we don't even try to parse it.
-    pre, post = _split_argv_at_study(raw_argv)
+    _, post = _split_argv_at_study(raw_argv)
     if post and post[0] == "study":
         study_parser = _build_study_parser()
         # Strip the leading ``study`` token - the study_parser doesn't know

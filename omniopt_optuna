@@ -38,7 +38,6 @@ from __future__ import annotations
 import argparse
 import base64
 import os
-import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -209,7 +208,7 @@ def _build_parser() -> argparse.ArgumentParser:
     _add_run_args(run)
     sub.add_parser("suggest", help=argparse.SUPPRESS,
                    description="Get just the next point without running OmniOpt.")
-    study = sub.add_parser(
+    sub.add_parser(
         "study",
         help="Remote-control a persistent Optuna study.",
         description=(

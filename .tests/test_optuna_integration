@@ -23,11 +23,8 @@ runtime short and avoids needing a full OmniOpt optimisation loop.
 
 from __future__ import annotations
 
-import argparse
 import importlib.util
 import json
-import os
-import shutil
 import subprocess
 import sys
 import tempfile
@@ -222,10 +219,13 @@ class OptunaRunnerUnitTests(unittest.TestCase):
         so the sampler learns to avoid that region."""
         with tempfile.TemporaryDirectory() as tmp:
             workdir = Path(tmp)
-            _write_input(workdir, {
-                "x": {"parameter_type": "RANGE", "type": "INT", "range": [0, 100]},
-                "y": {"parameter_type": "RANGE", "type": "INT", "range": [0, 100]},
-            }, constraints=["x + y >= 50"],
+            _write_input(
+                workdir,
+                {
+                    "x": {"parameter_type": "RANGE", "type": "INT", "range": [0, 100]},
+                    "y": {"parameter_type": "RANGE", "type": "INT", "range": [0, 100]},
+                },
+                constraints=["x + y >= 50"],
                 trials=[
                     [{"x": 5, "y": 5}, {"x": 50, "y": 0}],
                     [{"RESULT": 1.0}, {"RESULT": 2.0}],

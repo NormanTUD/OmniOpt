@@ -1109,7 +1109,7 @@ special_col_names: list = ["arm_name", "generation_method", "trial_index", "tria
 
 IGNORABLE_COLUMNS: list = ["start_time", "end_time", "hostname", "signal", "exit_code", "run_time", "program_string"] + special_col_names
 _NOTIFICATIONS_AVAILABLE = False
-uncontinuable_models: list = ["RANDOMFOREST", "EXTERNAL_GENERATOR", "TPE", "PSEUDORANDOM", "HUMAN_INTERVENTION_MINIMUM", "OPTUNA_TPE", "OPTUNA_CMAES", "OPTUNA_GP", "OPTUNA_RANDOM", "OPTUNA_GRID", "OPTUNA_QMC", "OPTUNA_BruteForce", "OPTUNA_NSGAII", "OPTUNA_NSGAIII", "OPTUNA_MOTPE"]
+uncontinuable_models: list = ["RANDOMFOREST", "EXTERNAL_GENERATOR", "PSEUDORANDOM", "HUMAN_INTERVENTION_MINIMUM", "OPTUNA_TPE", "OPTUNA_CMAES", "OPTUNA_GP", "OPTUNA_RANDOM", "OPTUNA_GRID", "OPTUNA_QMC", "OPTUNA_BruteForce", "OPTUNA_NSGAII", "OPTUNA_NSGAIII", "OPTUNA_MOTPE"]
 
 post_generation_constraints: list = []
 abandoned_trial_indices: list = []
@@ -6922,7 +6922,6 @@ def get_ax_param_representation(data: dict) -> dict:
             'dependents': None,
             'is_fidelity': False,
             'is_ordered': data["is_ordered"],
-            "value_type": "str",
             'is_task': False,
             'name': data["name"],
             'parameter_type': {
@@ -6930,7 +6929,9 @@ def get_ax_param_representation(data: dict) -> dict:
                 "name": parameter_type
             },
             'target_value': None,
-            'values': [str(v) for v in data["values"]]
+            'values': [str(v) for v in data["values"]],
+            'log_scale': False,
+            'sort_values': False,
         }
 
     print("data:")
@@ -10716,12 +10717,21 @@ def get_chosen_model() -> str:
 
     return chosen_model
 
-def continue_not_supported_on_custom_generation_strategy() -> None:
-    if args.continue_previous_job:
+def restore_custom_generation_strategy_from_state() -> None:
+    if args.continue_previous_job and args.generation_strategy is None:
         generation_strategy_file = f"{args.continue_previous_job}/state_files/custom_generation_strategy"
 
         if os.path.exists(generation_strategy_file):
-            _fatal_error("Trying to continue a job which was started with --generation_strategy. This is currently not possible.", 247)
+            try:
+                with open(generation_strategy_file, encoding="utf-8", mode="r") as _f:
+                    restored = _f.read().strip()
+                if restored:
+                    args.generation_strategy = restored
+                    print_yellow(
+                        f"Restored --generation_strategy='{restored}' from previous run."
+                    )
+            except Exception as e:
+                print_red(f"Failed to restore custom_generation_strategy from {generation_strategy_file}: {e}")
 
 def get_step_name(model_name: str, nr: int) -> str:
     this_step_name = f"{model_name} for {nr} step"
@@ -10942,7 +10952,7 @@ def get_optimizer_kwargs() -> dict:
     }
 
 def set_global_generation_strategy() -> None:
-    continue_not_supported_on_custom_generation_strategy()
+    restore_custom_generation_strategy_from_state()
 
     try:
         if args.generation_strategy is None:
@@ -11599,7 +11609,8 @@ def set_orchestrator() -> None:
                 print_yellow("--orchestrator_file will be ignored on non-sbatch-systems.")
 
 def check_if_has_random_steps() -> None:
-    if (not args.continue_previous_job and "--continue" not in sys.argv) and (args.num_random_steps == 0 or not args.num_random_steps) and args.model not in ["EXTERNAL_GENERATOR", "SOBOL", "PSEUDORANDOM"] and not args.model.startswith("OPTUNA_"):
+    model_str = args.model or ""
+    if (not args.continue_previous_job and "--continue" not in sys.argv) and (args.num_random_steps == 0 or not args.num_random_steps) and model_str not in ["EXTERNAL_GENERATOR", "SOBOL", "PSEUDORANDOM"] and not model_str.startswith("OPTUNA_"):
         _fatal_error("You have no random steps set. This is only allowed in continued jobs. To start, you need either some random steps, or a continued run.", 233)
 
 def add_exclude_to_defective_nodes() -> None:

@@ -398,8 +398,8 @@ tests:
   - id: generation_strategy_continue
     class: generation
     name: "Generation strategy (continue)"
-    cmd: "{OMNIOPT_CALL} --continue runs/generation_strategy/0"
-    wanted_exit_code: 247
+    cmd: "{OMNIOPT_CALL} --continue runs/generation_strategy/0 --max_eval=4 --num_parallel_jobs=1 --worker_timeout=10 --follow"
+    wanted_exit_code: 0
     tags: [suite:full, quick:never]
 
   - id: progressbar_sobol_botorch
@@ -515,6 +515,13 @@ tests:
     cmd: "{REPO_ROOT}/.tests/tpe_real_omniopt_run"
     wanted_exit_code: 0
     tags: [suite:full, quick:no, deps:hyperopt, runtime:long]
+
+  - id: tpe_continue
+    class: moo
+    name: "Continuing a TPE (hyperopt) run"
+    cmd: "{REPO_ROOT}/.tests/tpe_continue"
+    wanted_exit_code: 0
+    tags: [suite:full, quick:no, deps:hyperopt]
 
   # ---- result name handling -------------------------------------------------
   - id: wrong_result_name

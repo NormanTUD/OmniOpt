@@ -87,7 +87,7 @@
 			244 => "get_executor() failed. See logs for more details.",
 			245 => "python3 is not installed",
 			246 => "A path that should have been a file is actually a folder. Check output for more details.",
-			247 => "Trying to continue a job which was started with --generation_strategy. This is currently not possible.",
+			247 => "OPTUNA multi-objective model requires at least 2 result names, or a state file path was a directory instead of a file. See stdout for more details.",
 			251 => "Currently unsupported feature used. Please check stdout for more details",
 			255 => "sbatch error"
 		];

@@ -1,0 +1,237 @@
+#!/usr/bin/env python3
+"""Test that TPE runs can be continued.
+
+Workflow:
+
+  1. Wipe ``runs/<testname>`` so any leftover state cannot confuse us.
+  2. Start ``./omniopt --model=TPE --max_eval=K --num_random_steps=N`` with a
+     fixed seed and ``--run_mode=local`` so it does not need SLURM.
+  3. Run ``./omniopt --continue runs/<testname>/0 --max_eval=K2`` to continue
+     the same run and verify it succeeds (exit code 0).
+  4. Verify ``runs/<testname>/1/results.csv`` exists and contains new rows.
+
+If any step fails the test exits non-zero.
+"""
+
+from __future__ import annotations
+
+import argparse
+import os
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+THIS_DIR = Path(__file__).resolve().parent
+if str(THIS_DIR) not in sys.path:
+    sys.path.insert(0, str(THIS_DIR))
+
+from _framework.helpers import green_text, red_text  # noqa: E402
+
+
+REPO_ROOT = THIS_DIR.parent
+
+
+def _ensure_deps() -> None:
+    os.environ.setdefault("install_tests", "1")
+    from _framework.installer import ensure_dependencies  # noqa: E402
+
+    ensure_dependencies(include_tests=True)
+    try:
+        import hyperopt  # noqa: F401
+    except ImportError:
+        red_text("hyperopt is required for this test but not installed.")
+        sys.exit(1)
+    try:
+        import numpy  # noqa: F401
+    except ImportError:
+        red_text("numpy is required for this test but not installed.")
+        sys.exit(1)
+
+
+def _resolve_python3_with_hyperopt() -> str:
+    """Find a ``python3`` binary that has ``hyperopt`` importable."""
+    candidates: list[Path] = []
+    venv = os.environ.get("VIRTUAL_ENV")
+    if venv:
+        candidates.append(Path(venv) / "bin" / "python3")
+    home = Path.home()
+    for pyver in ("Python_3.13.5", "Python_3.12.10", "Python_3.11.9"):
+        for arch in ("x86_64", "aarch64"):
+            candidates.append(
+                home / ".omniax_venvs" / pyver / arch / "bin" / "python3"
+            )
+    candidates.append(Path(sys.executable).resolve())
+
+    for cand in candidates:
+        if not cand.is_file():
+            continue
+        try:
+            proc = subprocess.run(
+                [str(cand), "-c", "import hyperopt"],
+                capture_output=True, text=True, timeout=15,
+            )
+        except (OSError, subprocess.TimeoutExpired):
+            continue
+        if proc.returncode == 0:
+            return str(cand)
+    raise RuntimeError(
+        "Could not find a python3 with hyperopt installed."
+    )
+
+
+def _wipe_runs(testname: str) -> None:
+    rundir = REPO_ROOT / "runs" / testname
+    if rundir.exists():
+        shutil.rmtree(rundir)
+        print(f"  wiped {rundir}")
+
+
+def _run_omniopt_initial(testname: str, max_eval: int, num_random_steps: int,
+                          seed: int, timeout_s: int) -> None:
+    """Invoke ``./omniopt --model=TPE`` for a tiny initial run."""
+    py3 = _resolve_python3_with_hyperopt()
+    env = os.environ.copy()
+    env["PATH"] = f"{Path(py3).parent}{os.pathsep}{env.get('PATH', '')}"
+    cmd = [
+        sys.executable, str(REPO_ROOT / ".tests" / "start_simple_optimization_run"),
+        f"--max_eval={max_eval}",
+        "--num_parallel_jobs=1",
+        f"--num_random_steps={num_random_steps}",
+        "--mem_gb=4",
+        "--generate_all_jobs_at_once",
+        f"--additional_parameter=--model=TPE --seed={seed} --run_mode=local",
+        f"--testname={testname}",
+        "--gpus=0",
+    ]
+    print(f"  initial command: {' '.join(cmd)}")
+    proc = subprocess.run(
+        cmd, cwd=str(REPO_ROOT), env=env,
+        capture_output=True, text=True, timeout=timeout_s,
+    )
+    if proc.returncode != 0:
+        sys.stdout.write(proc.stdout)
+        sys.stderr.write(proc.stderr)
+        raise RuntimeError(f"initial omniopt run exited with code {proc.returncode}")
+
+
+def _run_omniopt_continue(testname: str, max_eval: int, seed: int,
+                           timeout_s: int) -> None:
+    """Invoke ``./omniopt --continue`` for the given test."""
+    py3 = _resolve_python3_with_hyperopt()
+    env = os.environ.copy()
+    env["PATH"] = f"{Path(py3).parent}{os.pathsep}{env.get('PATH', '')}"
+    cmd = [
+        sys.executable, str(REPO_ROOT / ".tests" / "start_simple_optimization_run"),
+        f"--max_eval={max_eval}",
+        "--num_parallel_jobs=1",
+        "--num_random_steps=1",
+        "--mem_gb=4",
+        "--generate_all_jobs_at_once",
+        f"--additional_parameter=--model=TPE --seed={seed} --run_mode=local --continue runs/{testname}/0",
+        f"--testname={testname}",
+        "--gpus=0",
+    ]
+    print(f"  continue command: {' '.join(cmd)}")
+    proc = subprocess.run(
+        cmd, cwd=str(REPO_ROOT), env=env,
+        capture_output=True, text=True, timeout=timeout_s,
+    )
+    if proc.returncode != 0:
+        sys.stdout.write(proc.stdout)
+        sys.stderr.write(proc.stderr)
+        raise RuntimeError(f"continue omniopt run exited with code {proc.returncode}")
+
+
+def _count_csv_rows(csv_path: Path) -> int:
+    if not csv_path.exists():
+        return 0
+    with csv_path.open(encoding="utf-8") as fh:
+        return sum(1 for _ in fh) - 1  # subtract header
+
+
+def main(argv=None) -> int:
+    parser = argparse.ArgumentParser(
+        description="Test that TPE runs can be continued."
+    )
+    parser.add_argument("--max_eval", type=int, default=2)
+    parser.add_argument("--num_random_steps", type=int, default=1)
+    parser.add_argument("--continue_max_eval", type=int, default=3)
+    parser.add_argument("--seed", type=int, default=1234)
+    parser.add_argument("--testname", type=str,
+                        default="__main__tests__TPE_CONTINUE__")
+    parser.add_argument("--timeout", type=int, default=180)
+    args = parser.parse_args(argv if argv is not None else sys.argv[1:])
+
+    if args.max_eval <= args.num_random_steps:
+        red_text(
+            f"--max_eval ({args.max_eval}) must be greater than "
+            f"--num_random_steps ({args.num_random_steps})."
+        )
+        return 2
+
+    try:
+        _ensure_deps()
+    except SystemExit as exc:
+        return int(exc.code) if isinstance(exc.code, int) else 20
+
+    rundir = REPO_ROOT / "runs" / args.testname
+    print(f"--- wipe {rundir} ---")
+    _wipe_runs(args.testname)
+
+    print(f"--- initial ./omniopt --model=TPE (max_eval={args.max_eval}, "
+          f"num_random_steps={args.num_random_steps}, seed={args.seed}) ---")
+    try:
+        _run_omniopt_initial(
+            args.testname, args.max_eval, args.num_random_steps,
+            args.seed, args.timeout,
+        )
+    except Exception as exc:
+        red_text(f"initial omniopt run failed: {exc}")
+        return 4
+
+    initial_csv = rundir / "0" / "results.csv"
+    if not initial_csv.exists():
+        red_text(f"{initial_csv} missing after initial run.")
+        return 5
+    initial_rows = _count_csv_rows(initial_csv)
+    print(f"  initial results.csv: {initial_rows} data rows")
+    if initial_rows < args.max_eval:
+        red_text(
+            f"initial results.csv has {initial_rows} rows, "
+            f"expected at least {args.max_eval}."
+        )
+        return 6
+
+    print(f"--- continue ./omniopt --continue (max_eval={args.continue_max_eval}) ---")
+    try:
+        _run_omniopt_continue(
+            args.testname, args.continue_max_eval, args.seed, args.timeout,
+        )
+    except Exception as exc:
+        red_text(f"continue omniopt run failed: {exc}")
+        return 7
+
+    continue_csv = rundir / "1" / "results.csv"
+    if not continue_csv.exists():
+        red_text(f"{continue_csv} missing after continue.")
+        return 8
+    continue_rows = _count_csv_rows(continue_csv)
+    print(f"  continue results.csv: {continue_rows} data rows")
+    if continue_rows < args.continue_max_eval:
+        red_text(
+            f"continue results.csv has {continue_rows} rows, "
+            f"expected at least {args.continue_max_eval}."
+        )
+        return 9
+
+    print()
+    green_text(
+        f"TPE continuation test OK "
+        f"(initial: {initial_rows} rows, continue: {continue_rows} rows)."
+    )
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

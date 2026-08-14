@@ -502,6 +502,13 @@ tests:
     wanted_exit_code: 0
     tags: [suite:full, quick:no]
 
+  - id: tpe_vs_hyperopt
+    class: moo
+    name: "TPE (OmniOpt .tpe.py) vs vanilla hyperopt TPE"
+    cmd: "{REPO_ROOT}/.tests/tpe_vs_hyperopt"
+    wanted_exit_code: 0
+    tags: [suite:full, quick:no, deps:hyperopt]
+
   # ---- result name handling -------------------------------------------------
   - id: wrong_result_name
     class: result_names

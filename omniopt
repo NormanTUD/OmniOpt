@@ -2615,6 +2615,220 @@ def _omniopt_make_choiceparam_decoder_safe() -> None:
 
 _omniopt_make_choiceparam_decoder_safe()
 
+
+# Newer Ax versions expect ``Objective`` JSON to contain ``metric`` and
+# ``minimize`` keys.  Older Ax versions stored the objective as
+# ``{"__type": "Objective", "expression": "-RESULT"}``.  When loading
+# such a state file with the current Ax, ``objective_from_json`` blows
+# up with ``KeyError: 'metric'``.  Monkey-patch the decoder so it
+# transparently upgrades the legacy ``expression`` form on the fly.
+#
+# We also drop unsupported kwargs (``pruning_target_parameterization`` and
+# anything else) from ``OptimizationConfig`` JSON so the current Ax
+# version can still load state files written by a slightly older one.
+def _omniopt_make_objective_decoder_safe() -> None:
+    try:
+        from ax.storage.json_store import decoder as _decoder_mod
+        from ax.storage.json_store.decoder import objective_from_json as _orig_obj
+        from ax.core.optimization_config import OptimizationConfig as _OptCfg
+        from ax.core.experiment import Experiment as _Experiment
+        import inspect as _inspect
+    except Exception:
+        return
+
+    _optcfg_params = set(_inspect.signature(_OptCfg.__init__).parameters.keys())
+    _experiment_params = set(_inspect.signature(_Experiment.__init__).parameters.keys())
+
+    def _safe_objective_from_json(object_json, **_kwargs):
+        if (
+            isinstance(object_json, dict)
+            and "expression" in object_json
+            and "metric" not in object_json
+        ):
+            expression = str(object_json.get("expression", "")).strip()
+
+            if expression.startswith("-") or expression.startswith("(-"):
+                minimize: Optional[bool] = True
+            elif expression.startswith("+"):
+                minimize = False
+            else:
+                minimize = None
+
+            metric_name: Optional[str] = None
+            tracking_metrics = _kwargs.get("tracking_metrics") or []
+            for tm in tracking_metrics:
+                if isinstance(tm, dict):
+                    name = tm.get("name")
+                    if name and name in expression:
+                        metric_name = name
+                        break
+
+            if metric_name is None:
+                import re as _re
+                _m = _re.match(r"\(*\s*[+-]?\s*([a-zA-Z_][a-zA-Z_0-9]*)", expression)
+                if _m:
+                    metric_name = _m.group(1)
+
+            if metric_name is not None:
+                lower_is_better = minimize if minimize is not None else True
+                new_object_json = {
+                    "metric": {
+                        "__type": "Metric",
+                        "name": metric_name,
+                        "lower_is_better": lower_is_better,
+                        "properties": {},
+                        "signature_override": None,
+                    },
+                    "minimize": lower_is_better,
+                }
+                object_json = new_object_json
+
+        return _orig_obj(object_json=object_json, **_kwargs)
+
+    _safe_objective_from_json.__name__ = getattr(_orig_obj, "__name__", "objective_from_json")
+    _decoder_mod.objective_from_json = _safe_objective_from_json
+
+    _orig_obj_from_json = _decoder_mod.object_from_json
+
+    def _safe_object_from_json(object_json, *args, **kwargs):
+        if isinstance(object_json, dict):
+            _t = object_json.get("__type")
+            if _t == "OptimizationConfig":
+                for _extra in list(object_json.keys()):
+                    if _extra not in _optcfg_params and _extra != "__type":
+                        object_json.pop(_extra, None)
+            elif _t == "Experiment":
+                for _extra in list(object_json.keys()):
+                    if _extra not in _experiment_params and _extra != "__type":
+                        object_json.pop(_extra, None)
+            elif _t == "Data":
+                # Older Ax state files embed a ``metric_signature`` column in
+                # ``Data`` DataFrames; current Ax no longer accepts it.  Strip
+                # the column from the embedded DataFrame JSON before Ax's
+                # ``Data.deserialize_init_args`` materializes the DataFrame.
+                try:
+                    import json as _json
+                    _df = object_json.get("df")
+                    if (
+                        isinstance(_df, dict)
+                        and _df.get("__type") == "DataFrame"
+                        and "value" in _df
+                    ):
+                        _decoded = _json.loads(_df["value"])
+                        if isinstance(_decoded, dict) and "metric_signature" in _decoded:
+                            _decoded.pop("metric_signature")
+                            _df["value"] = _json.dumps(_decoded)
+                except Exception:
+                    pass
+        return _orig_obj_from_json(object_json, *args, **kwargs)
+
+    _safe_object_from_json.__name__ = getattr(_orig_obj_from_json, "__name__", "object_from_json")
+    _decoder_mod.object_from_json = _safe_object_from_json
+
+    _orig_experiment_from_json = _decoder_mod.experiment_from_json
+
+    # Keys that Ax's ``experiment_from_json`` extracts into ``experiment_info``
+    # via ``_get_experiment_info`` before constructing ``Experiment``.
+    _experiment_reserved_keys = {"__type", "time_created", "trials", "experiment_type", "data_by_trial"}
+
+    def _safe_experiment_from_json(object_json, *args, **kwargs):
+        if isinstance(object_json, dict):
+            for _extra in list(object_json.keys()):
+                if (
+                    _extra not in _experiment_params
+                    and _extra not in _experiment_reserved_keys
+                ):
+                    object_json.pop(_extra, None)
+        return _orig_experiment_from_json(object_json, *args, **kwargs)
+
+    _safe_experiment_from_json.__name__ = getattr(_orig_experiment_from_json, "__name__", "experiment_from_json")
+    _decoder_mod.experiment_from_json = _safe_experiment_from_json
+
+    _orig_generator_run_from_json = _decoder_mod.generator_run_from_json
+    from ax.core.generator_run import GeneratorRun as _GeneratorRun
+    _generator_run_params = set(_inspect.signature(_GeneratorRun.__init__).parameters.keys())
+    # Keys that ``generator_run_from_json`` itself extracts (``time_created``
+    # and ``generator_run_type``); keep them around for the original decoder
+    # to consume.
+    _generator_run_reserved = {"time_created", "generator_run_type", "index", "objective_thresholds"}
+
+    def _safe_generator_run_from_json(object_json, *args, **kwargs):
+        if isinstance(object_json, dict):
+            # Older Ax state files don't carry ``index`` on ``GeneratorRun``;
+            # Ax now requires it.  Synthesize a sensible default that won't
+            # conflict with the trial's ``add_generator_run`` which assigns
+            # ``index = 0`` to attached generator runs.
+            object_json.setdefault("index", 0)
+            object_json.setdefault("generator_run_type", None)
+            # Newer Ax renamed some kwargs (``generator_key`` → ``model_key``,
+            # ``adapter_kwargs`` → ``bridge_kwargs``, ``generator_state_after_gen``
+            # → ``model_state_after_gen``).  Drop unknown ones that aren't
+            # reserved by the original decoder so the constructor doesn't
+            # choke.
+            for _extra in list(object_json.keys()):
+                if (
+                    _extra not in _generator_run_params
+                    and _extra not in _generator_run_reserved
+                ):
+                    object_json.pop(_extra, None)
+        return _orig_generator_run_from_json(object_json, *args, **kwargs)
+
+    _safe_generator_run_from_json.__name__ = getattr(_orig_generator_run_from_json, "__name__", "generator_run_from_json")
+    _decoder_mod.generator_run_from_json = _safe_generator_run_from_json
+
+    try:
+        import sys as _sys
+        from ax.storage.json_store import decoders as _decoders_mod
+        from ax.storage.json_store.decoders import trial_from_json as _trial_fj
+        from ax.storage.json_store.decoders import batch_trial_from_json as _batch_trial_fj
+    except Exception:
+        _decoders_mod = None
+        _trial_fj = None
+        _batch_trial_fj = None
+
+    # Required parameters that newer Ax expects on Trial / BatchTrial
+    # ``from_json``-helpers but that older state files omit.
+    _trial_required_defaults = {
+        "abandoned_reason": None,
+        "failed_reason": None,
+        "run_metadata": None,
+        "stop_metadata": None,
+        "generation_step_index": None,
+        "properties": None,
+        "lifecycle_stage": None,
+        "status_quo_weight_override": 1.0,
+        "abandoned_arms_metadata": {},
+    }
+
+    if _decoders_mod is not None and _trial_fj is not None:
+        _safe_trial_fj = _trial_fj
+
+        def _safe_trial_fj_wrapper(*_args, **_kwargs):
+            for _k, _v in _trial_required_defaults.items():
+                _kwargs.setdefault(_k, _v)
+            return _safe_trial_fj(*_args, **_kwargs)
+
+        _safe_trial_fj_wrapper.__name__ = getattr(_trial_fj, "__name__", "trial_from_json")
+        _decoders_mod.trial_from_json = _safe_trial_fj_wrapper
+        if "ax.storage.json_store.decoder" in _sys.modules:
+            _sys.modules["ax.storage.json_store.decoder"].trial_from_json = _safe_trial_fj_wrapper
+
+    if _decoders_mod is not None and _batch_trial_fj is not None:
+        _safe_batch_trial_fj = _batch_trial_fj
+
+        def _safe_batch_trial_fj_wrapper(*_args, **_kwargs):
+            for _k, _v in _trial_required_defaults.items():
+                _kwargs.setdefault(_k, _v)
+            return _safe_batch_trial_fj(*_args, **_kwargs)
+
+        _safe_batch_trial_fj_wrapper.__name__ = getattr(_batch_trial_fj, "__name__", "batch_trial_from_json")
+        _decoders_mod.batch_trial_from_json = _safe_batch_trial_fj_wrapper
+        if "ax.storage.json_store.decoder" in _sys.modules:
+            _sys.modules["ax.storage.json_store.decoder"].batch_trial_from_json = _safe_batch_trial_fj_wrapper
+
+
+_omniopt_make_objective_decoder_safe()
+
 NVIDIA_SMI_LOGS_BASE = None
 global_gs: Optional[GenerationStrategy] = None
 
@@ -10981,8 +11195,6 @@ def set_global_generation_strategy() -> None:
         else:
             setup_custom_generation_strategy()
     except Exception as e:
-        import traceback as _tb
-        _tb.print_exc()
         print_red(f"Unexpected error in generation strategy setup: {e}")
         my_exit(111)
 

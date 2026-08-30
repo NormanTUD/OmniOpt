@@ -1415,9 +1415,10 @@ script_dir = os.path.dirname(os.path.realpath(__file__))
 
 # When running inside a SLURM job the spool copies only the main
 # script (not hidden companion files like `.helpers.py` /
-# `.shellscript_functions`).  Resolve back to the original
-# invocation directory via `scontrol show job $SLURM_JOB_ID` so
-# `script_dir` always points at the real source tree.
+# `.ax.py` / `.shellscript_functions`).  Resolve back to the
+# original invocation directory via `scontrol show job
+# $SLURM_JOB_ID` so `script_dir` always points at the real source
+# tree.
 if os.environ.get("SLURM_JOB_ID") and shutil.which("scontrol"):
     try:
         ctrl = subprocess.run(
@@ -2366,9 +2367,9 @@ def set_global_gs_to_HUMAN_INTERVENTION_MINIMUM() -> None:
 
     node = InteractiveCLIGenerationNode()
 
-    global_gs = GenerationStrategy(
+    global_gs = ax_backend.create_generation_strategy(
         name="HUMAN_INTERVENTION_MINIMUM",
-        nodes=[node]
+        nodes=[node],
     )
 
 with spinner("Parsing arguments...") as parsing_arguments_loader:
@@ -2388,9 +2389,7 @@ original_result_names = args.result_names
 
 if args.seed is not None:
     with spinner("Importing ax random seed..."):
-        from ax.utils.common.random import set_rng_seed
-
-    set_rng_seed(args.seed)
+        ax_backend.set_rng_seed(args.seed)
 
 def _fatal_error(message: str, code: int) -> None:
     print_red(message)
@@ -2489,62 +2488,22 @@ try:
         import torch
         import numpy as np
 
-    with spinner("Loading Ax platform..."):
-        import ax
-        from ax.core.generator_run import GeneratorRun
-        from ax.adapter.registry import Cont_X_trans, Y_trans, Generators
-        from ax.core.arm import Arm
-        from ax.core.objective import MultiObjective
-        from ax.core import Metric
-        import ax.exceptions.core
-        import ax.exceptions.generation_strategy
-        import ax.generation_strategy.generation_node
-        from ax.generation_strategy.generation_strategy import GenerationStrategy
-        from ax.generation_strategy.generation_node import GenerationNode
-        from ax.generation_strategy.external_generation_node import ExternalGenerationNode
-        from ax.generation_strategy.transition_criterion import MinTrials
-        from ax.generation_strategy.generator_spec import GeneratorSpec
-
-        # Ax renamed both GenerationNode and ExternalGenerationNode's
-        # first kwarg from `node_name` to `name` somewhere around 1.2.
-        # Older docker SLURM test environments (Ax 1.1.0) still expect
-        # `node_name`.  Detect which one is in use once at import time
-        # so the subclasses below and `create_node()` can call
-        # super().__init__() with the right name.
-        import inspect as _inspect
-        _gn_init_params = list(_inspect.signature(GenerationNode.__init__).parameters.keys())
-        if "name" in _gn_init_params:
-            _OMNIOPT_GN_NAME_KW: str = "name"
-        elif "node_name" in _gn_init_params:
-            _OMNIOPT_GN_NAME_KW = "node_name"
-        else:
-            _OMNIOPT_GN_NAME_KW = "name"
-
-        _ext_init_params = list(_inspect.signature(ExternalGenerationNode.__init__).parameters.keys())
-        if "name" in _ext_init_params:
-            _OMNIOPT_EXT_NAME_KW: str = "name"
-        elif "node_name" in _ext_init_params:
-            _OMNIOPT_EXT_NAME_KW = "node_name"
-        else:
-            _OMNIOPT_EXT_NAME_KW = "name"
-        del _inspect, _ext_init_params, _gn_init_params
-
-    with spinner("Loading Ax storage and data..."):
-        from ax.storage.json_store.registry import CORE_DECODER_REGISTRY
-        from ax.storage.json_store.load import load_experiment
-        from ax.storage.json_store.save import save_experiment
-        from ax.storage.sqa_store.save import save_experiment as save_experiment_to_db, save_generation_strategy
-        from ax.core.base_trial import TrialStatus
-        from ax.core.data import Data
-        from ax.core.experiment import Experiment
-        from ax.core.parameter import RangeParameter, FixedParameter, ChoiceParameter, ParameterType
-        from ax.core.types import TParameterization
+    with spinner("Loading Ax abstraction..."):
+        import importlib.util as _ax_spec_util
+        _ax_backend_path = f"{script_dir}/.ax.py"
+        _ax_backend_spec = _ax_spec_util.spec_from_file_location(
+            name="ax_backend",
+            location=_ax_backend_path,
+        )
+        if _ax_backend_spec is None or _ax_backend_spec.loader is None:
+            raise ImportError(f"Could not load .ax.py from {_ax_backend_path}")
+        ax_backend = importlib.util.module_from_spec(_ax_backend_spec)
+        _ax_backend_spec.loader.exec_module(ax_backend)
+        ax_backend.init()
+        ax_backend.disable_internal_loggers(level=logging.CRITICAL)
 
     with spinner("Loading data science stack..."):
         import pandas as pd
-        from ax.service.ax_client import AxClient, ObjectiveProperties
-        from sklearn.ensemble import RandomForestRegressor
-        import botorch
         import submitit
         from submitit import DebugJob, LocalJob, SlurmJob
 except ModuleNotFoundError as ee:
@@ -2563,579 +2522,22 @@ except KeyboardInterrupt:
     print("\n\033[93m⚠ Interrupted while loading ML modules.\033[0m")
     my_exit(0)
 except AttributeError:
-    print(f"\n\033[91m⚠ Your virtual environment is outdated. Remove '{os.getenv('VENV_DIR')}' and re-install.\033[0m")
+    print(f"\033[91m⚠ Your virtual environment is outdated. Remove '{os.getenv('VENV_DIR')}' and re-install.\033[0m")
     my_exit(7)
 except FileNotFoundError as e:
-    print(f"\n\033[91m⚠ Error: {e}. The disk may be full.\033[0m")
+    print(f"\033[91m⚠ Error: {e}. The disk may be full.\033[0m")
     my_exit(92)
 except ImportError as e:
     print(f"\033[91mFailed to load module: {e}\033[0m")
     my_exit(93)
 
-with spinner("Importing ax logger...") as status:
-    from ax.utils.common.logger import disable_loggers
-
-with spinner("Importing SQL-Storage-Stuff...") as status:
-    from ax.storage.sqa_store.db import init_engine_and_session_factory, get_engine, create_all_tables
-
-    disable_loggers(names=["ax.adapter.base"], level=logging.CRITICAL)
-
-decoder_registry = CORE_DECODER_REGISTRY
-
-
-# Ax 1.3 added `sort_values` (and later also `log_scale`) to
-# ChoiceParameter; the docker SLURM test image still runs Ax 1.1.0
-# which doesn't know about these kwargs.  When loading a state file
-# written by a newer Ax, the default decoder blows up with
-# `ChoiceParameter.__init__() got an unexpected keyword argument
-# 'sort_values'`.  Wrap the default ChoiceParameter decoder so we
-# silently drop fields the installed Ax doesn't accept.
-def _omniopt_make_choiceparam_decoder_safe() -> None:
-    try:
-        from ax.core.parameter import ChoiceParameter as _CP
-        import inspect as _inspect
-    except Exception:
-        return
-    _accepted = set(_inspect.signature(_CP.__init__).parameters.keys())
-    # Always drop kwargs newer Ax added that this Ax can't take.
-    for _extra in ("sort_values", "log_scale"):
-        if _extra not in _accepted:
-            try:
-                _orig = decoder_registry["ChoiceParameter"]
-            except KeyError:
-                return
-            def _safe_choiceparam(*_args, _orig=_orig, **_kwargs):
-                _kwargs.pop("sort_values", None)
-                _kwargs.pop("log_scale", None)
-                return _orig(*_args, **_kwargs)
-            _safe_choiceparam.__name__ = getattr(_orig, "__name__", "ChoiceParameter")
-            decoder_registry["ChoiceParameter"] = _safe_choiceparam
-            break
-
-
-_omniopt_make_choiceparam_decoder_safe()
-
-
-def _parse_linear_inequality(_inequality: str):
-    """Parse a linear-inequality string like ``"1.0 * lr + 2.0 * epochs <= 10.0"``.
-
-    Returns ``(constraint_dict, bound)`` or ``None`` if the string isn't a
-    simple linear inequality we can recognise.  Older OmniOpt state files
-    store parameter constraints in this format; current Ax expects a
-    ``constraint_dict`` + ``bound`` pair instead.
-    """
-    import re as _re
-
-    _ineq = _inequality.strip().replace(" ", "")
-    _m = _re.match(r"^(.+?)(<=|>=|<|>|=)(.+)$", _ineq)
-    if not _m:
-        return None
-    _lhs, _op, _rhs = _m.group(1), _m.group(2), _m.group(3)
-
-    try:
-        _bound = float(_rhs)
-    except ValueError:
-        return None
-
-    # Normalise operator: ``constraint_dict`` semantics in Ax are
-    # ``weighted_sum(parameter) <= bound`` for upper-bound style constraints.
-    # If the original was ``>=`` we move the bound to the other side.
-    if _op in (">=", ">"):
-        # a*x + b*y >= B   =>   (-a)*x + (-b)*y <= -B
-        _bound = -_bound
-        _lhs = _lhs.replace("+", "|+|").replace("-", "|-|").replace("|+|", "-").replace("|-|", "+")
-        if _lhs.startswith("+"):
-            _lhs = _lhs[1:]
-        elif _lhs.startswith("-"):
-            _lhs = "-" + _lhs[1:]
-        else:
-            _lhs = "-" + _lhs
-
-    # Split LHS on '+' (already space-stripped) into signed terms.
-    _constraint_dict: dict = {}
-    for _term in re.split(r"(?=[+-])", _lhs):
-        if not _term:
-            continue
-        _term_m = _re.match(r"^([+-]?)(?:\*?)([+-]?[\d.eE]+)?(?:\*?)([A-Za-z_][A-Za-z_0-9]*)$", _term)
-        if _term_m is None:
-            # Try alternative pattern: coefficient * param
-            _term_m = _re.match(r"^([+-]?[\d.eE]+)\*([A-Za-z_][A-Za-z_0-9]*)$", _term)
-            if _term_m is None:
-                return None
-            _sign, _coef, _name = "+", _term_m.group(1), _term_m.group(2)
-        else:
-            _sign = _term_m.group(1) or "+"
-            _coef = _term_m.group(2)
-            _name = _term_m.group(3)
-        if _coef is None:
-            _coef_val: float = 1.0
-        else:
-            try:
-                _coef_val = float(_coef)
-            except ValueError:
-                return None
-        if _sign == "-":
-            _coef_val = -_coef_val
-        _constraint_dict[_name] = _constraint_dict.get(_name, 0.0) + _coef_val
-
-    if not _constraint_dict:
-        return None
-    return _constraint_dict, _bound
-
-
-# Newer Ax versions expect ``Objective`` JSON to contain ``metric`` and
-# ``minimize`` keys.  Older Ax versions stored the objective as
-# ``{"__type": "Objective", "expression": "-RESULT"}``.  When loading
-# such a state file with the current Ax, ``objective_from_json`` blows
-# up with ``KeyError: 'metric'``.  Monkey-patch the decoder so it
-# transparently upgrades the legacy ``expression`` form on the fly.
-#
-# We also drop unsupported kwargs (``pruning_target_parameterization`` and
-# anything else) from ``OptimizationConfig`` JSON so the current Ax
-# version can still load state files written by a slightly older one.
-def _omniopt_make_objective_decoder_safe() -> None:
-    try:
-        from ax.storage.json_store import decoder as _decoder_mod
-        from ax.storage.json_store.decoder import objective_from_json as _orig_obj
-        from ax.core.optimization_config import OptimizationConfig as _OptCfg
-        from ax.core.experiment import Experiment as _Experiment
-        import inspect as _inspect
-    except Exception:
-        return
-
-    _optcfg_params = set(_inspect.signature(_OptCfg.__init__).parameters.keys())
-    _experiment_params = set(_inspect.signature(_Experiment.__init__).parameters.keys())
-
-    def _safe_objective_from_json(object_json, **_kwargs):
-        if (
-            isinstance(object_json, dict)
-            and "expression" in object_json
-            and "metric" not in object_json
-        ):
-            expression = str(object_json.get("expression", "")).strip()
-
-            if expression.startswith("-") or expression.startswith("(-"):
-                minimize: Optional[bool] = True
-            elif expression.startswith("+"):
-                minimize = False
-            else:
-                minimize = None
-
-            metric_name: Optional[str] = None
-            tracking_metrics = _kwargs.get("tracking_metrics") or []
-            for tm in tracking_metrics:
-                if isinstance(tm, dict):
-                    name = tm.get("name")
-                    if name and name in expression:
-                        metric_name = name
-                        break
-
-            if metric_name is None:
-                import re as _re
-                _m = _re.match(r"\(*\s*[+-]?\s*([a-zA-Z_][a-zA-Z_0-9]*)", expression)
-                if _m:
-                    metric_name = _m.group(1)
-
-            if metric_name is not None:
-                lower_is_better = minimize if minimize is not None else True
-                new_object_json = {
-                    "metric": {
-                        "__type": "Metric",
-                        "name": metric_name,
-                        "lower_is_better": lower_is_better,
-                        "properties": {},
-                        "signature_override": None,
-                    },
-                    "minimize": lower_is_better,
-                }
-                object_json = new_object_json
-
-        return _orig_obj(object_json=object_json, **_kwargs)
-
-    _safe_objective_from_json.__name__ = getattr(_orig_obj, "__name__", "objective_from_json")
-    _decoder_mod.objective_from_json = _safe_objective_from_json
-
-    _orig_obj_from_json = _decoder_mod.object_from_json
-
-    def _safe_object_from_json(object_json, *args, **kwargs):
-        if isinstance(object_json, dict):
-            _t = object_json.get("__type")
-            if _t == "OptimizationConfig":
-                for _extra in list(object_json.keys()):
-                    if _extra not in _optcfg_params and _extra != "__type":
-                        object_json.pop(_extra, None)
-            elif _t == "Experiment":
-                for _extra in list(object_json.keys()):
-                    if _extra not in _experiment_params and _extra != "__type":
-                        object_json.pop(_extra, None)
-            elif _t == "Data":
-                # Older Ax state files embed a ``metric_signature`` column in
-                # ``Data`` DataFrames; current Ax no longer accepts it.  Strip
-                # the column from the embedded DataFrame JSON before Ax's
-                # ``Data.deserialize_init_args`` materializes the DataFrame.
-                try:
-                    import json as _json
-                    _df = object_json.get("df")
-                    if (
-                        isinstance(_df, dict)
-                        and _df.get("__type") == "DataFrame"
-                        and "value" in _df
-                    ):
-                        _decoded = _json.loads(_df["value"])
-                        if isinstance(_decoded, dict) and "metric_signature" in _decoded:
-                            _decoded.pop("metric_signature")
-                            _df["value"] = _json.dumps(_decoded)
-                except Exception:
-                    pass
-            elif _t == "ParameterConstraint":
-                # Older Ax state files store the constraint as a single
-                # ``inequality`` string (e.g. ``"1.0 * lr + 2.0 * epochs <= 10.0"``).
-                # Current Ax expects ``constraint_dict`` (a parameter -> weight
-                # map) and ``bound``.  Parse the inequality and rewrite the
-                # object_json on the fly.
-                _ineq = object_json.get("inequality")
-                if isinstance(_ineq, str):
-                    _parsed = _parse_linear_inequality(_ineq)
-                    if _parsed is not None:
-                        _constraint_dict, _bound = _parsed
-                        object_json.pop("inequality", None)
-                        object_json["constraint_dict"] = _constraint_dict
-                        object_json["bound"] = _bound
-        return _orig_obj_from_json(object_json, *args, **kwargs)
-
-    _safe_object_from_json.__name__ = getattr(_orig_obj_from_json, "__name__", "object_from_json")
-    _decoder_mod.object_from_json = _safe_object_from_json
-
-    _orig_experiment_from_json = _decoder_mod.experiment_from_json
-
-    # Keys that Ax's ``experiment_from_json`` extracts into ``experiment_info``
-    # via ``_get_experiment_info`` before constructing ``Experiment``.
-    _experiment_reserved_keys = {"__type", "time_created", "trials", "experiment_type", "data_by_trial"}
-
-    def _safe_experiment_from_json(object_json, *args, **kwargs):
-        if isinstance(object_json, dict):
-            for _extra in list(object_json.keys()):
-                if (
-                    _extra not in _experiment_params
-                    and _extra not in _experiment_reserved_keys
-                ):
-                    object_json.pop(_extra, None)
-        return _orig_experiment_from_json(object_json, *args, **kwargs)
-
-    _safe_experiment_from_json.__name__ = getattr(_orig_experiment_from_json, "__name__", "experiment_from_json")
-    _decoder_mod.experiment_from_json = _safe_experiment_from_json
-
-    _orig_generator_run_from_json = _decoder_mod.generator_run_from_json
-    from ax.core.generator_run import GeneratorRun as _GeneratorRun
-    _generator_run_params = set(_inspect.signature(_GeneratorRun.__init__).parameters.keys())
-    # Keys that ``generator_run_from_json`` itself extracts (``time_created``
-    # and ``generator_run_type``); keep them around for the original decoder
-    # to consume.
-    _generator_run_reserved = {"time_created", "generator_run_type", "index", "objective_thresholds"}
-
-    def _safe_generator_run_from_json(object_json, *args, **kwargs):
-        if isinstance(object_json, dict):
-            # Older Ax state files don't carry ``index`` on ``GeneratorRun``;
-            # Ax now requires it.  Synthesize a sensible default that won't
-            # conflict with the trial's ``add_generator_run`` which assigns
-            # ``index = 0`` to attached generator runs.
-            object_json.setdefault("index", 0)
-            object_json.setdefault("generator_run_type", None)
-            # Newer Ax renamed some kwargs (``generator_key`` → ``model_key``,
-            # ``adapter_kwargs`` → ``bridge_kwargs``, ``generator_state_after_gen``
-            # → ``model_state_after_gen``).  Drop unknown ones that aren't
-            # reserved by the original decoder so the constructor doesn't
-            # choke.
-            for _extra in list(object_json.keys()):
-                if (
-                    _extra not in _generator_run_params
-                    and _extra not in _generator_run_reserved
-                ):
-                    object_json.pop(_extra, None)
-        return _orig_generator_run_from_json(object_json, *args, **kwargs)
-
-    _safe_generator_run_from_json.__name__ = getattr(_orig_generator_run_from_json, "__name__", "generator_run_from_json")
-    _decoder_mod.generator_run_from_json = _safe_generator_run_from_json
-
-    try:
-        import sys as _sys
-        import inspect as _inspect2
-        from ax.storage.json_store import decoders as _decoders_mod
-        from ax.storage.json_store.decoders import trial_from_json as _trial_fj
-        from ax.storage.json_store.decoders import batch_trial_from_json as _batch_trial_fj
-    except Exception:
-        _decoders_mod = None
-        _trial_fj = None
-        _batch_trial_fj = None
-        _inspect2 = None
-
-    # Required parameters that newer Ax expects on Trial / BatchTrial
-    # ``from_json``-helpers but that older state files omit.
-    # Only include keys that the respective decoder actually consumes as named
-    # params; otherwise they fall through into ``**kwargs`` and trigger
-    # ``ax.utils.common.kwargs.warn_on_kwargs`` warnings on every load.
-    _trial_named_params = (
-        set(_inspect2.signature(_trial_fj).parameters.keys())
-        if (_trial_fj is not None and _inspect2 is not None)
-        else set()
-    )
-    _batch_trial_named_params = (
-        set(_inspect2.signature(_batch_trial_fj).parameters.keys())
-        if (_batch_trial_fj is not None and _inspect2 is not None)
-        else set()
-    )
-    # All Trial / BatchTrial known fields in current Ax.  Anything outside the
-    # decoder's named params falls into ``**kwargs`` and triggers the same
-    # warning, so we only forward keys the decoder actually consumes and
-    # silently drop the rest.
-    _trial_required_defaults = {
-        "abandoned_reason": None,
-        "failed_reason": None,
-        "run_metadata": None,
-        "stop_metadata": None,
-        "generation_step_index": None,
-        "properties": None,
-        "lifecycle_stage": None,
-        "status_quo_weight_override": 1.0,
-        "abandoned_arms_metadata": {},
-        "status_reason": None,
-    }
-
-    def _make_safe_trial_fj(orig, named_params):
-        if orig is None:
-            return None
-        _defaults = {
-            _k: _v
-            for _k, _v in _trial_required_defaults.items()
-            if _k in named_params
-        }
-        _unwanted = {_k for _k in _trial_required_defaults if _k not in named_params}
-
-        def _wrapper(*_args, **_kwargs):
-            for _k, _v in _defaults.items():
-                _kwargs.setdefault(_k, _v)
-            for _k in _unwanted:
-                _kwargs.pop(_k, None)
-            return orig(*_args, **_kwargs)
-
-        _wrapper.__name__ = getattr(orig, "__name__", "trial_from_json")
-        return _wrapper
-
-    if _decoders_mod is not None and _trial_fj is not None:
-        _safe_trial_fj = _make_safe_trial_fj(_trial_fj, _trial_named_params)
-        _decoders_mod.trial_from_json = _safe_trial_fj
-        if "ax.storage.json_store.decoder" in _sys.modules:
-            _sys.modules["ax.storage.json_store.decoder"].trial_from_json = _safe_trial_fj
-
-    if _decoders_mod is not None and _batch_trial_fj is not None:
-        _safe_batch_trial_fj = _make_safe_trial_fj(
-            _batch_trial_fj, _batch_trial_named_params
-        )
-        _decoders_mod.batch_trial_from_json = _safe_batch_trial_fj
-        if "ax.storage.json_store.decoder" in _sys.modules:
-            _sys.modules["ax.storage.json_store.decoder"].batch_trial_from_json = _safe_batch_trial_fj
-
-
-_omniopt_make_objective_decoder_safe()
+decoder_registry = ax_backend.get_decoder_registry()
 
 NVIDIA_SMI_LOGS_BASE = None
-global_gs: Optional[GenerationStrategy] = None
+global_gs: Optional[Any] = None
 
-@dataclass(init=False)
-class RandomForestGenerationNode(ExternalGenerationNode):
-    def __init__(self: Any, regressor_options: Dict[str, Any] = {}, seed: Optional[int] = None, num_samples: int = 1) -> None:
-        print_debug("Initializing RandomForestGenerationNode...")
-        t_init_start = time.monotonic()
-        super().__init__(**{_OMNIOPT_EXT_NAME_KW: "RANDOMFOREST"})
-        self.num_samples: int = num_samples
-        self.seed: int = seed
+RandomForestGenerationNode = ax_backend.RandomForestGenerationNode
 
-        self.regressor: RandomForestRegressor = RandomForestRegressor(
-            **regressor_options,
-            random_state=self.seed if self.seed is not None else None
-        )
-
-        self.parameters: Optional[Dict[str, Any]] = None
-        self.minimize: Optional[bool] = None
-        self.fit_time_since_gen: float = time.monotonic() - t_init_start
-
-        fool_linter(self.fit_time_since_gen)
-
-        print_debug("Initialized RandomForestGenerationNode")
-
-    def update_generator_state(self: Any, experiment: Experiment, data: Data) -> None:
-        search_space = experiment.search_space
-        parameter_names = list(search_space.parameters.keys())
-        if experiment.optimization_config is None:
-            print_red("Error: update_generator_state is None")
-            return
-        try:
-            metric_names = list(experiment.optimization_config.metric_names)
-        except AttributeError as e:
-            print_red(f"Error trying to get experiment.optimization_config.metric_names: {e}")
-            sys.exit(94)
-
-        completed_trials = [
-            trial for trial in experiment.trials.values() if trial.status == TrialStatus.COMPLETED
-        ]
-        num_completed_trials = len(completed_trials)
-
-        x = np.zeros([num_completed_trials, len(parameter_names)])
-        y = np.zeros([num_completed_trials, 1])
-
-        for t_idx, trial in enumerate(completed_trials):
-            trial_parameters = trial.arms[0].parameters
-            x[t_idx, :] = np.array([trial_parameters[p] for p in parameter_names])
-            trial_df = data.df[data.df["trial_index"] == trial.index]
-            y[t_idx, 0] = trial_df[trial_df["metric_name"] == metric_names[0]]["mean"].item()
-
-        self.regressor.fit(x, y)
-        self.parameters = search_space.parameters
-
-        if isinstance(experiment.optimization_config.objective, MultiObjective):
-            for moo in experiment.optimization_config.objective.objectives: # type: ignore[attr-defined]
-                self.minimize.append(moo.minimize)
-        else:
-            self.minimize = experiment.optimization_config.objective.minimize
-
-    def get_next_candidate(self: Any, pending_parameters: List[TParameterization]) -> TParameterization:
-        if self.parameters is None:
-            raise RuntimeError("Parameters are not initialized. Call update_generator_state first.")
-
-        ranged_parameters, fixed_values, choice_parameters = self._separate_parameters()
-        reverse_choice_map = self._build_reverse_choice_map(choice_parameters)
-        ranged_samples = self._generate_ranged_samples(ranged_parameters)
-        all_samples = self._build_all_samples(ranged_parameters, ranged_samples, fixed_values, choice_parameters)
-
-        x_pred = self._build_prediction_matrix(all_samples)
-        y_pred = self.regressor.predict(x_pred)
-
-        sorted_indices = np.argsort(y_pred) if self.minimize else np.argsort(-np.array(y_pred))
-
-        for idx in sorted_indices:
-            candidate = all_samples[idx]
-            if self._is_within_constraints(list(candidate.values())):
-                self._format_best_sample(candidate, reverse_choice_map)
-                return candidate
-
-        raise RuntimeError("No valid candidate found within constraints.")
-
-    def _is_within_constraints(self: Any, params_list: list) -> bool:
-        if self.experiment.search_space.parameter_constraints:
-            param_names = list(self.parameters.keys())
-            params = dict(zip(param_names, params_list))
-
-            for constraint in self.experiment.search_space.parameter_constraints:
-                if not constraint.check(params):
-                    return False
-
-        return True
-
-    def _separate_parameters(self: Any) -> tuple[list, dict, dict]:
-        ranged_parameters = []
-        fixed_values = {}
-        choice_parameters = {}
-
-        for name, param in self.parameters.items():
-            if isinstance(param, RangeParameter):
-                ranged_parameters.append((name, param.lower, param.upper))
-            elif isinstance(param, FixedParameter):
-                fixed_values[name] = str(param.value)
-            elif isinstance(param, ChoiceParameter):
-                choice_values = param.values
-                choice_value_map = {value: idx for idx, value in enumerate(choice_values)}
-                choice_parameters[name] = choice_value_map
-
-        return ranged_parameters, fixed_values, choice_parameters
-
-    def _build_reverse_choice_map(self: Any, choice_parameters: dict) -> dict:
-        choice_value_map = {}
-        for _, param in choice_parameters.items():
-            for value, idx in param.items():
-                choice_value_map[value] = idx
-        return {idx: value for value, idx in choice_value_map.items()}
-
-    def _generate_ranged_samples(self: Any, ranged_parameters: list) -> np.ndarray:
-        ranged_bounds = np.array([[low, high] for _, low, high in ranged_parameters])
-        unit_samples = np.random.random_sample([self.num_samples, len(ranged_bounds)])
-        return ranged_bounds[:, 0] + (ranged_bounds[:, 1] - ranged_bounds[:, 0]) * unit_samples
-
-    def _build_all_samples(self: Any, ranged_parameters: list, ranged_samples: np.ndarray, fixed_values: dict, choice_parameters: dict) -> list:
-        all_samples = []
-        for sample_idx in range(self.num_samples):
-            sample = self._build_single_sample(sample_idx, ranged_parameters, ranged_samples, fixed_values, choice_parameters)
-            all_samples.append(sample)
-        return all_samples
-
-    def _build_single_sample(self: Any, sample_idx: int, ranged_parameters: list, ranged_samples: np.ndarray, fixed_values: dict, choice_parameters: dict) -> dict:
-        sample = {}
-
-        for dim, (name, _, _) in enumerate(ranged_parameters):
-            value = ranged_samples[sample_idx, dim].item()
-            param = self.parameters.get(name)
-            value = self._cast_value(param, name, value)
-            sample[name] = value
-
-        for name, val in fixed_values.items():
-            val = str(int(val)) if float(val).is_integer() else str(float(val))
-            sample[name] = val
-
-        for name, param in choice_parameters.items():
-            param_values_array = list(param.keys())
-
-            choice_index = np.random.choice(param_values_array)
-
-            if self.parameters[name].parameter_type == ParameterType.FLOAT:
-                sample[name] = float(param[int(choice_index)])
-            elif self.parameters[name].parameter_type == ParameterType.INT:
-                sample[name] = int(round(param[int(choice_index)]))
-            elif self.parameters[name].parameter_type == ParameterType.STRING:
-                value = param[choice_index]
-                if isinstance(value, str):
-                    sample[name] = value
-                else:
-                    sample[name] = str(int(value)) if float(value).is_integer() else str(float(value))
-
-        return sample
-
-    def _cast_value(self: Any, param: Any, name: Any, value: Any) -> Union[int, float]:
-        if isinstance(param, RangeParameter) and param.parameter_type == "INT":
-            return int(round(value))
-        if isinstance(param, RangeParameter) and param.parameter_type == "FLOAT":
-            return float(value)
-
-        return self._try_convert_to_float(value, name)
-
-    def _try_convert_to_float(self: Any, value: Any, name: str) -> float:
-        try:
-            return float(value)
-        except ValueError as e:
-            raise ValueError(f"Parameter '{name}' has a non-numeric value: {value}") from e
-
-    def _build_prediction_matrix(self: Any, all_samples: list) -> np.ndarray:
-        x_pred = np.zeros([self.num_samples, len(self.parameters)])
-        for sample_idx, sample in enumerate(all_samples):
-            for dim, name in enumerate(self.parameters.keys()):
-                x_pred[sample_idx, dim] = sample[name]
-        return x_pred
-
-    def _format_best_sample(self: Any, best_sample: TParameterization, reverse_choice_map: dict) -> None:
-        for name in best_sample.keys():
-            param = self.parameters.get(name)
-            best_sample_by_name = best_sample[name]
-
-            if isinstance(param, RangeParameter) and param.parameter_type == ParameterType.INT:
-                if best_sample_by_name is not None:
-                    best_sample[name] = int(round(float(best_sample_by_name)))
-                else:
-                    print_debug("best_sample_by_name was empty")
-            elif isinstance(param, ChoiceParameter):
-                if best_sample_by_name is not None:
-                    best_sample[name] = str(reverse_choice_map.get(int(best_sample_by_name)))
-                else:
-                    print_debug("best_sample_by_name was empty")
-
-decoder_registry["RandomForestGenerationNode"] = RandomForestGenerationNode
 
 def warn_if_param_outside_of_valid_params(param: dict, _res: Any, keyname: str) -> None:
     if param["parameter_type"] == "RANGE":
@@ -3153,7 +2555,7 @@ def warn_if_param_outside_of_valid_params(param: dict, _res: Any, keyname: str) 
             print_yellow(f"The result by the external generator for the axis '{keyname}' (FIXED) is not the specified fixed value '{param['value']}' {_res}")
 
 @dataclass(init=False)
-class InteractiveCLIGenerationNode(ExternalGenerationNode):
+class InteractiveCLIGenerationNode(ax_backend.ExternalGenerationNodeBase):
     """
     A GenerationNode that queries the user on the command line (via *rich*)
     for the next candidate hyper‑parameter set instead of spawning an external
@@ -3184,7 +2586,7 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
         name: str = "INTERACTIVE_GENERATOR",
     ) -> None:
         t0 = time.monotonic()
-        super().__init__(**{_OMNIOPT_EXT_NAME_KW: name})
+        super().__init__(**{ax_backend.get_ext_node_name_kw(): name})
         self.parameters = None
         self.minimize = None
         self.data = None
@@ -3200,30 +2602,27 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
 
     @staticmethod
     def _ptype_to_str(param_type: Any) -> str:
-        return {
-            ParameterType.INT: "INT",
-            ParameterType.FLOAT: "FLOAT",
-            ParameterType.STRING: "STRING",
-        }.get(param_type, "<UNKNOWN>")
+        return ax_backend.get_parameter_value_type_name(param_type)
 
     def _default_for_param(self: Any, name: str, param: Any) -> Any:
         # 1. explicit override
         if name.lower() in _DEFAULT_SPECIALS:
             override = _DEFAULT_SPECIALS[name.lower()]
-            if override == "max" and isinstance(param, RangeParameter):
-                return param.upper
-            if override == "min" and isinstance(param, RangeParameter):
-                return param.lower
+            if override == "max" and ax_backend.is_range_parameter(param):
+                return ax_backend.get_range_upper(param)
+            if override == "min" and ax_backend.is_range_parameter(param):
+                return ax_backend.get_range_lower(param)
             return override
 
         # 2. generic rules
-        if isinstance(param, FixedParameter):
-            return param.value
-        if isinstance(param, RangeParameter):
-            mid = (param.lower + param.upper) / 2
-            return int(mid) if param.parameter_type == ParameterType.INT else mid
-        if isinstance(param, ChoiceParameter):
-            return param.values[0]
+        if ax_backend.is_fixed_parameter(param):
+            return ax_backend.get_fixed_value(param)
+        if ax_backend.is_range_parameter(param):
+            low, high = ax_backend.get_range_lower_upper(param)
+            mid = (low + high) / 2
+            return int(mid) if ax_backend.is_int_parameter(param) else mid
+        if ax_backend.is_choice_parameter(param):
+            return ax_backend.get_choice_values(param)[0]
 
         # fall back
         return None
@@ -3239,19 +2638,19 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
 
         prompt_msg = f"{name} ({self._ptype_to_str(param.parameter_type)})"
 
-        if isinstance(param, FixedParameter):
+        if ax_backend.is_fixed_parameter(param):
             try:
                 return self._handle_fixed(param)
             except Exception as e:
                 print_red(f"Error #1: {e}")
 
-        elif isinstance(param, ChoiceParameter):
+        elif ax_backend.is_choice_parameter(param):
             try:
                 return self._handle_choice(param, default, prompt_msg)
             except Exception as e:
                 print_red(f"Error #2: {e}")
 
-        elif isinstance(param, RangeParameter):
+        elif ax_backend.is_range_parameter(param):
             try:
                 return self._handle_range(param, default, prompt_msg)
             except Exception as e:
@@ -3260,19 +2659,20 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
         return self._handle_fallback(prompt_msg, default, param)
 
     def _handle_fixed(self, param: Any) -> Any:
-        return param.value
+        return ax_backend.get_fixed_value(param)
 
     def _handle_choice(self, param: Any, default: Any, prompt_msg: str) -> Any:
-        choices_str = ", ".join(f"{v}" for v in param.values)
+        values = ax_backend.get_choice_values(param)
+        choices_str = ", ".join(f"{v}" for v in values)
         console.print(f"{prompt_msg} choices → {choices_str}")
         user_val = Prompt.ask("Pick choice", default=str(default))
-        return param.values[int(user_val)] if user_val.isdigit() else user_val
+        return values[int(user_val)] if user_val.isdigit() else user_val
 
     def _handle_range(self, param: Any, default: Any, prompt_msg: str) -> Any:
-        low, high = param.lower, param.upper
+        low, high = ax_backend.get_range_lower_upper(param)
         console.print(f"{prompt_msg} range → [{low}, {high}]")
 
-        if param.parameter_type == ParameterType.FLOAT:
+        if ax_backend.is_float_parameter(param):
             user_val = FloatPrompt.ask("Enter float", default=str(default))
             try:
                 val = float(user_val)
@@ -3293,7 +2693,7 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
 
     def get_next_candidate(
         self: Any,
-        pending_parameters: List[TParameterization],
+        pending_parameters: List[ax_backend.TParameterizationAlias],
     ) -> Dict[str, Any]:
         """
         Build the next candidate by querying the user for **each** parameter.
@@ -3339,11 +2739,11 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
         return candidate
 
 @dataclass(init=False)
-class ExternalProgramGenerationNode(ExternalGenerationNode):
+class ExternalProgramGenerationNode(ax_backend.ExternalGenerationNodeBase):
     def __init__(self: Any, external_generator: str = args.external_generator, name: str = "EXTERNAL_GENERATOR") -> None:
         print_debug("Initializing ExternalProgramGenerationNode...")
         t_init_start = time.monotonic()
-        super().__init__(**{_OMNIOPT_EXT_NAME_KW: name})
+        super().__init__(**{ax_backend.get_ext_node_name_kw(): name})
         self.seed: int = args.seed
         self.external_generator: str = decode_if_base64(external_generator)
         self.constraints = None
@@ -3366,41 +2766,31 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
         print_debug("Generator state updated successfully.")
 
     def _parameter_type_to_string(self: Any, param_type: Any) -> str:
-        if param_type == ParameterType.INT:
-            return "INT"
-
-        if param_type == ParameterType.FLOAT:
-            return "FLOAT"
-
-        if param_type == ParameterType.STRING:
-            return "STRING"
-
-        _fatal_error(f"Unknown data type {param_type}", 33)
-
-        return ""
+        return ax_backend.get_parameter_value_type_name(param_type)
 
     def _serialize_parameters(self: Any, params: dict) -> dict:
         serialized = {}
         for key in params.keys():
             param = params[key]
             param_name = param.name
-            if isinstance(param, FixedParameter):
+            if ax_backend.is_fixed_parameter(param):
                 serialized[param_name] = {
                         "parameter_type": "FIXED",
                         "type": self._parameter_type_to_string(param.parameter_type),
-                        "value": param.value
+                        "value": ax_backend.get_fixed_value(param)
                 }
-            elif isinstance(param, RangeParameter):
+            elif ax_backend.is_range_parameter(param):
+                low, high = ax_backend.get_range_lower_upper(param)
                 serialized[param_name] = {
                         "parameter_type": "RANGE",
                         "type": self._parameter_type_to_string(param.parameter_type),
-                        "range": [param.lower, param.upper]
+                        "range": [low, high]
                 }
-            elif isinstance(param, ChoiceParameter):
+            elif ax_backend.is_choice_parameter(param):
                 serialized[param_name] = {
                         "parameter_type": "CHOICE",
                         "type": self._parameter_type_to_string(param.parameter_type),
-                        "values": param.values
+                        "values": ax_backend.get_choice_values(param)
                 }
             else:
                 _fatal_error(f"Unknown parameter type: {param}", 15)
@@ -3431,7 +2821,7 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
 
         return temp_dir
 
-    def get_next_candidate(self: Any, pending_parameters: List[TParameterization]) -> Any:
+    def get_next_candidate(self: Any, pending_parameters: List[ax_backend.TParameterizationAlias]) -> Any:
         if self.parameters is None:
             raise RuntimeError("Parameters are not initialized. Call update_generator_state first.")
 
@@ -3653,9 +3043,7 @@ def stop_periodic_live_share() -> None:
     _periodic_live_share_stop.set()
 
 def init_storage(db_url: str) -> None:
-    init_engine_and_session_factory(url=db_url, force_init=True)
-    engine = get_engine()
-    create_all_tables(engine)
+    ax_backend.init_database_engine()
 
 def try_saving_to_db() -> None:
     try:
@@ -3672,13 +3060,13 @@ def try_saving_to_db() -> None:
             initialized_storage = True
 
         if ax_client is not None:
-            save_experiment_to_db(ax_client.experiment)
+            ax_backend.save_client_to_database(ax_client)
         else:
             print_red("ax_client was not defined in try_saving_to_db")
             my_exit(101)
 
         if global_gs is not None:
-            save_generation_strategy(global_gs)
+            ax_backend.save_generation_strategy_to_database(global_gs)
         else:
             print_red("Not saving generation strategy: global_gs was empty")
     except Exception as e:
@@ -3755,13 +3143,13 @@ def ax_client_get_trials_data_frame() -> Optional[pd.DataFrame]:
 
         return None
 
-    return ax_client.get_trials_data_frame()
+    return ax_backend.client_get_trials_dataframe(ax_client)
 
 def fetch_and_prepare_trials() -> Optional[pd.DataFrame]:
     if not ax_client:
         return None
 
-    ax_client.experiment.fetch_data()
+    ax_backend.client_fetch_data(ax_client)
     df = ax_client_get_trials_data_frame()
     df = merge_with_job_infos(df)
 
@@ -3780,7 +3168,7 @@ def ax_client_to_json_snapshot() -> Optional[dict]:
 
         return None
 
-    json_snapshot = ax_client.to_json_snapshot()
+    json_snapshot = ax_backend.client_to_json_snapshot(ax_client)
 
     return json_snapshot
 
@@ -3797,8 +3185,8 @@ def write_json_snapshot(path: str) -> None:
 
 def save_experiment_to_file() -> None:
     if ax_client is not None:
-        save_experiment(
-            ax_client.experiment,
+        ax_backend.save_experiment_to_json(
+            ax_backend.client_experiment(ax_client),
             get_state_file_name("ax_client.experiment.json")
         )
     else:
@@ -5088,7 +4476,7 @@ def get_pareto_front_data(path_to_calculate: str, res_names: list) -> dict:
                     pareto_front_data[metric_x] = {}
 
                 pareto_front_data[metric_x][metric_y] = get_calculated_frontier(path_to_calculate, metric_x, metric_y, x_minimize, y_minimize, res_names)
-            except ax.exceptions.core.DataRequiredError as e:
+            except ax_backend.DataRequiredError as e:
                 print_red(f"Error computing Pareto frontier for {metric_x} and {metric_y}: {e}")
             except SignalINT:
                 print_red("Calculating Pareto-fronts was cancelled by pressing CTRL-c")
@@ -7148,7 +6536,7 @@ def save_ax_client_to_json_file(checkpoint_filepath: str) -> None:
 
         return None
 
-    ax_client.save_to_json_file(checkpoint_filepath)
+    ax_backend.save_client_to_json_file(ax_client, checkpoint_filepath)
 
     return None
 
@@ -7548,7 +6936,7 @@ def set_objectives() -> dict:
         if value == "max":
             _min = False
 
-        objectives[key] = ObjectiveProperties(minimize=_min)
+        objectives[key] = ax_backend.create_objective(minimize=_min)
         k = k + 1
 
     return objectives
@@ -7683,8 +7071,7 @@ def load_ax_client_from_experiment_parameters() -> None:
         global ax_client
 
         tmp_file_path = get_tmp_file_from_json(experiment_parameters)
-        ax_client = AxClient.load_from_json_file(tmp_file_path)
-        ax_client = cast(AxClient, ax_client)
+        ax_client = ax_backend.load_client_from_json_file(tmp_file_path)
         os.unlink(tmp_file_path)
 
 def save_checkpoint_for_continued() -> None:
@@ -7900,7 +7287,7 @@ def create_ax_client_experiment(experiment_args: dict) -> None:
 
     write_ax_debug_python_code(experiment_args)
 
-    ax_client.create_experiment(**experiment_args)
+    ax_backend.client_create_experiment(ax_client, **experiment_args)
 
     return None
 
@@ -7951,11 +7338,10 @@ def create_new_experiment() -> Tuple[dict, str, str]:
 
     try:
         create_ax_client_experiment(experiment_args)
-        new_metrics = [Metric(k) for k in arg_result_names if k not in ax_client.metric_names]
-        ax_client.experiment.add_tracking_metrics(new_metrics)
+        ax_backend.add_tracking_metrics(ax_client, arg_result_names)
 
         if ax_client is not None and ax_client.experiment is not None:
-            actual_params = list(ax_client.experiment.search_space.parameters.keys())
+            actual_params = ax_backend.search_space_parameter_names(ax_client)
             expected_params = [p.get("name") for p in experiment_parameters if isinstance(p, dict) and p.get("name")]
             missing = [n for n in expected_params if n not in actual_params]
             if missing:
@@ -7971,7 +7357,7 @@ def create_new_experiment() -> Tuple[dict, str, str]:
         _fatal_error(f"An error has occurred while creating the experiment (1): {error}", 49)
     except TypeError as error:
         _fatal_error(f"An error has occurred while creating the experiment (2): {error}. This is probably a bug in OmniOpt2.", 49)
-    except ax.exceptions.core.UserInputError as error:
+    except ax_backend.UserInputError as error:
         _fatal_error(f"An error occurred while creating the experiment (3): {error}", 49)
 
     return experiment_args, gpu_string, gpu_color
@@ -8140,49 +7526,27 @@ def check_base_for_print_overview() -> Optional[bool]:
     return True
 
 def get_config_objectives() -> Any:
-    """Return the configured objectives as a list of objects exposing
-    ``.metric_names`` (list of str) and ``.minimize`` (bool) for each result name.
-
-    Handles both the legacy ``MultiObjective.objectives`` API and newer ax
-    versions where ``MultiObjective`` only exposes ``metric_names`` together
-    with per-metric ``metric_weights`` (negative weight == minimize).
-    """
+    """Return the configured objectives as a list of ``(metric_name, minimize)`` tuples."""
     if not ax_client:
         print_red("create_new_experiment: ax_client is None")
         my_exit(101)
 
         return None
 
-    config_objectives = None
-
-    if ax_client.experiment and ax_client.experiment.optimization_config:
-        opt_config = ax_client.experiment.optimization_config
-        if opt_config.is_moo_problem:
-            objective = getattr(opt_config, "objective", None)
-            if objective is None:
-                print_debug("ax_client.experiment.optimization_config.objective was None")
-            elif getattr(objective, "objectives", None) is not None:
-                config_objectives = objective.objectives
-            else:
-                weight_map = {}
-                weights = getattr(objective, "metric_weights", None)
-                if isinstance(weights, list):
-                    for entry in weights:
-                        if isinstance(entry, (tuple, list)) and len(entry) == 2:
-                            weight_map[entry[0]] = entry[1]
-                config_objectives = []
-                for name in list(getattr(objective, "metric_names", None) or []):
-                    weight = weight_map.get(name, -1.0)
-                    minimize = not isinstance(weight, (int, float)) or weight < 0
-                    config_objectives.append(
-                        SimpleNamespace(metric_names=[name], minimize=minimize)
-                    )
-        else:
-            config_objectives = [opt_config.objective]
-    else:
+    try:
+        pairs = ax_backend.list_objectives(ax_client)
+    except Exception:
         print_debug("ax_client.experiment or optimization_config was None")
+        return None
 
-    return config_objectives
+    if not pairs:
+        print_debug("No objectives found")
+        return None
+
+    return [
+        SimpleNamespace(metric_names=[name], minimize=minimize)
+        for name, minimize in pairs
+    ]
 
 def print_result_names_overview_table() -> None:
     if not ax_client:
@@ -8628,7 +7992,7 @@ def simulate_load_data_from_existing_run_folders(_paths: List[str]) -> int:
             return 0
 
         try:
-            old_experiments = load_experiment(this_path_json, CORE_DECODER_REGISTRY)
+            old_experiments = ax_backend.load_experiment_from_json(this_path_json)
 
             old_trials = old_experiments.trials
 
@@ -8924,9 +8288,9 @@ def attach_ax_client_data(arm_params: dict) -> Optional[Tuple[Any, int]]:
 
         return None
 
-    new_trial = ax_client.attach_trial(arm_params)
+    new_trial, new_index = ax_backend.client_attach_trial(ax_client, arm_params)
 
-    return new_trial
+    return (new_trial, new_index)
 
 def attach_trial(arm_params: dict) -> Tuple[Any, int]:
     if ax_client is None:
@@ -8941,14 +8305,14 @@ def get_trial_by_index(trial_idx: int) -> Any:
     if ax_client is None:
         raise RuntimeError("get_trial_by_index: ax_client was empty")
 
-    trial = ax_client.experiment.trials.get(trial_idx)
+    trial = ax_backend.experiment_get_trial_by_index(ax_client, trial_idx)
     if trial is None:
         raise RuntimeError(f"Trial with index {trial_idx} not found")
     return trial
 
-def create_generator_run(arm_params: dict, trial_idx: int, new_job_type: str) -> GeneratorRun:
-    arm = Arm(parameters=arm_params, name=f'{trial_idx}_0')
-    return GeneratorRun(arms=[arm], generation_node_name=new_job_type)
+def create_generator_run(arm_params: dict, trial_idx: int, new_job_type: str) -> Any:
+    arm = ax_backend.create_arm(arm_params)
+    return ax_backend.create_generator_run(arm, new_job_type)
 
 def complete_trial_if_result(trial_idx: int, result: dict, __status: Optional[Any], base_str: Optional[str]) -> None:
     if ax_client is None:
@@ -9028,7 +8392,7 @@ def insert_job_into_ax_client(
             save_results_if_needed(__status, base_str)
             return True
 
-        except ax.exceptions.core.UnsupportedError as e:
+        except ax_backend.UnsupportedError as e:
             if not handle_insert_job_error(e, arm_params):
                 break
 
@@ -9477,7 +8841,7 @@ def complete_ax_client_trial(trial_idx: int, result: Union[list, dict]) -> None:
 
         return None
 
-    ax_client.complete_trial(trial_index=trial_idx, raw_data=result)
+    ax_backend.client_complete_trial(ax_client, trial_idx, result)
 
     return None
 
@@ -9490,7 +8854,7 @@ def _finish_job_core_helper_complete_trial(trial_index: int, raw_result: dict) -
         print_debug(f"Completing trial: {trial_index} with result: {raw_result}...")
         complete_ax_client_trial(trial_index, raw_result)
         print_debug(f"Completing trial: {trial_index} with result: {raw_result}... Done!")
-    except ax.exceptions.core.UnsupportedError as e:
+    except ax_backend.UnsupportedError as e:
         if f"{e}":
             print_debug(f"Completing trial: {trial_index} with result: {raw_result} after failure. Trying to update trial...")
             update_ax_client_trial(trial_index, raw_result)
@@ -9539,7 +8903,7 @@ def format_result_for_display(result: dict) -> str:
     except Exception as e:
         return f"<error formatting result: {e}>"
 
-def _finish_job_core_helper_mark_success(_trial: ax.core.trial.Trial, result: dict) -> None:
+def _finish_job_core_helper_mark_success(_trial: Any, result: dict) -> None:
     print_debug(f"Marking trial {_trial} as completed")
     _trial.mark_completed(unsafe=True)
 
@@ -9659,7 +9023,7 @@ def _finish_previous_jobs_helper_process_job(job: Any, trial_index: int, this_jo
             pretty_print_job_output(job)
     except (SignalINT, SignalUSR, SignalCONT) as e:
         print_red(f"Cancelled finish_job_core: {e}")
-    except (FileNotFoundError, submitit.core.utils.UncompletedJobError, ax.exceptions.core.UserInputError) as error:
+    except (FileNotFoundError, submitit.core.utils.UncompletedJobError, ax_backend.UserInputError) as error:
         this_jobs_finished += _finish_previous_jobs_helper_handle_exception(job, trial_index, error)
     return this_jobs_finished
 
@@ -9884,7 +9248,7 @@ def submit_new_job(parameters: Union[dict, str], trial_index: int) -> Any:
 
     return new_job
 
-def get_ax_client_trial(trial_index: int) -> Optional[ax.core.trial.Trial]:
+def get_ax_client_trial(trial_index: int) -> Optional[Any]:
     if not ax_client:
         my_exit(101)
 
@@ -9893,7 +9257,7 @@ def get_ax_client_trial(trial_index: int) -> Optional[ax.core.trial.Trial]:
     try:
         log_data()
 
-        return ax_client.get_trial(trial_index)
+        return ax_backend.client_get_trial(ax_client, trial_index)
     except KeyError:
         error_without_print(f"get_ax_client_trial: trial_index {trial_index} failed")
         return None
@@ -10126,7 +9490,7 @@ def log_ax_client_trial_failure(trial_index: int) -> None:
 
         return
 
-    ax_client.log_trial_failure(trial_index=trial_index)
+    ax_backend.client_log_trial_failure(ax_client, trial_index)
 
 def cancel_failed_job(trial_index: int, new_job: Job) -> None:
     print_debug("Trying to cancel job that failed")
@@ -10338,10 +9702,10 @@ def get_batched_arms(nr_of_jobs_to_get: int) -> list:
         try:
             #print_debug("getting global_gs.gen() with n=1")
 
-            batched_generator_run: Any = global_gs.gen(
-                experiment=ax_client.experiment,
+            batched_generator_run: Any = ax_backend.generation_strategy_gen(
+                global_gs,
+                experiment=ax_backend.client_experiment(ax_client),
                 n=1,
-                #pending_observations=pending_observations
             )
             print_debug(f"got global_gs.gen(): {batched_generator_run}")
         except ImportError as e:
@@ -10410,7 +9774,7 @@ def generate_trials(n: int, recursion: bool) -> Tuple[Dict[int, Any], bool]:
                     continue
 
                 try:
-                    arm = Arm(parameters=arm.parameters)
+                    arm = ax_backend.create_arm(ax_backend.get_arm_parameters(arm))
                 except Exception as arm_err:
                     print_red(f"Error while creating new Arm: {arm_err}")
                     retries += 1
@@ -10445,8 +9809,8 @@ class TrialRejected(Exception):
 
 def mark_abandoned(trial: Any, reason: str, trial_index: int) -> None:
     try:
-        print_debug(f"[INFO] Marking trial {trial.index} ({trial.arm.name}) as abandoned, trial-index: {trial_index}. Reason: {reason}")
-        trial.mark_abandoned(reason)
+        print_debug(f"[INFO] Marking trial {ax_backend.get_trial_index(trial)} ({ax_backend.get_trial_arm_name(trial)}) as abandoned, trial-index: {trial_index}. Reason: {reason}")
+        ax_backend.mark_trial_abandoned(trial, reason)
     except Exception as e:
         print_red(f"[ERROR] Could not mark trial as abandoned: {e}")
 
@@ -10462,33 +9826,31 @@ def create_and_handle_trial(arm: Any) -> Optional[Tuple[int, float, bool]]:
 
         return None
 
-    _current_node_name = global_gs.current_node_name
+    _current_node_name = ax_backend.generation_strategy_current_node_name(global_gs)
 
-    trial_index = ax_client.experiment.num_trials
-    generator_run = GeneratorRun(
-        arms=[arm],
-        generation_node_name=_current_node_name
+    trial_index = ax_backend.experiment_num_trials(ax_client)
+    trial, _trial_idx = ax_backend.experiment_new_trial_from_arm(
+        ax_client,
+        arm,
+        _current_node_name,
     )
 
-    trial = ax_client.experiment.new_trial(generator_run)
-
-    arm = trial.arms[0]
+    arm = ax_backend.get_trial_arm(trial)
     if deduplicated_arm(arm):
         print_debug(f"Duplicated arm: {arm}")
         mark_abandoned(trial, "Duplication detected", trial_index)
         raise TrialRejected("Duplicate arm.")
 
-    arms_by_name_for_deduplication[arm.name] = arm
+    arms_by_name_for_deduplication[ax_backend.get_arm_name(arm)] = arm
 
-    params = arm.parameters
+    params = ax_backend.get_arm_parameters(arm)
 
     if not has_no_post_generation_constraints_or_matches_constraints(post_generation_constraints, params):
         print_debug(f"Trial {trial_index} does not meet post-generation constraints. Marking abandoned. Params: {params}, constraints: {post_generation_constraints}")
         mark_abandoned(trial, "Post-Generation-Constraint failed", trial_index)
         abandoned_trial_indices.append(trial_index)
         raise TrialRejected("Post-generation constraints not met.")
-
-    trial.mark_running(no_runner_required=True)
+    ax_backend.mark_trial_running(trial, no_runner_required=True)
     end = time.time()
     return trial_index, float(end - start), True
 
@@ -10513,9 +9875,9 @@ def handle_generation_failure(
         my_exit(242)
 
     elif isinstance(e, (
-        ax.exceptions.core.SearchSpaceExhausted,
-        ax.exceptions.generation_strategy.GenerationStrategyRepeatedPoints,
-        ax.exceptions.generation_strategy.MaxParallelismReachedException
+        ax_backend.SearchSpaceExhausted,
+        ax_backend.GenerationStrategyRepeatedPoints,
+        ax_backend.MaxParallelismReachedException
     )):
         msg = str(e)
         if msg not in error_8_saved:
@@ -10539,14 +9901,10 @@ def print_exhaustion_warning(e: Exception, recursion: bool) -> None:
 
 def get_model_kwargs() -> dict:
     if 'Cont_X_trans_Y_trans' in args.transforms:
-        return {
-            "transforms": Cont_X_trans + Y_trans
-        }
+        return ax_backend.get_transforms("Cont_X_trans_Y_trans")
 
     if 'Cont_X_trans' in args.transforms:
-        return {
-            "transforms": Cont_X_trans
-        }
+        return ax_backend.get_transforms("Cont_X_trans")
 
     return {}
 
@@ -10582,20 +9940,19 @@ def set_global_gs_to_sobol() -> None:
 
     print("Reverting to SOBOL")
 
-    global_gs = GenerationStrategy(
-        name="Random*",
-        nodes=[
-            GenerationNode(
-                name="Sobol",
-                should_deduplicate=True,
-                generator_specs=[ # type: ignore[arg-type]
-                    GeneratorSpec( # type: ignore[arg-type]
-                        Generators.SOBOL, # type: ignore[arg-type]
-                        model_gen_kwargs=get_model_gen_kwargs() # type: ignore[arg-type]
-                    ) # type: ignore[arg-type]
-                ] # type: ignore[arg-type]
+    sobol_node = ax_backend.create_generation_node(
+        name="Sobol",
+        generator_specs=[
+            ax_backend.create_generator_spec(
+                ax_backend.select_model("SOBOL"),
+                model_gen_kwargs=get_model_gen_kwargs(),
             )
-        ]
+        ],
+        should_deduplicate=True,
+    )
+    global_gs = ax_backend.create_generation_strategy(
+        name="Random*",
+        nodes=[sobol_node],
     )
 
     overwritten_to_random = True
@@ -10920,20 +10277,16 @@ def get_next_nr_steps(_num_parallel_jobs: int, _max_eval: int) -> int:
 
     return requested
 
-def select_model(model_arg: Any) -> ax.adapter.registry.Generators:
+def select_model(model_arg: Any) -> Any:
     """Selects the model based on user input or defaults to BOTORCH_MODULAR."""
-    available_models = list(ax.adapter.registry.Generators.__members__.keys())
-    chosen_model = ax.adapter.registry.Generators.BOTORCH_MODULAR
+    available_models = ax_backend.list_supported_model_names()
+    chosen_model = ax_backend.select_model(model_arg)
 
-    if model_arg:
-        model_upper = str(model_arg).upper()
-        if model_upper in available_models:
-            chosen_model = ax.adapter.registry.Generators.__members__[model_upper]
-        else:
-            print_red(f"⚠ Cannot use {model_arg}. Available models are: {', '.join(available_models)}. Using BOTORCH_MODULAR instead.")
+    if model_arg and str(model_arg).upper() not in available_models:
+        print_red(f"⚠ Cannot use {model_arg}. Available models are: {', '.join(available_models)}. Using BOTORCH_MODULAR instead.")
 
-        if model_arg.lower() != "factorial" and args.gridsearch:
-            print_yellow("Gridsearch only really works when you chose the FACTORIAL model.")
+    if model_arg and str(model_arg).lower() != "factorial" and args.gridsearch:
+        print_yellow("Gridsearch only really works when you chose the FACTORIAL model.")
 
     return chosen_model
 
@@ -11219,7 +10572,7 @@ def create_node(
     is_last: bool = False,
     max_parallelism: Optional[int] = None,
     enforce_num_trials: Optional[bool] = None
-) -> Union[RandomForestGenerationNode, GenerationNode]:
+) -> Any:
     print_debug(f"create_node: num_trials = {num_trials}, index = {index}, max_parallelism = {max_parallelism}, enforce_num_trials = {enforce_num_trials}")
 
     if model_name == "RANDOMFOREST":
@@ -11257,38 +10610,32 @@ def create_node(
 
     # Determine transition criteria
     # If is_last is True, no transition is needed
-    trans_crit = []
+    trans_crit: List[Any] = []
     if not is_last and target_model:
         trans_crit = [
-            MinTrials(
+            ax_backend.create_min_trials_transition(
                 threshold=threshold,
                 transition_to=target_model,
-                count_only_trials_with_data=True
+                count_only_trials_with_data=True,
             )
         ]
 
-    selected_model = select_model(model_name)
+    selected_model = ax_backend.select_model(model_name)
 
-    kwargs = {
+    spec_kwargs: Dict[str, Any] = {
         "model_gen_kwargs": get_model_gen_kwargs()
     }
     if model_name.lower() != "sobol":
-        kwargs["model_kwargs"] = get_model_kwargs()
+        spec_kwargs["model_kwargs"] = get_model_kwargs()
 
-    model_spec = [GeneratorSpec(selected_model, **kwargs)]  # type: ignore[arg-type]
+    model_spec = [ax_backend.create_generator_spec(selected_model, **spec_kwargs)]
 
-    node_kwargs: dict = {
-        _OMNIOPT_GN_NAME_KW: model_name,
-        "generator_specs": model_spec,
-        "should_deduplicate": True,
-    }
-
-    if trans_crit:
-        node_kwargs["transition_criteria"] = trans_crit
-
-    res = GenerationNode(**node_kwargs)
-
-    return res
+    return ax_backend.create_generation_node(
+        name=model_name,
+        generator_specs=model_spec,
+        should_deduplicate=True,
+        transition_criteria=trans_crit or None,
+    )
 
 def get_optimizer_kwargs() -> dict:
     return {
@@ -11342,11 +10689,11 @@ def setup_default_generation_strategy() -> None:
 
     try:
         global global_gs
-        global_gs = GenerationStrategy(
+        global_gs = ax_backend.create_generation_strategy(
             name="+".join(generation_strategy_names),
-            nodes=generation_strategy_nodes
+            nodes=generation_strategy_nodes,
         )
-    except ax.exceptions.generation_strategy.GenerationStrategyMisconfiguredException as e:
+    except ax_backend.GenerationStrategyMisconfiguredException as e:
         print_red(f"Error creating GenerationStrategy: {e}\nnames: {generation_strategy_names}\nnodes: {generation_strategy_nodes}")
         my_exit(111)
 
@@ -11416,7 +10763,7 @@ def setup_custom_generation_strategy() -> None:
 
     global global_gs, generation_strategy_human_readable
     try:
-        global_gs = GenerationStrategy(nodes=nodes)
+        global_gs = ax_backend.create_generation_strategy(nodes=nodes)
         generation_strategy_human_readable = join_with_comma_and_then(generation_strategy_names)
     except Exception as e:
         print_red(f"Failed to create custom GenerationStrategy: {e}")
@@ -11489,19 +10836,19 @@ def execute_trials(
 def handle_exceptions_create_and_execute_next_runs(e: Exception) -> int:
     if isinstance(e, TypeError):
         print_red(f"Error 1: {e}")
-    elif isinstance(e, botorch.exceptions.errors.InputDataError):
+    elif isinstance(e, ax_backend.BotorchInputDataError):
         print_red(f"Error 2: {e}")
-    elif isinstance(e, ax.exceptions.core.DataRequiredError):
+    elif isinstance(e, ax_backend.DataRequiredError):
         if "transform requires non-empty data" in str(e) and args.num_random_steps == 0:
             _fatal_error(f"Error 3: {e} Increase --num_random_steps to at least 1 to continue.", 233)
         else:
             print_debug(f"Error 4: {e}")
     elif isinstance(e, RuntimeError):
         print_red(f"\n⚠ Error 5: {e}")
-    elif isinstance(e, botorch.exceptions.errors.ModelFittingError):
+    elif isinstance(e, ax_backend.BotorchModelFittingError):
         print_red(f"\n⚠ Error 6: {e}")
         end_program(False, 1)
-    elif isinstance(e, (ax.exceptions.core.SearchSpaceExhausted, ax.exceptions.generation_strategy.GenerationStrategyRepeatedPoints)):
+    elif isinstance(e, (ax_backend.SearchSpaceExhausted, ax_backend.GenerationStrategyRepeatedPoints)):
         print_red(f"\n⚠ Error 7 {e}")
         end_program(False, 87)
     return 0
@@ -12089,7 +11436,7 @@ def load_experiment_state() -> None:
         with open(temp_path, encoding="utf-8", mode="w") as f:
             json.dump(data, f)
 
-        ax_client = AxClient.load_from_json_file(temp_path)
+        ax_client = ax_backend.load_client_from_json_file(temp_path)
     except Exception as e:
         print(f"Error loading experiment state: {e}")
 
@@ -12801,7 +12148,7 @@ def main() -> None:
             run_search_with_progress_bar()
 
             time.sleep(2)
-        except ax.exceptions.core.UnsupportedError:
+        except ax_backend.UnsupportedError:
             pass
 
         end_program()
@@ -13022,13 +12369,11 @@ def initialize_ax_client() -> None:
     global ax_client
 
     with spinner("Initializing ax_client..."):
-        ax_client = AxClient(
+        ax_client = ax_backend.create_client(
             verbose_logging=args.verbose,
             enforce_sequential_optimization=False,
             generation_strategy=global_gs
         )
-
-        ax_client = cast(AxClient, ax_client)
 
 def get_generation_strategy_string() -> str:
     if generation_strategy_human_readable:

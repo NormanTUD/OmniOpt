@@ -13,6 +13,7 @@ COPY ./.pareto.py ./.pareto.py
 COPY ./.general.py ./.general.py
 COPY ./.shellscript_functions.py ./.shellscript_functions.py
 COPY ./.colorfunctions.py ./.colorfunctions.py
+COPY ./.ax.py ./.ax.py
 COPY ./.tpe.py ./.tpe.py
 COPY ./.optuna_tpe.py ./.optuna_tpe.py
 COPY ./requirements.txt ./requirements.txt

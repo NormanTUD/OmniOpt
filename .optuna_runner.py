@@ -70,7 +70,7 @@ import logging
 import os
 import sys
 from pathlib import Path
-from typing import Any, Iterable, Optional
+from typing import Any, Iterable, Optional, cast
 
 try:
     import optuna
@@ -83,8 +83,8 @@ try:
     try:
         from optuna.distributions import IntDistribution as _IntDistributionOptuna
     except ImportError:  # pragma: no cover - older Optuna
-        from optuna.distributions import (
-            IntUniformDistribution as _IntDistributionOptuna,  # type: ignore
+        from optuna.distributions import (  # type: ignore[assignment]
+            IntUniformDistribution as _IntDistributionOptuna,
         )
 except ModuleNotFoundError:
     print("Optuna not found. Cannot continue.", file=sys.stderr)
@@ -432,7 +432,10 @@ def build_study(
 
     if isinstance(sampler, optuna.samplers.GridSampler) and search_space:
         sampler = optuna.samplers.GridSampler(
-            search_space={k: list(v.choices) for k, v in search_space.items()},
+            search_space={
+                k: list(cast(CategoricalDistribution, v).choices)
+                for k, v in search_space.items()
+            },
         )
 
     if storage is None:

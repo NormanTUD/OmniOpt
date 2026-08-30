@@ -3533,3 +3533,12 @@ optunasamplersBaseSampler
 optunaTrial
 study_name
 walkthrough
+ParameterConstraint
+axpy
+pvalues
+OptimizationConfig
+kwarg
+redConstraint
+modsysmodules
+Idempotently
+axpy

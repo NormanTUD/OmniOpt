@@ -117,6 +117,7 @@ all_needed_files.append("test_requirements.txt")
 all_needed_files.append("apt-dependencies.txt")
 all_needed_files.append(".colorfunctions.sh")
 all_needed_files.append(".shellscript_functions.py")
+all_needed_files.append(".ax.py")
 all_needed_files.append(".tests/pylint.rc")
 
 setup(

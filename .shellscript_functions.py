@@ -28,6 +28,7 @@ import subprocess
 import sys
 from collections.abc import Callable
 from pathlib import Path
+from typing import Any, List
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 
@@ -552,30 +553,30 @@ if __name__ == "__main__":
     if function_name in ("displaytime", "generate_progress_bar"):
         args = sys.argv[2:]
         # Convert arguments safely to integers
-        int_args = []
+        int_args: List[Any] = []
         for arg in args:
             try:
                 int_args.append(int(arg))
             except (ValueError, TypeError):
                 # If conversion fails, pass the original argument
                 int_args.append(arg)
-        result = functions[function_name](*int_args)
-        if isinstance(result, str):
-            sys.stdout.write(result)
-        elif isinstance(result, int):
-            sys.exit(result)
+        str_result: Any = functions[function_name](*int_args)
+        if isinstance(str_result, str):
+            sys.stdout.write(str_result)
+        elif isinstance(str_result, int):
+            sys.exit(str_result)
         else:
             sys.exit(0)
 
     # Convert arguments safely to integers for other functions
     args = sys.argv[2:]
-    int_args = []
+    int_args2: List[Any] = []
     for arg in args:
         try:
-            int_args.append(int(arg))
+            int_args2.append(int(arg))
         except (ValueError, TypeError):
             # If conversion fails, pass the original argument
-            int_args.append(arg)
-    result = functions[function_name](*int_args)
-    if isinstance(result, str):
-        sys.stdout.write(result)
+            int_args2.append(arg)
+    result2: Any = functions[function_name](*int_args2)
+    if isinstance(result2, str):
+        sys.stdout.write(result2)

@@ -28,7 +28,7 @@ import json
 import os
 import sys
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 try:
     from hyperopt import fmin, hp, tpe, Trials, STATUS_OK
@@ -127,7 +127,7 @@ def _dummy_loss(params: dict, constraints: list, penalty: float) -> dict:
 
 
 @beartype
-def make_objective(known_trials: list, constraints: list, direction: str):
+def make_objective(known_trials: list, constraints: list, direction: str) -> Callable[[dict], dict]:
     """Build the hyperopt objective.
 
     The first ``len(known_trials)`` invocations return the recorded loss for

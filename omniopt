@@ -2378,10 +2378,6 @@ def is_skip_search() -> bool:
 
 original_result_names = args.result_names
 
-if args.seed is not None:
-    with spinner("Importing ax random seed..."):
-        ax_backend.set_rng_seed(args.seed)
-
 def _fatal_error(message: str, code: int) -> None:
     print_red(message)
     my_exit(code)
@@ -2492,6 +2488,10 @@ try:
         _ax_backend_spec.loader.exec_module(ax_backend)
         ax_backend.init()
         ax_backend.disable_internal_loggers(level=logging.CRITICAL)
+
+        if args.seed is not None:
+            with spinner("Importing ax random seed..."):
+                ax_backend.set_rng_seed(args.seed)
 
     with spinner("Loading data science stack..."):
         import pandas as pd

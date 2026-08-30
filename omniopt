@@ -10981,6 +10981,8 @@ def set_global_generation_strategy() -> None:
         else:
             setup_custom_generation_strategy()
     except Exception as e:
+        import traceback as _tb
+        _tb.print_exc()
         print_red(f"Unexpected error in generation strategy setup: {e}")
         my_exit(111)
 

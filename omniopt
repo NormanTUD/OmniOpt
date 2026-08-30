@@ -2616,6 +2616,73 @@ def _omniopt_make_choiceparam_decoder_safe() -> None:
 _omniopt_make_choiceparam_decoder_safe()
 
 
+def _parse_linear_inequality(_inequality: str):
+    """Parse a linear-inequality string like ``"1.0 * lr + 2.0 * epochs <= 10.0"``.
+
+    Returns ``(constraint_dict, bound)`` or ``None`` if the string isn't a
+    simple linear inequality we can recognise.  Older OmniOpt state files
+    store parameter constraints in this format; current Ax expects a
+    ``constraint_dict`` + ``bound`` pair instead.
+    """
+    import re as _re
+
+    _ineq = _inequality.strip().replace(" ", "")
+    _m = _re.match(r"^(.+?)(<=|>=|<|>|=)(.+)$", _ineq)
+    if not _m:
+        return None
+    _lhs, _op, _rhs = _m.group(1), _m.group(2), _m.group(3)
+
+    try:
+        _bound = float(_rhs)
+    except ValueError:
+        return None
+
+    # Normalise operator: ``constraint_dict`` semantics in Ax are
+    # ``weighted_sum(parameter) <= bound`` for upper-bound style constraints.
+    # If the original was ``>=`` we move the bound to the other side.
+    if _op in (">=", ">"):
+        # a*x + b*y >= B   =>   (-a)*x + (-b)*y <= -B
+        _bound = -_bound
+        _lhs = _lhs.replace("+", "|+|").replace("-", "|-|").replace("|+|", "-").replace("|-|", "+")
+        if _lhs.startswith("+"):
+            _lhs = _lhs[1:]
+        elif _lhs.startswith("-"):
+            _lhs = "-" + _lhs[1:]
+        else:
+            _lhs = "-" + _lhs
+
+    # Split LHS on '+' (already space-stripped) into signed terms.
+    _constraint_dict: dict = {}
+    for _term in re.split(r"(?=[+-])", _lhs):
+        if not _term:
+            continue
+        _term_m = _re.match(r"^([+-]?)(?:\*?)([+-]?[\d.eE]+)?(?:\*?)([A-Za-z_][A-Za-z_0-9]*)$", _term)
+        if _term_m is None:
+            # Try alternative pattern: coefficient * param
+            _term_m = _re.match(r"^([+-]?[\d.eE]+)\*([A-Za-z_][A-Za-z_0-9]*)$", _term)
+            if _term_m is None:
+                return None
+            _sign, _coef, _name = "+", _term_m.group(1), _term_m.group(2)
+        else:
+            _sign = _term_m.group(1) or "+"
+            _coef = _term_m.group(2)
+            _name = _term_m.group(3)
+        if _coef is None:
+            _coef_val: float = 1.0
+        else:
+            try:
+                _coef_val = float(_coef)
+            except ValueError:
+                return None
+        if _sign == "-":
+            _coef_val = -_coef_val
+        _constraint_dict[_name] = _constraint_dict.get(_name, 0.0) + _coef_val
+
+    if not _constraint_dict:
+        return None
+    return _constraint_dict, _bound
+
+
 # Newer Ax versions expect ``Objective`` JSON to contain ``metric`` and
 # ``minimize`` keys.  Older Ax versions stored the objective as
 # ``{"__type": "Objective", "expression": "-RESULT"}``.  When loading
@@ -2720,6 +2787,20 @@ def _omniopt_make_objective_decoder_safe() -> None:
                             _df["value"] = _json.dumps(_decoded)
                 except Exception:
                     pass
+            elif _t == "ParameterConstraint":
+                # Older Ax state files store the constraint as a single
+                # ``inequality`` string (e.g. ``"1.0 * lr + 2.0 * epochs <= 10.0"``).
+                # Current Ax expects ``constraint_dict`` (a parameter -> weight
+                # map) and ``bound``.  Parse the inequality and rewrite the
+                # object_json on the fly.
+                _ineq = object_json.get("inequality")
+                if isinstance(_ineq, str):
+                    _parsed = _parse_linear_inequality(_ineq)
+                    if _parsed is not None:
+                        _constraint_dict, _bound = _parsed
+                        object_json.pop("inequality", None)
+                        object_json["constraint_dict"] = _constraint_dict
+                        object_json["bound"] = _bound
         return _orig_obj_from_json(object_json, *args, **kwargs)
 
     _safe_object_from_json.__name__ = getattr(_orig_obj_from_json, "__name__", "object_from_json")

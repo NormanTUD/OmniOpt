@@ -659,10 +659,16 @@ def client_complete_trial(
 
 def client_attach_trial(client: Any, arm_params: Dict[str, Any]) -> Tuple[Any, int]:
     try:
-        new_trial = client.attach_trial(arm_params)
+        result = client.attach_trial(arm_params)
     except BaseException as exc:
         raise _translate_exception(exc) from exc
-    return new_trial, int(new_trial.index)
+    # Newer Ax releases return ``(parameterization, trial_index)``.
+    # Older releases returned a ``Trial`` object carrying ``.index``.
+    if isinstance(result, tuple) and len(result) == 2:
+        parameters, trial_index = result
+        return parameters, int(trial_index)
+    new_trial = result
+    return new_trial, int(getattr(new_trial, "index"))
 
 
 def client_log_trial_failure(client: Any, trial_index: int) -> None:

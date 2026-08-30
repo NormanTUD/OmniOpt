@@ -1108,7 +1108,6 @@ joined_supported_models: str = ", ".join(SUPPORTED_MODELS)
 special_col_names: list = ["arm_name", "generation_method", "trial_index", "trial_status", "generation_node", "idxs", "start_time", "end_time", "run_time", "exit_code", "program_string", "signal", "hostname", "submit_time", "queue_time", "metric_name", "mean", "sem", "worker_generator_uuid", "runtime", "status"]
 
 IGNORABLE_COLUMNS: list = ["start_time", "end_time", "hostname", "signal", "exit_code", "run_time", "program_string"] + special_col_names
-_NOTIFICATIONS_AVAILABLE = False
 uncontinuable_models: list = ["RANDOMFOREST", "EXTERNAL_GENERATOR", "PSEUDORANDOM", "HUMAN_INTERVENTION_MINIMUM", "OPTUNA_TPE", "OPTUNA_CMAES", "OPTUNA_GP", "OPTUNA_RANDOM", "OPTUNA_GRID", "OPTUNA_QMC", "OPTUNA_BruteForce", "OPTUNA_NSGAII", "OPTUNA_NSGAIII", "OPTUNA_MOTPE"]
 
 post_generation_constraints: list = []
@@ -1199,14 +1198,6 @@ try:
         from tqdm import tqdm
         from beartype import beartype
         import statistics
-
-        try:
-            with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", category=UserWarning, module="plyer")
-                from plyer import notification as _plyer_notification
-            _NOTIFICATIONS_AVAILABLE = True
-        except ImportError:
-            _NOTIFICATIONS_AVAILABLE = False
 
         try:
             from pyfiglet import Figlet
@@ -5889,8 +5880,6 @@ def disable_logging() -> None:
                 warnings.filterwarnings("ignore", category=cat, module=module)
 
         warnings.showwarning = custom_warning_handler
-
-        warnings.filterwarnings("ignore", category=UserWarning, module="plyer.*")
 
         fool_linter(f"warnings.showwarning set to {warnings.showwarning}")
 

@@ -7,7 +7,7 @@ generates a ``docker-compose.yml`` and a ``slurm.conf`` for the
 requested number of nodes, builds the images, starts the stack and
 finally runs an experiment inside the frontend container.
 
-Pass ``--run_tests`` to invoke ``.tests/main.py`` instead of an
+Pass ``--run_tests`` to invoke ``.tests/main`` instead of an
 optimization run.
 """
 
@@ -248,7 +248,7 @@ def main(argv=None) -> int:
             print("Discarding almost all other options because you chose to --run_tests")
             cmd = [
                 "docker", "exec", "slurmfrontend",
-                "python3", "/oo_dir/.tests/main.py",
+                "python3", "/oo_dir/.tests/main",
                 "--max_eval=2",
                 "--num_random_steps=1",
                 "--exit_on_first_error",

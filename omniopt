@@ -2859,6 +2859,7 @@ def _omniopt_make_objective_decoder_safe() -> None:
 
     try:
         import sys as _sys
+        import inspect as _inspect2
         from ax.storage.json_store import decoders as _decoders_mod
         from ax.storage.json_store.decoders import trial_from_json as _trial_fj
         from ax.storage.json_store.decoders import batch_trial_from_json as _batch_trial_fj
@@ -2866,9 +2867,27 @@ def _omniopt_make_objective_decoder_safe() -> None:
         _decoders_mod = None
         _trial_fj = None
         _batch_trial_fj = None
+        _inspect2 = None
 
     # Required parameters that newer Ax expects on Trial / BatchTrial
     # ``from_json``-helpers but that older state files omit.
+    # Only include keys that the respective decoder actually consumes as named
+    # params; otherwise they fall through into ``**kwargs`` and trigger
+    # ``ax.utils.common.kwargs.warn_on_kwargs`` warnings on every load.
+    _trial_named_params = (
+        set(_inspect2.signature(_trial_fj).parameters.keys())
+        if (_trial_fj is not None and _inspect2 is not None)
+        else set()
+    )
+    _batch_trial_named_params = (
+        set(_inspect2.signature(_batch_trial_fj).parameters.keys())
+        if (_batch_trial_fj is not None and _inspect2 is not None)
+        else set()
+    )
+    # All Trial / BatchTrial known fields in current Ax.  Anything outside the
+    # decoder's named params falls into ``**kwargs`` and triggers the same
+    # warning, so we only forward keys the decoder actually consumes and
+    # silently drop the rest.
     _trial_required_defaults = {
         "abandoned_reason": None,
         "failed_reason": None,
@@ -2879,33 +2898,42 @@ def _omniopt_make_objective_decoder_safe() -> None:
         "lifecycle_stage": None,
         "status_quo_weight_override": 1.0,
         "abandoned_arms_metadata": {},
+        "status_reason": None,
     }
 
-    if _decoders_mod is not None and _trial_fj is not None:
-        _safe_trial_fj = _trial_fj
+    def _make_safe_trial_fj(orig, named_params):
+        if orig is None:
+            return None
+        _defaults = {
+            _k: _v
+            for _k, _v in _trial_required_defaults.items()
+            if _k in named_params
+        }
+        _unwanted = {_k for _k in _trial_required_defaults if _k not in named_params}
 
-        def _safe_trial_fj_wrapper(*_args, **_kwargs):
-            for _k, _v in _trial_required_defaults.items():
+        def _wrapper(*_args, **_kwargs):
+            for _k, _v in _defaults.items():
                 _kwargs.setdefault(_k, _v)
-            return _safe_trial_fj(*_args, **_kwargs)
+            for _k in _unwanted:
+                _kwargs.pop(_k, None)
+            return orig(*_args, **_kwargs)
 
-        _safe_trial_fj_wrapper.__name__ = getattr(_trial_fj, "__name__", "trial_from_json")
-        _decoders_mod.trial_from_json = _safe_trial_fj_wrapper
+        _wrapper.__name__ = getattr(orig, "__name__", "trial_from_json")
+        return _wrapper
+
+    if _decoders_mod is not None and _trial_fj is not None:
+        _safe_trial_fj = _make_safe_trial_fj(_trial_fj, _trial_named_params)
+        _decoders_mod.trial_from_json = _safe_trial_fj
         if "ax.storage.json_store.decoder" in _sys.modules:
-            _sys.modules["ax.storage.json_store.decoder"].trial_from_json = _safe_trial_fj_wrapper
+            _sys.modules["ax.storage.json_store.decoder"].trial_from_json = _safe_trial_fj
 
     if _decoders_mod is not None and _batch_trial_fj is not None:
-        _safe_batch_trial_fj = _batch_trial_fj
-
-        def _safe_batch_trial_fj_wrapper(*_args, **_kwargs):
-            for _k, _v in _trial_required_defaults.items():
-                _kwargs.setdefault(_k, _v)
-            return _safe_batch_trial_fj(*_args, **_kwargs)
-
-        _safe_batch_trial_fj_wrapper.__name__ = getattr(_batch_trial_fj, "__name__", "batch_trial_from_json")
-        _decoders_mod.batch_trial_from_json = _safe_batch_trial_fj_wrapper
+        _safe_batch_trial_fj = _make_safe_trial_fj(
+            _batch_trial_fj, _batch_trial_named_params
+        )
+        _decoders_mod.batch_trial_from_json = _safe_batch_trial_fj
         if "ax.storage.json_store.decoder" in _sys.modules:
-            _sys.modules["ax.storage.json_store.decoder"].batch_trial_from_json = _safe_batch_trial_fj_wrapper
+            _sys.modules["ax.storage.json_store.decoder"].batch_trial_from_json = _safe_batch_trial_fj
 
 
 _omniopt_make_objective_decoder_safe()

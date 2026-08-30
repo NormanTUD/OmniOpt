@@ -247,7 +247,7 @@ def main(argv=None) -> int:
         if args.run_tests:
             print("Discarding almost all other options because you chose to --run_tests")
             cmd = [
-                "docker", "exec", "slurmfrontend",
+                "docker", "exec", "--workdir", "/oo_dir", "slurmfrontend",
                 "python3", "/oo_dir/.tests/main",
                 "--max_eval=2",
                 "--num_random_steps=1",

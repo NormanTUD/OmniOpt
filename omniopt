@@ -1096,10 +1096,23 @@ try:
                     )
                     continue
                 if "Installing collected packages" in line:
+                    # pip prints the full list on a single line, e.g.
+                    # "Installing collected packages: numpy, pandas, ..."
+                    # There is no per-package progress from pip during this
+                    # phase, so at least surface WHICH packages are being
+                    # installed in the description.
+                    _names = line.split(":", 1)[1] if ":" in line else ""
+                    _names = ", ".join(
+                        _n.strip() for _n in _names.split(",") if _n.strip()
+                    )
+                    if len(_names) > 70:
+                        _names = _names[:67] + "..."
                     progress.update(
                         task,
                         completed=max(collected, progress.tasks[0].completed + 5),
-                        description="[green]installing collected packages ...[/green]".ljust(80),
+                        description=(
+                            f"[green]installing:[/green] [bold]{_names or '...'}[/bold]".ljust(80)
+                        ),
                     )
                     continue
                 m = re.search(r"^Using cached\\s+([^=\\s(]+)", line)

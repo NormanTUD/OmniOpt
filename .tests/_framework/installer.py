@@ -430,7 +430,7 @@ try:
         # Flatten the requirements file into one installable spec per package,
         # recursing into `-r` includes, skipping comments / `--flags` / blank
         # lines.  Each spec gets its OWN `pip install <spec>` so we get REAL
-        # per-package progress ("installiere <name> -- noch N übrig") instead
+        # per-package progress ("installing <name> -- N remaining") instead
         # of pip's single un-timed "Installing collected packages: ..." line.
         def _flatten_reqs(path, _seen=None):
             _seen = _seen if _seen is not None else set()
@@ -495,8 +495,8 @@ try:
                     total=_total,
                     completed=_i - 1,
                     description=(
-                        f"[cyan]installiere[/cyan] [bold]{_name}[/bold]  "
-                        f"[dim]({_i}/{_total}) -- noch {_remaining} übrig[/dim]".ljust(80)
+                        f"[cyan]installing[/cyan] [bold]{_name}[/bold]  "
+                        f"[dim]({_i}/{_total}) -- {_remaining} remaining[/dim]".ljust(80)
                     ),
                 )
                 try:

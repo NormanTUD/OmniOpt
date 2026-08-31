@@ -324,7 +324,8 @@ def _install_requirements_rich(
     child = r'''
 import subprocess, sys, time, re, signal, os
 
-_reqfile = sys.argv[1]
+_label = sys.argv[1]
+_reqfile = sys.argv[2]
 _TTY = bool(sys.stdout.isatty())
 
 
@@ -348,10 +349,10 @@ def _quiet(_path):
     )
     _el = time.time() - _t0
     if _p.returncode == 0:
-        sys.stdout.write(f"[omniopt] installed {_path} ({_el:.1f}s)\n")
+        sys.stdout.write(f"[omniopt] installed {_label} ({_el:.1f}s)\n")
         sys.stdout.flush()
         return 0
-    sys.stdout.write(f"[omniopt] pip install failed (exit {_p.returncode}, {_el:.1f}s)\n")
+    sys.stdout.write(f"[omniopt] pip install {_label} failed (exit {_p.returncode}, {_el:.1f}s)\n")
     for _l in _tail(_p.stderr or ""):
         sys.stdout.write("  " + _l + "\n")
     sys.stdout.flush()
@@ -431,7 +432,7 @@ try:
         refresh_per_second=10,
     ) as progress:
         task = progress.add_task(
-            f"[cyan]preparing {initial_total} packages from {_reqfile} ...".ljust(80),
+            f"[cyan]preparing {initial_total} packages for {_label} ...".ljust(80),
             total=initial_total, completed=0,
         )
         proc = subprocess.Popen(
@@ -504,19 +505,19 @@ except KeyboardInterrupt:
 _el = time.time() - start
 if _rc == 0:
     # transient bar already cleared itself; emit one final clean line.
-    sys.stdout.write(f"done ({_el:.1f}s)\n")
+    sys.stdout.write(f"done installing {_label} ({_el:.1f}s)\n")
     sys.stdout.flush()
     sys.exit(0)
 
 # Guardrail E: only on failure do we show pip's raw output (tail, de-ANSI'd).
-sys.stdout.write(f"pip install failed (exit {_rc}, {_el:.1f}s)\n")
+sys.stdout.write(f"pip install {_label} failed (exit {_rc}, {_el:.1f}s)\n")
 for _l in _tail("\n".join(captured)):
     sys.stdout.write("  " + _l + "\n")
 sys.stdout.flush()
 sys.exit(1 if _rc != 130 else 130)
 '''
     try:
-        r = subprocess.run([str(py), "-u", "-c", child, str(req_file)])
+        r = subprocess.run([str(py), "-u", "-c", child, _label, str(req_file)])
     except KeyboardInterrupt:
         return False
     return r.returncode == 0

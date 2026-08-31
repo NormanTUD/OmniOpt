@@ -1099,11 +1099,12 @@ sys.exit(0)
                 f"[omniopt] install failed (child exited with code {result.returncode}).\n"
             )
             _sys.stderr.flush()
-            _sys.exit(20)
+            return False
+        return True
     except KeyboardInterrupt:
         _sys.stdout.write("\n[omniopt] install cancelled\n")
         _sys.stdout.flush()
-        _sys.exit(130)
+        raise
 
 
 def _omniopt_check_required_programs() -> None:

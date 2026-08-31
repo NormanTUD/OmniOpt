@@ -12989,6 +12989,58 @@ def auto_wrap_namespace(namespace: Any) -> Any:
 
     return namespace
 
+
+def _omniopt_lmod_module_snippet() -> str:
+    """Return a bash snippet that loads an HPC lmod toolchain if present.
+
+    This runs *inside* the sbatch job, before the main script and the
+    installer/bootstrapper, so the compute node has the correct Python /
+    compiler / MPI / PyTorch environment.  Best-effort only:
+
+      1. initialise lmod if it is not already active in the batch shell;
+      2. try the known-good toolchain
+         ``release/24.04 GCC/12.3.0 OpenMPI/4.1.5 PyTorch/2.1.2``;
+      3. otherwise load the newest available ``Python`` module found via
+         ``ml spider``.
+    """
+    return r'''
+__omniopt_hpc=""
+if command -v ml >/dev/null 2>&1 || command -v module >/dev/null 2>&1 || [ -n "${LMOD_CMD:-}" ]; then
+    __omniopt_hpc=1
+else
+    for __lm in /usr/share/lmod/lmod/init/bash /opt/lmod/lmod/init/bash /etc/profile.d/modules.sh /etc/profile.d/lmod.sh; do
+        if [ -f "$__lm" ]; then
+            . "$__lm" 2>/dev/null
+            break
+        fi
+    done
+    if command -v ml >/dev/null 2>&1 || command -v module >/dev/null 2>&1 || [ -n "${LMOD_CMD:-}" ]; then
+        __omniopt_hpc=1
+    fi
+fi
+
+if [ -n "$__omniopt_hpc" ]; then
+    if ml release/24.04 GCC/12.3.0 OpenMPI/4.1.5 PyTorch/2.1.2 >/dev/null 2>&1; then
+        echo "[omniopt] Loaded HPC toolchain: release/24.04 GCC/12.3.0 OpenMPI/4.1.5 PyTorch/2.1.2" >&2
+    else
+        __omniopt_py="$( { ml spider Python 2>/dev/null; } | grep -oE 'Python/[0-9]+(\.[0-9]+)*' | sort -V | tail -n 1 )"
+        if [ -n "$__omniopt_py" ]; then
+            if ml "$__omniopt_py" >/dev/null 2>&1; then
+                echo "[omniopt] Loaded newest available Python module: $__omniopt_py" >&2
+            else
+                echo "[omniopt] Could not load Python module $__omniopt_py; using system python" >&2
+            fi
+        else
+            echo "[omniopt] No Python module found via 'ml spider'; using system python" >&2
+        fi
+    fi
+else
+    echo "[omniopt] No lmod ('ml') detected; using system python." >&2
+fi
+unset __omniopt_hpc __lm __omniopt_py
+'''
+
+
 if __name__ == "__main__":
     # Python-side replacement for the bash wrapper's "submit the main
     # process itself as a SLURM job (when sbatch is available and the

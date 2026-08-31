@@ -1019,8 +1019,7 @@ try:
         # bar visibly moves for cached packages (which pip doesn't
         # emit a Collecting line for).
         task = progress.add_task(
-            f"[cyan]preparing {initial_total} packages from "
-            f"{requirements_file} ...".ljust(80),
+            f"[cyan]preparing {initial_total} packages for {_omniopt_label} ...".ljust(80),
             total=initial_total,
             completed=0,
         )
@@ -1247,7 +1246,7 @@ sys.exit(0)
 '''
     try:
         result = _subprocess.run(
-            [venv_python, "-c", child_code, requirements_file],
+            [venv_python, "-c", child_code, label, requirements_file],
             check=False,
         )
         if result.returncode != 0:

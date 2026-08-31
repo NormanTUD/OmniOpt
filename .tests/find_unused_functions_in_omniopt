@@ -21,7 +21,7 @@ EXCEPTIONS = {
     "receive_usr_signal_int", "receive_usr_signal_term",
     "execute_nvidia_smi", "parse_choice_param", "parse_range_param",
     "parse_fixed_param", "_finish_previous_jobs_helper_wrapper",
-    "force_exit", "_cancel_all_tasks_at_exit",
+    "force_exit", "_cancel_all_tasks_at_exit", "_omniopt_reexec_with_modules",
     "_finish_previous_jobs_helper_check_and_process",
 }
 

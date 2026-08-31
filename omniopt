@@ -833,6 +833,74 @@ def _pad(text, width=None):
     return text + (" " * max(0, width - len(visible) - 1))
 
 
+def _normalize_name(name):
+    """PEP 503 normalization: lowercase, collapse -_. to -."""
+    return re.sub(r"[-_.]+", "-", name).lower()
+
+def _installed_names():
+    """Return a set of normalized installed distribution names."""
+    names = set()
+    try:
+        import importlib.metadata as _im
+        for _d in _im.distributions():
+            _n = _d.metadata.get("Name", "") if _d.metadata else ""
+            if _n:
+                names.add(_normalize_name(_n))
+    except Exception:
+        pass
+    return names
+
+def _spec_name(spec):
+    """Extract the package name from a requirement spec like 'rich>=12.0'."""
+    for sep in ["==", ">=", "<=", "~=", "!=", ">", "<", ";", " @ "]:
+        if sep in spec:
+            spec = spec.split(sep)[0]
+            break
+    if "[" in spec:
+        spec = spec.split("[")[0]
+    return spec.strip()
+
+def _missing_specs(specs):
+    """Filter specs to only those not yet installed."""
+    installed = _installed_names()
+    if not installed:
+        return list(specs)
+    missing = []
+    for spec in specs:
+        name = _normalize_name(_spec_name(spec))
+        if name not in installed:
+            missing.append(spec)
+    return missing
+
+def _flatten_reqs(path, _seen=None):
+    """Flatten a requirements file into a list of installable specs."""
+    _seen = _seen if _seen is not None else set()
+    _real = os.path.realpath(path)
+    if _real in _seen:
+        return []
+    _seen.add(_real)
+    out = []
+    try:
+        with open(path, "r", encoding="utf-8", errors="replace") as f:
+            for ln in f:
+                ln = ln.strip()
+                if not ln or ln.startswith("#"):
+                    continue
+                if (ln.startswith("-r") or ln.startswith("--requirement")):
+                    rest = ln.split(maxsplit=1)
+                    if len(rest) > 1:
+                        out += _flatten_reqs(
+                            os.path.join(os.path.dirname(path) or ".", rest[1]),
+                            _seen,
+                        )
+                    continue
+                if ln.startswith("-") or ln.startswith("--"):
+                    continue
+                out.append(ln)
+    except OSError:
+        pass
+    return out
+
 _omniopt_label = sys.argv[1]
 requirements_file = sys.argv[2]
 

@@ -33,4 +33,3 @@ setuptools
 pyright
 tabulate
 optuna
-plyer

@@ -1169,7 +1169,7 @@ def get_ax() -> Any:
     return ax
 
 
-class RandomForestGenerationNode(ExternalGenerationNode if _BACKEND_AVAILABLE else object):  # type: ignore[misc]
+class RandomForestGenerationNode(ExternalGenerationNode if _BACKEND_AVAILABLE else object):  # type: ignore[misc]  # pylint: disable=useless-object-inheritance
     """Backend-agnostic RandomForest-based external generation node.
 
     Trains an internal RandomForestRegressor on completed trials and

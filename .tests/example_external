@@ -21,7 +21,7 @@ def generate_random_value(parameter):
         if parameter['parameter_type'] == 'RANGE':
             range_min, range_max = parameter['range']
             if parameter['type'] == 'INT':
-                return random.randint(range_min, range_max)
+                return random.randint(int(range_min), int(range_max))
 
             if parameter['type'] == 'FLOAT':
                 return random.uniform(range_min, range_max)

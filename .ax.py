@@ -1072,7 +1072,7 @@ def get_fixed_value(p: Any) -> Any:
 
 
 def get_choice_values(p: Any) -> List[Any]:
-    return list(p.values)
+    return get_choice_values_typed(p)
 
 
 def get_parameter_value_type(p: Any) -> str:

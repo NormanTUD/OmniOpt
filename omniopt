@@ -560,7 +560,10 @@ def _omniopt_install_requirements(venv_python: str) -> None:
 
     try:
         # 1. Bootstrap-install rich so we can do pretty progress later.
-        _omniopt_install_rich_phase(venv_python)
+        if not _omniopt_install_rich_phase_with_spinner(venv_python):
+            _sys.stdout.write("\n")
+            _sys.stdout.flush()
+            return False
 
         # 2. Run the full install via a child Python that uses rich.
         for rf in req_files:
@@ -568,17 +571,19 @@ def _omniopt_install_requirements(venv_python: str) -> None:
                 _sys.stderr.write(f"[omniopt] WARN: requirements file not found: {rf}\n")
                 _sys.stderr.flush()
                 continue
-            _omniopt_run_install_with_rich_progress(venv_python, rf)
+            if not _omniopt_run_install_with_rich_progress(venv_python, rf):
+                return False
+        return True
     except KeyboardInterrupt:
         _sys.stdout.write("\n[omniopt] install cancelled\n")
         _sys.stdout.flush()
-        _sys.exit(130)
+        raise
     except _subprocess.CalledProcessError as _e:
         _sys.stdout.write("\n")
         _sys.stdout.flush()
         _sys.stderr.write(f"[omniopt] pip install failed (exit {_e.returncode}).\n")
         _sys.stderr.flush()
-        _sys.exit(20)
+        return False
 
 
 def _omniopt_run_install_with_rich_progress(venv_python: str, requirements_file: str) -> None:

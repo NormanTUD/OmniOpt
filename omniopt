@@ -13429,6 +13429,9 @@ if __name__ == "__main__":
             _account = getattr(args, "account", None)
             if _account:
                 _sbatch_directives += [f"#SBATCH --account={_account}"]
+            _partition = getattr(args, "partition", None)
+            if _partition:
+                _sbatch_directives += [f"#SBATCH --partition {_partition}"]
             _reservation = getattr(args, "reservation", None)
             if _reservation:
                 _sbatch_directives += [f"#SBATCH --reservation={_reservation}"]
@@ -13444,14 +13447,37 @@ if __name__ == "__main__":
             )
 
             print_yellow("[omniopt] Submitting to SLURM (with HPC module loading before omniopt/installer)")
-            _res = _subprocess.run(
-                ["sbatch"],
-                input=_wrapper_script,
-                capture_output=True, text=True,
+
+            # Write the wrapper script to a temp file and hand that path to
+            # sbatch.  Submitting via stdin ("sbatch -") is unreliable on
+            # several clusters (weird fd/pty setups when --follow tails from
+            # a login node or nohup/script wrappers).  A real script file is
+            # the canonical, robust way to submit a multi-line wrapper.
+            _sbatch_script = _tempfile.NamedTemporaryFile(
+                "w", suffix=".sh", prefix="omniopt_slurm_",
+                delete=True, encoding="utf-8",
             )
-            print(_res.stdout)
+            try:
+                _sbatch_script.write(_wrapper_script)
+                _sbatch_script.flush()
+                _res = _subprocess.run(
+                    ["sbatch", _sbatch_script.name],
+                    capture_output=True, text=True,
+                )
+            finally:
+                _sbatch_script.close()
+
+            if _res.stdout:
+                _sys.stdout.write(_res.stdout)
+                _sys.stdout.flush()
             if _res.returncode != 0:
-                print_red(f"[omniopt] sbatch failed with exit code {_res.returncode}")
+                # Surface sbatch's own message -- this is the ONLY way the
+                # user can see *why* the submission was rejected (bad
+                # partition/account/time limit, policy, etc.).
+                _sys.stderr.write(f"[omniopt] sbatch failed with exit code {_res.returncode}\n")
+                if _res.stderr:
+                    _sys.stderr.write("[omniopt] sbatch stderr:\n" + _res.stderr + "\n")
+                _sys.stderr.flush()
                 _sys.exit(_res.returncode)
             _job_id = (_res.stdout.strip().split() or [""])[-1]
             print_yellow(f"[omniopt] Submitted job {_job_id}, waiting for output ...")

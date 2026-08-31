@@ -1019,18 +1019,51 @@ try:
         # bar visibly moves for cached packages (which pip doesn't
         # emit a Collecting line for).
         task = progress.add_task(
-            f"[cyan]preparing {initial_total} packages for {_omniopt_label} ...".ljust(80),
-            total=initial_total,
+            f"[cyan]preparing {_omniopt_label} ...".ljust(80),
+            total=100,
             completed=0,
         )
-        proc = subprocess.Popen(
-            [sys.executable, "-u", "-m", "pip", "install",
-             "--default-timeout=300", "--disable-pip-version-check",
-             "--progress-bar", "off",
-             "-r", requirements_file],
-            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
-            bufsize=0,
-        )
+
+        # Flatten the requirements file into a list of installable specs (one
+        # per top-level package), recursing into `-r` includes, ignoring
+        # comments / `--flags` / blank lines.  Each spec is installed with its
+        # OWN `pip install <spec>` call so we get REAL per-package progress
+        # ("installiere <name> -- noch N übrig") instead of pip's one-line
+        # "Installing collected packages: ..." which carries no timing.
+        def _flatten_reqs(path, _seen=None):
+            _seen = _seen if _seen is not None else set()
+            _real = _os.path.realpath(path)
+            if _real in _seen:
+                return []
+            _seen.add(_real)
+            out = []
+            try:
+                with open(path, "r", encoding="utf-8", errors="replace") as f:
+                    for ln in f:
+                        ln = ln.strip()
+                        if not ln or ln.startswith("#"):
+                            continue
+                        if (ln.startswith("-r") or ln.startswith("--requirement")):
+                            rest = ln.split(maxsplit=1)
+                            if len(rest) > 1:
+                                out += _flatten_reqs(
+                                    _os.path.join(_os.path.dirname(path) or ".", rest[1]),
+                                    _seen,
+                                )
+                            continue
+                        if ln.startswith("-") or ln.startswith("--"):
+                            continue
+                        out.append(ln)
+            except OSError:
+                pass
+            return out
+
+        _specs = _flatten_reqs(requirements_file)
+        if not _specs:
+            _specs = [requirements_file]
+        _total = len(_specs)
+        _returncode = 0
+        captured_lines = []
 
         # GUARDRAIL: do NOT remove the heartbeat thread.  Without it,
         # when pip is silent (e.g. resolving deps between Collecting
@@ -1051,119 +1084,58 @@ try:
 
         _hb = _threading.Thread(target=_heartbeat, daemon=True)
         _hb.start()
+        _t0 = time.time()
 
-        last_seen = set()
         try:
-            for line in proc.stdout:
+            for _i, _spec in enumerate(_specs, start=1):
                 if _interrupted["v"]:
+                    _returncode = 130
                     break
-                line = line.rstrip()
-                if not line:
-                    continue
-                captured_lines.append(line)
-                m = re.search(r"^Collecting\\s+([^=<>!~ ]+)", line)
-                if m:
-                    name = m.group(1).strip()
-                    if name and name not in last_seen:
-                        last_seen.add(name)
-                        collected += 1
-                        _new_total = max(initial_total, collected)
-                        progress.update(
-                            task,
-                            total=_new_total,
-                            completed=collected,
-                            description=(
-                                f"[cyan]collecting[/cyan] [bold]{name}[/bold]"
-                                f"  [dim]({collected}/{_new_total})".ljust(80)
-                            ),
-                        )
-                    continue
-                m = re.search(r"^Downloading\\s+([^=<>!~ ]+)", line)
-                if m:
-                    name = m.group(1).strip()
-                    # Pip is downloading, which means install is
-                    # actively happening -- advance the bar a little
-                    # even if we haven't seen a Collecting line (the
-                    # wheel might have been cached).
-                    progress.update(
-                        task,
-                        completed=max(
-                            collected,
-                            min(initial_total - 1,
-                                progress.tasks[0].completed + 1),
-                        ),
-                        description=f"[yellow]downloading[/yellow] [bold]{name}[/bold]".ljust(80),
+                _name = _spec.split()[0]
+                _remaining = _total - _i
+                # Left-of-the-bar text: what we're installing now + how many
+                # are still left (an integer count on the same line).
+                progress.update(
+                    task,
+                    total=_total,
+                    completed=_i - 1,
+                    description=(
+                        f"[cyan]installiere[/cyan] [bold]{_name}[/bold]  "
+                        f"[dim]({_i}/{_total}) -- noch {_remaining} übrig[/dim]".ljust(80)
+                    ),
+                )
+                try:
+                    _p = subprocess.Popen(
+                        [sys.executable, "-u", "-m", "pip", "install",
+                         "--default-timeout=300", "--disable-pip-version-check",
+                         "--progress-bar", "off", _spec],
+                        stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                        text=True, bufsize=0,
                     )
-                    continue
-                if "Installing collected packages" in line:
-                    # pip prints the full list on a single line, e.g.
-                    # "Installing collected packages: numpy, pandas, ..."
-                    # There is no per-package progress from pip during this
-                    # phase, so at least surface WHICH packages are being
-                    # installed in the description.
-                    _names = line.split(":", 1)[1] if ":" in line else ""
-                    _names = ", ".join(
-                        _n.strip() for _n in _names.split(",") if _n.strip()
-                    )
-                    if len(_names) > 70:
-                        _names = _names[:67] + "..."
-                    progress.update(
-                        task,
-                        completed=max(collected, progress.tasks[0].completed + 5),
-                        description=(
-                            f"[green]installing:[/green] [bold]{_names or '...'}[/bold]".ljust(80)
-                        ),
-                    )
-                    continue
-                m = re.search(r"^Using cached\\s+([^=\\s(]+)", line)
-                if m:
-                    name = m.group(1).strip()
-                    # Cached -- the package is already on disk; pip
-                    # won't emit a Collecting line for it but it IS
-                    # still being "handled".  Advance completed by a
-                    # little so the bar visibly moves.
-                    progress.update(
-                        task,
-                        completed=min(
-                            initial_total,
-                            progress.tasks[0].completed + 1,
-                        ),
-                        description=f"[cyan]using cached[/cyan] [bold]{name}[/bold]".ljust(80),
-                    )
-                    continue
-                m = re.search(r"^Installing\\s+([^=<>!~ ]+)", line)
-                if m:
-                    name = m.group(1).strip()
-                    progress.update(
-                        task,
-                        description=f"[green]installing[/green] [bold]{name}[/bold]".ljust(80),
-                    )
-                    continue
-                if "Building wheel" in line or "Running setup.py" in line:
-                    progress.update(
-                        task,
-                        description="[magenta]building wheel ...[/magenta]".ljust(80),
-                    )
-                    continue
-                if "Successfully installed" in line:
-                    progress.update(
-                        task,
-                        description="[bold green]finishing up ...[/bold green]".ljust(80),
-                    )
-        except KeyboardInterrupt:
-            _interrupted["v"] = True
+                except Exception as e:
+                    captured_lines.append(str(e))
+                    _returncode = 1
+                    break
+                for _l in _p.stdout:
+                    if _interrupted["v"]:
+                        break
+                    _l = _l.rstrip()
+                    if _l:
+                        captured_lines.append(_l)
+                _p.wait()
+                if _interrupted["v"]:
+                    _returncode = 130
+                    break
+                if _p.returncode != 0:
+                    _returncode = _p.returncode or 1
+                    break
+                progress.update(task, completed=_i, total=_total)
         finally:
             _stop_heartbeat["v"] = True
             try:
                 _hb.join(timeout=1)
             except Exception:
                 pass
-            if proc.poll() is None:
-                proc.terminate()
-                try:
-                    proc.wait(timeout=5)
-                except subprocess.TimeoutExpired:
-                    proc.kill()
             progress.update(task, description="[green]done[/green]".ljust(80))
 except Exception as e:
     console.print(_pad(f"[red]install failed: {e}[/red]"))
@@ -1172,18 +1144,13 @@ except Exception as e:
 if _interrupted["v"]:
     console.print(_pad("[yellow]install cancelled by user[/yellow]"))
     sys.exit(130)
-
-proc.wait()
-elapsed = time.time() - start
-if _interrupted["v"]:
-    console.print(_pad("[yellow]install cancelled by user[/yellow]"))
-    sys.exit(130)
-if proc.returncode != 0:
+elif _returncode != 0:
     # Print a colorful, structured error report with the last lines
     # of pip output and (when we can recognise it) a hint about
     # what's likely wrong and how to fix it.
+    elapsed = time.time() - _t0
     console.print(_pad("[bold red]✗ pip install failed[/bold red]"))
-    console.print(_pad(f"[red]exit code:[/red] [bold]{proc.returncode}[/bold]"
+    console.print(_pad(f"[red]exit code:[/red] [bold]{_returncode}[/bold]"
                         f"   [red]after:[/red] [bold]{elapsed:.1f}s[/bold]"))
     console.print(_pad(""))
 

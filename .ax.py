@@ -93,7 +93,9 @@ def get_choice_values_typed(p: Any) -> List[Any]:
     return [str(v) for v in raw]
 
 
-def get_range_lower_upper(p: Any) -> Tuple[float, float]:
+def get_range_lower_upper(p: Any) -> Tuple[Union[int, float], Union[int, float]]:
+    if p.parameter_type == _AxParameterType.INT:
+        return int(p.lower), int(p.upper)
     return float(p.lower), float(p.upper)
 
 

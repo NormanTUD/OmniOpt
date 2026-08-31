@@ -249,16 +249,7 @@ def _pip(venv_dir: Path, *args: str, quiet: bool = True) -> int:
 
 
 def _create_venv(venv_dir: Path) -> bool:
-    if venv_dir.exists():
-        return True
-    print(f"➤ Environment {venv_dir} was not found. Creating it...")
-    try:
-        venv.create(str(venv_dir), with_pip=True)
-    except Exception as exc:
-        print(f"❌ Failed to create venv in {venv_dir}: {exc}")
-        return False
-    print(f"✅ Virtual Environment {venv_dir} created.")
-    return True
+    return _create_venv_from(venv_dir, None)
 
 
 def venv_site_packages(venv_dir: Path) -> Path | None:
@@ -281,7 +272,7 @@ def venv_site_packages(venv_dir: Path) -> Path | None:
     return lib
 
 
-def _create_venv(venv_dir: Path, base_python: str | None = None) -> bool:
+def _create_venv_from(venv_dir: Path, base_python: str | None = None) -> bool:
     if venv_dir.exists():
         return True
     base = base_python or _resolve_base_python()

@@ -210,10 +210,20 @@ def _omniopt_python_candidates() -> list:
         # stale login-node system python.  Usually the re-exec in
         # `_omniopt_reexec_with_modules` has already made this the current
         # interpreter; this is the safety net for when that didn't happen.
-        for _mods in (_omniopt_hpc_module_list(),):
-            _mp = _omniopt_ml_module_load_python(_mods) if _mods else None
-            if _mp and _mp not in cands:
-                cands.append(_mp)
+        # If the toolchain fails to load, fall back to the newest `Python`
+        # module from `ml spider` -- otherwise we'd silently use the stale
+        # login-node system python.
+        _tc = _omniopt_hpc_module_list() or []
+        _mp = _omniopt_ml_module_load_python(_tc) if _tc else None
+        if _mp and _mp not in cands:
+            cands.append(_mp)
+        if not _mp:
+            for _mods in (_omniopt_ml_newest_python_modules(),):
+                if not _mods:
+                    continue
+                _mp2 = _omniopt_ml_module_load_python(_mods)
+                if _mp2 and _mp2 not in cands:
+                    cands.append(_mp2)
 
     for _p in (_sys.executable,
                _shutil.which("python3"),
@@ -1425,8 +1435,11 @@ if "--tests" in _sys.argv:
             _sys.argv.insert(idx + 1, d)
 
 if not _omniopt_in_venv():
-    _omniopt_bootstrap_and_reexec()
-    # _omniopt_bootstrap_and_reexec calls os.execve, never returns
+    try:
+        _omniopt_bootstrap_and_reexec()
+        # _omniopt_bootstrap_and_reexec calls os.execve, never returns
+    except KeyboardInterrupt:
+        pass
     _sys.exit(0)
 
 

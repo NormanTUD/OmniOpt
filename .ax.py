@@ -883,13 +883,11 @@ def get_arm_name(arm: Any) -> str:
 def create_generation_strategy(
     *,
     name: Optional[str] = None,
-    nodes: Optional[Sequence[Any]] = None,
+    nodes: Sequence[Any],
 ) -> Any:
-    kwargs: Dict[str, Any] = {}
+    kwargs: Dict[str, Any] = {"nodes": list(nodes)}
     if name is not None:
         kwargs["name"] = name
-    if nodes is not None:
-        kwargs["nodes"] = list(nodes)
     try:
         return GenerationStrategy(**kwargs)
     except BaseException as exc:
@@ -934,6 +932,7 @@ def create_external_generation_node(
     external_generator: str,
     name: str,
 ) -> Any:
+    # pylint: disable-next=abstract-class-instantiated
     return ExternalGenerationNode(  # type: ignore[abstract, call-arg]
         external_generator=external_generator,  # type: ignore[call-arg]
         **{_EXT_NODE_NAME_KW: name},  # type: ignore[arg-type]
@@ -1237,7 +1236,7 @@ class RandomForestGenerationNode(ExternalGenerationNode if _BACKEND_AVAILABLE el
 
     def get_next_candidate(
         self: Any,
-        pending_parameters: List["TParameterization"],
+        pending_parameters: List["TParameterization"],  # pylint: disable=unused-argument
     ) -> "TParameterization":
         import numpy as np
 

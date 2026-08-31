@@ -734,7 +734,50 @@ requirements_file = sys.argv[1]
 
 # Force a TTY-capable console even when stdout is a pipe so Rich
 # actually renders the progress bar (otherwise it falls back to
-# plain text and the bar disappears).
+# plain text and the bar disappears).  `force_terminal=True` only kicks
+# in for an *interactive* terminal though; when stdout is not a TTY
+# (e.g. an HPC batch log or `--follow` tailing a file) Raw `\r`-redraw
+# soup would clutter the log, so we switch to a single clean line.
+_TTY = bool(sys.stdout.isatty())
+
+
+def _quiet_install(requirements_file):
+    # Non-interactive install: no animated bar, just one result line.
+    # `-q` hides pip's own progress bars / Collecting noise, while still
+    # surfacing ERROR lines so failures are still diagnosable.
+    _start = time.time()
+    _p = subprocess.run(
+        [sys.executable, "-u", "-m", "pip", "install",
+         "--default-timeout=300", "--disable-pip-version-check",
+         "--quiet", "--progress-bar", "off",
+         "-r", requirements_file],
+        stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True,
+    )
+    _el = time.time() - _start
+    if _p.returncode == 0:
+        sys.stdout.write(f"[omniopt] installed requirements from {requirements_file}"
+                         f" ({_el:.1f}s)\n")
+        sys.stdout.flush()
+        return True
+    _sys_err = (_p.stderr or "").strip()
+    sys.stdout.write(
+        f"[omniopt] pip install failed (exit {_p.returncode}, {_el:.1f}s)\n"
+    )
+    if _sys_err:
+        # Show only the tail of pip's error output, de-ANSI'd, so the
+        # HPC log doesn't get flooded with raw pip spew.
+        _lines = [_ln for _ln in _sys_err.splitlines() if _ln.strip()]
+        for _ln in _lines[-6:]:
+            sys.stdout.write("  " + re.sub(r"\x1b\[[0-9;]*m", "", _ln) + "\n")
+    sys.stdout.flush()
+    return False
+
+
+if not _TTY:
+    if not _quiet_install(requirements_file):
+        sys.exit(1)
+    sys.exit(0)
+
 console = Console(force_terminal=True, soft_wrap=False)
 
 _interrupted = {"v": False}

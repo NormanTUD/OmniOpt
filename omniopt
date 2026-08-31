@@ -13127,7 +13127,7 @@ if __name__ == "__main__":
                 while not _os.path.exists(_log_path):
                     _time.sleep(2)
                 _tail_proc = _subprocess.Popen(
-                    ["tail", "-n", "1000", "-f", _log_path],
+                    ["tail", "-n", "10000000", "-f", _log_path],
                     stdout=_sys.stdout, stderr=_sys.stderr,
                 )
 

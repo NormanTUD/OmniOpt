@@ -135,6 +135,26 @@ def _omniopt_has_lmod() -> bool:
     return _os.path.exists("/usr/share/lmod/lmod/init/bash") or _os.path.exists("/etc/profile.d/modules.sh")
 
 
+def _omniopt_lmod_bash_prelude() -> str:
+    """Return a bash prelude that makes `ml` (lmod) available even in a
+    NON-interactive `bash -lc` subprocess.
+
+    On HPC login nodes `ml` is usually defined only in `.bashrc` (interactive
+    login), so a `bash -lc` does NOT see it and ``LMOD_CMD`` may not be
+    exported.  We explicitly source the common lmod init files -- this is the
+    step that makes the "load newest Python module" / toolchain path actually
+    work from a subprocess.
+    """
+    return (
+        'if ! command -v ml >/dev/null 2>&1 && [ -n "${LMOD_CMD:-}" ]; then '
+        'eval "$(${LMOD_CMD} bash)"; fi; '
+        'if ! command -v ml >/dev/null 2>&1 && ! command -v module >/dev/null 2>&1; then '
+        'for _lmi in /usr/share/lmod/lmod/init/bash /opt/lmod/lmod/init/bash '
+        '/etc/profile.d/modules.sh /etc/profile.d/lmod.sh; do '
+        '[ -f "$_lmi" ] && . "$_lmi" 2>/dev/null; done; fi; unset _lmi; '
+    )
+
+
 def _omniopt_ml_module_load_python(modules: list) -> str | None:
     """Use bash + lmod to load ``modules`` (a known toolchain, or a single
     Python module) and return the resolved ``python3`` path it provides.
@@ -146,9 +166,8 @@ def _omniopt_ml_module_load_python(modules: list) -> str | None:
         return None
     _mod_cmd = " ".join(_re.escape(m) for m in modules) if modules else ""
     _script = (
-        'if ! command -v ml >/dev/null 2>&1 && [ -n "${LMOD_CMD:-}" ]; then '
-        'eval "$(${LMOD_CMD} bash)"; fi; '
-        "ml --quiet " + _mod_cmd + " >/dev/null 2>&1; "
+        _omniopt_lmod_bash_prelude()
+        + "ml --quiet " + _mod_cmd + " >/dev/null 2>&1; "
         "command -v python3 || true"
     )
     try:
@@ -216,9 +235,8 @@ def _omniopt_ml_newest_python_modules() -> list:
     if not _omniopt_has_lmod():
         return []
     _script = (
-        'if ! command -v ml >/dev/null 2>&1 && [ -n "${LMOD_CMD:-}" ]; then '
-        'eval "$(${LMOD_CMD} bash)"; fi; '
-        "{ ml spider Python 2>/dev/null; } | grep -oE 'Python/[0-9]+(\\.[0-9]+)*' | "
+        _omniopt_lmod_bash_prelude()
+        + "{ ml spider Python 2>/dev/null; } | grep -oE 'Python/[0-9]+(\\.[0-9]+)*' | "
         "sort -V | tail -n 1"
     )
     try:
@@ -278,9 +296,8 @@ def _omniopt_reexec_with_modules() -> bool:
     _shlex = __import__("shlex")
     _ml_cmd = " ".join(_re.escape(m) for m in _mods)
     _script = (
-        'if ! command -v ml >/dev/null 2>&1 && [ -n "${LMOD_CMD:-}" ]; then '
-        'eval "$(${LMOD_CMD} bash)"; fi; '
-        "ml --quiet " + _ml_cmd + " >/dev/null 2>&1; "
+        _omniopt_lmod_bash_prelude()
+        + "ml --quiet " + _ml_cmd + " >/dev/null 2>&1; "
         "exec " + _shlex.quote(_module_py) + " "
         + _shlex.quote(_OMNIOPT_FILE) + " "
         + " ".join(_shlex.quote(a) for a in _sys.argv[1:])

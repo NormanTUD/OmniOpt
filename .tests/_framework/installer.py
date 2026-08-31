@@ -283,8 +283,6 @@ def venv_site_packages(venv_dir: Path) -> Path | None:
 
 
 def _create_venv_from(venv_dir: Path, base_python: str | None = None) -> bool:
-    if venv_dir.exists():
-        return True
     base = base_python or _resolve_base_python()
     if not _probe_python(base):
         print(
@@ -293,6 +291,25 @@ def _create_venv_from(venv_dir: Path, base_python: str | None = None) -> bool:
             file=sys.stderr,
         )
         return False
+
+    py = venv_dir / "bin" / "python"
+    if venv_dir.exists():
+        # Validate an *existing* venv instead of blindly trusting it.  A
+        # stale/broken venv (e.g. an old "Python_3.9.25" with no pip) must be
+        # rebuilt on the correct base python, or every later pip call crashes.
+        if (
+            py.exists()
+            and _probe_python(str(py))
+            and (venv_dir / "bin" / "pip").exists()
+        ):
+            return True
+        print(
+            f"⚠️ Existing environment {venv_dir} is broken or incomplete; "
+            "recreating it...",
+            file=sys.stderr,
+        )
+        shutil.rmtree(str(venv_dir), ignore_errors=True)
+
     print(f"➤ Environment {venv_dir} was not found. Creating it...")
     _vdir = str(venv_dir)
     # Build from the resolved base python (usually the newest HPC module
@@ -307,7 +324,6 @@ def _create_venv_from(venv_dir: Path, base_python: str | None = None) -> bool:
     except (OSError, subprocess.TimeoutExpired) as exc:
         print(f"❌ Failed to create venv in {venv_dir}: {exc}")
         return False
-    py = venv_dir / "bin" / "python"
     if not py.exists() or not _probe_python(str(py)):
         print(
             f"❌ venv python missing/broken at {py}; delete {venv_dir} and re-run.",

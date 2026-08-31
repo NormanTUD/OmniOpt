@@ -673,7 +673,8 @@ def _omniopt_install_requirements(venv_python: str) -> None:
                 _sys.stderr.write(f"[omniopt] WARN: requirements file not found: {rf}\n")
                 _sys.stderr.flush()
                 continue
-            if not _omniopt_run_install_with_rich_progress(venv_python, rf):
+            _label = _omniopt_requirements_label(rf)
+            if not _omniopt_run_install_with_rich_progress(venv_python, rf, _label):
                 return False
         return True
     except KeyboardInterrupt:

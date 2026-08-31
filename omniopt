@@ -689,7 +689,18 @@ def _omniopt_install_requirements(venv_python: str) -> None:
         return False
 
 
-def _omniopt_run_install_with_rich_progress(venv_python: str, requirements_file: str) -> None:
+def _omniopt_requirements_label(req_file: str) -> str:
+    """Human label for a requirements file, used in the Rich progress bar in
+    place of the full path (e.g. ``requirements.txt`` -> "requirements",
+    ``test_requirements.txt`` -> "test requirements")."""
+    _b = _os.path.basename(req_file or "")
+    _l = _os.path.splitext(_b)[0]            # strip .txt
+    _l = _l.replace("_requirements", " requirements").replace("-requirements", " requirements")
+    return _l or _b
+
+
+def _omniopt_run_install_with_rich_progress(venv_python: str, requirements_file: str,
+                                            label: str = "") -> None:
     """Install the given requirements file using a tiny Rich-based
     progress UI.  This is called from the bootstrap section but runs
     in a child Python process so the parent can stay stdlib-only.
@@ -822,7 +833,8 @@ def _pad(text, width=None):
     return text + (" " * max(0, width - len(visible) - 1))
 
 
-requirements_file = sys.argv[1]
+_omniopt_label = sys.argv[1]
+requirements_file = sys.argv[2]
 
 # =============================================================================
 # GUARDRAILS  -- DO NOT REMOVE OR "CLEAN UP" THE LINES BELOW.
@@ -858,8 +870,7 @@ def _quiet_install(requirements_file):
     )
     _el = time.time() - _start
     if _p.returncode == 0:
-        sys.stdout.write(f"[omniopt] installed requirements from {requirements_file}"
-                         f" ({_el:.1f}s)\n")
+        sys.stdout.write(f"[omniopt] installed {_omniopt_label} ({_el:.1f}s)\n")
         sys.stdout.flush()
         return True
     _sys_err = (_p.stderr or "").strip()

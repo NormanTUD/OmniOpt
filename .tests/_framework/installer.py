@@ -274,6 +274,270 @@ def _pip(venv_dir: Path, *args: str, quiet: bool = True) -> int:
         return 130
 
 
+# ---------------------------------------------------------------------------
+# Rich progress-bar install.
+#
+# The `.tests/main` bootstrap runs *before* Rich is installed (Rich itself is
+# a requirement), so pip was previously invoked raw -- which dumped pip's own
+# `━━━` progress bars into the terminal / HPC log.  To make sure the user
+# ALWAYS sees a clean, single, transient Rich progress bar while the install
+# is working (and raw pip output ONLY when something actually fails), we run
+# the install in a dedicated child Python that:
+#
+#   guardrail A) ensures Rich is importable (installs it quietly if missing),
+#   guardrail B) always passes `--progress-bar off` to pip inside the child,
+#   guardrail C) on a TTY renders ONE transient Rich progress bar (with
+#                elapsed/ETA) that disappears on success,
+#   guardrail D) on a non-TTY (HPC log / `--follow`) prints a single clean
+#                result line instead of `\r`-redraw soup,
+#   guardrail E) shows raw pip output ONLY on failure (de-ANSI'd tail).
+# ---------------------------------------------------------------------------
+
+
+def _install_requirements_rich(
+    venv_dir: Path, req_file: Path, label: str = "requirements"
+) -> bool:
+    """Install ``req_file`` inside ``venv_dir`` using a transient Rich progress
+    bar in a child process (so the parent bootstrap stays stdlib-only).
+
+    Raw pip output is never shown while the install is healthy -- it is only
+    surfaced (as a tail) when the install actually fails.
+    """
+    py = venv_dir / "bin" / "python"
+
+    # Guardrail A: Rich must be present inside the venv, otherwise the child
+    # can't render a bar.  Because Rich might itself be one of the packages
+    # being installed, install it first (quietly, bars off, no raw output).
+    try:
+        _has_rich = (
+            subprocess.run(
+                [str(py), "-c", "import rich" ],
+                capture_output=True, timeout=60,
+            ).returncode
+            == 0
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        _has_rich = False
+    if not _has_rich:
+        _try_quiet_pip(venv_dir, "install", "--progress-bar", "off", "-q", "rich")
+
+    child = r'''
+import subprocess, sys, time, re, signal, os
+
+_reqfile = sys.argv[1]
+_TTY = bool(sys.stdout.isatty())
+
+
+def _deansi(s):
+    return re.sub(r"\x1b\[[0-9;]*m", "", s)
+
+
+def _tail(err, n=6):
+    lines = [_deansi(l) for l in err.splitlines() if l.strip()]
+    return lines[-n:] if lines else ["(no output captured)"]
+
+
+def _quiet(_path):
+    # Guardrail D: non-interactive fallback -- one clean line, raw pip on fail.
+    _t0 = time.time()
+    _p = subprocess.run(
+        [sys.executable, "-u", "-m", "pip", "install",
+         "--default-timeout=300", "--disable-pip-version-check",
+         "--quiet", "--progress-bar", "off", "-r", _path],
+        stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True,
+    )
+    _el = time.time() - _t0
+    if _p.returncode == 0:
+        sys.stdout.write(f"[omniopt] installed {_path} ({_el:.1f}s)\n")
+        sys.stdout.flush()
+        return 0
+    sys.stdout.write(f"[omniopt] pip install failed (exit {_p.returncode}, {_el:.1f}s)\n")
+    for _l in _tail(_p.stderr or ""):
+        sys.stdout.write("  " + _l + "\n")
+    sys.stdout.flush()
+    return 1
+
+
+if not _TTY:
+    sys.exit(_quiet(_reqfile))
+
+try:
+    from rich.console import Console
+    from rich.progress import (
+        Progress, SpinnerColumn, TextColumn, BarColumn,
+        TaskProgressColumn, TimeRemainingColumn, TimeElapsedColumn,
+    )
+except ImportError:
+    # Guardrail A (defensive): even if the probe above raced, degrade to a
+    # clean one-line install rather than dumping raw pip output.
+    sys.exit(_quiet(_reqfile))
+
+console = Console(force_terminal=True, soft_wrap=False)
+_interrupted = {"v": False}
+
+
+def _on_sigint(signum, frame):
+    _interrupted["v"] = True
+
+
+signal.signal(signal.SIGINT, _on_sigint)
+
+
+def _count_reqs(path):
+    n = 0
+    try:
+        with open(path, "r", encoding="utf-8", errors="replace") as f:
+            for ln in f:
+                ln = ln.strip()
+                if not ln or ln.startswith("#"):
+                    continue
+                if ln.startswith("-"):
+                    if (ln.startswith("-r") or ln.startswith("--requirement")):
+                        rest = ln.split(maxsplit=1)
+                        if len(rest) > 1:
+                            try:
+                                n += _count_reqs(os.path.join(
+                                    os.path.dirname(path) or ".", rest[1]))
+                            except Exception:
+                                pass
+                    continue
+                if ln.startswith("--"):
+                    continue
+                n += 1
+    except OSError:
+        pass
+    return n
+
+
+initial_total = max(1, _count_reqs(_reqfile))
+start = time.time()
+collected = 0
+
+# Guardrail B: pip's own bars are always disabled inside the child.
+_pipcmd = [sys.executable, "-u", "-m", "pip", "install",
+           "--default-timeout=300", "--disable-pip-version-check",
+           "--progress-bar", "off", "-r", _reqfile]
+
+try:
+    with Progress(
+        SpinnerColumn("dots"),
+        TextColumn("{task.description}"),
+        BarColumn(bar_width=None),
+        TaskProgressColumn(),
+        TextColumn("elapsed"),
+        TimeElapsedColumn(),
+        console=console,
+        transient=True,
+        refresh_per_second=10,
+    ) as progress:
+        task = progress.add_task(
+            f"[cyan]preparing {initial_total} packages from {_reqfile} ...".ljust(80),
+            total=initial_total, completed=0,
+        )
+        proc = subprocess.Popen(
+            _pipcmd, stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT, text=True, bufsize=0,
+        )
+
+        # Guardrail: heartbeat keeps the spinner alive during slow/dep
+        # resolution; without it the bar freezes for seconds at a time.
+        import threading
+        _stop = {"v": False}
+
+        def _hb():
+            while not _stop["v"]:
+                try:
+                    progress.refresh()
+                except Exception:
+                    pass
+                time.sleep(0.1)
+        _t = threading.Thread(target=_hb, daemon=True)
+        _t.start()
+
+        captured = []
+        last_seen = set()
+        try:
+            for line in proc.stdout:
+                if _interrupted["v"]:
+                    break
+                line = line.rstrip()
+                if not line:
+                    continue
+                captured.append(line)
+                m = re.search(r"^Collecting\s+([^=<>!~ ]+)", line)
+                if m:
+                    name = m.group(1).strip()
+                    if name and name not in last_seen:
+                        last_seen.add(name)
+                        collected += 1
+                        nt = max(initial_total, collected)
+                        progress.update(
+                            task, total=nt, completed=collected,
+                            description=(f"[cyan]collecting[/cyan] [bold]{name}[/bold] "
+                                         f"[dim]({collected}/{nt})").ljust(80),
+                        )
+                    continue
+                m = re.search(r"^Downloading\s+([^=<>!~ ]+)", line)
+                if m:
+                    name = m.group(1).strip()
+                    progress.update(
+                        task,
+                        completed=max(collected, min(initial_total - 1,
+                                       progress.tasks[0].completed + 1)),
+                        description=f"[yellow]downloading[/yellow] [bold]{name}[/bold]".ljust(80),
+                    )
+                    continue
+                if "Installing collected packages" in line:
+                    progress.update(
+                        task,
+                        completed=max(collected, progress.tasks[0].completed + 5),
+                        description="[green]installing collected packages ...[/green]".ljust(80),
+                    )
+        finally:
+            _stop["v"] = True
+
+        proc.wait()
+        _rc = proc.returncode
+except KeyboardInterrupt:
+    _rc = 130
+
+_el = time.time() - start
+if _rc == 0:
+    # transient bar already cleared itself; emit one final clean line.
+    sys.stdout.write(f"done ({_el:.1f}s)\n")
+    sys.stdout.flush()
+    sys.exit(0)
+
+# Guardrail E: only on failure do we show pip's raw output (tail, de-ANSI'd).
+sys.stdout.write(f"pip install failed (exit {_rc}, {_el:.1f}s)\n")
+for _l in _tail("\n".join(captured)):
+    sys.stdout.write("  " + _l + "\n")
+sys.stdout.flush()
+sys.exit(1 if _rc != 130 else 130)
+'''
+    try:
+        r = subprocess.run([str(py), "-u", "-c", child, str(req_file)])
+    except KeyboardInterrupt:
+        return False
+    return r.returncode == 0
+
+
+def _try_quiet_pip(venv_dir: Path, *args: str) -> int:
+    """Run a pip command quietly (bars off, stderr piped) without ever
+    printing raw pip output on success; returns the exit code."""
+    pip = _ensure_pip_in_venv(venv_dir)
+    if pip is None:
+        return 20
+    try:
+        return subprocess.run(
+            [str(pip), "--disable-pip-version-check",
+             "--progress-bar", "off", *args],
+            stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
+        ).returncode
+    except KeyboardInterrupt:
+        return 130
+
+
 def _create_venv(venv_dir: Path) -> bool:
     return _create_venv_from(venv_dir, None)
 
@@ -489,9 +753,15 @@ def ensure_dependencies(*, include_tests: bool = True,
     if need_main or need_test or no_main_hash or no_test_hash:
         print("Installing dependencies (this may take a while)...")
         if req_main.exists():
-            _pip(venv_dir, "install", "-r", str(req_main), quiet=False)
+            # Guardrail: ALWAYS route through the Rich progress-bar child so
+            # pip's raw `━━━` output is never shown while things are healthy.
+            if not _install_requirements_rich(venv_dir, req_main, "requirements"):
+                print("❌ Failed to install main requirements.", file=sys.stderr)
+                sys.exit(20)
         if want_test and req_test.exists():
-            _pip(venv_dir, "install", "-r", str(req_test), quiet=False)
+            if not _install_requirements_rich(venv_dir, req_test, "test requirements"):
+                print("❌ Failed to install test requirements.", file=sys.stderr)
+                sys.exit(20)
 
         if req_main.exists():
             hash_file_main.write_text(hash_main)

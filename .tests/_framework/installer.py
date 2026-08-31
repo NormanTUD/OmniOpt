@@ -73,11 +73,22 @@ def _probe_python(py: str) -> bool:
 
 
 def _lmod_script(cmd: str) -> str:
-    """Build a bash -lc body that initialises lmod if needed, runs `cmd`,
-    and (for python resolution) prints the resolved python path last."""
+    """Build a bash -lc body that makes `ml` (lmod) available even in a
+    NON-interactive shell, then runs `cmd`.
+
+    On HPC login nodes `ml` is usually defined only in `.bashrc` (interactive
+    login), so a `bash -lc` does NOT see it and LMOD_CMD may not be exported.
+    We therefore explicitly source the common lmod init files -- this is the
+    step that makes the whole "load newest Python module" path actually work
+    here -- before running `cmd`.
+    """
     return (
         'if ! command -v ml >/dev/null 2>&1 && [ -n "${LMOD_CMD:-}" ]; then '
         'eval "$(${LMOD_CMD} bash)"; fi; '
+        'if ! command -v ml >/dev/null 2>&1 && ! command -v module >/dev/null 2>&1; then '
+        'for _lmi in /usr/share/lmod/lmod/init/bash /opt/lmod/lmod/init/bash '
+        '/etc/profile.d/modules.sh /etc/profile.d/lmod.sh; do '
+        '[ -f "$_lmi" ] && . "$_lmi" 2>/dev/null; done; fi; unset _lmi; '
         + cmd
     )
 

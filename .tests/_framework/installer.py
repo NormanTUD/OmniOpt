@@ -489,10 +489,18 @@ try:
                     )
                     continue
                 if "Installing collected packages" in line:
+                    _names = line.split(":", 1)[1] if ":" in line else ""
+                    _names = ", ".join(
+                        _n.strip() for _n in _names.split(",") if _n.strip()
+                    )
+                    if len(_names) > 70:
+                        _names = _names[:67] + "..."
                     progress.update(
                         task,
                         completed=max(collected, progress.tasks[0].completed + 5),
-                        description="[green]installing collected packages ...[/green]".ljust(80),
+                        description=(
+                            f"[green]installing:[/green] [bold]{_names or '...'}[/bold]".ljust(80)
+                        ),
                     )
         finally:
             _stop["v"] = True

@@ -3350,6 +3350,8 @@ except Exception as e:
 global_vars: dict = {}
 global_vars_jobs_lock = threading.Lock()
 
+old_run_values: list = []
+
 VAL_IF_NOTHING_FOUND: int = 99999999999999999999999999999999999999999999999999999999999
 NO_RESULT: str = "{:.0e}".format(VAL_IF_NOTHING_FOUND)
 
@@ -3743,7 +3745,7 @@ def load_time_or_exit(_args: Any) -> None:
 
         if time_content.isdigit():
             global_vars["_time"] = int(time_content)
-            print_yellow(f"Using old run's --time: {global_vars['_time']}")
+            old_run_values.append(("--time", global_vars["_time"]))
         else:
             print_yellow(f"Time-setting: The contents of {time_file} do not contain a single number")
     else:
@@ -3759,7 +3761,7 @@ def load_mem_gb_or_exit(_args: Any) -> Optional[int]:
         mem_gb_content = get_file_content_or_exit(mem_gb_file, f"neither --mem_gb nor file {mem_gb_file} found", 19)
         if mem_gb_content.isdigit():
             mem_gb = int(mem_gb_content)
-            print_yellow(f"Using old run's --mem_gb: {mem_gb}")
+            old_run_values.append(("--mem_gb", mem_gb))
             return mem_gb
 
         print_yellow(f"mem_gb-setting: The contents of {mem_gb_file} do not contain a single number")
@@ -3775,7 +3777,7 @@ def load_gpus_or_exit(_args: Any) -> Optional[int]:
         gpus_content = get_file_content_or_exit(gpus_file, f"neither --gpus nor file {gpus_file} found", 19)
         if gpus_content.isdigit():
             gpus = int(gpus_content)
-            print_yellow(f"Using old run's --gpus: {gpus}")
+            old_run_values.append(("--gpus", gpus))
             return gpus
 
         print_yellow(f"--gpus: The contents of {gpus_file} do not contain a single number")
@@ -3791,7 +3793,7 @@ def load_max_eval_or_exit(_args: Any) -> None:
         max_eval_content = get_file_content_or_exit(max_eval_file, f"neither --max_eval nor file {max_eval_file} found", 19)
         if max_eval_content.isdigit():
             set_max_eval(int(max_eval_content))
-            print_yellow(f"Using old run's --max_eval: {max_eval_content}")
+            old_run_values.append(("--max_eval", int(max_eval_content)))
         else:
             print_yellow(f"max_eval-setting: The contents of {max_eval_file} do not contain a single number")
     else:
@@ -3817,9 +3819,23 @@ try:
             global_vars["gpus"] = args.gpus
 
         load_max_eval_or_exit(args)
+        print_old_run_values_table()
 except KeyboardInterrupt:
     print("\n⚠ You pressed CTRL+C. Program execution halted while loading modules.")
     my_exit(0)
+
+def print_old_run_values_table() -> None:
+    if not old_run_values:
+        return
+
+    table = Table(title="Values from old run", show_header=True, show_lines=True)
+    table.add_column("Argument", justify="left", style="bold yellow")
+    table.add_column("Value", justify="left", style="cyan")
+
+    for key, value in old_run_values:
+        table.add_row(key, str(value))
+
+    console.print(table)
 
 def print_debug_get_next_trials(got: int, requested: int, _line: int) -> None:
     time_str: str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")

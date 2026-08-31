@@ -2,6 +2,9 @@ import logging
 import sys
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
+_BACKEND_AVAILABLE: bool = False
+_BACKEND_IMPORT_ERROR: Optional[str] = None
+
 try:
     import ax
     from ax.adapter.registry import Cont_X_trans, Y_trans, Generators
@@ -38,10 +41,6 @@ except ModuleNotFoundError as exc:
 
 
 SUPPORTED_LOGGER_NAMES: Tuple[str, ...] = ("ax.adapter.base",)
-
-
-_BACKEND_AVAILABLE: bool = False
-_BACKEND_IMPORT_ERROR: Optional[str] = None
 
 
 ExternalGenerationNodeBase: Any = None
@@ -1270,11 +1269,11 @@ class RandomForestGenerationNode(ExternalGenerationNode if _BACKEND_AVAILABLE el
         raise RuntimeError("No valid candidate found within constraints.")
 
     def _is_within_constraints(self: Any, params_list: list) -> bool:
-        if self.experiment.search_space.parameter_constraints:
+        if self.experiment.search_space.parameter_constraints:  # pylint: disable=no-member
             param_names = list(self.parameters.keys())
             params = dict(zip(param_names, params_list))
 
-            for constraint in self.experiment.search_space.parameter_constraints:
+            for constraint in self.experiment.search_space.parameter_constraints:  # pylint: disable=no-member
                 if not constraint.check(params):
                     return False
 
@@ -1417,7 +1416,7 @@ if _BACKEND_AVAILABLE:
 _INTERACTIVE_CLI_PROMPT_SPECIALS_DEFAULT: Dict[str, Any] = {}
 
 
-class InteractiveCLIGenerationNode(ExternalGenerationNode if _BACKEND_AVAILABLE else object):  # type: ignore[misc]
+class InteractiveCLIGenerationNode(ExternalGenerationNode if _BACKEND_AVAILABLE else object):  # type: ignore[misc]  # pylint: disable=useless-object-inheritance
     """Backend-agnostic interactive-CLI generation node.
 
     Instead of spawning a subprocess, this node asks the user on the

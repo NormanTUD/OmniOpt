@@ -166,9 +166,11 @@ def _omniopt_ml_module_load_python(modules: list) -> str | None:
         return None
     _mod_cmd = " ".join(_re.escape(m) for m in modules) if modules else ""
     _script = (
-        _omniopt_lmod_bash_prelude()
+        '_before="$(command -v python3 || true)"; '
+        + _omniopt_lmod_bash_prelude()
         + "ml --quiet " + _mod_cmd + " >/dev/null 2>&1; "
-        "command -v python3 || true"
+        "_after=\"$(command -v python3 || true)\"; "
+        'if [ -n "$_after" ] && [ "$_after" != "$_before" ]; then printf \'%s\' "$_after"; fi'
     )
     try:
         _r = _subprocess.run(

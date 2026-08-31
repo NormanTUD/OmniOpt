@@ -115,11 +115,22 @@ def _newest_python_module() -> str:
 def _ml_python(modules: str) -> str | None:
     """Load ``modules`` via lmod and return the resolved ``python3`` path, or
     None if the load produced nothing usable.  The returned interpreter is
-    probe-validated (rejects SIGILL/broken builds)."""
+    probe-validated (rejects SIGILL/broken builds).
+
+    A module load that silently fails must return None (NOT the unchanged
+    system python): we compare the resolved python before vs after the load
+    and only trust a path the module actually substituted.  Otherwise a
+    failed toolchain/Python load would make us build on the stale login-node
+    system python (e.g. Python 3.9.25) -- the exact bug we're fixing.
+    """
     if not _has_lmod() or not modules:
         return None
     script = _lmod_script(
-        f"ml --quiet {modules} >/dev/null 2>&1; command -v python3 || true"
+        '_before="$(command -v python3 || true)"; '
+        f"ml --quiet {modules} >/dev/null 2>&1; "
+        '_after="$(command -v python3 || true)"; '
+        'if [ -n "$_after" ] && [ "$_after" != "$_before" ]; then '
+        'printf \'%s\' "$_after"; fi'
     )
     try:
         r = subprocess.run(

@@ -259,6 +259,11 @@ def _pip(venv_dir: Path, *args: str, quiet: bool = True) -> int:
     cmd = [str(pip), "--disable-pip-version-check"]
     if quiet:
         cmd.append("-q")
+    # suppress pip's own raw `━━━` progress bars (noise in TTY, log spam when
+    # non-TTY/--follow).  `--progress-bar off` is accepted on modern pip;
+    # it keeps clean `Collecting/Downloading/Installing` lines.
+    if "--progress-bar" not in args:
+        cmd.append("--progress-bar off")
     cmd.extend(args)
     _pip._cancelled = False  # type: ignore[attr-defined]
     try:

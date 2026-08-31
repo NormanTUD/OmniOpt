@@ -9763,10 +9763,7 @@ def generate_trials(n: int, recursion: bool) -> Tuple[Dict[int, Any], bool]:
                     continue
 
                 try:
-                    arm = ax_backend.create_arm(
-                        ax_backend.get_arm_parameters(arm),
-                        name=ax_backend.get_arm_name(arm),
-                    )
+                    arm = ax_backend.create_arm(ax_backend.get_arm_parameters(arm))
                 except Exception as arm_err:
                     print_red(f"Error while creating new Arm: {arm_err}")
                     retries += 1

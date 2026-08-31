@@ -870,6 +870,7 @@ try:
         proc = subprocess.Popen(
             [sys.executable, "-u", "-m", "pip", "install",
              "--default-timeout=300", "--disable-pip-version-check",
+             "--progress-bar", "off",
              "-r", requirements_file],
             stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
             bufsize=0,

@@ -33,12 +33,15 @@ try:
     from botorch import exceptions as _botorch_exc
     _BACKEND_AVAILABLE = True
 except ModuleNotFoundError as exc:
-    _BACKEND_AVAILABLE = False
-    _BACKEND_IMPORT_ERROR: Optional[str] = str(exc)
+    _BACKEND_IMPORT_ERROR = str(exc)
     print(f"\033[93m.ax.py: backend module not available yet: {exc}\033[0m")
 
 
 SUPPORTED_LOGGER_NAMES: Tuple[str, ...] = ("ax.adapter.base",)
+
+
+_BACKEND_AVAILABLE: bool = False
+_BACKEND_IMPORT_ERROR: Optional[str] = None
 
 
 ExternalGenerationNodeBase: Any = None

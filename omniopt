@@ -3733,6 +3733,19 @@ def check_required_parameters(_args: Any) -> None:
         19
     )
 
+def print_old_run_values_table() -> None:
+    if not old_run_values:
+        return
+
+    table = Table(title="Values from old run", show_header=True, show_lines=True)
+    table.add_column("Argument", justify="left", style="bold yellow")
+    table.add_column("Value", justify="left", style="cyan")
+
+    for key, value in old_run_values:
+        table.add_row(key, str(value))
+
+    console.print(table)
+
 def load_time_or_exit(_args: Any) -> None:
     if getattr(args, "install", False):
         return
@@ -3823,19 +3836,6 @@ try:
 except KeyboardInterrupt:
     print("\n⚠ You pressed CTRL+C. Program execution halted while loading modules.")
     my_exit(0)
-
-def print_old_run_values_table() -> None:
-    if not old_run_values:
-        return
-
-    table = Table(title="Values from old run", show_header=True, show_lines=True)
-    table.add_column("Argument", justify="left", style="bold yellow")
-    table.add_column("Value", justify="left", style="cyan")
-
-    for key, value in old_run_values:
-        table.add_row(key, str(value))
-
-    console.print(table)
 
 def print_debug_get_next_trials(got: int, requested: int, _line: int) -> None:
     time_str: str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")

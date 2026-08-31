@@ -410,15 +410,6 @@ def _count_reqs(path):
     return n
 
 
-initial_total = max(1, _count_reqs(_reqfile))
-start = time.time()
-collected = 0
-
-# Guardrail B: pip's own bars are always disabled inside the child.
-_pipcmd = [sys.executable, "-u", "-m", "pip", "install",
-           "--default-timeout=300", "--disable-pip-version-check",
-           "--progress-bar", "off", "-r", _reqfile]
-
 try:
     with Progress(
         SpinnerColumn("dots"),
@@ -432,13 +423,49 @@ try:
         refresh_per_second=10,
     ) as progress:
         task = progress.add_task(
-            f"[cyan]preparing {initial_total} packages for {_label} ...".ljust(80),
-            total=initial_total, completed=0,
+            f"[cyan]preparing {_label} ...".ljust(80),
+            total=100, completed=0,
         )
-        proc = subprocess.Popen(
-            _pipcmd, stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT, text=True, bufsize=0,
-        )
+
+        # Flatten the requirements file into one installable spec per package,
+        # recursing into `-r` includes, skipping comments / `--flags` / blank
+        # lines.  Each spec gets its OWN `pip install <spec>` so we get REAL
+        # per-package progress ("installiere <name> -- noch N übrig") instead
+        # of pip's single un-timed "Installing collected packages: ..." line.
+        def _flatten_reqs(path, _seen=None):
+            _seen = _seen if _seen is not None else set()
+            _real = os.path.realpath(path)
+            if _real in _seen:
+                return []
+            _seen.add(_real)
+            out = []
+            try:
+                with open(path, "r", encoding="utf-8", errors="replace") as f:
+                    for ln in f:
+                        ln = ln.strip()
+                        if not ln or ln.startswith("#"):
+                            continue
+                        if (ln.startswith("-r") or ln.startswith("--requirement")):
+                            rest = ln.split(maxsplit=1)
+                            if len(rest) > 1:
+                                out += _flatten_reqs(
+                                    os.path.join(os.path.dirname(path) or ".", rest[1]),
+                                    _seen,
+                                )
+                            continue
+                        if ln.startswith("-") or ln.startswith("--"):
+                            continue
+                        out.append(ln)
+            except OSError:
+                pass
+            return out
+
+        _specs = _flatten_reqs(_reqfile)
+        if not _specs:
+            _specs = [_reqfile]
+        _total = len(_specs)
+        _rc = 0
+        captured = []
 
         # Guardrail: heartbeat keeps the spinner alive during slow/dep
         # resolution; without it the bar freezes for seconds at a time.
@@ -455,62 +482,55 @@ try:
         _t = threading.Thread(target=_hb, daemon=True)
         _t.start()
 
-        captured = []
-        last_seen = set()
+        _t0 = time.time()
         try:
-            for line in proc.stdout:
+            for _i, _spec in enumerate(_specs, start=1):
                 if _interrupted["v"]:
+                    _rc = 130
                     break
-                line = line.rstrip()
-                if not line:
-                    continue
-                captured.append(line)
-                m = re.search(r"^Collecting\s+([^=<>!~ ]+)", line)
-                if m:
-                    name = m.group(1).strip()
-                    if name and name not in last_seen:
-                        last_seen.add(name)
-                        collected += 1
-                        nt = max(initial_total, collected)
-                        progress.update(
-                            task, total=nt, completed=collected,
-                            description=(f"[cyan]collecting[/cyan] [bold]{name}[/bold] "
-                                         f"[dim]({collected}/{nt})").ljust(80),
-                        )
-                    continue
-                m = re.search(r"^Downloading\s+([^=<>!~ ]+)", line)
-                if m:
-                    name = m.group(1).strip()
-                    progress.update(
-                        task,
-                        completed=max(collected, min(initial_total - 1,
-                                       progress.tasks[0].completed + 1)),
-                        description=f"[yellow]downloading[/yellow] [bold]{name}[/bold]".ljust(80),
+                _name = _spec.split()[0]
+                _remaining = _total - _i
+                progress.update(
+                    task,
+                    total=_total,
+                    completed=_i - 1,
+                    description=(
+                        f"[cyan]installiere[/cyan] [bold]{_name}[/bold]  "
+                        f"[dim]({_i}/{_total}) -- noch {_remaining} übrig[/dim]".ljust(80)
+                    ),
+                )
+                try:
+                    _p = subprocess.Popen(
+                        [sys.executable, "-u", "-m", "pip", "install",
+                         "--default-timeout=300", "--disable-pip-version-check",
+                         "--progress-bar", "off", _spec],
+                        stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                        text=True, bufsize=0,
                     )
-                    continue
-                if "Installing collected packages" in line:
-                    _names = line.split(":", 1)[1] if ":" in line else ""
-                    _names = ", ".join(
-                        _n.strip() for _n in _names.split(",") if _n.strip()
-                    )
-                    if len(_names) > 70:
-                        _names = _names[:67] + "..."
-                    progress.update(
-                        task,
-                        completed=max(collected, progress.tasks[0].completed + 5),
-                        description=(
-                            f"[green]installing:[/green] [bold]{_names or '...'}[/bold]".ljust(80)
-                        ),
-                    )
+                except Exception as e:
+                    captured.append(str(e))
+                    _rc = 1
+                    break
+                for _l in _p.stdout:
+                    if _interrupted["v"]:
+                        break
+                    _l = _l.rstrip()
+                    if _l:
+                        captured.append(_l)
+                _p.wait()
+                if _interrupted["v"]:
+                    _rc = 130
+                    break
+                if _p.returncode != 0:
+                    _rc = _p.returncode or 1
+                    break
+                progress.update(task, completed=_i, total=_total)
         finally:
             _stop["v"] = True
-
-        proc.wait()
-        _rc = proc.returncode
 except KeyboardInterrupt:
     _rc = 130
 
-_el = time.time() - start
+_el = time.time() - _t0
 if _rc == 0:
     # transient bar already cleared itself; emit one final clean line.
     sys.stdout.write(f"done installing {_label} ({_el:.1f}s)\n")

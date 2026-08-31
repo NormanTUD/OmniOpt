@@ -172,28 +172,35 @@ def _omniopt_python_candidates() -> list:
     """Ordered, deduplicated, *probe-validated* list of base interpreters to
     try, in preference order, for building the venv.
 
-    Order:
-      1. the interpreter that launched us (fastest, most likely correct),
-      2. ``python3`` / ``python`` from PATH,
-      3. HPC module-provided Pythons (known toolchain, then newest Python).
+    On an HPC login node (lmod available) the *module-provided* Python is
+    preferred over whatever launched us: the login-node system python is
+    often old (e.g. Python 3.9.25) and is NOT the intended compute
+    environment -- the toolchain / newest Python module is.  If a module
+    Python can't be resolved or fails, we fall back to PATH / the launching
+    interpreter (and `_omniopt_install_with_candidate` keeps trying the
+    whole list).
+
+    Local (non-HPC) preference order stays:
+      1. the interpreter that launched us, 2. ``python3``/``python``.
     """
     cands: list = []
+
+    if _omniopt_has_lmod():
+        # HPC: prefer the module python(s) so we don't build the venv from
+        # a stale login-node system python.
+        _tc = _omniopt_ml_module_load_python(
+            ["release/24.04", "GCC/12.3.0", "OpenMPI/4.1.5", "PyTorch/2.1.2"])
+        if _tc and _tc not in cands:
+            cands.append(_tc)
+        _np = _omniopt_ml_module_load_python(_omniopt_ml_newest_python_modules())
+        if _np and _np not in cands:
+            cands.append(_np)
+
     for _p in (_sys.executable,
                _shutil.which("python3"),
                _shutil.which("python")):
         if _p and _p not in cands:
             cands.append(_p)
-
-    if _omniopt_has_lmod():
-        # Known-good HPC toolchain (Alpha/Taurus-style).
-        _tc = _omniopt_ml_module_load_python(
-            ["release/24.04", "GCC/12.3.0", "OpenMPI/4.1.5", "PyTorch/2.1.2"])
-        if _tc and _tc not in cands:
-            cands.append(_tc)
-        # Newest available Python module.
-        _np = _omniopt_ml_module_load_python(_omniopt_ml_newest_python_modules())
-        if _np and _np not in cands:
-            cands.append(_np)
 
     # Keep only candidates that actually run on this node.
     _valid = []

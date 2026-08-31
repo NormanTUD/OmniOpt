@@ -928,7 +928,7 @@ def _count_requirements(path):
                         if len(_rest) > 1:
                             try:
                                 n += _count_requirements(
-                                    _os.path.join(_os.path.dirname(path) or ".", _rest[1])
+                                    os.path.join(os.path.dirname(path) or ".", _rest[1])
                                 )
                             except Exception:
                                 pass
@@ -1032,7 +1032,7 @@ try:
         # "Installing collected packages: ..." which carries no timing.
         def _flatten_reqs(path, _seen=None):
             _seen = _seen if _seen is not None else set()
-            _real = _os.path.realpath(path)
+            _real = os.path.realpath(path)
             if _real in _seen:
                 return []
             _seen.add(_real)
@@ -1047,7 +1047,7 @@ try:
                             rest = ln.split(maxsplit=1)
                             if len(rest) > 1:
                                 out += _flatten_reqs(
-                                    _os.path.join(_os.path.dirname(path) or ".", rest[1]),
+                                    os.path.join(os.path.dirname(path) or ".", rest[1]),
                                     _seen,
                                 )
                             continue

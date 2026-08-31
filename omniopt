@@ -299,13 +299,33 @@ def _omniopt_install_rich_phase(venv_python: str) -> None:
     """Install `rich` itself first, with a stdlib-only spinner-style
     status line (Rich isn't available yet during bootstrap).  The
     line is *transient*: when pip finishes we clear it entirely.
+
+    pip is retried a few times because login nodes / slow FSes can
+    fail transiently (e.g. a killed install shows up as exit -N for a
+    signal).  On final failure pip's captured stderr is surfaced so
+    the real cause (e.g. SIGILL / -4) is diagnosable.
     """
     def _do() -> None:
-        _subprocess.run(
-            [venv_python, "-m", "pip", "install",
-             "--default-timeout=300", "--disable-pip-version-check",
-             "--quiet", "rich"],
-            check=True, stdout=_subprocess.DEVNULL, stderr=_subprocess.DEVNULL,
+        _last_stderr = ""
+        for _attempt in range(1, 4):
+            _proc = _subprocess.run(
+                [venv_python, "-m", "pip", "install",
+                 "--default-timeout=300", "--disable-pip-version-check",
+                 "--quiet", "rich"],
+                check=False, capture_output=True, text=True,
+            )
+            _last_stderr = (_proc.stderr or "").strip()
+            if _proc.returncode == 0:
+                return
+            if _attempt < 3:
+                _time.sleep(3)
+
+        _sys.stderr.write(f"[omniopt] pip install rich failed (exit {_proc.returncode}).\n")
+        if _last_stderr:
+            _sys.stderr.write("[omniopt] pip stderr:\n" + _last_stderr + "\n")
+        _sys.stderr.flush()
+        raise _subprocess.CalledProcessError(
+            _proc.returncode, [venv_python, "-m", "pip", "install", "rich"]
         )
 
     _omniopt_transient_spinner("[omniopt] installing rich ...", _do)

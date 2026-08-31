@@ -1690,7 +1690,14 @@ try:
         width=min(200, max(80, terminal_width))
     )
 
+    class _NullContext:
+        def __enter__(self): return self
+        def __exit__(self, *a): return False
+
     def spinner(text: str) -> Any:
+        if not sys.stdout.isatty():
+            original_print(f"[bold green]{text}")
+            return _NullContext()
         return console.status(f"[bold green]{text}", speed=0.2, refresh_per_second=6)
 
     with spinner("Loading base modules..."):

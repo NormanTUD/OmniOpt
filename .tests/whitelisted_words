@@ -3555,6 +3555,13 @@ textTrue
 sysstdoutwritefomniopt
 sysstdoutflush
 sysstdoutwrite
+namelower
+importlibmetadata
+specstrip
+listspecs
+missingappendspec
+fomniopt
+skippedn
 richconsole
 SpinnerColumn
 TextColumn

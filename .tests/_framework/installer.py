@@ -338,13 +338,97 @@ def _tail(err, n=6):
     return lines[-n:] if lines else ["(no output captured)"]
 
 
+def _normalize_name(name):
+    """PEP 503 normalization: lowercase, collapse -_. to -."""
+    return re.sub(r"[-_.]+", "-", name).lower()
+
+
+def _installed_names():
+    """Return a set of normalized installed distribution names."""
+    names = set()
+    try:
+        import importlib.metadata as _im
+        for _d in _im.distributions():
+            _n = _d.metadata.get("Name", "") if _d.metadata else ""
+            if _n:
+                names.add(_normalize_name(_n))
+    except Exception:
+        pass
+    return names
+
+
+def _spec_name(spec):
+    """Extract the package name from a requirement spec like 'rich>=12.0'."""
+    for sep in ["==", ">=", "<=", "~=", "!=", ">", "<", ";", " @ "]:
+        if sep in spec:
+            spec = spec.split(sep)[0]
+            break
+    if "[" in spec:
+        spec = spec.split("[")[0]
+    return spec.strip()
+
+
+def _flatten_reqs(path, _seen=None):
+    """Flatten a requirements file into a list of installable specs."""
+    _seen = _seen if _seen is not None else set()
+    _real = os.path.realpath(path)
+    if _real in _seen:
+        return []
+    _seen.add(_real)
+    out = []
+    try:
+        with open(path, "r", encoding="utf-8", errors="replace") as f:
+            for ln in f:
+                ln = ln.strip()
+                if not ln or ln.startswith("#"):
+                    continue
+                if (ln.startswith("-r") or ln.startswith("--requirement")):
+                    rest = ln.split(maxsplit=1)
+                    if len(rest) > 1:
+                        out += _flatten_reqs(
+                            os.path.join(os.path.dirname(path) or ".", rest[1]),
+                            _seen,
+                        )
+                    continue
+                if ln.startswith("-") or ln.startswith("--"):
+                    continue
+                out.append(ln)
+    except OSError:
+        pass
+    return out
+
+
+def _missing_specs(specs):
+    """Filter specs to only those not yet installed."""
+    installed = _installed_names()
+    if not installed:
+        return list(specs)
+    missing = []
+    for spec in specs:
+        name = _normalize_name(_spec_name(spec))
+        if name not in installed:
+            missing.append(spec)
+    return missing
+
+
 def _quiet(_path):
     # Guardrail D: non-interactive fallback -- one clean line, raw pip on fail.
+    _all_specs = _flatten_reqs(_path)
+    _missing = _missing_specs(_all_specs)
+
+    if not _missing:
+        sys.stdout.write(
+            f"[omniopt] {_label} already installed "
+            f"({len(_all_specs)} packages, skipped)\n"
+        )
+        sys.stdout.flush()
+        return 0
+
     _t0 = time.time()
     _p = subprocess.run(
         [sys.executable, "-u", "-m", "pip", "install",
          "--default-timeout=300", "--disable-pip-version-check",
-         "--quiet", "--progress-bar", "off", "-r", _path],
+         "--quiet", "--progress-bar", "off", *_missing],
         stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True,
     )
     _el = time.time() - _t0
@@ -427,42 +511,23 @@ try:
             total=100, completed=0,
         )
 
-        # Flatten the requirements file into one installable spec per package,
-        # recursing into `-r` includes, skipping comments / `--flags` / blank
-        # lines.  Each spec gets its OWN `pip install <spec>` so we get REAL
-        # per-package progress ("installing <name> -- N remaining") instead
-        # of pip's single un-timed "Installing collected packages: ..." line.
-        def _flatten_reqs(path, _seen=None):
-            _seen = _seen if _seen is not None else set()
-            _real = os.path.realpath(path)
-            if _real in _seen:
-                return []
-            _seen.add(_real)
-            out = []
-            try:
-                with open(path, "r", encoding="utf-8", errors="replace") as f:
-                    for ln in f:
-                        ln = ln.strip()
-                        if not ln or ln.startswith("#"):
-                            continue
-                        if (ln.startswith("-r") or ln.startswith("--requirement")):
-                            rest = ln.split(maxsplit=1)
-                            if len(rest) > 1:
-                                out += _flatten_reqs(
-                                    os.path.join(os.path.dirname(path) or ".", rest[1]),
-                                    _seen,
-                                )
-                            continue
-                        if ln.startswith("-") or ln.startswith("--"):
-                            continue
-                        out.append(ln)
-            except OSError:
-                pass
-            return out
-
         _specs = _flatten_reqs(_reqfile)
         if not _specs:
             _specs = [_reqfile]
+
+        # Skip already-installed packages: filter specs against what's
+        # currently installed.  If everything is already installed, skip
+        # pip entirely.
+        _missing = _missing_specs(_specs)
+        if not _missing:
+            sys.stdout.write(
+                f"[omniopt] {_label} already installed "
+                f"({len(_specs)} packages, skipped)\n"
+            )
+            sys.stdout.flush()
+            sys.exit(0)
+
+        _specs = _missing
         _total = len(_specs)
         _rc = 0
         captured = []

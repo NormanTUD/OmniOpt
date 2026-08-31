@@ -25,15 +25,160 @@ from typing import Dict, List
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 
+# ---------------------------------------------------------------------------
+# HPC / environment-modules (lmod) handling.
+#
+# On HPC login nodes the *system* python that launched this process is often
+# old (e.g. Python 3.9.25) and NOT the intended compute environment.  We must
+# load the newest available Python via `ml` (lmod) and build the venv *on top
+# of that* interpreter -- otherwise the venv path is wrong ("Python_3.9.25")
+# and pip is missing, which crashes every run.
+# ---------------------------------------------------------------------------
 
-def _venv_dir_name() -> str:
-    py_version = f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
-    return f".omniax_venvs/Python_{py_version}/{platform.machine()}/"
+_MODULES_LOADED_VAR = "OMNIOPT_HPC_MODULES_LOADED"
+_BASE_PY_CACHE: list = []  # single slot: resolved base python path
+
+
+def _arch() -> str:
+    return platform.machine()
+
+
+def _has_lmod() -> bool:
+    """Whether an lmod-style environment-module system (``ml``/``module``) is
+    available on this machine (typical for HPC login nodes)."""
+    for _c in ("ml", "module", "modulecmd"):
+        if shutil.which(_c):
+            return True
+    if os.environ.get("LMOD_CMD") or os.environ.get("MODULESHOME"):
+        return True
+    return (
+        os.path.exists("/usr/share/lmod/lmod/init/bash")
+        or os.path.exists("/etc/profile.d/modules.sh")
+    )
+
+
+def _probe_python(py: str) -> bool:
+    """Return whether ``py`` actually runs on THIS node.  Rejects
+    interpreters that die with a signal (e.g. SIGILL / -4) because they were
+    built for a different CPU/ISA than the current node."""
+    try:
+        r = subprocess.run(
+            [py, "-c",
+             "import sys, ssl, hashlib, ctypes, struct, json, decimal, "
+             "_ssl, _ctypes, _decimal; print('OK')"],
+            capture_output=True, text=True, timeout=60,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return False
+    return r.returncode == 0 and "OK" in (r.stdout or "")
+
+
+def _lmod_script(cmd: str) -> str:
+    """Build a bash -lc body that initialises lmod if needed, runs `cmd`,
+    and (for python resolution) prints the resolved python path last."""
+    return (
+        'if ! command -v ml >/dev/null 2>&1 && [ -n "${LMOD_CMD:-}" ]; then '
+        'eval "$(${LMOD_CMD} bash)"; fi; '
+        + cmd
+    )
+
+
+def _newest_python_module() -> str:
+    """Ask ``ml spider Python`` and return the newest ``Python/x.y.z`` module
+    name (empty string if none found). ``sort -V`` picks the highest version;
+    spurious ``Python/x.y.z-bare`` builds are excluded by the grep regex."""
+    if not _has_lmod():
+        return ""
+    script = _lmod_script(
+        "{ ml spider Python 2>/dev/null; } | "
+        r"grep -oE 'Python/[0-9]+(\.[0-9]+)*' | sort -V | tail -n 1"
+    )
+    try:
+        r = subprocess.run(
+            ["bash", "-lc", script], capture_output=True, text=True, timeout=60,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return ""
+    return (r.stdout or "").strip()
+
+
+def _ml_python(modules: str) -> str | None:
+    """Load ``modules`` via lmod and return the resolved ``python3`` path, or
+    None if the load produced nothing usable.  The returned interpreter is
+    probe-validated (rejects SIGILL/broken builds)."""
+    if not _has_lmod() or not modules:
+        return None
+    script = _lmod_script(
+        f"ml --quiet {modules} >/dev/null 2>&1; command -v python3 || true"
+    )
+    try:
+        r = subprocess.run(
+            ["bash", "-lc", script], capture_output=True, text=True, timeout=60,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    lines = (r.stdout or "").strip().splitlines()
+    if not lines:
+        return None
+    cand = lines[-1].strip()
+    if not cand or not os.path.exists(cand):
+        return None
+    if not _probe_python(cand):
+        return None
+    return cand
+
+
+def _resolve_base_python() -> str:
+    """Return the interpreter to build the venv from.
+
+    Preference on HPC (lmod present): the newest available Python module,
+    else the known-good toolchain's python.  Fallback: whatever launched us.
+    The result is probe-validated and cached.
+    """
+    if _BASE_PY_CACHE:
+        return _BASE_PY_CACHE[0]
+
+    base: str | None = None
+    if _has_lmod():
+        newest = _newest_python_module()
+        if newest:
+            base = _ml_python(newest)
+        if not base:
+            # Fall back to the known-good toolchain python.
+            base = _ml_python("release/24.04 GCC/12.3.0 OpenMPI/4.1.5 PyTorch/2.1.2")
+
+    if not base or not _probe_python(base):
+        base = sys.executable
+
+    _BASE_PY_CACHE.append(base)
+    return base
+
+
+def _venv_dir_name(base_python: str | None = None) -> str:
+    """Version-keyed venv dir, derived from the *base python* used to create
+    the venv (NOT the launching process -- that can be a stale login-node
+    system python).  Mirrors the old ``Python_X.Y.Z/$(uname -m)/`` layout."""
+    base = base_python or _resolve_base_python()
+    py_version = ""
+    try:
+        r = subprocess.run(
+            [base, "-c",
+             "import sys; print(f'{sys.version_info.major}."
+             "{sys.version_info.minor}.{sys.version_info.micro}')"],
+            capture_output=True, text=True, timeout=30,
+        )
+        py_version = (r.stdout or "").strip()
+    except (OSError, subprocess.TimeoutExpired):
+        py_version = ""
+    if not py_version:
+        py_version = "unknown_python"
+    return f".omniax_venvs/Python_{py_version}/{_arch()}/"
 
 
 def _resolve_venv_dir() -> Path:
     """Match .shellscript_functions: $VIRTUAL_ENV wins, then $root_venv_dir,
-    then $HOME."""
+    then $HOME.  The version part reflects the *resolved base python*, so the
+    venv dir matches the interpreter the venv is actually built from."""
     existing = os.environ.get("VIRTUAL_ENV")
     if existing:
         return Path(existing)
@@ -61,8 +206,35 @@ def _hash_file(path: Path) -> str:
     return hashlib.md5(path.read_bytes()).hexdigest()
 
 
-def _pip(venv_dir: Path, *args: str, quiet: bool = True) -> int:
+def _ensure_pip_in_venv(venv_dir: Path) -> Path | None:
+    """Make sure the venv has a working ``pip``.  Some python distributions
+    (and old/broken venvs) create a venv without pip.  Returns the pip path
+    or None if we could not obtain one."""
     pip = venv_dir / "bin" / "pip"
+    if pip.exists():
+        return pip
+    py = venv_dir / "bin" / "python"
+    if not py.exists():
+        return None
+    try:
+        subprocess.run(
+            [str(py), "-m", "ensurepip", "--upgrade"],
+            check=False,
+        )
+    except OSError:
+        return None
+    return pip if pip.exists() else None
+
+
+def _pip(venv_dir: Path, *args: str, quiet: bool = True) -> int:
+    pip = _ensure_pip_in_venv(venv_dir)
+    if pip is None:
+        print(
+            f"❌ No working pip in {venv_dir} -- the venv is unusable. "
+            "Delete it and re-run.",
+            file=sys.stderr,
+        )
+        return 20
     cmd = [str(pip), "--disable-pip-version-check"]
     if quiet:
         cmd.append("-q")
@@ -92,16 +264,64 @@ def _create_venv(venv_dir: Path) -> bool:
 def venv_site_packages(venv_dir: Path) -> Path | None:
     """Locate the site-packages directory of a venv.
 
-    Different Python versions use different lib paths
-    (lib/, lib/python3.X/site-packages, ...), so probe the common ones.
+    The venv may be built from a *module* Python whose version differs from
+    the launching process, so we probe the real ``lib/*/site-packages`` that
+    actually exists instead of guessing from ``sys.version_info``.
     """
-    candidates = [
-        venv_dir / "lib" / f"python{sys.version_info.major}.{sys.version_info.minor}"
-        / "site-packages",
-        venv_dir / "lib" / "site-packages",
-        venv_dir / "lib" / "python3" / "site-packages",
-    ]
-    return next((p for p in candidates if p.is_dir()), None)
+    lib = next(
+        (d for d in (venv_dir / "lib").glob("python*/site-packages") if d.is_dir()),
+        None,
+    )
+    if lib is None:
+        candidates = [
+            venv_dir / "lib" / "site-packages",
+            venv_dir / "lib" / "python3" / "site-packages",
+        ]
+        return next((p for p in candidates if p.is_dir()), None)
+    return lib
+
+
+def _create_venv(venv_dir: Path, base_python: str | None = None) -> bool:
+    if venv_dir.exists():
+        return True
+    base = base_python or _resolve_base_python()
+    if not _probe_python(base):
+        print(
+            f"❌ Base python {base} cannot run on this node; "
+            "refusing to build a venv on a broken interpreter.",
+            file=sys.stderr,
+        )
+        return False
+    print(f"➤ Environment {venv_dir} was not found. Creating it...")
+    _vdir = str(venv_dir)
+    # Build from the resolved base python (usually the newest HPC module
+    # python), NOT from sys.executable of the launching (possibly stale)
+    # process.
+    try:
+        subprocess.run(
+            [base, "-m", "venv", _vdir],
+            check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+            timeout=180,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        print(f"❌ Failed to create venv in {venv_dir}: {exc}")
+        return False
+    py = venv_dir / "bin" / "python"
+    if not py.exists() or not _probe_python(str(py)):
+        print(
+            f"❌ venv python missing/broken at {py}; delete {venv_dir} and re-run.",
+            file=sys.stderr,
+        )
+        return False
+    if not _ensure_pip_in_venv(venv_dir):
+        print(
+            f"❌ Could not obtain pip in {venv_dir}; "
+            f"delete {venv_dir} and re-run.",
+            file=sys.stderr,
+        )
+        return False
+    print(f"✅ Virtual Environment {venv_dir} created (python {base}).")
+    return True
 
 
 def add_venv_to_path(venv_dir: Path) -> None:

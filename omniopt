@@ -1170,7 +1170,7 @@ try:
 
     with spinner("Loading rich UI components..."):
         from rich.table import Table
-        from rich import print
+        from rich import box, print
         from rich.pretty import pprint
         from pprint import pformat
         from rich.prompt import Prompt, FloatPrompt, IntPrompt
@@ -3737,9 +3737,9 @@ def print_old_run_values_table() -> None:
     if not old_run_values:
         return
 
-    table = Table(title="Values from old run", show_header=True, show_lines=True)
-    table.add_column("Argument", justify="left", style="bold yellow")
-    table.add_column("Value", justify="left", style="cyan")
+    table = Table(title="Values from old run", show_header=False, box=box.SIMPLE)
+    table.add_column("Argument", justify="left", style="bold yellow", no_wrap=True)
+    table.add_column("Value", justify="left", style="cyan", no_wrap=True)
 
     for key, value in old_run_values:
         table.add_row(key, str(value))

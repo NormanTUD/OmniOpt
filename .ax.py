@@ -863,8 +863,10 @@ def list_objectives(client_or_experiment: Any) -> List[Tuple[str, bool]]:
     return [(names[0], is_minimize)]
 
 
-def create_arm(parameters: Dict[str, Any]) -> Any:
-    return Arm(parameters=dict(parameters))
+def create_arm(parameters: Dict[str, Any], name: Optional[str] = None) -> Any:
+    if name is None:
+        return Arm(parameters=dict(parameters))
+    return Arm(parameters=dict(parameters), name=name)
 
 
 def create_generator_run(arm: Any, generation_node_name: str) -> Any:

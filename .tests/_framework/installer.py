@@ -545,7 +545,7 @@ sys.stdout.flush()
 sys.exit(1 if _rc != 130 else 130)
 '''
     try:
-        r = subprocess.run([str(py), "-u", "-c", child, _label, str(req_file)])
+        r = subprocess.run([str(py), "-u", "-c", child, label, str(req_file)])
     except KeyboardInterrupt:
         return False
     return r.returncode == 0

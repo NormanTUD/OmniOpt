@@ -739,6 +739,40 @@ _PROGRESS_BAR_OFF: list = (
 )
 
 
+def _venv_pip_supports_progress_bar_off(venv_dir: Path) -> bool:
+    """Return True iff the pip INSIDE ``venv_dir`` (NOT the parent's pip!)
+    supports ``--progress-bar off`` (added in pip 24.2).
+
+    On HPC the parent's ``sys.executable`` is the stale login-node
+    Python (e.g. 3.9.25) whose pip is too old, but the venv was built
+    from a much newer HPC module Python (e.g. 3.11.3 / 3.13.5) whose
+    pip is modern.  Checking the parent here would wrongly disable
+    `--progress-bar off` for the venv's pip.  Cache per-venv.
+    """
+    cache_key = str(venv_dir)
+    if not hasattr(_venv_pip_supports_progress_bar_off, "_cache"):
+        _venv_pip_supports_progress_bar_off._cache = {}  # type: ignore[attr-defined]
+    cache = _venv_pip_supports_progress_bar_off._cache  # type: ignore[attr-defined]
+    if cache_key in cache:
+        return cache[cache_key]
+    venv_py = venv_dir / "bin" / "python"
+    try:
+        r = subprocess.run(
+            [str(venv_py), "-m", "pip", "--version"],
+            capture_output=True, text=True, timeout=30,
+        )
+        import re as _re
+        m = _re.search(r"pip\s+(\d+)\.(\d+)", r.stdout or "")
+        if m:
+            ok = (int(m.group(1)), int(m.group(2))) >= (24, 2)
+            cache[cache_key] = ok
+            return ok
+    except Exception:
+        pass
+    cache[cache_key] = False
+    return False
+
+
 def _pip(venv_dir: Path, *args: str, quiet: bool = True) -> int:
     pip = _ensure_pip_in_venv(venv_dir)
     if pip is None:
@@ -748,13 +782,21 @@ def _pip(venv_dir: Path, *args: str, quiet: bool = True) -> int:
             file=sys.stderr,
         )
         return 20
-    cmd = [str(pip), "--disable-pip-version-check"]
-    if quiet:
-        cmd.append("-q")
-    # suppress pip's own raw `━━━` progress bars (noise in TTY, log spam when
-    # non-TTY/--follow).  `--progress-bar off` is accepted on modern pip
-    # (>= 24.2); older pip rejects it.  Detect once and cache.
-    if "--progress-bar" not in args and _pip_supports_progress_bar_off():
+    # ABSOLUTELY VITAL -- pip's raw Collecting/Downloading/`━━━` output
+    # MUST NEVER reach the terminal or the HPC log.  Every single pip
+    # invocation in this codebase goes through here (or through
+    # `_quiet_install` / the Rich child, which also use these flags).
+    # The flags are added UNCONDITIONALLY so they apply regardless of
+    # whether the Rich child, `install_packages`, or any future caller
+    # is on the stack.
+    #
+    # `--quiet` (-q):  silences Collecting / Downloading / Installing lines.
+    # `--progress-bar off`: silences pip's own `━━━━━━` progress bar
+    #                    (supported by pip >= 24.2; older pip rejects it
+    #                    with "no such option" -- we swallow that by
+    #                    probing the VENV pip, not the parent's pip).
+    cmd = [str(pip), "--disable-pip-version-check", "-q"]
+    if "--progress-bar" not in args and _venv_pip_supports_progress_bar_off(venv_dir):
         cmd.append("--progress-bar off")
     cmd.extend(args)
     _install_debug(f"_pip: running pip command in venv {venv_dir}")

@@ -446,15 +446,39 @@ def _omniopt_reexec_with_modules() -> bool:
     compute environment).  Returns True if we re-exec'd (never returns
     past it); False if no module re-exec is needed.
     """
+    _omniopt_install_debug(
+        f"================ _omniopt_reexec_with_modules: START ================"
+    )
     if _os.environ.get(_OMNIOPT_MODULES_LOADED):
+        _omniopt_install_debug(
+            "_omniopt_reexec_with_modules: already re-exec'd with modules "
+            f"({_OMNIOPT_MODULES_LOADED} set), nothing to do"
+        )
         return False  # already re-exec'd with modules
     if not _omniopt_has_lmod():
+        _omniopt_install_debug(
+            "_omniopt_reexec_with_modules: no lmod, cannot re-exec"
+        )
         return False
     _mods = _omniopt_hpc_module_list()
     if not _mods:
+        _omniopt_install_debug(
+            "_omniopt_reexec_with_modules: _omniopt_hpc_module_list returned [], "
+            "cannot re-exec"
+        )
         return False
     _module_py = _omniopt_ml_module_load_python(_mods)
-    if not _module_py or _module_py == _sys.executable:
+    if not _module_py:
+        _omniopt_install_debug(
+            f"_omniopt_reexec_with_modules: _omniopt_ml_module_load_python "
+            f"returned None for {_mods!r}, cannot re-exec"
+        )
+        return False
+    if _module_py == _sys.executable:
+        _omniopt_install_debug(
+            f"_omniopt_reexec_with_modules: module python {_module_py} == "
+            f"current python {_sys.executable}, nothing to gain"
+        )
         # Module python already == ours, or none usable: nothing to gain.
         return False
     _shlex = __import__("shlex")
@@ -474,6 +498,14 @@ def _omniopt_reexec_with_modules() -> bool:
     # stamp a marker so install code can detect "we just re-exec'd,
     # prefer to rebuild from scratch if anything looks suspicious".
     _env["OMNIOPT_REEXECED"] = "1"
+    _omniopt_install_debug(
+        f"_omniopt_reexec_with_modules: about to execve bash -lc with the "
+        f"following wrapper script:\n{_script}"
+    )
+    _omniopt_install_debug(
+        f"_omniopt_reexec_with_modules: env marker OMNIOPT_HPC_MODULES_LOADED=1, "
+        f"OMNIOPT_REEXECED=1"
+    )
     try:
         _os.execve(
             _shutil.which("bash") or "/bin/bash",
@@ -481,12 +513,19 @@ def _omniopt_reexec_with_modules() -> bool:
             _env,
         )
     except OSError as _e:
+        _omniopt_install_debug(
+            f"_omniopt_reexec_with_modules: execve FAILED: {_e!r}"
+        )
         _sys.stderr.write(
             f"[omniopt] could not re-exec with HPC modules ({_e}); "
             f"continuing with {_sys.executable}.\n"
         )
         _sys.stderr.flush()
         return False
+    _omniopt_install_debug(
+        "_omniopt_reexec_with_modules: execve succeeded (control should NOT "
+        "return here)"
+    )
     return True  # execve never returns on success
 
 
@@ -501,7 +540,17 @@ def _omniopt_create_venv(venv_dir: str, base_python: str | None = None, *, copie
     loaded), it's wiped and rebuilt so the venv always matches the
     requested base_python."""
     base_python = base_python or _sys.executable
+    _omniopt_install_debug(
+        f"================ _omniopt_create_venv: START ================"
+    )
+    _omniopt_install_debug(
+        f"_omniopt_create_venv: venv_dir={venv_dir} base_python={base_python} "
+        f"copies={copies}"
+    )
     if _os.path.exists(venv_dir):
+        _omniopt_install_debug(
+            f"_omniopt_create_venv: venv {venv_dir} already exists, validating..."
+        )
         _existing_py = _omniopt_venv_python(venv_dir)
         if _os.path.exists(_existing_py):
             try:
@@ -520,8 +569,20 @@ def _omniopt_create_venv(venv_dir: str, base_python: str | None = None, *, copie
                 _base_ver = (_b.stdout or _b.stderr or "").strip()
             except Exception:
                 _base_ver = ""
+            _omniopt_install_debug(
+                f"_omniopt_create_venv: existing python version = {_existing_ver!r}, "
+                f"target base python version = {_base_ver!r}"
+            )
             if _existing_ver and _base_ver and _existing_ver == _base_ver:
+                _omniopt_install_debug(
+                    "_omniopt_create_venv: existing venv matches base_python, "
+                    "REUSING it"
+                )
                 return  # venv matches base_python, reuse it
+            _omniopt_install_debug(
+                "_omniopt_create_venv: existing venv uses a DIFFERENT python, "
+                "will rm -rf and rebuild"
+            )
             _sys.stderr.write(
                 f"[omniopt] existing venv uses {_existing_ver}, "
                 f"but base_python is {_base_ver}; rebuilding venv.\n"
@@ -532,9 +593,19 @@ def _omniopt_create_venv(venv_dir: str, base_python: str | None = None, *, copie
     _cmd = [base_python, "-m", "venv", venv_dir]
     if copies:
         _cmd.insert(3, "--copies")
+    _omniopt_install_debug(
+        f"_omniopt_create_venv: running '{' '.join(_cmd)}' (under spinner)"
+    )
     _omniopt_transient_spinner(
         f"[omniopt] creating virtualenv at {venv_dir} ...",
         lambda: _subprocess.run(_cmd, check=True),
+    )
+    _omniopt_install_debug(
+        f"_omniopt_create_venv: SUCCESS -- venv {venv_dir} created from "
+        f"{base_python}"
+    )
+    _omniopt_install_debug(
+        f"================ _omniopt_create_venv: END ================"
     )
 
 

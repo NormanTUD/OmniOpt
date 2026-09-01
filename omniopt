@@ -874,6 +874,25 @@ def _pad(text, width=None):
     return text + (" " * max(0, width - len(visible) - 1))
 
 
+def _pip_supports_progress_bar_off():
+    """Return True if the running pip supports --progress-bar off (pip >= 24.2).
+    Older pip rejects the flag with 'no such option: --progress-bar off'."""
+    try:
+        _r = subprocess.run(
+            [sys.executable, "-m", "pip", "--version"],
+            capture_output=True, text=True, timeout=30,
+        )
+        _m = re.search(r"pip\s+(\d+)\.(\d+)", _r.stdout or "")
+        if _m:
+            return (int(_m.group(1)), int(_m.group(2))) >= (24, 2)
+    except Exception:
+        pass
+    return False
+
+
+_OMNIOPT_PROGRESS_BAR_OFF = ["--progress-bar", "off"] if _pip_supports_progress_bar_off() else []
+
+
 def _normalize_name(name):
     """PEP 503 normalization: lowercase, collapse -_. to -."""
     return re.sub(r"[-_.]+", "-", name).lower()
@@ -1043,7 +1062,7 @@ def _quiet_install(requirements_file):
     _p = subprocess.run(
         [sys.executable, "-u", "-m", "pip", "install",
          "--default-timeout=300", "--disable-pip-version-check",
-         "--quiet", "--progress-bar", "off",
+         "--quiet", *_OMNIOPT_PROGRESS_BAR_OFF,
          *_missing],
         stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True,
     )
@@ -1296,7 +1315,7 @@ try:
                     _p = subprocess.Popen(
                         [sys.executable, "-u", "-m", "pip", "install",
                          "--default-timeout=300", "--disable-pip-version-check",
-                         "--progress-bar", "off", _spec],
+                         *_OMNIOPT_PROGRESS_BAR_OFF, _spec],
                         stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                         text=True, bufsize=0,
                     )

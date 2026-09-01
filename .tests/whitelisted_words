@@ -3562,6 +3562,17 @@ listspecs
 missingappendspec
 fomniopt
 skippedn
+specsplitop
+vsplit
+chisdigit
+outappendintdigits
+tupleout
+lenrv
+pipsdd
+toolchain
+iv
+rv
+researchrpipsdd
 richconsole
 SpinnerColumn
 TextColumn

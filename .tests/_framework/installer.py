@@ -164,9 +164,29 @@ def _resolve_base_python() -> str:
         newest = _newest_python_module()
         if newest:
             base = _ml_python(newest)
+        if not base and newest:
+            print(
+                f"[installer] lmod found newest Python module {newest!r} "
+                f"but failed to load it; falling back to toolchain.",
+                file=sys.stderr,
+            )
         if not base:
             # Fall back to the known-good toolchain python.
-            base = _ml_python("release/24.04 GCC/12.3.0 OpenMPI/4.1.5 PyTorch/2.1.2")
+            tc = "release/24.04 GCC/12.3.0 OpenMPI/4.1.5 PyTorch/2.1.2"
+            base = _ml_python(tc)
+            if not base:
+                print(
+                    f"[installer] lmod present but no usable Python module "
+                    f"found (tried: {newest or 'none'}, {tc!r}); "
+                    f"falling back to {sys.executable}.",
+                    file=sys.stderr,
+                )
+    else:
+        print(
+            f"[installer] lmod not available; using {sys.executable} "
+            f"to build the venv.",
+            file=sys.stderr,
+        )
 
     if not base or not _probe_python(base):
         base = sys.executable
@@ -247,6 +267,35 @@ def _ensure_pip_in_venv(venv_dir: Path) -> Path | None:
     return pip if pip.exists() else None
 
 
+_PIP_VERSION_CACHE: list = []
+
+
+def _pip_supports_progress_bar_off() -> bool:
+    """Return True if the venv pip supports ``--progress-bar off``
+    (added in pip 24.2).  Older pip rejects the flag with
+    "no such option: --progress-bar off"."""
+    if _PIP_VERSION_CACHE:
+        return _PIP_VERSION_CACHE[0]
+    try:
+        r = subprocess.run(
+            [sys.executable, "-m", "pip", "--version"],
+            capture_output=True, text=True, timeout=30,
+        )
+        ver_str = (r.stdout or "").strip()
+        # "pip 24.2 from ..." or "pip 23.3.1 from ..."
+        import re as _re
+        m = _re.search(r"pip\s+(\d+)\.(\d+)", ver_str)
+        if m:
+            major, minor = int(m.group(1)), int(m.group(2))
+            ok = (major, minor) >= (24, 2)
+            _PIP_VERSION_CACHE.append(ok)
+            return ok
+    except Exception:
+        pass
+    _PIP_VERSION_CACHE.append(False)
+    return False
+
+
 def _pip(venv_dir: Path, *args: str, quiet: bool = True) -> int:
     pip = _ensure_pip_in_venv(venv_dir)
     if pip is None:
@@ -260,9 +309,9 @@ def _pip(venv_dir: Path, *args: str, quiet: bool = True) -> int:
     if quiet:
         cmd.append("-q")
     # suppress pip's own raw `━━━` progress bars (noise in TTY, log spam when
-    # non-TTY/--follow).  `--progress-bar off` is accepted on modern pip;
-    # it keeps clean `Collecting/Downloading/Installing` lines.
-    if "--progress-bar" not in args:
+    # non-TTY/--follow).  `--progress-bar off` is accepted on modern pip
+    # (>= 24.2); older pip rejects it.  Detect once and cache.
+    if "--progress-bar" not in args and _pip_supports_progress_bar_off():
         cmd.append("--progress-bar off")
     cmd.extend(args)
     _pip._cancelled = False  # type: ignore[attr-defined]
@@ -336,6 +385,25 @@ def _deansi(s):
 def _tail(err, n=6):
     lines = [_deansi(l) for l in err.splitlines() if l.strip()]
     return lines[-n:] if lines else ["(no output captured)"]
+
+
+def _pip_supports_progress_bar_off():
+    """Return True if the running pip supports --progress-bar off (pip >= 24.2).
+    Older pip rejects the flag with 'no such option: --progress-bar off'."""
+    try:
+        _r = subprocess.run(
+            [sys.executable, "-m", "pip", "--version"],
+            capture_output=True, text=True, timeout=30,
+        )
+        _m = re.search(r"pip\s+(\d+)\.(\d+)", _r.stdout or "")
+        if _m:
+            return (int(_m.group(1)), int(_m.group(2))) >= (24, 2)
+    except Exception:
+        pass
+    return False
+
+
+_PROGRESS_BAR_OFF = ["--progress-bar", "off"] if _pip_supports_progress_bar_off() else []
 
 
 def _normalize_name(name):
@@ -482,7 +550,7 @@ def _quiet(_path):
     _p = subprocess.run(
         [sys.executable, "-u", "-m", "pip", "install",
          "--default-timeout=300", "--disable-pip-version-check",
-         "--quiet", "--progress-bar", "off", *_missing],
+         "--quiet", *_PROGRESS_BAR_OFF, *_missing],
         stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True,
     )
     _el = time.time() - _t0
@@ -617,7 +685,7 @@ try:
                     _p = subprocess.Popen(
                         [sys.executable, "-u", "-m", "pip", "install",
                          "--default-timeout=300", "--disable-pip-version-check",
-                         "--progress-bar", "off", _spec],
+                         *_PROGRESS_BAR_OFF, _spec],
                         stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                         text=True, bufsize=0,
                     )
@@ -674,7 +742,7 @@ def _try_quiet_pip(venv_dir: Path, *args: str) -> int:
     try:
         return subprocess.run(
             [str(pip), "--disable-pip-version-check",
-             "--progress-bar", "off", *args],
+             *_PROGRESS_BAR_OFF, *args],
             stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
         ).returncode
     except KeyboardInterrupt:

@@ -5,7 +5,12 @@
 		$run_nr = validate_param("run_nr", "/^\d+$/", "Invalid run_nr");
 		$user_id = validate_param("user_id", "/^[a-zA-Z0-9_]+$/", "Invalid user_id");
 		$experiment_name = validate_param("experiment_name", "/^[a-zA-Z0-9_-]+$/", "Invalid experiment_name");
-		$filename = validate_param("filename", "/^[a-zA-Z0-9\._]+$/", "Invalid filename");
+		// Allow nested paths (e.g. single_runs/<jobid>/<file>) which the new
+		// share protocol stores under single_runs/.  Reject traversal etc.
+		$filename = validate_param("filename", "/^[a-zA-Z0-9\._\/]+$/", "Invalid filename");
+		if(strpos($filename, "..") !== false || strpos($filename, "\\") !== false || strpos($filename, "\0") !== false) {
+			respond_with_error("Invalid filename");
+		}
 		$run_folder_without_shares = build_run_folder_path($user_id, $experiment_name, $run_nr);
 		$run_folder = $GLOBALS["sharesPath"]."/$run_folder_without_shares";
 

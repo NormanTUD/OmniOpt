@@ -2313,13 +2313,22 @@
 								$filename = "profile_svg";
 							}
 
+							// Archive paths may be nested (e.g. single_runs/<jobid>/<file>).
+							// Ensure the destination directory exists before moving, since
+							// move_uploaded_file()/rename() will not create it.
+							$dest = "$userFolder/$filename";
+							$dest_dir = dirname($dest);
+							if(!is_dir($dest_dir)) {
+								@mkdir($dest_dir, 0777, true);
+							}
+
 							try {
-								$moved = move_uploaded_file($file, "$userFolder/$filename");
+								$moved = move_uploaded_file($file, $dest);
 								if (!$moved) {
-									$moved = @rename($file, "$userFolder/$filename");
+									$moved = @rename($file, $dest);
 								}
 								if (!$moved) {
-									$moved = @copy($file, "$userFolder/$filename");
+									$moved = @copy($file, $dest);
 									if ($moved) {
 										@unlink($file);
 									}
@@ -2327,10 +2336,10 @@
 								if ($moved) {
 									$added_files++;
 								} else {
-									error_log("\nFailed to move $file to $userFolder/$filename\n");
+									error_log("\nFailed to move $file to $dest\n");
 								}
 							} catch (Exception $e) {
-								error_log("\nAn exception occured trying to move $file to $userFolder/$filename: $e\n");
+								error_log("\nAn exception occured trying to move $file to $dest: $e\n");
 							}
 						} else {
 							$empty_files[] = $filename;

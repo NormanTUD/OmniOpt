@@ -440,7 +440,7 @@ def _ml_python(modules: str) -> str | None:
         return None
 
     # No --quiet! See CRITICAL above.  ``modules`` may contain spaces
-    # (e.g. "release/24.04 GCC/12.3.0 OpenMPI/4.1.5 PyTorch/2.1.2") which
+    # (e.g. "release/23.04 GCCcore/12.2.0 Python/3.10.8 ...") which
     # is exactly what unquoted bash word-splitting wants for ``ml``.
     script = _lmod_script(
         _BASH_ML_PYTHON_SCRIPT_TEMPLATE.replace("{MODS}", modules)

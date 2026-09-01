@@ -36,6 +36,135 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 
 _MODULES_LOADED_VAR = "OMNIOPT_HPC_MODULES_LOADED"
 _BASE_PY_CACHE: list = []  # single slot: resolved base python path
+# Module strings whose env we've already injected into os.environ (in order).
+# Used by debug output so we can see which module-load "wins" when both
+# toolchain and Python/x.y.z were tried.
+_MODULE_ENV_LOADED_MODULES: list = []
+
+
+# The bash script body run inside `bash -lc` to (a) load the lmod module(s)
+# in-place, (b) find the python the module just substituted, (c) PROBE that
+# python WITH the module's LD_LIBRARY_PATH active (so _ssl/_ctypes imports
+# don't SIGILL), (d) dump the full module environment as base64-JSON on
+# stdout so the Python parent can inject it into os.environ.
+#
+# IMPORTANT: ``ml`` on alpha / ROME is a bash function that eval's module
+# commands into the CURRENT shell.  We must therefore run it directly
+# (not in ``$(...)``) so the PATH / LD_LIBRARY_PATH changes persist for
+# subsequent commands in the same bash -lc process.
+_BASH_ML_PYTHON_SCRIPT_TEMPLATE = r"""
+# Pick ml vs module (alpha profile defines ml, LMOD_CMD fallback defines module)
+_om_cmd="ml"
+if ! command -v ml >/dev/null 2>&1; then
+    if command -v module >/dev/null 2>&1; then
+        _om_cmd="module"
+    fi
+fi
+
+# Snapshot the state BEFORE the module load
+_om_old_path="$PATH"
+_om_old_py="$(command -v python3 2>/dev/null || true)"
+_om_old_py_all="$(which -a python3 2>/dev/null || true)"
+_om_old_ld="$LD_LIBRARY_PATH"
+
+# Run the module load DIRECTLY (NOT in a subshell) so eval's PATH/LD changes
+# persist in this bash -lc process.  Stderr -> temp file, stdout -> /dev/null
+# (the eval'd exports are silent anyway).  No --quiet: old Lmod rejects it
+# and tries to load a module literally named '--quiet'.
+_om_err_file="$(mktemp 2>/dev/null || echo /tmp/.om_ml_$$)"
+"$_om_cmd" {MODS} >/dev/null 2>"$_om_err_file"
+_om_rc=$?
+_om_err="$(cat "$_om_err_file" 2>/dev/null)"
+rm -f "$_om_err_file" 2>/dev/null
+
+_om_simple_py="$(command -v python3 2>/dev/null || true)"
+_om_new_py=""
+
+# Strategy 1: the classic "command -v python3" changed after the load
+if [ -n "$_om_simple_py" ] && [ "$_om_simple_py" != "$_om_old_py" ]; then
+    _om_new_py="$_om_simple_py"
+    _om_strategy="S1-command-v"
+fi
+
+# Strategy 2: module loaded but /usr/bin/python3 still shadows it -- find
+# a python whose bin dir was NOT in the old PATH
+if [ -z "$_om_new_py" ]; then
+    for _om_c in $(which -a python3 2>/dev/null); do
+        [ -x "$_om_c" ] || continue
+        case ":$_om_old_path:" in
+            *":$(dirname "$_om_c"):") ;;
+            *)
+                _om_new_py="$_om_c"
+                _om_strategy="S2-which-a"
+                break
+                ;;
+        esac
+    done
+fi
+
+# Strategy 3: some modules only expose a versioned binary (python3.X)
+if [ -z "$_om_new_py" ]; then
+    for _om_v in 3.13 3.12 3.11 3.10 3.9 3.8; do
+        _om_c="$(command -v "python$_om_v" 2>/dev/null || true)"
+        if [ -n "$_om_c" ] && [ -x "$_om_c" ] && [ "$_om_c" != "$_om_old_py" ]; then
+            _om_new_py="$_om_c"
+            _om_strategy="S3-python3.X"
+            break
+        fi
+    done
+fi
+
+# Probe INSIDE this shell where the module's LD_LIBRARY_PATH is active.
+# Compiled extensions (_ssl, _ctypes, _decimal) live in the module tree
+# and SIGILL/Symbol-not-found when the env is missing -- exactly the
+# "broken / SIGILL / different ISA" we used to misreport.
+_om_probe=""
+if [ -x "$_om_new_py" ]; then
+    _om_probe_out="$("$_om_new_py" -c "import sys, ssl, hashlib, ctypes, struct, json, decimal, _ssl, _ctypes, _decimal; print('OK')" 2>/dev/null)"
+    if [ "$_om_probe_out" = "OK" ]; then
+        _om_probe="passed"
+    else
+        _om_probe="failed(probe-out: ${_om_probe_out:0:120})"
+    fi
+fi
+
+# Diagnostics: what changed?
+_om_added=""
+_om_added_ld=""
+IFS=':'
+for _om_e in $PATH; do
+    [ -z "$_om_e" ] && continue
+    case ":$_om_old_path:" in
+        *":$_om_e:"*) ;;
+        *) _om_added="$_om_added$_om_e"$'\n' ;;
+    esac
+done
+IFS=':'
+for _om_e in $LD_LIBRARY_PATH; do
+    [ -z "$_om_e" ] && continue
+    case ":$_om_old_ld:" in
+        *":$_om_e:"*) ;;
+        *) _om_added_ld="$_om_added_ld$_om_e"$'\n' ;;
+    esac
+done
+IFS=' '
+
+printf 'lmod-cmd=%s rc=%d strategy=%s\nbefore-py=%s after-py=%s\ncandidate=%s probe=%s\nbefore-LD=%s\nnew-PATH-entries:\n%s\nnew-LD-entries:\n%s\nml-stderr(first-30-lines):\n' \
+    "$_om_cmd" "$_om_rc" "${_om_strategy:-(none)}" \
+    "${_om_old_py:-(none)}" "${_om_simple_py:-(none)}" \
+    "${_om_new_py:-(none)}" "${_om_probe:-(none)}" \
+    "${_om_old_ld:-(none)}" "${_om_added:-(none)}" "${_om_added_ld:-(none)}" >&2
+if [ -n "$_om_err" ]; then
+    printf '%s\n' "$_om_err" | head -n 30 >&2
+fi
+
+# Final answer on stdout: marker + python path + marker + base64(JSON env)
+if [ -n "$_om_new_py" ] && [ "$_om_probe" = "passed" ]; then
+    printf '===PYTHON===\n%s\n===ENV_B64===\n' "$_om_new_py"
+    "$_om_new_py" -c "import os, sys, json, base64; sys.stdout.write(base64.b64encode(json.dumps(dict(os.environ)).encode()).decode())" 2>/dev/null
+    printf '\n'
+fi
+"""
 
 # ---------------------------------------------------------------------------
 # Debug logging.

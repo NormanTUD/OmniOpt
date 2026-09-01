@@ -490,12 +490,17 @@ def _pip(venv_dir: Path, *args: str, quiet: bool = True) -> int:
     if "--progress-bar" not in args and _pip_supports_progress_bar_off():
         cmd.append("--progress-bar off")
     cmd.extend(args)
+    _install_debug(f"_pip: running pip command in venv {venv_dir}")
+    _install_debug(f"  full cmd: {' '.join(cmd)}")
     _pip._cancelled = False  # type: ignore[attr-defined]
     try:
-        return subprocess.run(cmd).returncode
+        _rc = subprocess.run(cmd).returncode
+        _install_debug(f"_pip: returned exit code {_rc}")
+        return _rc
     except KeyboardInterrupt:
         _pip._cancelled = True  # type: ignore[attr-defined]
         print("pip cancelled by user", file=sys.stderr)
+        _install_debug("_pip: cancelled by user (KeyboardInterrupt)")
         return 130
 
 
@@ -529,6 +534,13 @@ def _install_requirements_rich(
     surfaced (as a tail) when the install actually fails.
     """
     py = venv_dir / "bin" / "python"
+    _install_debug(
+        f"================ _install_requirements_rich: START ================"
+    )
+    _install_debug(
+        f"_install_requirements_rich: venv_dir={venv_dir} label={label!r} "
+        f"req_file={req_file}"
+    )
 
     # Guardrail A: Rich must be present inside the venv, otherwise the child
     # can't render a bar.  Because Rich might itself be one of the packages
@@ -541,9 +553,20 @@ def _install_requirements_rich(
             ).returncode
             == 0
         )
-    except (OSError, subprocess.TimeoutExpired):
+        _install_debug(
+            f"_install_requirements_rich: guardrail A 'import rich' -> "
+            f"{'present' if _has_rich else 'MISSING (will install)'}"
+        )
+    except (OSError, subprocess.TimeoutExpired) as _e:
         _has_rich = False
+        _install_debug(
+            f"_install_requirements_rich: 'import rich' probe failed: {_e!r}"
+        )
     if not _has_rich:
+        _install_debug(
+            "_install_requirements_rich: pre-installing rich quietly so the "
+            "child has something to render with"
+        )
         _try_quiet_pip(venv_dir, "install", "--progress-bar", "off", "-q", "rich")
 
     child = r'''
@@ -905,7 +928,16 @@ sys.exit(1 if _rc != 130 else 130)
     try:
         r = subprocess.run([str(py), "-u", "-c", child, label, str(req_file)])
     except KeyboardInterrupt:
+        _install_debug(
+            "_install_requirements_rich: KeyboardInterrupt -> returning False"
+        )
         return False
+    _install_debug(
+        f"_install_requirements_rich: child pip returned exit={r.returncode}"
+    )
+    _install_debug(
+        f"================ _install_requirements_rich: END ================"
+    )
     return r.returncode == 0
 
 

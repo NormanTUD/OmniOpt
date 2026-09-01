@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -49,13 +50,43 @@ def _load_runner_module() -> Any:
     return mod
 
 
+def _resolve_subprocess_python() -> str:
+    """Pick a python interpreter for the nested ``.optuna_runner.py``
+    subprocess.
+
+    Prefer the venv python (``$VIRTUAL_ENV/bin/python3``) when one is
+    active, because that is where the smoke-tests installer put
+    ``beartype`` and ``optuna``.  Falling back to ``sys.executable`` keeps
+    the behaviour identical for callers that don't run inside a venv
+    (e.g. ``python .tests/test_optuna_integration`` directly).
+    """
+    venv = os.environ.get("VIRTUAL_ENV")
+    if venv:
+        candidate = Path(venv) / "bin" / "python3"
+        if candidate.is_file():
+            return str(candidate)
+    return sys.executable
+
+
 def _ensure_deps() -> None:
-    """Install optuna/beartype if missing, so the test runner always works."""
-    missing = [m for m in REQUIRED_MODULES if _try_import(m) is None]
+    """Install optuna/beartype if missing, so the test runner always works.
+
+    The check uses ``importlib.util.find_spec`` so we don't get fooled by a
+    ``PYTHONPATH`` entry pointing at the framework venv -- the subprocess
+    we spawn (``python3 .optuna_runner.py ...``) uses the *real* sys.path
+    of the chosen interpreter, so the modules must be importable from
+    *that* interpreter's default search path.
+    """
+    import importlib.util as _ilu
+    missing = [
+        m for m in REQUIRED_MODULES
+        if _ilu.find_spec(m) is None
+    ]
     if not missing:
         return
+    py = _resolve_subprocess_python()
     subprocess.run(
-        [sys.executable, "-m", "pip", "install", "--break-system-packages", *missing],
+        [py, "-m", "pip", "install", "--break-system-packages", *missing],
         check=True,
     )
 
@@ -315,7 +346,7 @@ class OptunaRunnerCLITests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         _ensure_deps()
-        cls.python = sys.executable
+        cls.python = _resolve_subprocess_python()
 
     def test_cli_suggest_subprocess(self) -> None:
         """Mimic the OmniOpt call:
@@ -378,7 +409,7 @@ class OptunaStudyRemoteControlTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         _ensure_deps()
-        cls.python = sys.executable
+        cls.python = _resolve_subprocess_python()
 
     def test_study_create_add_suggest_best(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

@@ -21,6 +21,13 @@ import sys
 from pathlib import Path
 from typing import Dict, List
 
+try:
+    import fcntl  # POSIX file locking (Linux/macOS) -- guards the venv against
+                  # concurrent recreate/delete races when smoke_tests fans out
+                  # 4+ workers in parallel.
+except ImportError:  # pragma: no cover - Windows
+    fcntl = None
+
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 
@@ -1358,6 +1365,47 @@ def _create_venv(venv_dir: Path) -> bool:
     return _create_venv_from(venv_dir, None)
 
 
+class _VenvLock:
+    """Process-local flock around venv create/install operations.
+
+    The smoke_tests runner fires 4+ test scripts in parallel via
+    ``ThreadPoolExecutor`` and each of them calls ``ensure_dependencies``
+    at startup.  Without a lock two of them can race on a broken venv,
+    each decide it needs to be recreated, and end up deleting the venv
+    out from under the other (which then exits 20 because the venv
+    python is suddenly missing).  ``fcntl.flock`` on a sidecar file
+    inside the venv directory serialises the destructive section so
+    only one process recreates at a time.
+    """
+
+    def __init__(self, venv_dir: Path) -> None:
+        self._venv_dir = venv_dir
+        self._lock_path = venv_dir.parent / f".{venv_dir.name}.lock"
+        self._fd: int | None = None
+
+    def __enter__(self) -> "_VenvLock":
+        if fcntl is None:
+            return self
+        self._venv_dir.parent.mkdir(parents=True, exist_ok=True)
+        fd = os.open(str(self._lock_path), os.O_CREAT | os.O_RDWR, 0o644)
+        try:
+            fcntl.flock(fd, fcntl.LOCK_EX)
+        except OSError:
+            os.close(fd)
+            return self
+        self._fd = fd
+        return self
+
+    def __exit__(self, *_exc: object) -> None:
+        if self._fd is None:
+            return
+        try:
+            fcntl.flock(self._fd, fcntl.LOCK_UN)
+        finally:
+            os.close(self._fd)
+            self._fd = None
+
+
 def venv_site_packages(venv_dir: Path) -> Path | None:
     """Locate the site-packages directory of a venv.
 
@@ -1381,7 +1429,7 @@ def venv_site_packages(venv_dir: Path) -> Path | None:
 def _create_venv_from(venv_dir: Path, base_python: str | None = None) -> bool:
     base = base_python or _resolve_base_python()
     _install_debug(
-        f"================ _create_venv_from: START ================"
+        f"================ _create_venv_from: START =================="
     )
     _install_debug(
         f"_create_venv_from: venv_dir={venv_dir} base_python={base}"
@@ -1399,33 +1447,41 @@ def _create_venv_from(venv_dir: Path, base_python: str | None = None) -> bool:
         return False
 
     py = venv_dir / "bin" / "python"
-    if venv_dir.exists():
-        _install_debug(
-            f"_create_venv_from: venv {venv_dir} already exists, validating..."
-        )
-        # Validate an *existing* venv instead of blindly trusting it.  A
-        # stale/broken venv (e.g. an old "Python_3.9.25" with no pip) must be
-        # rebuilt on the correct base python, or every later pip call crashes.
-        _py_ok = py.exists() and _probe_python(str(py))
-        _pip_ok = (venv_dir / "bin" / "pip").exists()
-        _install_debug(
-            f"_create_venv_from: existing venv checks -> "
-            f"python={_py_ok}, pip={_pip_ok}"
-        )
-        if _py_ok and _pip_ok:
+
+    # Take the cross-process venv lock for the destructive part (validate /
+    # delete / recreate).  Without it, two smoke-test workers running
+    # concurrently can each decide the venv is broken and stomp on each
+    # other's recreation, which surfaces in CI as a flurry of "beartype
+    # not found" / "lizard not found" / "exit 20" failures because the
+    # venv python or its packages are momentarily missing.
+    with _VenvLock(venv_dir):
+        if venv_dir.exists():
             _install_debug(
-                "_create_venv_from: existing venv is healthy, REUSING it"
+                f"_create_venv_from: venv {venv_dir} already exists, validating..."
             )
-            return True
-        _install_debug(
-            "_create_venv_from: existing venv is BROKEN, will rm -rf and rebuild"
-        )
-        print(
-            f"⚠️ Existing environment {venv_dir} is broken or incomplete; "
-            "recreating it...",
-            file=sys.stderr,
-        )
-        shutil.rmtree(str(venv_dir), ignore_errors=True)
+            # Validate an *existing* venv instead of blindly trusting it.  A
+            # stale/broken venv (e.g. an old "Python_3.9.25" with no pip) must be
+            # rebuilt on the correct base python, or every later pip call crashes.
+            _py_ok = py.exists() and _probe_python(str(py))
+            _pip_ok = (venv_dir / "bin" / "pip").exists()
+            _install_debug(
+                f"_create_venv_from: existing venv checks -> "
+                f"python={_py_ok}, pip={_pip_ok}"
+            )
+            if _py_ok and _pip_ok:
+                _install_debug(
+                    "_create_venv_from: existing venv is healthy, REUSING it"
+                )
+                return True
+            _install_debug(
+                "_create_venv_from: existing venv is BROKEN, will rm -rf and rebuild"
+            )
+            print(
+                f"⚠️ Existing environment {venv_dir} is broken or incomplete; "
+                "recreating it...",
+                file=sys.stderr,
+            )
+            shutil.rmtree(str(venv_dir), ignore_errors=True)
 
     print(f"➤ Environment {venv_dir} was not found. Creating it...")
     _vdir = str(venv_dir)
@@ -1624,21 +1680,25 @@ def ensure_dependencies(*, include_tests: bool = True,
     )
     if need_main or need_test or no_main_hash or no_test_hash:
         print("Installing dependencies (this may take a while)...")
-        if req_main.exists():
-            # Guardrail: ALWAYS route through the Rich progress-bar child so
-            # pip's raw `━━━` output is never shown while things are healthy.
-            if not _install_requirements_rich(venv_dir, req_main, "requirements"):
-                print("❌ Failed to install main requirements.", file=sys.stderr)
-                sys.exit(20)
-        if want_test and req_test.exists():
-            if not _install_requirements_rich(venv_dir, req_test, "test requirements"):
-                print("❌ Failed to install test requirements.", file=sys.stderr)
-                sys.exit(20)
+        # Lock so concurrent smoke-test workers don't both try to pip-install
+        # into the same venv at the same time (which corrupts the site-packages
+        # and makes every subsequent import fail).
+        with _VenvLock(venv_dir):
+            if req_main.exists():
+                # Guardrail: ALWAYS route through the Rich progress-bar child so
+                # pip's raw `━━━` output is never shown while things are healthy.
+                if not _install_requirements_rich(venv_dir, req_main, "requirements"):
+                    print("❌ Failed to install main requirements.", file=sys.stderr)
+                    sys.exit(20)
+            if want_test and req_test.exists():
+                if not _install_requirements_rich(venv_dir, req_test, "test requirements"):
+                    print("❌ Failed to install test requirements.", file=sys.stderr)
+                    sys.exit(20)
 
-        if req_main.exists():
-            hash_file_main.write_text(hash_main)
-        if want_test and req_test.exists():
-            hash_file_test.write_text(hash_test)
+            if req_main.exists():
+                hash_file_main.write_text(hash_main)
+            if want_test and req_test.exists():
+                hash_file_test.write_text(hash_test)
         print("✅ Dependencies installed.")
     else:
         _install_debug(

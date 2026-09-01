@@ -25,207 +25,210 @@ interleave. Failed tests have their output dumped at the end; passing tests
 print only a one-line ``OK`` summary. A summary table is always printed.
 """
 
-from __future__ import annotations
+try:
+    from __future__ import annotations
 
-import argparse
-import os
-import sys
-import time
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from pathlib import Path
-from typing import List, Tuple
+    import argparse
+    import os
+    import sys
+    import time
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+    from pathlib import Path
+    from typing import List, Tuple
 
-THIS_DIR = Path(__file__).resolve().parent
-if str(THIS_DIR) not in sys.path:
-    sys.path.insert(0, str(THIS_DIR))
+    THIS_DIR = Path(__file__).resolve().parent
+    if str(THIS_DIR) not in sys.path:
+        sys.path.insert(0, str(THIS_DIR))
 
-from _framework import helpers
-from _framework.config import load_config, substitute
-from _framework.installer import ensure_dependencies
-from _framework.helpers import (
-    Colors,
-    green_text,
-    human_readable_time,
-    red_text,
-)
-
-
-def _resolve_cmd(name: str) -> Tuple[List[str], str] | None:
-    """Return ``(argv, display)`` for the test, or ``None`` if no script."""
-    py_script = THIS_DIR / f"{name}.py"
-    if py_script.exists():
-        return [sys.executable, str(py_script)], f"python3 {name}.py"
-    script = THIS_DIR / name
-    if script.exists():
-        # When running with coverage, execute through the current (venv)
-        # interpreter so ``COVERAGE_PROCESS_START`` instruments the test.
-        if os.environ.get("RUN_WITH_COVERAGE"):
-            return [sys.executable, str(script)], f"{name}"
-        return [str(script)], name
-    return None
-
-
-def _run_test(name: str) -> Tuple[str, float, int, str, str]:
-    """Execute one smoke test. Returns (name, runtime, exit_code, stdout, stderr)."""
-    resolved = _resolve_cmd(name)
-    if resolved is None:
-        return name, 0.0, 99, "", f"no script found for {name}"
-    argv, _ = resolved
-    cmd_str = " ".join(f'"{c}"' for c in argv)
-    start = time.time()
-    try:
-        proc = helpers.run(cmd_str)
-    except Exception as exc:  # pragma: no cover - defensive
-        return name, time.time() - start, 1, "", f"failed to spawn {argv!r}: {exc}"
-    return name, time.time() - start, proc.returncode, proc.stdout or "", proc.stderr or ""
-
-
-def _default_workers(n_tests: int) -> int:
-    cpu = os.cpu_count() or 1
-    return max(1, min(n_tests, cpu))
-
-
-def _parse_jobs(value: str | None) -> int:
-    if value is None:
-        return -1  # signal: use default
-    v = value.strip().lower()
-    if v in ("", "auto"):
-        return -1
-    if v in ("0", "max"):
-        # 0 = "use all CPUs" - we resolve after we know the test count.
-        return 0
-    try:
-        n = int(v)
-    except ValueError:
-        red_text(f"Invalid --jobs value: {value!r}")
-        sys.exit(2)
-    return n
-
-
-def _build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(
-        description="Run smoke tests (parallel by default).",
-        add_help=False,
+    from _framework import helpers
+    from _framework.config import load_config, substitute
+    from _framework.installer import ensure_dependencies
+    from _framework.helpers import (
+        Colors,
+        green_text,
+        human_readable_time,
+        red_text,
     )
-    p.add_argument("--help", "-h", action="store_true",
-                   help="Show this help message and exit.")
-    p.add_argument("--jobs", "-j", default=None,
-                   help="Number of smoke tests to run in parallel "
-                        "(default: min(num_tests, cpu_count)). "
-                        "Use 0 or 'max' for one worker per CPU, 1 for sequential.")
-    p.add_argument("--no-summary-table", dest="summary_table",
-                   action="store_false", default=True,
-                   help="Skip the per-test runtime summary table at the end.")
-    p.add_argument("--run_with_coverage", action="store_true",
-                   help="Measure subprocesses with coverage (COVERAGE_PROCESS_START).")
-    return p
 
 
-def main(argv=None) -> int:
-    ensure_dependencies(include_tests=True)
-    config = load_config()
-    repo_root = config.repo_root
-    tests = config.smoke_tests
+    def _resolve_cmd(name: str) -> Tuple[List[str], str] | None:
+        """Return ``(argv, display)`` for the test, or ``None`` if no script."""
+        py_script = THIS_DIR / f"{name}.py"
+        if py_script.exists():
+            return [sys.executable, str(py_script)], f"python3 {name}.py"
+        script = THIS_DIR / name
+        if script.exists():
+            # When running with coverage, execute through the current (venv)
+            # interpreter so ``COVERAGE_PROCESS_START`` instruments the test.
+            if os.environ.get("RUN_WITH_COVERAGE"):
+                return [sys.executable, str(script)], f"{name}"
+            return [str(script)], name
+        return None
 
-    parser = _build_parser()
-    args = parser.parse_args(argv)
-    if args.help:
-        parser.print_help()
-        return 0
 
-    if args.run_with_coverage:
-        os.environ["RUN_WITH_COVERAGE"] = "1"
-        coveragerc = Path(__file__).resolve().parent.parent / ".coveragerc"
-        os.environ["COVERAGE_PROCESS_START"] = str(coveragerc)
+    def _run_test(name: str) -> Tuple[str, float, int, str, str]:
+        """Execute one smoke test. Returns (name, runtime, exit_code, stdout, stderr)."""
+        resolved = _resolve_cmd(name)
+        if resolved is None:
+            return name, 0.0, 99, "", f"no script found for {name}"
+        argv, _ = resolved
+        cmd_str = " ".join(f'"{c}"' for c in argv)
+        start = time.time()
+        try:
+            proc = helpers.run(cmd_str)
+        except Exception as exc:  # pragma: no cover - defensive
+            return name, time.time() - start, 1, "", f"failed to spawn {argv!r}: {exc}"
+        return name, time.time() - start, proc.returncode, proc.stdout or "", proc.stderr or ""
 
-    env_jobs = os.environ.get("SMOKE_JOBS")
-    jobs_arg = args.jobs if args.jobs is not None else env_jobs
-    requested = _parse_jobs(jobs_arg)
 
-    if requested == 0:
-        workers = max(1, os.cpu_count() or 1)
-    elif requested > 0:
-        workers = requested
-    else:
-        workers = _default_workers(len(tests))
-    workers = max(1, workers)
+    def _default_workers(n_tests: int) -> int:
+        cpu = os.cpu_count() or 1
+        return max(1, min(n_tests, cpu))
 
-    total_start = time.time()
-    results: List[Tuple[str, float, int, str, str]] = []
 
-    print(f"Running {len(tests)} smoke tests ({workers} in parallel)...")
-    print()
+    def _parse_jobs(value: str | None) -> int:
+        if value is None:
+            return -1  # signal: use default
+        v = value.strip().lower()
+        if v in ("", "auto"):
+            return -1
+        if v in ("0", "max"):
+            # 0 = "use all CPUs" - we resolve after we know the test count.
+            return 0
+        try:
+            n = int(v)
+        except ValueError:
+            red_text(f"Invalid --jobs value: {value!r}")
+            sys.exit(2)
+        return n
 
-    sequential = workers <= 1
-    failed: List[Tuple[str, int, str, str]] = []
 
-    def _record(name: str, runtime: float, exit_code: int,
-                stdout: str, stderr: str) -> None:
-        results.append((name, runtime, exit_code, stdout, stderr))
-        ok = exit_code == 0
-        prefix = f"{Colors.GREEN}OK  {Colors.RESET}" if ok else f"{Colors.RED}FAIL{Colors.RESET}"
-        suffix = f" ({human_readable_time(runtime)})"
-        print(f"  {prefix}  {name}{suffix}")
-        if not ok:
-            failed.append((name, exit_code, stdout, stderr))
-
-    if sequential:
-        for test_name in tests:
-            name, runtime, exit_code, stdout, stderr = _run_test(test_name)
-            _record(name, runtime, exit_code, stdout, stderr)
-    else:
-        with ThreadPoolExecutor(max_workers=workers,
-                                thread_name_prefix="smoke") as pool:
-            future_to_name = {pool.submit(_run_test, n): n for n in tests}
-            try:
-                for future in as_completed(future_to_name):
-                    name, runtime, exit_code, stdout, stderr = future.result()
-                    _record(name, runtime, exit_code, stdout, stderr)
-            except KeyboardInterrupt:
-                red_text("\nInterrupted by Ctrl+C. Cancelling remaining tests...")
-                # The executor's __exit__ waits for already-running tests but
-                # does not abort them; that's acceptable - they will finish
-                # and we'll still report their results below.
-                raise
-
-    total_runtime = int(time.time() - total_start)
-    print()
-
-    if failed:
-        for name, exit_code, stdout, stderr in failed:
-            red_text(f"Smoke test {name} failed with exit code {exit_code}")
-            if stdout:
-                print("--- stdout ---")
-                print(stdout)
-            if stderr:
-                print("--- stderr ---")
-                print(stderr)
-        print()
-        passed = len(tests) - len(failed)
-        red_text(
-            f"Smoke Tests: {passed}/{len(tests)} passed "
-            f"in {human_readable_time(total_runtime)}"
+    def _build_parser() -> argparse.ArgumentParser:
+        p = argparse.ArgumentParser(
+            description="Run smoke tests (parallel by default).",
+            add_help=False,
         )
+        p.add_argument("--help", "-h", action="store_true",
+                       help="Show this help message and exit.")
+        p.add_argument("--jobs", "-j", default=None,
+                       help="Number of smoke tests to run in parallel "
+                            "(default: min(num_tests, cpu_count)). "
+                            "Use 0 or 'max' for one worker per CPU, 1 for sequential.")
+        p.add_argument("--no-summary-table", dest="summary_table",
+                       action="store_false", default=True,
+                       help="Skip the per-test runtime summary table at the end.")
+        p.add_argument("--run_with_coverage", action="store_true",
+                       help="Measure subprocesses with coverage (COVERAGE_PROCESS_START).")
+        return p
+
+
+    def main(argv=None) -> int:
+        ensure_dependencies(include_tests=True)
+        config = load_config()
+        repo_root = config.repo_root
+        tests = config.smoke_tests
+
+        parser = _build_parser()
+        args = parser.parse_args(argv)
+        if args.help:
+            parser.print_help()
+            return 0
+
+        if args.run_with_coverage:
+            os.environ["RUN_WITH_COVERAGE"] = "1"
+            coveragerc = Path(__file__).resolve().parent.parent / ".coveragerc"
+            os.environ["COVERAGE_PROCESS_START"] = str(coveragerc)
+
+        env_jobs = os.environ.get("SMOKE_JOBS")
+        jobs_arg = args.jobs if args.jobs is not None else env_jobs
+        requested = _parse_jobs(jobs_arg)
+
+        if requested == 0:
+            workers = max(1, os.cpu_count() or 1)
+        elif requested > 0:
+            workers = requested
+        else:
+            workers = _default_workers(len(tests))
+        workers = max(1, workers)
+
+        total_start = time.time()
+        results: List[Tuple[str, float, int, str, str]] = []
+
+        print(f"Running {len(tests)} smoke tests ({workers} in parallel)...")
         print()
-    else:
-        green_text(f"Smoke Tests OK in {human_readable_time(total_runtime)}")
+
+        sequential = workers <= 1
+        failed: List[Tuple[str, int, str, str]] = []
+
+        def _record(name: str, runtime: float, exit_code: int,
+                    stdout: str, stderr: str) -> None:
+            results.append((name, runtime, exit_code, stdout, stderr))
+            ok = exit_code == 0
+            prefix = f"{Colors.GREEN}OK  {Colors.RESET}" if ok else f"{Colors.RED}FAIL{Colors.RESET}"
+            suffix = f" ({human_readable_time(runtime)})"
+            print(f"  {prefix}  {name}{suffix}")
+            if not ok:
+                failed.append((name, exit_code, stdout, stderr))
+
+        if sequential:
+            for test_name in tests:
+                name, runtime, exit_code, stdout, stderr = _run_test(test_name)
+                _record(name, runtime, exit_code, stdout, stderr)
+        else:
+            with ThreadPoolExecutor(max_workers=workers,
+                                    thread_name_prefix="smoke") as pool:
+                future_to_name = {pool.submit(_run_test, n): n for n in tests}
+                try:
+                    for future in as_completed(future_to_name):
+                        name, runtime, exit_code, stdout, stderr = future.result()
+                        _record(name, runtime, exit_code, stdout, stderr)
+                except KeyboardInterrupt:
+                    red_text("\nInterrupted by Ctrl+C. Cancelling remaining tests...")
+                    # The executor's __exit__ waits for already-running tests but
+                    # does not abort them; that's acceptable - they will finish
+                    # and we'll still report their results below.
+                    raise
+
+        total_runtime = int(time.time() - total_start)
         print()
 
-    if args.summary_table and results:
-        results_by_name = {r[0]: r for r in results}
-        ordered = [results_by_name[n] for n in tests if n in results_by_name]
-        maxlen = max(len(name) for name, *_ in ordered)
-        print(f"| {('Test').ljust(maxlen)} | {'Runtime':<12} | Result   |")
-        print(f"| {'-' * maxlen} | {'-' * 12} | {'-' * 8} |")
-        for name, runtime, exit_code, _stdout, _stderr in ordered:
-            result_str = "OK" if exit_code == 0 else f"FAIL({exit_code})"
-            print(f"| {name.ljust(maxlen)} | {human_readable_time(runtime):<12} | {result_str:<8} |")
+        if failed:
+            for name, exit_code, stdout, stderr in failed:
+                red_text(f"Smoke test {name} failed with exit code {exit_code}")
+                if stdout:
+                    print("--- stdout ---")
+                    print(stdout)
+                if stderr:
+                    print("--- stderr ---")
+                    print(stderr)
+            print()
+            passed = len(tests) - len(failed)
+            red_text(
+                f"Smoke Tests: {passed}/{len(tests)} passed "
+                f"in {human_readable_time(total_runtime)}"
+            )
+            print()
+        else:
+            green_text(f"Smoke Tests OK in {human_readable_time(total_runtime)}")
+            print()
 
-    return 0 if not failed else 1
+        if args.summary_table and results:
+            results_by_name = {r[0]: r for r in results}
+            ordered = [results_by_name[n] for n in tests if n in results_by_name]
+            maxlen = max(len(name) for name, *_ in ordered)
+            print(f"| {('Test').ljust(maxlen)} | {'Runtime':<12} | Result   |")
+            print(f"| {'-' * maxlen} | {'-' * 12} | {'-' * 8} |")
+            for name, runtime, exit_code, _stdout, _stderr in ordered:
+                result_str = "OK" if exit_code == 0 else f"FAIL({exit_code})"
+                print(f"| {name.ljust(maxlen)} | {human_readable_time(runtime):<12} | {result_str:<8} |")
+
+        return 0 if not failed else 1
 
 
-if __name__ == "__main__":
-    try:
-        sys.exit(main())
-    except KeyboardInterrupt:
-        sys.exit(130)
+    if __name__ == "__main__":
+        try:
+            sys.exit(main())
+        except KeyboardInterrupt:
+            sys.exit(130)
+except KeyboardInterrupt:
+    sys.exit(130)

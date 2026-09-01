@@ -709,6 +709,36 @@ def _pip_supports_progress_bar_off() -> bool:
     return False
 
 
+# ===========================================================================
+# ABSOLUTELY VITAL -- DO NOT REMOVE, DO NOT "SIMPLIFY", DO NOT REPLACE WITH
+# A SINGLE `pip install -r requirements.txt` CALL.
+# ===========================================================================
+# The ONLY supported install strategy in this codebase is:
+#
+#   1. pip is invoked with `--progress-bar off` (+ `--quiet`) so pip's own
+#      raw `━━━` progress bars / Collecting / Downloading noise NEVER
+#      reaches the terminal or the HPC log.
+#   2. Packages are installed ONE AT A TIME.
+#   3. A custom Rich progress bar (TTY) or one clean line per package
+#      (non-TTY, e.g. sbatch log / --follow tail) shows, IN ENGLISH, what
+#      is currently being installed:
+#          "installing <name>  (3/50) -- 47 remaining"
+#   4. Raw pip output is surfaced ONLY when a package actually fails
+#      (de-ANSI'd tail), never while the install is healthy.
+#
+# This per-package UI is the whole reason the installer exists.  If you
+# replace it with a bare `pip install -r ...`, users on HPC see 100+ lines
+# of pip spew, the Rich bar vanishes, and `.tests/main` output becomes
+# unreadable.  The module-level `_PROGRESS_BAR_OFF` list below is the flag
+# bundle every pip invocation in THIS file (parent AND child process) must
+# go through.  The child code further down defines its own copy because it
+# runs in a separate interpreter -- keep BOTH in sync.
+# ===========================================================================
+_PROGRESS_BAR_OFF: list = (
+    ["--progress-bar", "off"] if _pip_supports_progress_bar_off() else []
+)
+
+
 def _pip(venv_dir: Path, *args: str, quiet: bool = True) -> int:
     pip = _ensure_pip_in_venv(venv_dir)
     if pip is None:

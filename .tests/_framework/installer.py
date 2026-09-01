@@ -269,25 +269,42 @@ def _resolve_base_python() -> str:
     the venv should be built from (same ``.omniax_venvs/Python_X.Y.Z``
     directory, same interpreter binary).
     """
+    _install_debug("================ _resolve_base_python: START ================")
     if _BASE_PY_CACHE:
+        _install_debug(f"_resolve_base_python: cache hit -> {_BASE_PY_CACHE[0]}")
         return _BASE_PY_CACHE[0]
 
     base: str | None = None
     if _has_lmod():
+        _install_debug("_resolve_base_python: lmod detected, picking HPC python...")
         # Try the known-good toolchain first.  It ships a full
         # PyTorch/MPI stack and a working Python on every supported
         # cluster, so when it loads we know the venv will be usable.
         tc = "release/24.04 GCC/12.3.0 OpenMPI/4.1.5 PyTorch/2.1.2"
+        _install_debug(f"_resolve_base_python: step 1/2 -> toolchain {tc!r}")
         base = _ml_python(tc)
         if not base:
+            _install_debug(
+                "_resolve_base_python: toolchain did NOT yield a working "
+                "python, falling back to newest 'ml spider Python'"
+            )
             # Toolchain not available on this cluster -- fall back to
             # whatever is the newest available ``Python/x.y.z`` module
             # so we still build on a recent interpreter instead of the
             # stale login-node system python.
             newest = _newest_python_module()
             if newest:
+                _install_debug(
+                    f"_resolve_base_python: step 2/2 -> newest Python module "
+                    f"{newest!r}"
+                )
                 base = _ml_python(newest)
                 if not base:
+                    _install_debug(
+                        f"_resolve_base_python: WARNING -- toolchain {tc!r} "
+                        f"and newest Python {newest!r} BOTH failed; falling "
+                        f"back to {sys.executable}"
+                    )
                     print(
                         f"[installer] lmod present but no usable Python "
                         f"module found (tried toolchain {tc!r}, newest "
@@ -295,6 +312,11 @@ def _resolve_base_python() -> str:
                         file=sys.stderr,
                     )
             else:
+                _install_debug(
+                    f"_resolve_base_python: WARNING -- toolchain {tc!r} "
+                    f"did not load and 'ml spider Python' returned no "
+                    f"usable Python module; falling back to {sys.executable}"
+                )
                 print(
                     f"[installer] lmod present but toolchain {tc!r} "
                     f"did not load and 'ml spider Python' returned no "
@@ -303,15 +325,29 @@ def _resolve_base_python() -> str:
                     file=sys.stderr,
                 )
     else:
-        print(
-            f"[installer] lmod not available; using {sys.executable} "
-            f"to build the venv.",
-            file=sys.stderr,
+        # No HPC module system at all -- a normal workstation / laptop
+        # is the most common case here.  Silent on purpose: we don't
+        # want to spam the user with "lmod not available" on every
+        # single run.  Activate OMNIOPT_INSTALL_DEBUG=1 to see why we
+        # chose the path we did.
+        _install_debug(
+            f"_resolve_base_python: no lmod -> silently using "
+            f"{sys.executable}"
         )
 
     if not base or not _probe_python(base):
+        if base:
+            _install_debug(
+                f"_resolve_base_python: chosen python {base} failed the "
+                f"self-probe, falling back to {sys.executable}"
+            )
         base = sys.executable
 
+    _install_debug(
+        f"_resolve_base_python: FINAL base python = {base} "
+        f"(arch={_arch()})"
+    )
+    _install_debug("================ _resolve_base_python: END ================")
     _BASE_PY_CACHE.append(base)
     return base
 

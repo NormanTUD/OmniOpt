@@ -37,23 +37,85 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 _MODULES_LOADED_VAR = "OMNIOPT_HPC_MODULES_LOADED"
 _BASE_PY_CACHE: list = []  # single slot: resolved base python path
 
+# ---------------------------------------------------------------------------
+# Debug logging.
+#
+# Set ``OMNIOPT_INSTALL_DEBUG=1`` in the environment to make the installer
+# print a detailed, ordered, timestamped trace of every decision it makes:
+# which Python interpreters it probed, which lmod modules it tried, what
+# the bash subprocess returned, what the venv hash was, which pip strategy
+# it fell back to, etc.  All output goes to stderr so it does not pollute
+# the Rich progress bar (the bar lives on stdout).
+#
+# Turn this on, run the installer, then copy the resulting stderr so we
+# can compare what happens locally vs on the HPC cluster and explain
+# every difference (e.g. why a toolchain load silently failed).
+# ---------------------------------------------------------------------------
+
+_INSTALL_DEBUG_VAR = "OMNIOPT_INSTALL_DEBUG"
+
+
+def _install_debug_enabled() -> bool:
+    """True iff the user asked for detailed installer debug logging."""
+    _v = os.environ.get(_INSTALL_DEBUG_VAR, "").strip().lower()
+    return _v in ("1", "true", "yes", "on")
+
+
+def _install_debug(msg: str, *, tag: str = "installer") -> None:
+    """Emit one timestamped debug line on stderr iff debug logging is on.
+
+    ``tag`` is shown in brackets so multi-component traces (e.g. a child
+    Rich-installer) are easy to filter.  Format mirrors what the omniopt
+    main script uses for its own [omniopt] lines so the combined stderr
+    is easy to read.
+    """
+    if not _install_debug_enabled():
+        return
+    try:
+        import time as _t
+        _ts = _t.strftime("%H:%M:%S")
+    except Exception:
+        _ts = "--:--:--"
+    try:
+        sys.stderr.write(f"[{_ts}] [{tag}] {msg}\n")
+        sys.stderr.flush()
+    except Exception:
+        pass
+
 
 def _arch() -> str:
     return platform.machine()
 
 
 def _has_lmod() -> bool:
-    """Whether an lmod-style environment-module system (``ml``/``module``) is
-    available on this machine (typical for HPC login nodes)."""
+    """Whether an lmod-style environment-module system (``ml``/``module``)
+    is available on this machine (typical for HPC login nodes)."""
+    _install_debug("_has_lmod: probing for an lmod-style module system...")
     for _c in ("ml", "module", "modulecmd"):
-        if shutil.which(_c):
+        _w = shutil.which(_c)
+        _install_debug(f"  - PATH probe '{_c}': {('FOUND at ' + _w) if _w else 'not in PATH'}")
+        if _w:
             return True
-    if os.environ.get("LMOD_CMD") or os.environ.get("MODULESHOME"):
-        return True
-    return (
-        os.path.exists("/usr/share/lmod/lmod/init/bash")
-        or os.path.exists("/etc/profile.d/modules.sh")
+    _lmod_cmd = os.environ.get("LMOD_CMD")
+    _modules_home = os.environ.get("MODULESHOME")
+    _install_debug(
+        f"  - env probe LMOD_CMD={_lmod_cmd!r}, "
+        f"MODULESHOME={_modules_home!r}"
     )
+    if _lmod_cmd or _modules_home:
+        return True
+    for _init in (
+        "/usr/share/lmod/lmod/init/bash",
+        "/opt/lmod/lmod/init/bash",
+        "/etc/profile.d/modules.sh",
+        "/etc/profile.d/lmod.sh",
+    ):
+        _exists = os.path.exists(_init)
+        _install_debug(f"  - init-file probe '{_init}': {'exists' if _exists else 'missing'}")
+        if _exists:
+            return True
+    _install_debug("_has_lmod: no lmod-style module system detected.")
+    return False
 
 
 def _probe_python(py: str) -> bool:
@@ -98,18 +160,35 @@ def _newest_python_module() -> str:
     name (empty string if none found). ``sort -V`` picks the highest version;
     spurious ``Python/x.y.z-bare`` builds are excluded by the grep regex."""
     if not _has_lmod():
+        _install_debug("_newest_python_module: skipped (no lmod)")
         return ""
     script = _lmod_script(
         "{ ml spider Python 2>/dev/null; } | "
         r"grep -oE 'Python/[0-9]+(\.[0-9]+)*' | sort -V | tail -n 1"
     )
+    _install_debug(
+        "_newest_python_module: running 'ml spider Python' via bash -lc "
+        "(stderr discarded)"
+    )
+    _install_debug(f"  script:\n{script}")
     try:
         r = subprocess.run(
             ["bash", "-lc", script], capture_output=True, text=True, timeout=60,
         )
-    except (OSError, subprocess.TimeoutExpired):
+    except (OSError, subprocess.TimeoutExpired) as _e:
+        _install_debug(f"_newest_python_module: subprocess failed: {_e!r}")
         return ""
-    return (r.stdout or "").strip()
+    _install_debug(
+        f"_newest_python_module: bash exit={r.returncode} "
+        f"stdout-len={len(r.stdout or '')} stderr-len={len(r.stderr or '')}"
+    )
+    if r.stderr:
+        for _ln in (r.stderr or "").splitlines():
+            if _ln.strip():
+                _install_debug(f"  stderr> {_ln}")
+    _out = (r.stdout or "").strip()
+    _install_debug(f"_newest_python_module: result = {_out!r}")
+    return _out
 
 
 def _ml_python(modules: str) -> str | None:
@@ -124,6 +203,10 @@ def _ml_python(modules: str) -> str | None:
     system python (e.g. Python 3.9.25) -- the exact bug we're fixing.
     """
     if not _has_lmod() or not modules:
+        _install_debug(
+            f"_ml_python({modules!r}): skipped "
+            f"(has_lmod={_has_lmod()}, modules={modules!r})"
+        )
         return None
     script = _lmod_script(
         '_before="$(command -v python3 || true)"; '
@@ -132,20 +215,44 @@ def _ml_python(modules: str) -> str | None:
         'if [ -n "$_after" ] && [ "$_after" != "$_before" ]; then '
         'printf \'%s\' "$_after"; fi'
     )
+    _install_debug(f"_ml_python({modules!r}): launching bash -lc ...")
+    _install_debug(f"  script:\n{script}")
     try:
         r = subprocess.run(
             ["bash", "-lc", script], capture_output=True, text=True, timeout=60,
         )
-    except (OSError, subprocess.TimeoutExpired):
+    except (OSError, subprocess.TimeoutExpired) as _e:
+        _install_debug(f"_ml_python({modules!r}): subprocess failed: {_e!r}")
         return None
+    _install_debug(
+        f"_ml_python({modules!r}): bash exit={r.returncode} "
+        f"stdout={(r.stdout or '').strip()!r} stderr-len={len(r.stderr or '')}"
+    )
+    if r.stderr:
+        for _ln in (r.stderr or "").splitlines():
+            if _ln.strip():
+                _install_debug(f"  stderr> {_ln}")
     lines = (r.stdout or "").strip().splitlines()
     if not lines:
+        _install_debug(
+            f"_ml_python({modules!r}): no python3 substitution detected "
+            f"(empty stdout -> lmod load silently failed)"
+        )
         return None
     cand = lines[-1].strip()
+    _install_debug(f"_ml_python({modules!r}): candidate python = {cand!r}")
     if not cand or not os.path.exists(cand):
+        _install_debug(
+            f"_ml_python({modules!r}): candidate path does not exist on disk"
+        )
         return None
     if not _probe_python(cand):
+        _install_debug(
+            f"_ml_python({modules!r}): candidate python failed the self-probe "
+            f"(broken / SIGILL / different ISA)"
+        )
         return None
+    _install_debug(f"_ml_python({modules!r}): OK -> {cand}")
     return cand
 
 

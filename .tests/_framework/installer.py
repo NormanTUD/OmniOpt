@@ -87,18 +87,22 @@ if [ -n "$_om_simple_py" ] && [ "$_om_simple_py" != "$_om_old_py" ]; then
 fi
 
 # Strategy 2: module loaded but /usr/bin/python3 still shadows it -- find
-# a python whose bin dir was NOT in the old PATH
+# a python whose bin dir was NOT in the old PATH.  NB: bash's case-pattern
+# parser eats the `)` inside `$(dirname "$_c")`, so we MUST precompute
+# the dirname into a variable instead of nesting $() inside the pattern.
 if [ -z "$_om_new_py" ]; then
     for _om_c in $(which -a python3 2>/dev/null); do
         [ -x "$_om_c" ] || continue
+        _om_dn="$(dirname "$_om_c")"
+        _om_in_old=0
         case ":$_om_old_path:" in
-            *":$(dirname "$_om_c"):") ;;
-            *)
-                _om_new_py="$_om_c"
-                _om_strategy="S2-which-a"
-                break
-                ;;
+            *":$_om_dn:"*) _om_in_old=1 ;;
         esac
+        if [ "$_om_in_old" -eq 0 ] && [ "$_om_c" != "$_om_old_py" ]; then
+            _om_new_py="$_om_c"
+            _om_strategy="S2-which-a(new-PATH-entry)"
+            break
+        fi
     done
 fi
 
@@ -112,6 +116,16 @@ if [ -z "$_om_new_py" ]; then
             break
         fi
     done
+fi
+
+# CRITICAL guard: a module "load" can exit 0 yet substitute nothing
+# (alpha: ml Python/3.13.5 succeeds but only sets PYTHONHOME; PATH's
+# python3 stays /usr/bin/python3).  We must NOT then claim the system
+# python is a "module python" -- the whole point is to STOP building on
+# the stale system python.  Require _om_new_py != _om_old_py (a real
+# substitution) AND it must actually differ.
+if [ -n "$_om_new_py" ] && [ "$_om_new_py" = "$_om_old_py" ]; then
+    _om_new_py=""
 fi
 
 # Probe INSIDE this shell where the module's LD_LIBRARY_PATH is active.
@@ -134,31 +148,43 @@ _om_added_ld=""
 IFS=':'
 for _om_e in $PATH; do
     [ -z "$_om_e" ] && continue
+    _om_in_old=0
     case ":$_om_old_path:" in
-        *":$_om_e:"*) ;;
-        *) _om_added="$_om_added$_om_e"$'\n' ;;
+        *":$_om_e:"*) _om_in_old=1 ;;
     esac
+    [ "$_om_in_old" -eq 0 ] && _om_added="$_om_added$_om_e"$'\n'
 done
 IFS=':'
 for _om_e in $LD_LIBRARY_PATH; do
     [ -z "$_om_e" ] && continue
+    _om_in_old=0
     case ":$_om_old_ld:" in
-        *":$_om_e:"*) ;;
-        *) _om_added_ld="$_om_added_ld$_om_e"$'\n' ;;
+        *":$_om_e:"*) _om_in_old=1 ;;
     esac
+    [ "$_om_in_old" -eq 0 ] && _om_added_ld="$_om_added_ld$_om_e"$'\n'
 done
 IFS=' '
 
-printf 'lmod-cmd=%s rc=%d strategy=%s\nbefore-py=%s after-py=%s\ncandidate=%s probe=%s\nbefore-LD=%s\nnew-PATH-entries:\n%s\nnew-LD-entries:\n%s\nml-stderr(first-30-lines):\n' \
+# Detect the exact alpha failure mode: module loaded (rc=0), PATH grew,
+# but no python3 substitution at all (the module only provides, say,
+# python3.13 / sets PYTHONHOME without touching PATH).
+_om_module_loaded_no_py=""
+if [ "$_om_rc" -eq 0 ] && [ -n "$_om_added" ] && [ -z "$_om_new_py" ]; then
+    _om_module_loaded_no_py="YES (module loaded fine but did NOT put any python3 in PATH)"
+fi
+
+printf 'lmod-cmd=%s rc=%d strategy=%s\nbefore-py=%s after-py=%s\ncandidate=%s probe=%s\nmodule-loaded-but-no-python3=%s\nbefore-LD=%s\nnew-PATH-entries:\n%s\nnew-LD-entries:\n%s\nml-stderr(first-30-lines):\n' \
     "$_om_cmd" "$_om_rc" "${_om_strategy:-(none)}" \
     "${_om_old_py:-(none)}" "${_om_simple_py:-(none)}" \
     "${_om_new_py:-(none)}" "${_om_probe:-(none)}" \
+    "${_om_module_loaded_no_py:-no}" \
     "${_om_old_ld:-(none)}" "${_om_added:-(none)}" "${_om_added_ld:-(none)}" >&2
 if [ -n "$_om_err" ]; then
     printf '%s\n' "$_om_err" | head -n 30 >&2
 fi
 
-# Final answer on stdout: marker + python path + marker + base64(JSON env)
+# Final answer on stdout: marker + python path + marker + base64(JSON env).
+# Only emit if we actually have a NEW python AND it probed OK.
 if [ -n "$_om_new_py" ] && [ "$_om_probe" = "passed" ]; then
     printf '===PYTHON===\n%s\n===ENV_B64===\n' "$_om_new_py"
     "$_om_new_py" -c "import os, sys, json, base64; sys.stdout.write(base64.b64encode(json.dumps(dict(os.environ)).encode()).decode())" 2>/dev/null

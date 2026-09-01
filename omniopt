@@ -3250,6 +3250,7 @@ class ConfigLoader:
     generation_strategy: Optional[str]
     root_venv_dir: str
     follow: bool
+    wait_until_ended: bool
     show_generation_and_submission_sixel: bool
     n_estimators_randomforest: int
     max_num_of_parallel_sruns: int

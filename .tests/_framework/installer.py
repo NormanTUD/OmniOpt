@@ -242,6 +242,43 @@ def _arch() -> str:
     return platform.machine()
 
 
+def _hpc_modules() -> str:
+    """Return the space-joined lmod module names to load on an HPC login
+    node, chosen by cluster + architecture -- the exact list the old bash
+    ``.shellscript_functions`` used (kept in lock-step with the omniopt
+    main script's ``_omniopt_hpc_modules`` so the test framework and the
+    script it spawns always load the same modules).
+
+    Returns ``""`` when module loading is disabled via ``LOAD_MODULES=0``.
+    """
+    load = os.environ.get("LOAD_MODULES")
+    if load is not None and load != "1":
+        _install_debug(
+            f"_hpc_modules: LOAD_MODULES={load!r} != 1 -> disabled, returning ''"
+        )
+        return ""
+
+    cluster = os.environ.get("CLUSTERHOST", "")
+    arch = _arch()
+
+    if cluster and "capella" in cluster:
+        # TU Dresden HPC "capella" partition (Lmod lives under /usr/share).
+        mods = ["release/24.04", "GCCcore/12.3.0", "Python/3.11.3",
+                "Tkinter/3.11.3", "PostgreSQL/16.1"]
+    else:
+        # All other clusters.
+        mods = ["release/23.04", "GCCcore/12.2.0", "Python/3.10.8",
+                "GCCcore/11.3.0", "Tkinter/3.10.4", "PostgreSQL/14.4"]
+        if arch == "ppc64le":
+            # ML-Power9 partition needs the power-patched BLAS/compiler.
+            mods += ["zlib/1.2.12", "GCC/12.2.0", "OpenBLAS/0.3.21"]
+
+    _install_debug(
+        f"_hpc_modules: CLUSTERHOST={cluster!r} arch={arch!r} -> {mods!r}"
+    )
+    return " ".join(mods)
+
+
 def _has_lmod() -> bool:
     """Whether an lmod-style environment-module system (``ml``/``module``)
     is available on this machine (typical for HPC login nodes)."""
@@ -514,53 +551,71 @@ def _resolve_base_python() -> str:
     base: str | None = None
     if _has_lmod():
         _install_debug("_resolve_base_python: lmod detected, picking HPC python...")
-        # Try the known-good toolchain first.  It ships a full
-        # PyTorch/MPI stack and a working Python on every supported
-        # cluster, so when it loads we know the venv will be usable.
-        tc = "release/24.04 GCC/12.3.0 OpenMPI/4.1.5 PyTorch/2.1.2"
-        _install_debug(f"_resolve_base_python: step 1/2 -> toolchain {tc!r}")
-        base = _ml_python(tc)
-        if not base:
+        # Try the per-cluster module list first (the same toolchain the old
+        # bash .shellscript_functions loaded, kept in sync with omniopt's
+        # _omniopt_hpc_modules).  When LOAD_MODULES=0 or none match, the
+        # list is empty and we skip straight to the newest-Python fallback.
+        tc = _hpc_modules()
+        if tc:
+            _install_debug(f"_resolve_base_python: step 1/3 -> cluster modules {tc!r}")
+            base = _ml_python(tc)
+            if not base:
+                _install_debug(
+                    "_resolve_base_python: cluster modules did NOT yield a "
+                    "working python, falling back to newest 'ml spider Python'"
+                )
+                newest = _newest_python_module()
+                if newest:
+                    _install_debug(
+                        f"_resolve_base_python: step 2/3 -> newest Python "
+                        f"module {newest!r}"
+                    )
+                    base = _ml_python(newest)
+                    if not base:
+                        _install_debug(
+                            f"_resolve_base_python: WARNING -- cluster modules "
+                            f"{tc!r} and newest Python {newest!r} BOTH failed; "
+                            f"falling back to {sys.executable}"
+                        )
+                        print(
+                            f"[installer] lmod present but no usable Python "
+                            f"module found (tried {tc!r}, newest "
+                            f"{newest!r}); falling back to {sys.executable}.",
+                            file=sys.stderr,
+                        )
+                else:
+                    _install_debug(
+                        f"_resolve_base_python: WARNING -- cluster modules "
+                        f"{tc!r} did not load and 'ml spider Python' returned "
+                        f"no usable Python module; falling back to {sys.executable}"
+                    )
+                    print(
+                        f"[installer] lmod present but cluster modules {tc!r} "
+                        f"did not load and 'ml spider Python' returned no "
+                        f"usable Python module; falling back to "
+                        f"{sys.executable}.",
+                        file=sys.stderr,
+                    )
+        else:
+            # LOAD_MODULES=0 or no cluster-matched modules: respect it and
+            # try the newest available Python module (if any); otherwise the
+            # interpreter that launched us is used below.
             _install_debug(
-                "_resolve_base_python: toolchain did NOT yield a working "
-                "python, falling back to newest 'ml spider Python'"
+                "_resolve_base_python: no cluster-matched modules "
+                "(LOAD_MODULES=0 or no match) -> trying newest Python module"
             )
-            # Toolchain not available on this cluster -- fall back to
-            # whatever is the newest available ``Python/x.y.z`` module
-            # so we still build on a recent interpreter instead of the
-            # stale login-node system python.
             newest = _newest_python_module()
             if newest:
                 _install_debug(
-                    f"_resolve_base_python: step 2/2 -> newest Python module "
+                    f"_resolve_base_python: step 2/3 -> newest Python module "
                     f"{newest!r}"
                 )
                 base = _ml_python(newest)
                 if not base:
                     _install_debug(
-                        f"_resolve_base_python: WARNING -- toolchain {tc!r} "
-                        f"and newest Python {newest!r} BOTH failed; falling "
-                        f"back to {sys.executable}"
+                        f"_resolve_base_python: newest Python {newest!r} "
+                        f"did not yield a working python"
                     )
-                    print(
-                        f"[installer] lmod present but no usable Python "
-                        f"module found (tried toolchain {tc!r}, newest "
-                        f"{newest!r}); falling back to {sys.executable}.",
-                        file=sys.stderr,
-                    )
-            else:
-                _install_debug(
-                    f"_resolve_base_python: WARNING -- toolchain {tc!r} "
-                    f"did not load and 'ml spider Python' returned no "
-                    f"usable Python module; falling back to {sys.executable}"
-                )
-                print(
-                    f"[installer] lmod present but toolchain {tc!r} "
-                    f"did not load and 'ml spider Python' returned no "
-                    f"usable Python module; falling back to "
-                    f"{sys.executable}.",
-                    file=sys.stderr,
-                )
     else:
         # No HPC module system at all -- a normal workstation / laptop
         # is the most common case here.  Silent on purpose: we don't

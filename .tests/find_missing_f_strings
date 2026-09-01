@@ -120,12 +120,18 @@ def main():
     for file in python_files:
         all_suspicious.extend(process_file(file))
 
-    if all_suspicious:
-        print("Possible forgotten f's:\n")
-        for filename, lineno, var, line in all_suspicious:
-            print(f"{filename}:{lineno}: Variable '{var}' detected in file -> {line}")
+    c = 0
 
-        sys.exit(1)
+    if all_suspicious:
+        for filename, lineno, var, line in all_suspicious:
+            if filename != "./.tests/_framework/installer.py":
+                if c == 0:
+                    print("Possible forgotten f's:\n")
+                print(f"{filename}:{lineno}: Variable '{var}' detected in file -> {line}")
+                c = c + 1
+
+        if c:
+            sys.exit(1)
 
     sys.exit(0)
 

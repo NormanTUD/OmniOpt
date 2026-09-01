@@ -1012,7 +1012,15 @@ def _missing_specs(specs):
 
 
 def _quiet(_path):
-    # Guardrail D: non-interactive fallback -- one clean line, raw pip on fail.
+    # Guardrail D: non-interactive fallback (HPC log / sbatch --follow
+    # tail).  ABSOLUTELY VITAL -- install packages ONE AT A TIME so the
+    # user sees, in English, exactly which package is being installed
+    # and how many remain ("installing <name>  (3/50) -- 47 remaining"),
+    # never a wall of pip Collecting/Downloading noise.  pip's own
+    # progress bars are silenced via `--quiet` + `--progress-bar off`.
+    # On a failure we show pip's de-ANSI'd tail.  DO NOT "simplify"
+    # this back into a single `pip install -r ...`: the per-package UI
+    # is the whole reason this function exists.
     _all_specs = _flatten_reqs(_path)
     _missing = _missing_specs(_all_specs)
 
@@ -1020,22 +1028,38 @@ def _quiet(_path):
         return 0
 
     _t0 = time.time()
-    _p = subprocess.run(
-        [sys.executable, "-u", "-m", "pip", "install",
-         "--default-timeout=300", "--disable-pip-version-check",
-         "--quiet", *_PROGRESS_BAR_OFF, *_missing],
-        stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True,
-    )
-    _el = time.time() - _t0
-    if _p.returncode == 0:
-        sys.stdout.write(f"[omniopt] installed {_label} ({_el:.1f}s)\n")
+    _total = len(_missing)
+    for _i, _spec in enumerate(_missing, start=1):
+        _name = _spec.split()[0]
+        _remaining = _total - _i
+        sys.stdout.write(
+            f"[omniopt] installing {_name}  ({_i}/{_total}) -- "
+            f"{_remaining} remaining\n"
+        )
         sys.stdout.flush()
-        return 0
-    sys.stdout.write(f"[omniopt] pip install {_label} failed (exit {_p.returncode}, {_el:.1f}s)\n")
-    for _l in _tail(_p.stderr or ""):
-        sys.stdout.write("  " + _l + "\n")
+        try:
+            _p = subprocess.run(
+                [sys.executable, "-u", "-m", "pip", "install",
+                 "--default-timeout=300", "--disable-pip-version-check",
+                 "--quiet", *_PROGRESS_BAR_OFF, _spec],
+                stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True,
+            )
+        except Exception as _e:
+            sys.stdout.write(f"[omniopt] pip install {_name} failed: {_e}\n")
+            sys.stdout.flush()
+            return 1
+        if _p.returncode != 0:
+            sys.stdout.write(
+                f"[omniopt] pip install {_name} failed (exit {_p.returncode})\n"
+            )
+            for _l in _tail(_p.stderr or ""):
+                sys.stdout.write("  " + _l + "\n")
+            sys.stdout.flush()
+            return 1
+    _el = time.time() - _t0
+    sys.stdout.write(f"[omniopt] installed {_label} ({_total} packages, {_el:.1f}s)\n")
     sys.stdout.flush()
-    return 1
+    return 0
 
 
 if not _TTY:

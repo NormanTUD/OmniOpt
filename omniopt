@@ -1524,9 +1524,16 @@ _TTY = bool(sys.stdout.isatty())
 
 
 def _quiet_install(requirements_file):
-    # Non-interactive install: no animated bar, just one result line.
-    # `-q` hides pip's own progress bars / Collecting noise, while still
-    # surfacing ERROR lines so failures are still diagnosable.
+    # Non-interactive install (HPC log / sbatch --follow tail): still
+    # ABSOLUTELY VITAL -- install packages ONE AT A TIME so the user
+    # sees, in English, exactly which package is being installed and
+    # how many remain ("installing <name>  (3/50) -- 47 remaining"),
+    # never a wall of pip Collecting/Downloading noise.  pip's own
+    # progress bars are silenced via `--quiet` + `--progress-bar off`
+    # so this contract holds.  On a failure we show pip's tail.
+    #
+    # DO NOT "simplify" this back into a single `pip install -r ...`:
+    # the whole reason this child process exists is the per-package UI.
 
     # Skip already-installed packages: flatten the requirements file,
     # filter out specs whose package is already installed (and satisfies
@@ -1540,24 +1547,45 @@ def _quiet_install(requirements_file):
         return True
 
     _start = time.time()
-    _p = subprocess.run(
-        [sys.executable, "-u", "-m", "pip", "install",
-         "--default-timeout=300", "--disable-pip-version-check",
-         "--quiet", *_OMNIOPT_PROGRESS_BAR_OFF,
-         *_missing],
-        stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True,
-    )
-    _el = time.time() - _start
-    if _p.returncode == 0:
-        sys.stdout.write(f"[omniopt] installed {_omniopt_label} ({_el:.1f}s)\n")
+    _total = len(_missing)
+    captured = []
+    for _i, _spec in enumerate(_missing, start=1):
+        _name = _spec.split()[0]
+        _remaining = _total - _i
+        # Per-package progress line (HPC log / --follow / sbatch tail):
+        # plain text, no \r redraws -- one newline per package so the
+        # log stays readable and grep-friendly.
+        sys.stdout.write(
+            f"[omniopt] installing {_name}  ({_i}/{_total}) -- "
+            f"{_remaining} remaining\n"
+        )
         sys.stdout.flush()
-        return True
-    _sys_err = (_p.stderr or "").strip()
-    sys.stdout.write(
-        f"[omniopt] pip install failed (exit {_p.returncode}, {_el:.1f}s)\n"
-    )
-    if _sys_err:
-        # Show only the tail of pip's error output, de-ANSI'd, so the
+        try:
+            _p = subprocess.run(
+                [sys.executable, "-u", "-m", "pip", "install",
+                 "--default-timeout=300", "--disable-pip-version-check",
+                 "--quiet", *_OMNIOPT_PROGRESS_BAR_OFF, _spec],
+                stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True,
+            )
+        except Exception as _e:
+            captured.append(str(_e))
+            sys.stdout.write(f"[omniopt] pip install {_name} failed: {_e}\n")
+            sys.stdout.flush()
+            return False
+        if _p.returncode != 0:
+            captured.append((_p.stderr or "").strip())
+            sys.stdout.write(
+                f"[omniopt] pip install {_name} failed (exit {_p.returncode})\n"
+            )
+            for _l in (captured[-1] or "(no output captured)").splitlines()[-6:]:
+                sys.stdout.write("  " + re.sub(r"\x1b\[[0-9;]*m", "", _l) + "\n")
+            sys.stdout.flush()
+            return False
+
+    _el = time.time() - _start
+    sys.stdout.write(f"[omniopt] installed {_omniopt_label} ({_total} packages, {_el:.1f}s)\n")
+    sys.stdout.flush()
+    return True
         # HPC log doesn't get flooded with raw pip spew.
         _lines = [_ln for _ln in _sys_err.splitlines() if _ln.strip()]
         for _ln in _lines[-6:]:
@@ -1567,6 +1595,8 @@ def _quiet_install(requirements_file):
 
 
 if not _TTY:
+    sys.stdout.write(f"[omniopt] non-tty install ({_omniopt_label})\n")
+    sys.stdout.flush()
     if not _quiet_install(requirements_file):
         sys.exit(1)
     sys.exit(0)

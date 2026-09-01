@@ -1220,6 +1220,13 @@ def _omniopt_run_install_with_rich_progress(venv_python: str, requirements_file:
     progress UI.  This is called from the bootstrap section but runs
     in a child Python process so the parent can stay stdlib-only.
 
+    ABSOLUTELY VITAL -- the per-package install loop inside the child
+    (one `pip install <spec>` per requirement, pip output captured, only
+    surfaced on failure) is what produces the English per-package UI:
+        "installing <name>  (3/50) -- 47 remaining"
+    Collapsing the child back into a single `pip install -r ...` removes
+    the whole reason this child process exists.  Do not remove it.
+
     The progress bar is `transient=True` so it disappears once the
     install finishes; every line is right-padded to the terminal
     width so the cursor never reflows.

@@ -841,47 +841,103 @@ def _omniopt_create_venv(venv_dir: str, base_python: str | None = None, *, copie
         f"_omniopt_create_venv: venv_dir={venv_dir} base_python={base_python} "
         f"copies={copies}"
     )
+    _stamp_file = _os.path.join(venv_dir, "omniopt_base_python")
+    _cur_real = _os.path.realpath(base_python) if base_python else ""
     if _os.path.exists(venv_dir):
         _omniopt_install_debug(
             f"_omniopt_create_venv: venv {venv_dir} already exists, validating..."
         )
-        _existing_py = _omniopt_venv_python(venv_dir)
-        if _os.path.exists(_existing_py):
+        # A venv must match the base interpreter it runs under.  Two
+        # interpreters can report the SAME ``python --version`` ("Python
+        # 3.13.5") yet be different binaries (e.g. the stale login-node
+        # python vs. the toolchain module python) that need different
+        # LD_LIBRARY_PATH, so the plain version-string comparison below is
+        # not enough.  We stamp the realpath of the exact base python used
+        # to build the venv and rebuild whenever the base we now want
+        # differs from that stamp.  This lets a module re-exec
+        # (OMNIOPT_REEXECED=1) replace a stale-interpreter venv with one
+        # built from the right module python, WITHOUT wiping a good warm
+        # venv on every run (the old unconditional wipe made every
+        # login-node launch reinstall all dependencies).
+        _stamped = ""
+        if _os.path.exists(_stamp_file):
             try:
-                _v = _subprocess.run(
-                    [_existing_py, "--version"],
-                    capture_output=True, text=True, timeout=10,
-                )
-                _existing_ver = (_v.stdout or _v.stderr or "").strip()
-            except Exception:
-                _existing_ver = ""
-            try:
-                _b = _subprocess.run(
-                    [base_python, "--version"],
-                    capture_output=True, text=True, timeout=10,
-                )
-                _base_ver = (_b.stdout or _b.stderr or "").strip()
-            except Exception:
-                _base_ver = ""
+                _stamped = open(_stamp_file).read().strip()
+            except OSError:
+                _stamped = ""
+        if _stamped and _cur_real and _stamped != _cur_real:
             _omniopt_install_debug(
-                f"_omniopt_create_venv: existing python version = {_existing_ver!r}, "
-                f"target base python version = {_base_ver!r}"
-            )
-            if _existing_ver and _base_ver and _existing_ver == _base_ver:
-                _omniopt_install_debug(
-                    "_omniopt_create_venv: existing venv matches base_python, "
-                    "REUSING it"
-                )
-                return  # venv matches base_python, reuse it
-            _omniopt_install_debug(
-                "_omniopt_create_venv: existing venv uses a DIFFERENT python, "
-                "will rm -rf and rebuild"
+                f"_omniopt_create_venv: stamped base {_stamped!r} != desired "
+                f"base {_cur_real!r} -> rm -rf and rebuild"
             )
             _sys.stderr.write(
-                f"[omniopt] existing venv uses {_existing_ver}, "
-                f"but base_python is {_base_ver}; rebuilding venv.\n"
+                f"[omniopt] existing venv was built from {_stamped}; rebuilding "
+                f"with {base_python} for this module environment.\n"
             )
             _sys.stderr.flush()
+            _shutil.rmtree(venv_dir, ignore_errors=True)
+        else:
+            _existing_py = _omniopt_venv_python(venv_dir)
+            if _os.path.exists(_existing_py):
+                # No usable base stamp (legacy venv): fall back to comparing
+                # the reported version strings.
+                try:
+                    _v = _subprocess.run(
+                        [_existing_py, "--version"],
+                        capture_output=True, text=True, timeout=10,
+                    )
+                    _existing_ver = (_v.stdout or _v.stderr or "").strip()
+                except Exception:
+                    _existing_ver = ""
+                try:
+                    _b = _subprocess.run(
+                        [base_python, "--version"],
+                        capture_output=True, text=True, timeout=10,
+                    )
+                    _base_ver = (_b.stdout or _b.stderr or "").strip()
+                except Exception:
+                    _base_ver = ""
+                _omniopt_install_debug(
+                    f"_omniopt_create_venv: existing python version = "
+                    f"{_existing_ver!r}, target base python version = "
+                    f"{_base_ver!r}"
+                )
+                if _existing_ver and _base_ver and _existing_ver == _base_ver:
+                    if not _stamped and _os.environ.get("OMNIOPT_REEXECED"):
+                        # Legacy venv with no stamp under a module re-exec:
+                        # it may be a same-version-but-different-binary venv
+                        # built from the stale login-node python.  Force ONE
+                        # rebuild so it is freshly built -- and stamped -- from
+                        # the (correct) module python; afterwards the stamp
+                        # matches and it is reused.
+                        _omniopt_install_debug(
+                            "_omniopt_create_venv: legacy unstamped venv under "
+                            "OMNIOPT_REEXECED -> one-time rebuild + stamp"
+                        )
+                        _sys.stderr.write(
+                            f"[omniopt] one-time rebuild of legacy venv at "
+                            f"{venv_dir} under the module python.\n"
+                        )
+                        _sys.stderr.flush()
+                    else:
+                        _omniopt_install_debug(
+                            "_omniopt_create_venv: existing venv matches "
+                            "base_python, REUSING it"
+                        )
+                        return  # venv matches base_python, reuse it
+                else:
+                    _omniopt_install_debug(
+                        "_omniopt_create_venv: existing venv uses a DIFFERENT "
+                        "python, will rm -rf and rebuild"
+                    )
+                    _sys.stderr.write(
+                        f"[omniopt] existing venv uses {_existing_ver}, "
+                        f"but base_python is {_base_ver}; rebuilding venv.\n"
+                    )
+                    _sys.stderr.flush()
+            # Reaching here means the venv is stale/broken (stamp mismatch
+            # handled above, or the legacy version check decided to rebuild):
+            # fall through and clobber it, then build fresh below.
         _shutil.rmtree(venv_dir, ignore_errors=True)
     _os.makedirs(_os.path.dirname(venv_dir), exist_ok=True)
     _cmd = [base_python, "-m", "venv", venv_dir]
@@ -898,6 +954,11 @@ def _omniopt_create_venv(venv_dir: str, base_python: str | None = None, *, copie
         f"_omniopt_create_venv: SUCCESS -- venv {venv_dir} created from "
         f"{base_python}"
     )
+    try:
+        with open(_stamp_file, "w") as _fp:
+            _fp.write(_cur_real or base_python or "")
+    except OSError:
+        pass
     _omniopt_install_debug(
         f"================ _omniopt_create_venv: END ================"
     )
@@ -2092,15 +2153,16 @@ def _omniopt_install_with_candidate(base_python: str) -> bool:
         f"_omniopt_install_with_candidate: venv_dir={venv_dir}"
     )
     # NOTE: we deliberately do NOT wipe the venv here on OMNIOPT_REEXECED.
-    # The venv path already encodes the Python version+arch, so a re-exec
-    # into a different interpreter targets a different (nonexistent) venv
-    # dir and gets created fresh.  If the same venv dir exists, then
-    # _omniopt_create_venv below already validates the interpreter version
-    # and rebuilds ONLY when it genuinely differs.  Wiping the whole venv
-    # on every module re-exec (this runs on every login-node launch with
-    # lmod) deleted a perfectly good warm venv and forced a full reinstall
-    # of all dependencies on every run -- exactly the "installs packages
-    # again and again" regression.
+    # _omniopt_create_venv stamps the realpath of the base interpreter a
+    # venv was built from and rebuilds ONLY when the base we now want
+    # differs from that stamp.  A module re-exec into a different python
+    # binary therefore swaps the venv over to the correct module python,
+    # while a genuinely warm venv (same base interpreter) is reused.
+    # Wiping the whole venv on every module re-exec (this runs on every
+    # login-node launch with lmod) deleted a perfectly good warm venv and
+    # forced a full reinstall of all dependencies every run -- exactly the
+    # "installs packages again and again" regression -- AND nuked the
+    # .tests framework deps that share the same venv dir.
     try:
         _omniopt_create_venv(venv_dir, base_python)
     except Exception as _e:

@@ -31,7 +31,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 THIS_DIR = Path(__file__).resolve().parent
 REPO_ROOT = THIS_DIR.parent
@@ -76,6 +76,12 @@ def _ensure_deps() -> None:
     we spawn (``python3 .optuna_runner.py ...``) uses the *real* sys.path
     of the chosen interpreter, so the modules must be importable from
     *that* interpreter's default search path.
+
+    Raises ``RuntimeError`` with an actionable message if the deps still
+    can't be imported *after* the install attempt. The caller (a
+    ``setUpClass``) is expected to translate that into ``self.skipTest(...)``
+    so CI runners don't fail the whole suite when, e.g., outbound pip is
+    blocked.
     """
     import importlib.util as _ilu
     missing = [
@@ -85,17 +91,58 @@ def _ensure_deps() -> None:
     if not missing:
         return
     py = _resolve_subprocess_python()
-    subprocess.run(
-        [py, "-m", "pip", "install", "--break-system-packages", *missing],
-        check=True,
+    try:
+        proc = subprocess.run(
+            [py, "-m", "pip", "install", "--break-system-packages", *missing],
+            capture_output=True, text=True, timeout=300,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise RuntimeError(
+            f"Could not run pip in {py} to install {missing}: {exc}"
+        ) from exc
+    if proc.returncode != 0:
+        raise RuntimeError(
+            f"pip install {missing} failed (exit {proc.returncode}): "
+            f"{proc.stderr.strip() or proc.stdout.strip()}"
+        )
+    still_missing = [m for m in REQUIRED_MODULES if _ilu.find_spec(m) is None]
+    if still_missing:
+        raise RuntimeError(
+            f"After pip install, still missing: {still_missing}. "
+            f"pip output: {proc.stderr.strip() or proc.stdout.strip()}"
+        )
+
+
+def _run_runner(argv: list[str], *,
+               timeout: float = 120.0,
+               python: Optional[str] = None) -> subprocess.CompletedProcess:
+    """Run ``.optuna_runner.py`` as a subprocess with consistent env handling.
+
+    Centralises the ``cwd=REPO_ROOT`` / text-mode / capture-output settings
+    that every CLI test would otherwise have to repeat, and surfaces useful
+    diagnostics when the subprocess fails (CI logs are the only thing
+    engineers see when a test breaks there).
+    """
+    py = python or _resolve_subprocess_python()
+    return subprocess.run(
+        [py, str(OPTUNA_RUNNER), *argv],
+        cwd=str(REPO_ROOT),
+        capture_output=True,
+        text=True,
+        timeout=timeout,
     )
 
 
-def _try_import(name: str):
-    try:
-        return __import__(name)
-    except ImportError:
-        return None
+def _assert_runner_ok(test: unittest.TestCase,
+                      proc: subprocess.CompletedProcess,
+                      argv: list[str]) -> None:
+    """Assert that ``proc`` succeeded; otherwise raise with full diagnostics."""
+    test.assertEqual(
+        proc.returncode, 0,
+        msg=f".optuna_runner.py exited {proc.returncode}.\n"
+            f"argv={argv!r}\nstderr={proc.stderr!r}\n"
+            f"stdout={proc.stdout!r}",
+    )
 
 
 def _write_input(workdir: Path,
@@ -122,8 +169,13 @@ class OptunaRunnerUnitTests(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        _ensure_deps()
-        cls.runner = _load_runner_module()
+        try:
+            _ensure_deps()
+            cls.runner = _load_runner_module()
+        except RuntimeError as exc:
+            raise unittest.SkipTest(
+                f"optuna/beartype unavailable: {exc}"
+            ) from exc
 
     def test_simple_range_sampler(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -187,63 +239,101 @@ class OptunaRunnerUnitTests(unittest.TestCase):
                 self.assertIn(payload["parameters"]["y"], [1, 2, 3])
 
     def test_history_replay_changes_next_point(self) -> None:
-        """A non-empty history should feed into the sampler's model and produce
-        a different point than an empty-history run would."""
+        """A non-empty history must feed into the sampler's model: after replaying
+        a parabola-shaped history ``y = x**2`` on ``[-10, 10]``, TPE should
+        consistently suggest points near the optimum (``x == 0``). Without the
+        history (cold-start), points stay uniformly spread across the range.
+
+        We previously asserted this by comparing a single with-history and
+        without-history suggest. That test was inherently flaky: TPE is
+        stochastic, so a single comparison can collide. We now assert the
+        statistical contract: averaged over several seeds, history-driven
+        suggests cluster near the optimum while cold-start suggests do not.
+        """
+        parabola = (
+            [-9.5, -8.0, -6.0, -4.0, -2.0, 0.0,
+             2.0, 4.0, 6.0, 8.0, 9.5],
+            [100.0, 64.0, 36.0, 16.0, 4.0, 0.0,
+             4.0, 16.0, 36.0, 64.0, 100.0],
+        )
+        n_seeds = 5
+        seeds = [11 * i + 1 for i in range(n_seeds)]
+        # Tolerance band: history-driven suggest should sit well inside the
+        # "good" half of the search space (<= 4.0 from the optimum). Without
+        # history the average distance is ~5.0 (uniform on [-10, 10]).
+        opt_threshold = 4.0
+
+        history_distances: list[float] = []
+        cold_distances: list[float] = []
+
         with tempfile.TemporaryDirectory() as tmp:
-            workdir = Path(tmp)
-            trials = [
-                [{"x": -9.5}, {"x": -8.0}, {"x": -6.0}, {"x": -4.0},
-                 {"x": -2.0}, {"x": 0.0}, {"x": 2.0}, {"x": 4.0},
-                 {"x": 6.0}, {"x": 8.0}, {"x": 9.5}],
-                [{"RESULT": 100.0}, {"RESULT": 64.0}, {"RESULT": 36.0},
-                 {"RESULT": 16.0}, {"RESULT": 4.0}, {"RESULT": 0.0},
-                 {"RESULT": 4.0}, {"RESULT": 16.0}, {"RESULT": 36.0},
-                 {"RESULT": 64.0}, {"RESULT": 100.0}],
-            ]
-            _write_input(workdir, {
-                "x": {"parameter_type": "RANGE", "type": "FLOAT", "range": [-10.0, 10.0]},
-            }, trials=trials)
-            payload_with_history = self.runner.suggest_workdir(
-                workdir,
-                sampler_name="tpe",
-                pruner_name="none",
-                seed=42,
-                n_startup_trials=10,
-                multivariate=False,
-                group=False,
-                constraints=False,
-                n_ei_candidates=0,
-                extra_iters=1,
-                storage=None,
-                study_name="with_history",
-                load_if_exists=False,
-            )
-            # Now an empty-history run; should produce a different first point.
-            workdir2 = Path(tmp) / "no_history"
-            workdir2.mkdir()
-            _write_input(workdir2, {
-                "x": {"parameter_type": "RANGE", "type": "FLOAT", "range": [-10.0, 10.0]},
-            })
-            payload_no_history = self.runner.suggest_workdir(
-                workdir2,
-                sampler_name="tpe",
-                pruner_name="none",
-                seed=42,
-                n_startup_trials=10,
-                multivariate=False,
-                group=False,
-                constraints=False,
-                n_ei_candidates=0,
-                extra_iters=1,
-                storage=None,
-                study_name="no_history",
-                load_if_exists=False,
-            )
-            self.assertNotEqual(
-                payload_with_history["parameters"],
-                payload_no_history["parameters"],
-                "TPE with history should not produce the same point as TPE without",
-            )
+            for seed in seeds:
+                wd_with = Path(tmp) / f"with_{seed}"
+                wd_with.mkdir()
+                _write_input(
+                    wd_with,
+                    {"x": {"parameter_type": "RANGE", "type": "FLOAT",
+                           "range": [-10.0, 10.0]}},
+                    trials=[
+                        [{"x": xv} for xv in parabola[0]],
+                        [{"RESULT": yv} for yv in parabola[1]],
+                    ],
+                )
+                payload = self.runner.suggest_workdir(
+                    wd_with,
+                    sampler_name="tpe",
+                    pruner_name="none",
+                    seed=seed,
+                    n_startup_trials=10,
+                    multivariate=False,
+                    group=False,
+                    constraints=False,
+                    n_ei_candidates=0,
+                    extra_iters=1,
+                    storage=None,
+                    study_name=f"hist_{seed}",
+                    load_if_exists=False,
+                )
+                self.assertIn("parameters", payload)
+                history_distances.append(abs(float(payload["parameters"]["x"])))
+
+                wd_cold = Path(tmp) / f"cold_{seed}"
+                wd_cold.mkdir()
+                _write_input(
+                    wd_cold,
+                    {"x": {"parameter_type": "RANGE", "type": "FLOAT",
+                           "range": [-10.0, 10.0]}},
+                )
+                payload_cold = self.runner.suggest_workdir(
+                    wd_cold,
+                    sampler_name="tpe",
+                    pruner_name="none",
+                    seed=seed,
+                    n_startup_trials=10,
+                    multivariate=False,
+                    group=False,
+                    constraints=False,
+                    n_ei_candidates=0,
+                    extra_iters=1,
+                    storage=None,
+                    study_name=f"cold_{seed}",
+                    load_if_exists=False,
+                )
+                cold_distances.append(abs(float(payload_cold["parameters"]["x"])))
+
+        avg_hist = sum(history_distances) / len(history_distances)
+        avg_cold = sum(cold_distances) / len(cold_distances)
+        self.assertLess(
+            avg_hist, opt_threshold,
+            f"TPE with parabola history should cluster near 0 (got "
+            f"avg |x|={avg_hist:.2f} over {history_distances})",
+        )
+        self.assertGreater(
+            avg_cold, avg_hist,
+            f"Without history, TPE cold-start (avg |x|={avg_cold:.2f}) should "
+            f"explore farther from 0 than with history (avg |x|={avg_hist:.2f}); "
+            f"history={history_distances}, cold={cold_distances}",
+        )
 
     def test_constraint_replay_applies_penalty(self) -> None:
         """A constraint-violating trial should be added with a penalty value
@@ -345,7 +435,12 @@ class OptunaRunnerCLITests(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        _ensure_deps()
+        try:
+            _ensure_deps()
+        except RuntimeError as exc:
+            raise unittest.SkipTest(
+                f"optuna/beartype unavailable: {exc}"
+            ) from exc
         cls.python = _resolve_subprocess_python()
 
     def test_cli_suggest_subprocess(self) -> None:
@@ -357,14 +452,9 @@ class OptunaRunnerCLITests(unittest.TestCase):
             _write_input(workdir, {
                 "x": {"parameter_type": "RANGE", "type": "FLOAT", "range": [0.0, 1.0]},
             })
-            proc = subprocess.run(
-                [self.python, str(OPTUNA_RUNNER), "--pruner=none", "suggest", str(workdir)],
-                cwd=str(REPO_ROOT),
-                capture_output=True,
-                text=True,
-                timeout=60,
-            )
-            self.assertEqual(proc.returncode, 0, msg=proc.stderr)
+            argv = ["--pruner=none", "suggest", str(workdir)]
+            proc = _run_runner(argv, python=self.python)
+            _assert_runner_ok(self, proc, argv)
             results_path = workdir / "results.json"
             self.assertTrue(results_path.exists())
             payload = json.loads(results_path.read_text())
@@ -382,18 +472,13 @@ class OptunaRunnerCLITests(unittest.TestCase):
             _write_input(workdir, {
                 "x": {"parameter_type": "RANGE", "type": "INT", "range": [0, 10]},
             })
-            proc = subprocess.run(
-                [self.python, str(OPTUNA_RUNNER),
-                 "--sampler=tpe", "--pruner=none", "--seed=42",
-                 "--study-name=test_flags_before",
-                 "suggest", str(workdir)],
-                cwd=str(REPO_ROOT),
-                capture_output=True,
-                text=True,
-                timeout=60,
-            )
-            self.assertEqual(proc.returncode, 0,
-                             msg=f"stderr={proc.stderr!r}\nstdout={proc.stdout!r}")
+            argv = [
+                "--sampler=tpe", "--pruner=none", "--seed=42",
+                "--study-name=test_flags_before",
+                "suggest", str(workdir),
+            ]
+            proc = _run_runner(argv, python=self.python)
+            _assert_runner_ok(self, proc, argv)
             results_path = workdir / "results.json"
             self.assertTrue(results_path.exists())
             payload = json.loads(results_path.read_text())
@@ -408,7 +493,12 @@ class OptunaStudyRemoteControlTests(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        _ensure_deps()
+        try:
+            _ensure_deps()
+        except RuntimeError as exc:
+            raise unittest.SkipTest(
+                f"optuna/beartype unavailable: {exc}"
+            ) from exc
         cls.python = _resolve_subprocess_python()
 
     def test_study_create_add_suggest_best(self) -> None:
@@ -416,13 +506,13 @@ class OptunaStudyRemoteControlTests(unittest.TestCase):
             workdir = Path(tmp)
 
             # Create the persistent study.
-            proc = subprocess.run(
-                [self.python, str(OPTUNA_RUNNER), "study", "create",
-                 "--workdir", str(workdir), "--sampler=tpe", "--seed=42",
-                 "--objectives=RESULT"],
-                capture_output=True, text=True,
-            )
-            self.assertEqual(proc.returncode, 0, msg=proc.stderr)
+            argv_create = [
+                "study", "create",
+                "--workdir", str(workdir), "--sampler=tpe", "--seed=42",
+                "--objectives=RESULT",
+            ]
+            proc = _run_runner(argv_create, python=self.python)
+            _assert_runner_ok(self, proc, argv_create)
             create_info = json.loads(proc.stdout)
             self.assertEqual(create_info["n_trials"], 0)
             self.assertEqual(create_info["directions"], ["minimize"])
@@ -434,33 +524,27 @@ class OptunaStudyRemoteControlTests(unittest.TestCase):
             ]:
                 params_file = workdir / "params.json"
                 params_file.write_text(json.dumps(params))
-                proc = subprocess.run(
-                    [self.python, str(OPTUNA_RUNNER), "study", "add",
-                     "--workdir", str(workdir),
-                     "--params-file", str(params_file),
-                     "--values", json.dumps({"RESULT": value})],
-                    capture_output=True, text=True,
-                )
-                self.assertEqual(proc.returncode, 0, msg=proc.stderr)
+                argv_add = [
+                    "study", "add",
+                    "--workdir", str(workdir),
+                    "--params-file", str(params_file),
+                    "--values", json.dumps({"RESULT": value}),
+                ]
+                proc = _run_runner(argv_add, python=self.python)
+                _assert_runner_ok(self, proc, argv_add)
 
             # best should report value=1.0
-            proc = subprocess.run(
-                [self.python, str(OPTUNA_RUNNER), "study", "best",
-                 "--workdir", str(workdir)],
-                capture_output=True, text=True,
-            )
-            self.assertEqual(proc.returncode, 0, msg=proc.stderr)
+            argv_best = ["study", "best", "--workdir", str(workdir)]
+            proc = _run_runner(argv_best, python=self.python)
+            _assert_runner_ok(self, proc, argv_best)
             best = json.loads(proc.stdout)
             self.assertEqual(best["best_value"], 1.0)
             self.assertEqual(best["best_params"], {"x": -2.0, "y": 7})
 
             # trials should report 2 completed trials.
-            proc = subprocess.run(
-                [self.python, str(OPTUNA_RUNNER), "study", "trials",
-                 "--workdir", str(workdir)],
-                capture_output=True, text=True,
-            )
-            self.assertEqual(proc.returncode, 0, msg=proc.stderr)
+            argv_trials = ["study", "trials", "--workdir", str(workdir)]
+            proc = _run_runner(argv_trials, python=self.python)
+            _assert_runner_ok(self, proc, argv_trials)
             trials = json.loads(proc.stdout)
             self.assertEqual(len(trials), 2)
             for t in trials:
@@ -472,12 +556,12 @@ class OptunaStudyRemoteControlTests(unittest.TestCase):
                 "x": {"parameter_type": "RANGE", "type": "FLOAT", "range": [-10.0, 10.0]},
                 "y": {"parameter_type": "RANGE", "type": "INT", "range": [0, 100]},
             }))
-            proc = subprocess.run(
-                [self.python, str(OPTUNA_RUNNER), "study", "suggest",
-                 "--workdir", str(workdir), "--parameters-file", str(spec)],
-                capture_output=True, text=True,
-            )
-            self.assertEqual(proc.returncode, 0, msg=proc.stderr)
+            argv_suggest = [
+                "study", "suggest",
+                "--workdir", str(workdir), "--parameters-file", str(spec),
+            ]
+            proc = _run_runner(argv_suggest, python=self.python)
+            _assert_runner_ok(self, proc, argv_suggest)
             suggest = json.loads(proc.stdout)
             self.assertIn("parameters", suggest)
             self.assertIn("trial_number", suggest)
@@ -488,12 +572,22 @@ class OptunaStudyRemoteControlTests(unittest.TestCase):
 class OmnioptOptunaEntryPointTests(unittest.TestCase):
     """Smoke-test the ``omniopt_optuna`` user-facing entry point."""
 
+    @classmethod
+    def setUpClass(cls) -> None:
+        try:
+            _ensure_deps()
+        except RuntimeError as exc:
+            raise unittest.SkipTest(
+                f"optuna/beartype unavailable: {exc}"
+            ) from exc
+        cls.python = _resolve_subprocess_python()
+
     def test_dry_run_builds_omniopt_command(self) -> None:
         """``--dry-run`` should print the ``omniopt`` argv without running it."""
         if not OMNIOPT_OPTUNA.exists():
             self.skipTest(f"{OMNIOPT_OPTUNA} not found")
         proc = subprocess.run(
-            [sys.executable, str(OMNIOPT_OPTUNA),
+            [self.python, str(OMNIOPT_OPTUNA),
              "--dry-run",
              "--model=OPTUNA_TPE", "--max-eval=2", "--num-random-steps=1",
              "--parameter", "x range -10 10 int",
@@ -504,7 +598,11 @@ class OmnioptOptunaEntryPointTests(unittest.TestCase):
             text=True,
             timeout=60,
         )
-        self.assertEqual(proc.returncode, 0, msg=proc.stderr)
+        self.assertEqual(
+            proc.returncode, 0,
+            msg=f"omniopt_optuna --dry-run exited {proc.returncode}.\n"
+                f"stdout={proc.stdout!r}\nstderr={proc.stderr!r}",
+        )
         self.assertIn("omniopt", proc.stdout)
         self.assertIn("--model=OPTUNA_TPE", proc.stdout)
         self.assertIn("--parameter", proc.stdout)
@@ -516,18 +614,28 @@ class OmnioptCliTests(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        _ensure_deps()
+        try:
+            _ensure_deps()
+        except RuntimeError as exc:
+            raise unittest.SkipTest(
+                f"optuna/beartype unavailable: {exc}"
+            ) from exc
+        cls.python = _resolve_subprocess_python()
 
     def test_help_lists_optuna_models(self) -> None:
         """``omniopt --help`` must list every OPTUNA_* model."""
         proc = subprocess.run(
-            [sys.executable, str(REPO_ROOT / "omniopt"), "--help"],
+            [self.python, str(REPO_ROOT / "omniopt"), "--help"],
             cwd=str(REPO_ROOT),
             capture_output=True,
             text=True,
             timeout=600,
         )
-        self.assertEqual(proc.returncode, 0, msg=proc.stderr)
+        self.assertEqual(
+            proc.returncode, 0,
+            msg=f"omniopt --help exited {proc.returncode}.\n"
+                f"stderr={proc.stderr!r}",
+        )
         for model in ["OPTUNA_TPE", "OPTUNA_CMAES", "OPTUNA_GP",
                       "OPTUNA_RANDOM", "OPTUNA_GRID", "OPTUNA_NSGAII",
                       "OPTUNA_NSGAIII", "OPTUNA_MOTPE"]:
@@ -537,13 +645,17 @@ class OmnioptCliTests(unittest.TestCase):
     def test_optuna_flags_present(self) -> None:
         """The new --optuna_* flags must show up in --help."""
         proc = subprocess.run(
-            [sys.executable, str(REPO_ROOT / "omniopt"), "--help"],
+            [self.python, str(REPO_ROOT / "omniopt"), "--help"],
             cwd=str(REPO_ROOT),
             capture_output=True,
             text=True,
             timeout=600,
         )
-        self.assertEqual(proc.returncode, 0, msg=proc.stderr)
+        self.assertEqual(
+            proc.returncode, 0,
+            msg=f"omniopt --help exited {proc.returncode}.\n"
+                f"stderr={proc.stderr!r}",
+        )
         for flag in ["--optuna_sampler", "--optuna_pruner",
                      "--optuna_n_startup_trials", "--optuna_storage",
                      "--optuna_study_name", "--optuna_extra_iters"]:

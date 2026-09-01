@@ -40,10 +40,22 @@ else:
     _framework_installer.add_venv_to_path(_bootstrap_venv)
     req_main = Path(__file__).resolve().parent.parent / "requirements.txt"
     req_test = Path(__file__).resolve().parent.parent / "test_requirements.txt"
+    # Install through the Rich per-package progress bar (NOT raw ``_pip``),
+    # so pip's own Collecting / `━━━` output is never shown while things are
+    # healthy -- same nicer install UI as everywhere else.  ``_install_requirements_rich``
+    # pre-installs Rich itself (guardrail A) so it works even on a fresh venv.
     if req_main.exists():
-        _framework_installer._pip(_bootstrap_venv, "install", "-r", str(req_main), quiet=False)
+        if not _framework_installer._install_requirements_rich(
+            _bootstrap_venv, req_main, "requirements"
+        ):
+            print("❌ Failed to install main requirements.", file=sys.stderr)
+            sys.exit(20)
     if req_test.exists():
-        _framework_installer._pip(_bootstrap_venv, "install", "-r", str(req_test), quiet=False)
+        if not _framework_installer._install_requirements_rich(
+            _bootstrap_venv, req_test, "test requirements"
+        ):
+            print("❌ Failed to install test requirements.", file=sys.stderr)
+            sys.exit(20)
     # Seed hashes so subsequent calls don't reinstall.
     import hashlib as _hashlib
     (_bootstrap_venv / "hash_main").write_text(

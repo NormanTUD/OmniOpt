@@ -583,13 +583,78 @@ def _omniopt_ml_newest_python_modules() -> list:
     return [_m] if _m else []
 
 
+def _omniopt_hpc_modules() -> list:
+    """Return the lmod module names to load on an HPC login node, chosen by
+    cluster + architecture -- the exact list the old bash
+    ``.shellscript_functions`` used (restored here).
+
+    This is what makes the "load the right ML / toolchain modules on HPC"
+    behaviour work.  Logic mirrors the original bash::
+
+        if [ -z "$LOAD_MODULES" ] || [ "$LOAD_MODULES" -eq 1 ]; then
+            if CLUSTERHOST contains '*capella*':
+                release/24.04 GCCcore/12.3.0 Python/3.11.3 Tkinter/3.11.3 PostgreSQL/16.1
+            else:
+                release/23.04 GCCcore/12.2.0 Python/3.10.8 GCCcore/11.3.0 Tkinter/3.10.4 PostgreSQL/14.4
+                if uname -m == ppc64le:
+                    zlib/1.2.12 GCC/12.2.0 OpenBLAS/0.3.21
+
+    Returns ``[]`` when module loading is disabled via ``LOAD_MODULES=0``.
+    """
+    # ``LOAD_MODULES`` opt-out, exactly like the old bash.
+    _load = _os.environ.get("LOAD_MODULES")
+    if _load is not None and _load != "1":
+        _omniopt_install_debug(
+            "_omniopt_hpc_modules: LOAD_MODULES="
+            f"{_load!r} != 1 -> module loading disabled, returning []"
+        )
+        return []
+
+    _cluster = _os.environ.get("CLUSTERHOST", "")
+    _arch = _platform.machine()
+
+    if _cluster and "capella" in _cluster:
+        # TU Dresden HPC "capella" partition (Lmod lives under /usr/share).
+        _mods = [
+            "release/24.04",
+            "GCCcore/12.3.0",
+            "Python/3.11.3",
+            "Tkinter/3.11.3",
+            "PostgreSQL/16.1",
+        ]
+    else:
+        # All other clusters.
+        _mods = [
+            "release/23.04",
+            "GCCcore/12.2.0",
+            "Python/3.10.8",
+            "GCCcore/11.3.0",
+            "Tkinter/3.10.4",
+            "PostgreSQL/14.4",
+        ]
+        if _arch == "ppc64le":
+            # ML-Power9 partition needs the power-patched BLAS/compiler.
+            _mods += [
+                "zlib/1.2.12",
+                "GCC/12.2.0",
+                "OpenBLAS/0.3.21",
+            ]
+
+    _omniopt_install_debug(
+        f"_omniopt_hpc_modules: CLUSTERHOST={_cluster!r} arch={_arch!r} "
+        f"-> modules {_mods!r}"
+    )
+    return _mods
+
+
 def _omniopt_hpc_module_list() -> list:
     """Return the list of lmod module names to load on an HPC login node,
     or ``[]`` if none should be loaded.
 
-    Preference: the known-good toolchain (which supplies a full Python +
-    PyTorch/MPI stack), otherwise the newest available ``Python`` module.
-    Only consulted when lmod is actually present.
+    Preference: the per-cluster toolchain from the old bash
+    ``.shellscript_functions`` (which supplies the correct Python/Lmod
+    stack for the machine), otherwise the newest available ``Python``
+    module.  Only consulted when lmod is actually present.
     """
     if not _omniopt_has_lmod():
         _omniopt_install_debug(
@@ -599,21 +664,27 @@ def _omniopt_hpc_module_list() -> list:
     _omniopt_install_debug(
         f"================ _omniopt_hpc_module_list: START ================"
     )
-    _tc = ["release/24.04", "GCC/12.3.0", "OpenMPI/4.1.5", "PyTorch/2.1.2"]
+    _tc = _omniopt_hpc_modules()
+    if not _tc:
+        _omniopt_install_debug(
+            "_omniopt_hpc_module_list: no cluster-matched modules "
+            "(LOAD_MODULES=0 or no matching cluster) -> returning []"
+        )
+        return []
     _omniopt_install_debug(
-        f"_omniopt_hpc_module_list: step 1/2 -> toolchain {_tc!r}"
+        f"_omniopt_hpc_module_list: step 1/2 -> cluster modules {_tc!r}"
     )
     # The toolchain is preferred only if the module loading machinery can
     # actually resolve a working python for it.
     if _omniopt_ml_module_load_python(_tc):
         _omniopt_install_debug(
-            f"_omniopt_hpc_module_list: toolchain {_tc!r} yielded a working "
-            f"python -> using it"
+            f"_omniopt_hpc_module_list: cluster modules {_tc!r} yielded a "
+            f"working python -> using it"
         )
         return _tc
     _omniopt_install_debug(
-        "_omniopt_hpc_module_list: toolchain did NOT yield a working python, "
-        "falling back to newest 'ml spider Python'"
+        "_omniopt_hpc_module_list: cluster modules did NOT yield a working "
+        "python, falling back to newest 'ml spider Python'"
     )
     _np = _omniopt_ml_newest_python_modules()
     if _np:
@@ -627,8 +698,9 @@ def _omniopt_hpc_module_list() -> list:
             )
             return _np
     _omniopt_install_debug(
-        "_omniopt_hpc_module_list: WARNING -- toolchain AND newest Python "
-        "both failed; returning [] (boot will fall back to system python)"
+        "_omniopt_hpc_module_list: WARNING -- cluster modules AND newest "
+        "Python both failed; returning [] (boot will fall back to system "
+        "python)"
     )
     return []
 
@@ -769,47 +841,103 @@ def _omniopt_create_venv(venv_dir: str, base_python: str | None = None, *, copie
         f"_omniopt_create_venv: venv_dir={venv_dir} base_python={base_python} "
         f"copies={copies}"
     )
+    _stamp_file = _os.path.join(venv_dir, "omniopt_base_python")
+    _cur_real = _os.path.realpath(base_python) if base_python else ""
     if _os.path.exists(venv_dir):
         _omniopt_install_debug(
             f"_omniopt_create_venv: venv {venv_dir} already exists, validating..."
         )
-        _existing_py = _omniopt_venv_python(venv_dir)
-        if _os.path.exists(_existing_py):
+        # A venv must match the base interpreter it runs under.  Two
+        # interpreters can report the SAME ``python --version`` ("Python
+        # 3.13.5") yet be different binaries (e.g. the stale login-node
+        # python vs. the toolchain module python) that need different
+        # LD_LIBRARY_PATH, so the plain version-string comparison below is
+        # not enough.  We stamp the realpath of the exact base python used
+        # to build the venv and rebuild whenever the base we now want
+        # differs from that stamp.  This lets a module re-exec
+        # (OMNIOPT_REEXECED=1) replace a stale-interpreter venv with one
+        # built from the right module python, WITHOUT wiping a good warm
+        # venv on every run (the old unconditional wipe made every
+        # login-node launch reinstall all dependencies).
+        _stamped = ""
+        if _os.path.exists(_stamp_file):
             try:
-                _v = _subprocess.run(
-                    [_existing_py, "--version"],
-                    capture_output=True, text=True, timeout=10,
-                )
-                _existing_ver = (_v.stdout or _v.stderr or "").strip()
-            except Exception:
-                _existing_ver = ""
-            try:
-                _b = _subprocess.run(
-                    [base_python, "--version"],
-                    capture_output=True, text=True, timeout=10,
-                )
-                _base_ver = (_b.stdout or _b.stderr or "").strip()
-            except Exception:
-                _base_ver = ""
+                _stamped = open(_stamp_file).read().strip()
+            except OSError:
+                _stamped = ""
+        if _stamped and _cur_real and _stamped != _cur_real:
             _omniopt_install_debug(
-                f"_omniopt_create_venv: existing python version = {_existing_ver!r}, "
-                f"target base python version = {_base_ver!r}"
-            )
-            if _existing_ver and _base_ver and _existing_ver == _base_ver:
-                _omniopt_install_debug(
-                    "_omniopt_create_venv: existing venv matches base_python, "
-                    "REUSING it"
-                )
-                return  # venv matches base_python, reuse it
-            _omniopt_install_debug(
-                "_omniopt_create_venv: existing venv uses a DIFFERENT python, "
-                "will rm -rf and rebuild"
+                f"_omniopt_create_venv: stamped base {_stamped!r} != desired "
+                f"base {_cur_real!r} -> rm -rf and rebuild"
             )
             _sys.stderr.write(
-                f"[omniopt] existing venv uses {_existing_ver}, "
-                f"but base_python is {_base_ver}; rebuilding venv.\n"
+                f"[omniopt] existing venv was built from {_stamped}; rebuilding "
+                f"with {base_python} for this module environment.\n"
             )
             _sys.stderr.flush()
+            _shutil.rmtree(venv_dir, ignore_errors=True)
+        else:
+            _existing_py = _omniopt_venv_python(venv_dir)
+            if _os.path.exists(_existing_py):
+                # No usable base stamp (legacy venv): fall back to comparing
+                # the reported version strings.
+                try:
+                    _v = _subprocess.run(
+                        [_existing_py, "--version"],
+                        capture_output=True, text=True, timeout=10,
+                    )
+                    _existing_ver = (_v.stdout or _v.stderr or "").strip()
+                except Exception:
+                    _existing_ver = ""
+                try:
+                    _b = _subprocess.run(
+                        [base_python, "--version"],
+                        capture_output=True, text=True, timeout=10,
+                    )
+                    _base_ver = (_b.stdout or _b.stderr or "").strip()
+                except Exception:
+                    _base_ver = ""
+                _omniopt_install_debug(
+                    f"_omniopt_create_venv: existing python version = "
+                    f"{_existing_ver!r}, target base python version = "
+                    f"{_base_ver!r}"
+                )
+                if _existing_ver and _base_ver and _existing_ver == _base_ver:
+                    if not _stamped and _os.environ.get("OMNIOPT_REEXECED"):
+                        # Legacy venv with no stamp under a module re-exec:
+                        # it may be a same-version-but-different-binary venv
+                        # built from the stale login-node python.  Force ONE
+                        # rebuild so it is freshly built -- and stamped -- from
+                        # the (correct) module python; afterwards the stamp
+                        # matches and it is reused.
+                        _omniopt_install_debug(
+                            "_omniopt_create_venv: legacy unstamped venv under "
+                            "OMNIOPT_REEXECED -> one-time rebuild + stamp"
+                        )
+                        _sys.stderr.write(
+                            f"[omniopt] one-time rebuild of legacy venv at "
+                            f"{venv_dir} under the module python.\n"
+                        )
+                        _sys.stderr.flush()
+                    else:
+                        _omniopt_install_debug(
+                            "_omniopt_create_venv: existing venv matches "
+                            "base_python, REUSING it"
+                        )
+                        return  # venv matches base_python, reuse it
+                else:
+                    _omniopt_install_debug(
+                        "_omniopt_create_venv: existing venv uses a DIFFERENT "
+                        "python, will rm -rf and rebuild"
+                    )
+                    _sys.stderr.write(
+                        f"[omniopt] existing venv uses {_existing_ver}, "
+                        f"but base_python is {_base_ver}; rebuilding venv.\n"
+                    )
+                    _sys.stderr.flush()
+            # Reaching here means the venv is stale/broken (stamp mismatch
+            # handled above, or the legacy version check decided to rebuild):
+            # fall through and clobber it, then build fresh below.
         _shutil.rmtree(venv_dir, ignore_errors=True)
     _os.makedirs(_os.path.dirname(venv_dir), exist_ok=True)
     _cmd = [base_python, "-m", "venv", venv_dir]
@@ -826,6 +954,11 @@ def _omniopt_create_venv(venv_dir: str, base_python: str | None = None, *, copie
         f"_omniopt_create_venv: SUCCESS -- venv {venv_dir} created from "
         f"{base_python}"
     )
+    try:
+        with open(_stamp_file, "w") as _fp:
+            _fp.write(_cur_real or base_python or "")
+    except OSError:
+        pass
     _omniopt_install_debug(
         f"================ _omniopt_create_venv: END ================"
     )
@@ -1129,7 +1262,7 @@ def _omniopt_install_rich_phase(venv_python: str) -> bool:
         _sys.stderr.write("[omniopt] pip stderr:\n" + _last_stderr + "\n")
     _sys.stderr.write(
         "[omniopt] If this is an HPC login node, load a working Python first, e.g.:\n"
-        "[omniopt]   ml release/24.04 GCC/12.3.0 OpenMPI/4.1.5 PyTorch/2.1.2\n"
+        f"[omniopt]   ml {' '.join(_omniopt_hpc_modules()) or '(see .shellscript_functions / README)'}\n"
         "[omniopt] or the newest available Python module, then re-run omniopt.\n"
         "[omniopt] A crash with 'exit -4' (SIGILL) usually means the active Python\n"
         "[omniopt] was built for a different CPU/ISA than this node.\n"
@@ -1586,12 +1719,6 @@ def _quiet_install(requirements_file):
     sys.stdout.write(f"[omniopt] installed {_omniopt_label} ({_total} packages, {_el:.1f}s)\n")
     sys.stdout.flush()
     return True
-        # HPC log doesn't get flooded with raw pip spew.
-        _lines = [_ln for _ln in _sys_err.splitlines() if _ln.strip()]
-        for _ln in _lines[-6:]:
-            sys.stdout.write("  " + re.sub(r"\x1b\[[0-9;]*m", "", _ln) + "\n")
-    sys.stdout.flush()
-    return False
 
 
 if not _TTY:
@@ -2002,7 +2129,7 @@ def _omniopt_print_bootstrap_error(errors: list) -> None:
         "[omniopt] Try one of the following, then re-run omniopt:\n"
         "[omniopt]   1. Free up disk space in your home / scratch area.\n"
         "[omniopt]   2. Reload a known-good Python before running, e.g. on an HPC:\n"
-        "[omniopt]        ml release/24.04 GCC/12.3.0 OpenMPI/4.1.5 PyTorch/2.1.2\n"
+        f"[omniopt]        ml {' '.join(_omniopt_hpc_modules()) or '(see README)'}\n"
         "[omniopt]        # or the newest available Python module:\n"
         "[omniopt]        ml spider Python   # then:  ml Python/<newest>\n"
         "[omniopt]   3. Force a fresh interpreter copy:  rm -rf ~/.omniax_venvs\n"
@@ -2025,23 +2152,17 @@ def _omniopt_install_with_candidate(base_python: str) -> bool:
     _omniopt_install_debug(
         f"_omniopt_install_with_candidate: venv_dir={venv_dir}"
     )
-    # If we just re-exec'd from a stale login-node Python into an HPC
-    # module Python, the venv dir computed from base_python will already
-    # be different from any pre-existing one.  But to be extra safe,
-    # also nuke any venv whose hash file is from a different Python.
-    if _os.environ.get("OMNIOPT_REEXECED") and _os.path.exists(venv_dir):
-        _hash_file = _os.path.join(venv_dir, "omniopt_requirements_hash")
-        if _os.path.exists(_hash_file):
-            _omniopt_install_debug(
-                f"_omniopt_install_with_candidate: OMNIOPT_REEXECED is set and "
-                f"{_hash_file} exists -> rm -rf {venv_dir} to force a clean "
-                f"rebuild under the new Python"
-            )
-            _sys.stderr.write(
-                f"[omniopt] re-exec'd into new Python; rebuilding venv at {venv_dir}.\n"
-            )
-            _sys.stderr.flush()
-            _shutil.rmtree(venv_dir, ignore_errors=True)
+    # NOTE: we deliberately do NOT wipe the venv here on OMNIOPT_REEXECED.
+    # _omniopt_create_venv stamps the realpath of the base interpreter a
+    # venv was built from and rebuilds ONLY when the base we now want
+    # differs from that stamp.  A module re-exec into a different python
+    # binary therefore swaps the venv over to the correct module python,
+    # while a genuinely warm venv (same base interpreter) is reused.
+    # Wiping the whole venv on every module re-exec (this runs on every
+    # login-node launch with lmod) deleted a perfectly good warm venv and
+    # forced a full reinstall of all dependencies every run -- exactly the
+    # "installs packages again and again" regression -- AND nuked the
+    # .tests framework deps that share the same venv dir.
     try:
         _omniopt_create_venv(venv_dir, base_python)
     except Exception as _e:
@@ -2414,7 +2535,6 @@ try:
 
     def spinner(text: str) -> Any:
         if not sys.stdout.isatty():
-            original_print(f"[bold green]{text}")
             return _NullContext()
         return console.status(f"[bold green]{text}", speed=0.2, refresh_per_second=6)
 
@@ -3130,6 +3250,7 @@ class ConfigLoader:
     generation_strategy: Optional[str]
     root_venv_dir: str
     follow: bool
+    wait_until_ended: bool
     show_generation_and_submission_sixel: bool
     n_estimators_randomforest: int
     max_num_of_parallel_sruns: int
@@ -3221,6 +3342,7 @@ class ConfigLoader:
         optional.add_argument('--show_sixel_general', help='Show sixel graphics of general plots in the end', action='store_true', default=False)
         optional.add_argument('--show_sixel_trial_index_result', help='Show sixel graphics of trial index in the end', action='store_true', default=False)
         optional.add_argument('--follow', help='Automatically follow log file of sbatch', action='store_true', default=False)
+        optional.add_argument('--wait_until_ended', help='Wait until the sbatch job has ended and then print its log', action='store_true', default=False)
         optional.add_argument('--send_anonymized_usage_stats', help='Send anonymized usage stats', action='store_true', default=False)
         optional.add_argument('--ui_url', help='Site from which the OO-run was called', default=None, type=str)
         optional.add_argument('--root_venv_dir', help=f'Where to install your modules to ($root_venv_dir/.omniax_..., default: {Path.home()})', default=Path.home(), type=str)
@@ -14280,11 +14402,12 @@ def _omniopt_lmod_module_snippet() -> str:
 
     This runs *inside* the sbatch job, before the main script and the
     installer/bootstrapper, so the compute node has the correct Python /
-    compiler / MPI / PyTorch environment.  Best-effort only:
+    compiler / Tkinter / PostgreSQL environment.  Best-effort only:
 
       1. initialise lmod if it is not already active in the batch shell;
-      2. try the known-good toolchain
-         ``release/24.04 GCC/12.3.0 OpenMPI/4.1.5 PyTorch/2.1.2``;
+      2. try the per-cluster module list (the exact set the old bash
+         ``.shellscript_functions`` loaded -- see ``_omniopt_hpc_modules``),
+         unless ``LOAD_MODULES=0`` disables it;
       3. otherwise load the newest available ``Python`` module found via
          ``ml spider``;
       4. export ``OMNIOPT_HPC_MODULES_LOADED=1`` so the compute-node
@@ -14295,31 +14418,37 @@ def _omniopt_lmod_module_snippet() -> str:
     (old Lmod rejects it) NOR a single space-joined command (toolchain
     has spaces in the module list).
     """
-    return r'''
+    _mods = _omniopt_hpc_modules()
+    _mods_bash = " ".join(_mods) if _mods else ""
+    _mods_hint = " · ".join(_mods) if _mods else "none"
+    return fr'''
 __omniopt_hpc=""
-if command -v ml >/dev/null 2>&1 || command -v module >/dev/null 2>&1 || [ -n "${LMOD_CMD:-}" ]; then
-    __omniopt_hpc=1
-else
-    for __lm in /usr/share/lmod/lmod/init/bash /opt/lmod/lmod/init/bash /etc/profile.d/modules.sh /etc/profile.d/lmod.sh; do
-        if [ -f "$__lm" ]; then
-            . "$__lm" 2>/dev/null
-            break
-        fi
-    done
-    if command -v ml >/dev/null 2>&1 || command -v module >/dev/null 2>&1 || [ -n "${LMOD_CMD:-}" ]; then
+__omniopt_mods="{_mods_bash}"
+if [ -z "${{LOAD_MODULES:-}}" ] || [ "${{LOAD_MODULES}}" = "1" ]; then
+    if command -v ml >/dev/null 2>&1 || command -v module >/dev/null 2>&1 || [ -n "${{LMOD_CMD:-}}" ]; then
         __omniopt_hpc=1
+    else
+        for __lm in /usr/share/lmod/lmod/init/bash /opt/lmod/lmod/init/bash /etc/profile.d/modules.sh /etc/profile.d/lmod.sh; do
+            if [ -f "$__lm" ]; then
+                . "$__lm" 2>/dev/null
+                break
+            fi
+        done
+        if command -v ml >/dev/null 2>&1 || command -v module >/dev/null 2>&1 || [ -n "${{LMOD_CMD:-}}" ]; then
+            __omniopt_hpc=1
+        fi
     fi
 fi
 
-if [ -n "$__omniopt_hpc" ]; then
+if [ -n "$__omniopt_hpc" ] && [ -n "$__omniopt_mods" ]; then
     __omniopt_cmd="ml"
     if ! command -v ml >/dev/null 2>&1; then
         if command -v module >/dev/null 2>&1; then __omniopt_cmd="module"; fi
     fi
-    if "$__omniopt_cmd" release/24.04 GCC/12.3.0 OpenMPI/4.1.5 PyTorch/2.1.2 >/dev/null 2>&1; then
-        echo "[omniopt] Loaded HPC toolchain: release/24.04 GCC/12.3.0 OpenMPI/4.1.5 PyTorch/2.1.2" >&2
+    if "$__omniopt_cmd" $__omniopt_mods >/dev/null 2>&1; then
+        echo "[omniopt] Loaded HPC modules: {_mods_hint}" >&2
     else
-        __omniopt_py="$( { "$__omniopt_cmd" spider Python 2>/dev/null; } | grep -oE 'Python/[0-9]+(\.[0-9]+)*' | sort -V | tail -n 1 )"
+        __omniopt_py="$( {{ "$__omniopt_cmd" spider Python 2>/dev/null; }} | grep -oE 'Python/[0-9]+(\.[0-9]+)*' | sort -V | tail -n 1 )"
         if [ -n "$__omniopt_py" ]; then
             if "$__omniopt_cmd" "$__omniopt_py" >/dev/null 2>&1; then
                 echo "[omniopt] Loaded newest available Python module: $__omniopt_py" >&2
@@ -14334,10 +14463,88 @@ if [ -n "$__omniopt_hpc" ]; then
     # already loaded -- avoids a redundant re-load on the compute node.
     export OMNIOPT_HPC_MODULES_LOADED=1
 else
-    echo "[omniopt] No lmod ('ml') detected; using system python." >&2
+    echo "[omniopt] No lmod ('ml') detected or LOAD_MODULES=0; using system python." >&2
 fi
-unset __omniopt_hpc __lm __omniopt_py __omniopt_cmd
+unset __omniopt_hpc __lm __omniopt_py __omniopt_cmd __omniopt_mods
 '''
+
+
+def _format_sbatch_time(time_val: str) -> str:
+    """Format a user-supplied ``--time`` value exactly like the old bash
+    ``minutes_to_hh_mm_ss`` helper: a bare integer is treated as minutes and
+    converted to ``HH:MM:SS`` (e.g. ``60`` -> ``01:00:00``), an ``HH:MM:SS``
+    string is passed through unchanged, and anything else is a hard error
+    (exit code 103, matching the bash wrapper).
+    """
+    _s = str(time_val).strip()
+    if _re.fullmatch(r"\d+", _s):
+        _total_minutes = int(_s)
+        return f"{_total_minutes // 60:02d}:{_total_minutes % 60:02d}:00"
+    if _re.fullmatch(r"\d+:\d+:\d+", _s):
+        return _s
+    print_red(
+        f"ERROR: {time_val} is not a valid input. "
+        "Must be a number of minutes (digits) or HH:MM:SS"
+    )
+    _sys.exit(103)
+
+
+def _resolve_main_sbatch_dependency(dependency: str | None) -> str:
+    """Resolve the ``--dependency`` value for the main sbatch job.
+
+    Mirrors the old bash ``.shellscript_functions`` mechanism:
+
+    * ``omniopt_singleton`` -- special pseudo-dependency meaning "keep only
+      ONE OmniOpt job running at a time for this user": every currently
+      queued/running OmniOpt job (identified via ``scontrol show job``
+      matching its name) is put into an ``after:...`` dependency chain so
+      the new job only starts once all the others are gone.
+    * Any normal SLURM dependency string is validated against the accepted
+      forms (``afterok:``/``afternotok:``/``after:``/``afterany:``/``singleton``
+      joined by commas).  Invalid strings are rejected with a warning.
+
+    Returns the resolved dependency string (empty string means "no valid
+    dependency to pass to sbatch").
+    """
+    if not dependency:
+        return ""
+
+    if dependency == "omniopt_singleton":
+        try:
+            _sq = _subprocess.run(
+                ["squeue", "-h", "-u", _os.environ.get("USER", ""), "-o", "%A"],
+                capture_output=True, text=True, timeout=30,
+            )
+        except (FileNotFoundError, _subprocess.SubprocessError):
+            _sq = None
+        _deps: list[str] = []
+        if _sq is not None and _sq.returncode == 0:
+            for _job_id in _sq.stdout.split():
+                _job_id = _job_id.strip()
+                if not _job_id:
+                    continue
+                try:
+                    _sc = _subprocess.run(
+                        ["scontrol", "show", "job", _job_id],
+                        capture_output=True, text=True, timeout=30,
+                    )
+                except (FileNotFoundError, _subprocess.SubprocessError):
+                    _sc = None
+                if _sc is not None and "omniopt" in (_sc.stdout or "").lower():
+                    _deps.append(f"after:{_job_id}")
+        if _deps:
+            _dep_str = ",".join(_deps)
+            print_yellow(f"[omniopt] Automatic dependencies: {_dep_str}")
+            return _dep_str
+        return ""
+
+    _dep_el = r"(?:afterok:\d+|afternotok:\d+|after:\d+|afterany:\d+|singleton)"
+    _dep_re = _re.compile(rf"^{_dep_el}(?:,{_dep_el})*$")
+    if _dep_re.match(dependency):
+        return dependency
+
+    print_red(f"[omniopt] Invalid dependency format: {dependency}")
+    return ""
 
 
 if __name__ == "__main__":
@@ -14362,6 +14569,13 @@ if __name__ == "__main__":
             # and (1) loads the HPC lmod toolchain / newest Python module
             # *before* omniopt and its installer/bootstrapper run, then
             # (2) executes omniopt itself.
+            #
+            # `--dependency` is the one sbatch mechanism whose resolution
+            # (incl. the `omniopt_singleton` auto-serialization) lives here,
+            # mirroring the old bash `.shellscript_functions` logic.
+            _resolved_dependency = _resolve_main_sbatch_dependency(
+                getattr(args, "dependency", None)
+            )
             _sbatch_directives = [
                 f"#SBATCH --mem={getattr(args, 'main_process_gb', 8) or 8}GB",
                 "#SBATCH -N 1",
@@ -14369,7 +14583,7 @@ if __name__ == "__main__":
             ]
             _time_val = getattr(args, "time", None)
             if _time_val:
-                _sbatch_directives += [f"#SBATCH --time {str(_time_val)}"]
+                _sbatch_directives += [f"#SBATCH --time={_format_sbatch_time(_time_val)}"]
             _cpus = getattr(args, "num_cpus_main_job", None)
             if _cpus:
                 _sbatch_directives += [f"#SBATCH --cpus-per-task={_cpus}"]
@@ -14385,6 +14599,8 @@ if __name__ == "__main__":
             _reservation = getattr(args, "reservation", None)
             if _reservation:
                 _sbatch_directives += [f"#SBATCH --reservation={_reservation}"]
+            if _resolved_dependency:
+                _sbatch_directives += [f"#SBATCH --dependency {_resolved_dependency}"]
 
             _import_shlex = __import__("shlex")
             _omniopt_cmd = _import_shlex.join([_OMNIOPT_FILE] + _sys.argv[1:])
@@ -14396,30 +14612,39 @@ if __name__ == "__main__":
                 + f"\nexec {_omniopt_cmd}\n"
             )
 
-            print_yellow("[omniopt] Submitting to SLURM (with HPC module loading before omniopt/installer)")
-
             # Write the wrapper script to a temp file and hand that path to
             # sbatch.  Submitting via stdin ("sbatch -") is unreliable on
             # several clusters (weird fd/pty setups when --follow tails from
             # a login node or nohup/script wrappers).  A real script file is
-            # the canonical, robust way to submit a multi-line wrapper.
-            _sbatch_script = _tempfile.NamedTemporaryFile(
-                "w", suffix=".sh", prefix="omniopt_slurm_",
-                delete=True, encoding="utf-8",
-            )
-            try:
-                _sbatch_script.write(_wrapper_script)
-                _sbatch_script.flush()
-                _res = _subprocess.run(
-                    ["sbatch", _sbatch_script.name],
-                    capture_output=True, text=True,
+            # the canonical, robust way to submit a multi-line wrapper.  The
+            # submission runs under a transient spinner; sbatch's own
+            # "Submitted batch job X" line is suppressed (redundant with the
+            # summary line printed below), while its stderr on failure is
+            # surfaced so the user can see exactly why the job was rejected.
+            def _omniopt_submit_sbatch(_script_text: str) -> _subprocess.CompletedProcess:
+                _tmp = _tempfile.NamedTemporaryFile(
+                    "w", suffix=".sh", prefix="omniopt_slurm_",
+                    delete=True, encoding="utf-8",
                 )
-            finally:
-                _sbatch_script.close()
+                try:
+                    _tmp.write(_script_text)
+                    _tmp.flush()
+                    return _subprocess.run(
+                        ["sbatch", _tmp.name],
+                        capture_output=True, text=True,
+                    )
+                finally:
+                    _tmp.close()
 
-            if _res.stdout:
-                _sys.stdout.write(_res.stdout)
-                _sys.stdout.flush()
+            try:
+                _res = _omniopt_transient_spinner(
+                    "Submitting to SLURM...",
+                    lambda: _omniopt_submit_sbatch(_wrapper_script),
+                )
+            except KeyboardInterrupt:
+                print_yellow("[omniopt] Submission cancelled.")
+                _sys.exit(1)
+
             if _res.returncode != 0:
                 _sberr = (_res.stderr or "") + (_res.stdout or "")
                 # If the cluster requires GPUs and we didn't request any,
@@ -14435,22 +14660,14 @@ if __name__ == "__main__":
                         + _omniopt_lmod_module_snippet()
                         + f"\nexec {_omniopt_cmd}\n"
                     )
-                    _sbatch_script = _tempfile.NamedTemporaryFile(
-                        "w", suffix=".sh", prefix="omniopt_slurm_",
-                        delete=True, encoding="utf-8",
-                    )
                     try:
-                        _sbatch_script.write(_wrapper_script)
-                        _sbatch_script.flush()
-                        _res = _subprocess.run(
-                            ["sbatch", _sbatch_script.name],
-                            capture_output=True, text=True,
+                        _res = _omniopt_transient_spinner(
+                            "Submitting to SLURM (retry with GPU)...",
+                            lambda: _omniopt_submit_sbatch(_wrapper_script),
                         )
-                    finally:
-                        _sbatch_script.close()
-                    if _res.stdout:
-                        _sys.stdout.write(_res.stdout)
-                        _sys.stdout.flush()
+                    except KeyboardInterrupt:
+                        print_yellow("[omniopt] Submission cancelled.")
+                        _sys.exit(1)
                 if _res.returncode != 0:
                     # Surface sbatch's own message -- this is the ONLY way the
                     # user can see *why* the submission was rejected (bad
@@ -14462,11 +14679,19 @@ if __name__ == "__main__":
                     _sys.exit(_res.returncode)
             _job_id = (_res.stdout.strip().split() or [""])[-1]
             _want_follow = bool(getattr(args, "follow", False))
+            _want_wait = bool(args.wait_until_ended)
+
+            # Mirror of the old bash wrapper: submission happens regardless of
+            # --follow/--wait_until_ended; those only control what we do after.
+            # Default (neither flag): just submit and return immediately.
             if _want_follow:
-                _wait_msg = "tailing log output"
+                print_yellow(f"[omniopt] Submitted job {_job_id}, tailing log output ...")
+            elif _want_wait:
+                print_yellow(f"[omniopt] Submitted job {_job_id}, waiting for it to end ...")
             else:
-                _wait_msg = "waiting for job to finish (no --follow; no live tail)"
-            print_yellow(f"[omniopt] Submitted job {_job_id}, {_wait_msg} ...")
+                print_yellow(f"[omniopt] Submitted job {_job_id}.")
+                _sys.exit(0)
+
             # Find the SLURM log file via scontrol
             _log_path = None
             try:
@@ -14481,20 +14706,99 @@ if __name__ == "__main__":
             except (FileNotFoundError, _subprocess.CalledProcessError):
                 _log_path = None
 
-            # Start a background poller that kills the tail process once
-            # the job leaves squeue (mirror of the old bash
-            # `kill_tail_when_squeue_job_empty` helper).
-            # ``--follow`` only controls whether we tail the log; the sbatch
-            # submission itself happens unconditionally on HPC (see above).
-            _tail_proc = None
-            _poll_thread_stop = False
-            if _log_path and _want_follow:
-                while not _os.path.exists(_log_path):
-                    _time.sleep(2)
+            def _squeue_estimated_start_line() -> str:
+                # Returns a suffix like " · estimated start time: X" or "".
+                # Mirrors the old bash wrapper's `whypending` lookup that
+                # greps for the "Estimated ... time:" line.
+                if _shutil.which("whypending") is None:
+                    return ""
+                try:
+                    _wp = _subprocess.run(
+                        ["whypending", _job_id],
+                        capture_output=True, text=True, timeout=5,
+                    )
+                except (OSError, _subprocess.SubprocessError):
+                    return ""
+                for _line in (_wp.stdout or "").splitlines():
+                    if "Estimated" in _line and "time:" in _line:
+                        _est = _line.split("time:", 1)[1].strip()
+                        if _est:
+                            return f" · estimated start time: {_est}"
+                return ""
+
+            if _want_follow:
+                # Mirror of the bash wrapper: if the slurm log path cannot be
+                # determined, error out (old exit code 110).
+                if not _log_path:
+                    print_red("[omniopt] LOG_PATH was undefined. Is slurm installed properly?")
+                    _sys.exit(110)
+                # Transient spinner while waiting for the SLURM log to appear.
+                # Every ~30s it re-checks `whypending` (when available) so the
+                # user can see an estimated start time while the job waits in
+                # the queue.  The spinner line is fully cleared once the log
+                # file shows up (mirror of the old bash spinner).
+                _follow_status = [f"[omniopt] Waiting for job {_job_id} to start"]
+                _follow_done = {"v": False}
+                _follow_next_check = [0.0]
+                _follow_est = [""]
+
+                import threading as _threading
+
+                def _follow_runner() -> None:
+                    while not _follow_done["v"]:
+                        if _time.monotonic() >= _follow_next_check[0]:
+                            _follow_next_check[0] = _time.monotonic() + 30.0
+                            _follow_est[0] = _squeue_estimated_start_line()
+                            _follow_status[0] = (
+                                f"[omniopt] Waiting for job {_job_id} to start"
+                                + _follow_est[0]
+                            )
+                        _time.sleep(0.2)
+
+                _follow_runner_thread = _threading.Thread(
+                    target=_follow_runner, daemon=True
+                )
+                _follow_runner_thread.start()
+
+                _follow_frames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
+                _follow_width = _omniopt_terminal_width()
+                _follow_i = 0
+                try:
+                    while not _os.path.exists(_log_path):
+                        _sys.stdout.write(
+                            "\r\x1b[2K"
+                            + _omniopt_pad_right(
+                                f"{_follow_frames[_follow_i % len(_follow_frames)]} {_follow_status[0]}",
+                                _follow_width,
+                            )
+                        )
+                        _sys.stdout.flush()
+                        _follow_i += 1
+                        _time.sleep(0.1)
+                except KeyboardInterrupt:
+                    _follow_done["v"] = True
+                    _sys.stdout.write(
+                        "\r\x1b[2K"
+                        + _omniopt_pad_right(
+                            f"✗ {_follow_status[0]} (cancelled)", _follow_width
+                        )
+                        + "\n"
+                    )
+                    _sys.stdout.flush()
+                    raise
+                _follow_done["v"] = True
+                _follow_runner_thread.join(timeout=5)
+                _sys.stdout.write("\r\x1b[2K")
+                _sys.stdout.flush()
+
+                # Background poller that kills the tail process once the job
+                # leaves squeue (mirror of the old bash
+                # `kill_tail_when_squeue_job_empty` helper).
                 _tail_proc = _subprocess.Popen(
                     ["tail", "-n", "10000000", "-f", _log_path],
                     stdout=_sys.stdout, stderr=_sys.stderr,
                 )
+                _poll_thread_stop = False
 
                 def _kill_tail_when_done() -> None:
                     try:
@@ -14530,37 +14834,102 @@ if __name__ == "__main__":
                     _tail_proc.terminate()
                 _poll_thread_stop = True
                 _poll_thread.join(timeout=5)
-            else:
-                # No log path -> just wait for the job to leave squeue.
-                while True:
-                    try:
-                        _sq = _subprocess.run(
-                            ["squeue", "-j", _job_id, "--noheader"],
-                            capture_output=True, text=True, check=True,
-                        )
-                        if not _sq.stdout.strip():
-                            break
-                    except (FileNotFoundError, _subprocess.CalledProcessError):
-                        break
-                    _time.sleep(5)
 
-            # Try to extract the job's exit code from the log so we
-            # can mirror the bash wrapper's behaviour.
-            _job_exit_code = 0
-            if _log_path and _os.path.exists(_log_path):
-                try:
-                    _lines = open(_log_path, encoding="utf-8", errors="replace").read().splitlines()
-                    for _line in _lines:
-                        if "Exit-Code:" in _line:
-                            for _tok in _line.split():
-                                if _tok.isdigit():
-                                    _job_exit_code = int(_tok)
+                # Try to extract the job's exit code from the log (mirror of the
+                # bash wrapper's exit-code extraction).
+                _job_exit_code = 0
+                if _log_path and _os.path.exists(_log_path):
+                    try:
+                        _lines = open(_log_path, encoding="utf-8", errors="replace").read().splitlines()
+                        for _line in _lines:
+                            if "Exit-Code:" in _line:
+                                for _tok in _line.split():
+                                    if _tok.isdigit():
+                                        _job_exit_code = int(_tok)
+                                        break
+                                if _job_exit_code != 0:
                                     break
-                            if _job_exit_code != 0:
+                    except OSError:
+                        pass
+                _sys.exit(_job_exit_code)
+            elif _want_wait:
+                # Mirror of the bash `--wait_until_ended` path: poll squeue
+                # every 10s, then print the job's whole log.  A transient
+                # spinner shows the estimated start time (re-checked against
+                # `whypending` every ~30s) while the job waits in the queue.
+                if _shutil.which("squeue"):
+                    print_yellow(f"[omniopt] Waiting for job {_job_id} to end... "
+                                 "(checking every 10 seconds)")
+                    _wait_done = {"v": False}
+                    _wait_est = [""]
+                    _wait_next_check = [0.0]
+
+                    import threading as _threading
+
+                    def _wait_runner() -> None:
+                        while not _wait_done["v"]:
+                            if _time.monotonic() >= _wait_next_check[0]:
+                                _wait_next_check[0] = _time.monotonic() + 30.0
+                                _wait_est[0] = _squeue_estimated_start_line()
+                            _time.sleep(0.2)
+
+                    _wait_runner_thread = _threading.Thread(
+                        target=_wait_runner, daemon=True
+                    )
+                    _wait_runner_thread.start()
+
+                    _wait_width = _omniopt_terminal_width()
+                    _wait_frames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
+                    _wait_i = 0
+                    try:
+                        while True:
+                            try:
+                                _sq = _subprocess.run(
+                                    ["squeue", "-j", _job_id, "--noheader"],
+                                    capture_output=True, text=True, check=True,
+                                )
+                                if not _sq.stdout.strip():
+                                    break
+                            except (FileNotFoundError, _subprocess.CalledProcessError):
                                 break
-                except OSError:
-                    pass
-            _sys.exit(_job_exit_code)
+                            _sys.stdout.write(
+                                "\r\x1b[2K"
+                                + _omniopt_pad_right(
+                                    f"{_wait_frames[_wait_i % len(_wait_frames)]} "
+                                    f"[omniopt] Waiting for job {_job_id} to end{_wait_est[0]}",
+                                    _wait_width,
+                                )
+                            )
+                            _sys.stdout.flush()
+                            _wait_i += 1
+                            _time.sleep(10)
+                    except KeyboardInterrupt:
+                        _wait_done["v"] = True
+                        _sys.stdout.write(
+                            "\r\x1b[2K"
+                            + _omniopt_pad_right(
+                                f"✗ [omniopt] Waiting for job {_job_id} to end (cancelled)",
+                                _wait_width,
+                            )
+                            + "\n"
+                        )
+                        _sys.stdout.flush()
+                        raise
+                    _wait_done["v"] = True
+                    _wait_runner_thread.join(timeout=5)
+                    _sys.stdout.write("\r\x1b[2K\n")
+                    _sys.stdout.flush()
+                    print_yellow("[omniopt] Done waiting for job to end")
+                    if _log_path and _os.path.exists(_log_path):
+                        _sys.stdout.write(
+                            open(_log_path, encoding="utf-8", errors="replace").read()
+                        )
+                        _sys.stdout.flush()
+                    else:
+                        print_red(f"[omniopt] {_log_path} could not be found")
+                else:
+                    print_red("[omniopt] squeue not found. Cannot wait for job to end.")
+                _sys.exit(0)
         else:
             main_wrapper()
     except (SignalUSR, SignalINT, SignalCONT) as e:

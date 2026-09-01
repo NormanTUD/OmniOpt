@@ -5,7 +5,7 @@ sqlalchemy
 setuptools
 wheel
 multidict
-numpy<2.0
+numpy
 python-dateutil
 tqdm
 ax-platform

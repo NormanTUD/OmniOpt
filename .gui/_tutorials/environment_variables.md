@@ -37,7 +37,8 @@ $env_variables = [
         "PRINT_SEPARATOR" => "Prints a separator line after OmniOpt2 runs (useful for automated tests)",
         "SKIP_SEARCH" => "Skip the actual search, very useful for debugging",
         "SKIP_SEARCH_EXIT_CODE" => "The exit code that should be used for this job",
-        "DEBUG_PARAM_EVAL" => "Tests if the argparse clone for bash works and creates the required arguments. Must be non-empty exported string in your shell to run a test. Please use it mainly over .tests/test_bash_argparse_clone"
+        "DEBUG_PARAM_EVAL" => "Tests if the argparse clone for bash works and creates the required arguments. Must be non-empty exported string in your shell to run a test. Please use it mainly over .tests/test_bash_argparse_clone",
+        "OMNIOPT_INSTALL_DEBUG" => "Set to 1 to make the OmniOpt2 venv/Python installer print a detailed, timestamped trace of every decision it makes on stderr: which Python interpreters were probed, which lmod toolchain / Python module was tried, what 'ml spider' returned, what 'bash -lc' produced, whether the venv was reused or rebuilt, which pip strategies failed and which succeeded, etc.  Both the test framework (.tests/_framework/installer.py) and the omniopt bootstrap (omniopt) honour this flag, so a single export turns on debug for the whole pipeline.  Use this when 'it works locally but fails on the HPC' to copy/paste the resulting stderr and compare what happened on each machine.  Accepts 1, true, yes, on (case-insensitive); any other value is treated as off."
     ],
     "Optuna backend (.optuna_runner.py)" => [
         "OMNIOPT_OPTUNA_SAMPLER" => "Default Optuna sampler when --optuna_sampler is not set (tpe/cmaes/gp/random/grid/nsgaii/nsgaiii/motpe/brute_force/qmc)",

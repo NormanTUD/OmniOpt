@@ -14613,30 +14613,39 @@ if __name__ == "__main__":
                 + f"\nexec {_omniopt_cmd}\n"
             )
 
-            print_yellow("[omniopt] Submitting to SLURM (with HPC module loading before omniopt/installer)")
-
             # Write the wrapper script to a temp file and hand that path to
             # sbatch.  Submitting via stdin ("sbatch -") is unreliable on
             # several clusters (weird fd/pty setups when --follow tails from
             # a login node or nohup/script wrappers).  A real script file is
-            # the canonical, robust way to submit a multi-line wrapper.
-            _sbatch_script = _tempfile.NamedTemporaryFile(
-                "w", suffix=".sh", prefix="omniopt_slurm_",
-                delete=True, encoding="utf-8",
-            )
-            try:
-                _sbatch_script.write(_wrapper_script)
-                _sbatch_script.flush()
-                _res = _subprocess.run(
-                    ["sbatch", _sbatch_script.name],
-                    capture_output=True, text=True,
+            # the canonical, robust way to submit a multi-line wrapper.  The
+            # submission runs under a transient spinner; sbatch's own
+            # "Submitted batch job X" line is suppressed (redundant with the
+            # summary line printed below), while its stderr on failure is
+            # surfaced so the user can see exactly why the job was rejected.
+            def _omniopt_submit_sbatch(_script_text: str) -> _subprocess.CompletedProcess:
+                _tmp = _tempfile.NamedTemporaryFile(
+                    "w", suffix=".sh", prefix="omniopt_slurm_",
+                    delete=True, encoding="utf-8",
                 )
-            finally:
-                _sbatch_script.close()
+                try:
+                    _tmp.write(_script_text)
+                    _tmp.flush()
+                    return _subprocess.run(
+                        ["sbatch", _tmp.name],
+                        capture_output=True, text=True,
+                    )
+                finally:
+                    _tmp.close()
 
-            if _res.stdout:
-                _sys.stdout.write(_res.stdout)
-                _sys.stdout.flush()
+            try:
+                _res = _omniopt_transient_spinner(
+                    "Submitting to SLURM...",
+                    lambda: _omniopt_submit_sbatch(_wrapper_script),
+                )
+            except KeyboardInterrupt:
+                print_yellow("[omniopt] Submission cancelled.")
+                _sys.exit(1)
+
             if _res.returncode != 0:
                 _sberr = (_res.stderr or "") + (_res.stdout or "")
                 # If the cluster requires GPUs and we didn't request any,
@@ -14652,22 +14661,14 @@ if __name__ == "__main__":
                         + _omniopt_lmod_module_snippet()
                         + f"\nexec {_omniopt_cmd}\n"
                     )
-                    _sbatch_script = _tempfile.NamedTemporaryFile(
-                        "w", suffix=".sh", prefix="omniopt_slurm_",
-                        delete=True, encoding="utf-8",
-                    )
                     try:
-                        _sbatch_script.write(_wrapper_script)
-                        _sbatch_script.flush()
-                        _res = _subprocess.run(
-                            ["sbatch", _sbatch_script.name],
-                            capture_output=True, text=True,
+                        _res = _omniopt_transient_spinner(
+                            "Submitting to SLURM (retry with GPU)...",
+                            lambda: _omniopt_submit_sbatch(_wrapper_script),
                         )
-                    finally:
-                        _sbatch_script.close()
-                    if _res.stdout:
-                        _sys.stdout.write(_res.stdout)
-                        _sys.stdout.flush()
+                    except KeyboardInterrupt:
+                        print_yellow("[omniopt] Submission cancelled.")
+                        _sys.exit(1)
                 if _res.returncode != 0:
                     # Surface sbatch's own message -- this is the ONLY way the
                     # user can see *why* the submission was rejected (bad

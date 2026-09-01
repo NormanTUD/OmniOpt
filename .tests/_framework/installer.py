@@ -1063,6 +1063,8 @@ def _quiet(_path):
 
 
 if not _TTY:
+    sys.stdout.write(f"[omniopt] non-tty install ({_label})\n")
+    sys.stdout.flush()
     sys.exit(_quiet(_reqfile))
 
 try:

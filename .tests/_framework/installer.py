@@ -983,7 +983,17 @@ def venv_site_packages(venv_dir: Path) -> Path | None:
 
 def _create_venv_from(venv_dir: Path, base_python: str | None = None) -> bool:
     base = base_python or _resolve_base_python()
+    _install_debug(
+        f"================ _create_venv_from: START ================"
+    )
+    _install_debug(
+        f"_create_venv_from: venv_dir={venv_dir} base_python={base}"
+    )
     if not _probe_python(base):
+        _install_debug(
+            f"_create_venv_from: base python {base} FAILED the self-probe "
+            f"-- refusing to build a venv on a broken interpreter"
+        )
         print(
             f"❌ Base python {base} cannot run on this node; "
             "refusing to build a venv on a broken interpreter.",
@@ -993,15 +1003,26 @@ def _create_venv_from(venv_dir: Path, base_python: str | None = None) -> bool:
 
     py = venv_dir / "bin" / "python"
     if venv_dir.exists():
+        _install_debug(
+            f"_create_venv_from: venv {venv_dir} already exists, validating..."
+        )
         # Validate an *existing* venv instead of blindly trusting it.  A
         # stale/broken venv (e.g. an old "Python_3.9.25" with no pip) must be
         # rebuilt on the correct base python, or every later pip call crashes.
-        if (
-            py.exists()
-            and _probe_python(str(py))
-            and (venv_dir / "bin" / "pip").exists()
-        ):
+        _py_ok = py.exists() and _probe_python(str(py))
+        _pip_ok = (venv_dir / "bin" / "pip").exists()
+        _install_debug(
+            f"_create_venv_from: existing venv checks -> "
+            f"python={_py_ok}, pip={_pip_ok}"
+        )
+        if _py_ok and _pip_ok:
+            _install_debug(
+                "_create_venv_from: existing venv is healthy, REUSING it"
+            )
             return True
+        _install_debug(
+            "_create_venv_from: existing venv is BROKEN, will rm -rf and rebuild"
+        )
         print(
             f"⚠️ Existing environment {venv_dir} is broken or incomplete; "
             "recreating it...",
@@ -1014,28 +1035,47 @@ def _create_venv_from(venv_dir: Path, base_python: str | None = None) -> bool:
     # Build from the resolved base python (usually the newest HPC module
     # python), NOT from sys.executable of the launching (possibly stale)
     # process.
+    _install_debug(
+        f"_create_venv_from: running '{base} -m venv {_vdir}' (timeout=180s)"
+    )
     try:
-        subprocess.run(
+        _vr = subprocess.run(
             [base, "-m", "venv", _vdir],
             check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
             timeout=180,
         )
+        _install_debug(
+            f"_create_venv_from: 'python -m venv' returned exit={_vr.returncode}"
+        )
     except (OSError, subprocess.TimeoutExpired) as exc:
+        _install_debug(f"_create_venv_from: 'python -m venv' raised {exc!r}")
         print(f"❌ Failed to create venv in {venv_dir}: {exc}")
         return False
     if not py.exists() or not _probe_python(str(py)):
+        _install_debug(
+            f"_create_venv_from: post-create sanity check FAILED at {py}"
+        )
         print(
             f"❌ venv python missing/broken at {py}; delete {venv_dir} and re-run.",
             file=sys.stderr,
         )
         return False
     if not _ensure_pip_in_venv(venv_dir):
+        _install_debug(
+            f"_create_venv_from: _ensure_pip_in_venv FAILED for {venv_dir}"
+        )
         print(
             f"❌ Could not obtain pip in {venv_dir}; "
             f"delete {venv_dir} and re-run.",
             file=sys.stderr,
         )
         return False
+    _install_debug(
+        f"_create_venv_from: SUCCESS -- venv {venv_dir} created from {base}"
+    )
+    _install_debug(
+        f"================ _create_venv_from: END ================"
+    )
     print(f"✅ Virtual Environment {venv_dir} created (python {base}).")
     return True
 

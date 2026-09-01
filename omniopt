@@ -373,20 +373,27 @@ def _omniopt_ml_module_load_python(modules: list) -> str | None:
     Python module) and return the resolved ``python3`` path it provides.
 
     Returns ``None`` when lmod is absent or the load produced no python.
-    Runs a probe: a Python that crashes (e.g. SIGILL) is rejected.
+    Runs the self-probe INSIDE the module-loaded bash (so LD_LIBRARY_PATH
+    is active and ``_ssl`` / ``_ctypes`` actually import) and on success
+    injects the FULL module env into ``os.environ`` here so every later
+    subprocess (venv creation, pip, the Rich progress-bar child) inherits
+    it -- exactly the way the old bash flow worked (one shell that had
+    ``ml`` loaded).
+
+    See ``_OMNIOPT_BASH_ML_PYTHON_TEMPLATE`` above for the design rationale
+    (the same gotchas that bit alpha / ROME: ``ml`` is a bash FUNCTION
+    that eval's into the current shell, ``--quiet`` breaks old Lmod,
+    ``/usr/bin`` can shadow the HPC python3, case-pattern ``$()`` parsing).
     """
     if not _omniopt_has_lmod():
         _omniopt_install_debug(
             f"_omniopt_ml_module_load_python({modules!r}): skipped (no lmod)"
         )
         return None
-    _mod_cmd = " ".join(_re.escape(m) for m in modules) if modules else ""
+    _mod_cmd = " ".join(modules) if modules else ""
     _script = (
-        '_before="$(command -v python3 || true)"; '
-        + _omniopt_lmod_bash_prelude()
-        + "ml --quiet " + _mod_cmd + " >/dev/null 2>&1; "
-        "_after=\"$(command -v python3 || true)\"; "
-        'if [ -n "$_after" ] && [ "$_after" != "$_before" ]; then printf \'%s\' "$_after"; fi'
+        _omniopt_lmod_bash_prelude()
+        + _OMNIOPT_BASH_ML_PYTHON_TEMPLATE.replace("{MODS}", _mod_cmd)
     )
     _omniopt_install_debug(
         f"_omniopt_ml_module_load_python({modules!r}): launching bash -lc..."
@@ -405,20 +412,36 @@ def _omniopt_ml_module_load_python(modules: list) -> str | None:
         return None
     _omniopt_install_debug(
         f"_omniopt_ml_module_load_python({modules!r}): bash exit={_r.returncode} "
-        f"stdout={( _r.stdout or '').strip()!r} stderr-len={len(_r.stderr or '')}"
+        f"stdout-len={len(_r.stdout or '')} stderr-len={len(_r.stderr or '')}"
     )
     if _r.stderr:
         for _ln in (_r.stderr or "").splitlines():
             if _ln.strip():
-                _omniopt_install_debug(f"  stderr> {_ln}")
-    _p = (_r.stdout or "").strip().splitlines()
-    if not _p:
+                _omniopt_install_debug(f"  bash-diag> {_ln}")
+
+    _stdout = _r.stdout or ""
+    if "===PYTHON===" not in _stdout or "===ENV_B64===" not in _stdout:
         _omniopt_install_debug(
-            f"_omniopt_ml_module_load_python({modules!r}): no python3 "
-            f"substitution detected (empty stdout -> lmod load silently failed)"
+            f"_omniopt_ml_module_load_python({modules!r}): NO usable python "
+            f"found -- neither ===PYTHON=== nor ===ENV_B64=== marker on stdout. "
+            f"See bash-diag lines above for the ml-rc / before-py / after-py "
+            f"/ new-PATH-entries diagnosis."
         )
         return None
-    candidate = _p[-1].strip()
+    try:
+        _py_section, _env_section = _stdout.split("===ENV_B64===", 1)
+        _env_b64 = _env_section.strip().splitlines()
+        _env_b64 = ([ln for ln in _env_b64 if ln.strip()] or [""])[-1].strip()
+        _py_lines = _py_section.split("===PYTHON===", 1)[1].strip().splitlines()
+        _py_lines = [ln for ln in _py_lines if ln.strip()]
+        candidate = _py_lines[-1].strip() if _py_lines else ""
+    except Exception as _e:
+        _omniopt_install_debug(
+            f"_omniopt_ml_module_load_python({modules!r}): failed to parse "
+            f"stdout markers: {_e!r}"
+        )
+        return None
+
     _omniopt_install_debug(
         f"_omniopt_ml_module_load_python({modules!r}): candidate python = "
         f"{candidate!r}"
@@ -429,10 +452,35 @@ def _omniopt_ml_module_load_python(modules: list) -> str | None:
             f"does not exist on disk"
         )
         return None
+
+    # Inject the full module env so subsequent subprocesses (venv, pip,
+    # probes) inherit LD_LIBRARY_PATH / PYTHONHOME / etc. -- this is
+    # what the old bash flow did implicitly (one shell, module loaded).
+    try:
+        import base64 as _b64, json as _json
+        _env_dict = _json.loads(_b64.b64decode(_env_b64).decode("utf-8", "replace"))
+        if isinstance(_env_dict, dict):
+            _before_keys = set(_os.environ)
+            _os.environ.update(_env_dict)
+            _omniopt_install_debug(
+                f"_omniopt_ml_module_load_python({modules!r}): injected "
+                f"module env into os.environ ({len(_env_dict)} keys, "
+                f"{len(set(_env_dict) - _before_keys)} new, "
+                f"{len(_before_keys - set(_env_dict))} removed, "
+                f"{len(_before_keys & set(_env_dict))} overwritten)"
+            )
+            _OMNIOPT_MODULE_ENV_LOADED.append(" ".join(modules))
+    except Exception as _e:
+        _omniopt_install_debug(
+            f"_omniopt_ml_module_load_python({modules!r}): WARNING -- could "
+            f"not decode/apply module env ({_e!r}); probes/venv may fail "
+            f"without LD_LIBRARY_PATH"
+        )
+
     if not _omniopt_probe_python(candidate):
         _omniopt_install_debug(
             f"_omniopt_ml_module_load_python({modules!r}): candidate python "
-            f"failed the self-probe (broken / SIGILL / different ISA)"
+            f"failed the Python-side self-probe even WITH module env injected"
         )
         return None
     _omniopt_install_debug(
@@ -595,6 +643,17 @@ def _omniopt_reexec_with_modules() -> bool:
     login-node system python, e.g. 3.9.25, is usually NOT the intended
     compute environment).  Returns True if we re-exec'd (never returns
     past it); False if no module re-exec is needed.
+
+    The bash wrapper:
+      * sources lmod (prelude),
+      * picks ``ml`` vs ``module`` (alpha profile defines ml; LMOD_CMD
+        fallback defines module),
+      * loads each module as its OWN quoted argument (no --quiet,
+        no string-joining that would collapse spaces),
+      * exports ``OMNIOPT_HPC_MODULES_LOADED=1`` and ``OMNIOPT_REEXECED=1``
+        so the re-exec'd omniopt knows modules are already loaded and
+        which Python interpreter to expect,
+      * exec's the resolved module python with the original argv.
     """
     _omniopt_install_debug(
         f"================ _omniopt_reexec_with_modules: START ================"
@@ -632,13 +691,26 @@ def _omniopt_reexec_with_modules() -> bool:
         # Module python already == ours, or none usable: nothing to gain.
         return False
     _shlex = __import__("shlex")
-    _ml_cmd = " ".join(_re.escape(m) for m in _mods)
+    # Each module name is quoted as its own argument so spaces in the
+    # toolchain string ("release/24.04 GCC/12.3.0 ...") are preserved
+    # by bash -c.  No --quiet (old Lmod rejects it).
+    _mod_quoted = " ".join(_shlex.quote(m) for m in _mods)
+    _argv_quoted = " ".join(_shlex.quote(a) for a in _sys.argv[1:])
     _script = (
         _omniopt_lmod_bash_prelude()
-        + "ml --quiet " + _ml_cmd + " >/dev/null 2>&1; "
-        "exec " + _shlex.quote(_module_py) + " "
-        + _shlex.quote(_OMNIOPT_FILE) + " "
-        + " ".join(_shlex.quote(a) for a in _sys.argv[1:])
+        # Pick ml vs module (alpha profile defines ml; LMOD_CMD fallback
+        # defines module).
+        + '_om_cmd="ml"\n'
+        + 'if ! command -v ml >/dev/null 2>&1; then\n'
+        + '    if command -v module >/dev/null 2>&1; then _om_cmd="module"; fi\n'
+        + 'fi\n'
+        # Load every module as a separate quoted argument.
+        + '"$_om_cmd" ' + _mod_quoted + ' >/dev/null 2>&1\n'
+        + '_om_rc=$?\n'
+        + 'export OMNIOPT_HPC_MODULES_LOADED=1\n'
+        + 'export OMNIOPT_REEXECED=1\n'
+        + 'exec ' + _shlex.quote(_module_py) + " "
+        + _shlex.quote(_OMNIOPT_FILE) + " " + _argv_quoted + "\n"
     )
     _env = _os.environ.copy()
     _env[_OMNIOPT_MODULES_LOADED] = "1"
@@ -14148,7 +14220,14 @@ def _omniopt_lmod_module_snippet() -> str:
       2. try the known-good toolchain
          ``release/24.04 GCC/12.3.0 OpenMPI/4.1.5 PyTorch/2.1.2``;
       3. otherwise load the newest available ``Python`` module found via
-         ``ml spider``.
+         ``ml spider``;
+      4. export ``OMNIOPT_HPC_MODULES_LOADED=1`` so the compute-node
+         omniopt doesn't redundantly re-load (saves a few seconds AND
+         avoids the "module already loaded" diagnostic noise).
+
+    Picks ``ml`` vs ``module`` automatically and uses NEITHER ``--quiet``
+    (old Lmod rejects it) NOR a single space-joined command (toolchain
+    has spaces in the module list).
     """
     return r'''
 __omniopt_hpc=""
@@ -14167,12 +14246,16 @@ else
 fi
 
 if [ -n "$__omniopt_hpc" ]; then
-    if ml release/24.04 GCC/12.3.0 OpenMPI/4.1.5 PyTorch/2.1.2 >/dev/null 2>&1; then
+    __omniopt_cmd="ml"
+    if ! command -v ml >/dev/null 2>&1; then
+        if command -v module >/dev/null 2>&1; then __omniopt_cmd="module"; fi
+    fi
+    if "$__omniopt_cmd" release/24.04 GCC/12.3.0 OpenMPI/4.1.5 PyTorch/2.1.2 >/dev/null 2>&1; then
         echo "[omniopt] Loaded HPC toolchain: release/24.04 GCC/12.3.0 OpenMPI/4.1.5 PyTorch/2.1.2" >&2
     else
-        __omniopt_py="$( { ml spider Python 2>/dev/null; } | grep -oE 'Python/[0-9]+(\.[0-9]+)*' | sort -V | tail -n 1 )"
+        __omniopt_py="$( { "$__omniopt_cmd" spider Python 2>/dev/null; } | grep -oE 'Python/[0-9]+(\.[0-9]+)*' | sort -V | tail -n 1 )"
         if [ -n "$__omniopt_py" ]; then
-            if ml "$__omniopt_py" >/dev/null 2>&1; then
+            if "$__omniopt_cmd" "$__omniopt_py" >/dev/null 2>&1; then
                 echo "[omniopt] Loaded newest available Python module: $__omniopt_py" >&2
             else
                 echo "[omniopt] Could not load Python module $__omniopt_py; using system python" >&2
@@ -14181,10 +14264,13 @@ if [ -n "$__omniopt_hpc" ]; then
             echo "[omniopt] No Python module found via 'ml spider'; using system python" >&2
         fi
     fi
+    # Tell the omniopt process we're about to exec that modules are
+    # already loaded -- avoids a redundant re-load on the compute node.
+    export OMNIOPT_HPC_MODULES_LOADED=1
 else
     echo "[omniopt] No lmod ('ml') detected; using system python." >&2
 fi
-unset __omniopt_hpc __lm __omniopt_py
+unset __omniopt_hpc __lm __omniopt_py __omniopt_cmd
 '''
 
 

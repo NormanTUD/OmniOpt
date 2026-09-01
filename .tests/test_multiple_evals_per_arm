@@ -27,7 +27,8 @@ def main(argv=None) -> int:  # pylint: disable=unused-argument
         f"{REPO_ROOT}/.tests/start_simple_optimization_run --max_eval=2 "
         "--num_parallel_jobs=1 --revert_to_random_when_seemingly_exhausted "
         "--generate_all_jobs_at_once --alternate_min_max --num_random_steps=1 "
-        "--time=1200 --additional_parameter='--nr_evals_per_arm=2 --beartype' "
+        "--time=1200 --force_local_execution "
+        "--additional_parameter='--nr_evals_per_arm=2 --beartype' "
         f"--nr_results=2 --testname={testname}"
     )
     proc = subprocess.run(cmd, shell=True, cwd=str(REPO_ROOT))

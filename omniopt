@@ -14419,6 +14419,65 @@ unset __omniopt_hpc __lm __omniopt_py __omniopt_cmd __omniopt_mods
 '''
 
 
+def _resolve_main_sbatch_dependency(dependency: str | None) -> str:
+    """Resolve the ``--dependency`` value for the main sbatch job.
+
+    Mirrors the old bash ``.shellscript_functions`` mechanism:
+
+    * ``omniopt_singleton`` -- special pseudo-dependency meaning "keep only
+      ONE OmniOpt job running at a time for this user": every currently
+      queued/running OmniOpt job (identified via ``scontrol show job``
+      matching its name) is put into an ``after:...`` dependency chain so
+      the new job only starts once all the others are gone.
+    * Any normal SLURM dependency string is validated against the accepted
+      forms (``afterok:``/``afternotok:``/``after:``/``afterany:``/``singleton``
+      joined by commas).  Invalid strings are rejected with a warning.
+
+    Returns the resolved dependency string (empty string means "no valid
+    dependency to pass to sbatch").
+    """
+    if not dependency:
+        return ""
+
+    if dependency == "omniopt_singleton":
+        try:
+            _sq = _subprocess.run(
+                ["squeue", "-h", "-u", _os.environ.get("USER", ""), "-o", "%A"],
+                capture_output=True, text=True, timeout=30,
+            )
+        except (FileNotFoundError, _subprocess.SubprocessError):
+            _sq = None
+        _deps: list[str] = []
+        if _sq is not None and _sq.returncode == 0:
+            for _job_id in _sq.stdout.split():
+                _job_id = _job_id.strip()
+                if not _job_id:
+                    continue
+                try:
+                    _sc = _subprocess.run(
+                        ["scontrol", "show", "job", _job_id],
+                        capture_output=True, text=True, timeout=30,
+                    )
+                except (FileNotFoundError, _subprocess.SubprocessError):
+                    _sc = None
+                if _sc is not None and "omniopt" in (_sc.stdout or "").lower():
+                    _deps.append(f"after:{_job_id}")
+        if _deps:
+            _dep_str = ",".join(_deps)
+            print_yellow(f"[omniopt] Automatic dependencies: {_dep_str}")
+            return _dep_str
+        return ""
+
+    _dep_el = r"(?:afterok:\d+|afternotok:\d+|after:\d+|afterany:\d+|singleton)"
+    _dep_re = _re.compile(rf"^{_dep_el}(?:,{_dep_el})*$")
+    if _dep_re.match(dependency):
+        return dependency
+
+    print_red(f"[omniopt] Invalid dependency format: {dependency}")
+    return ""
+
+
+
 if __name__ == "__main__":
     # Python-side replacement for the bash wrapper's "submit the main
     # process itself as a SLURM job (when sbatch is available and the
@@ -14441,6 +14500,13 @@ if __name__ == "__main__":
             # and (1) loads the HPC lmod toolchain / newest Python module
             # *before* omniopt and its installer/bootstrapper run, then
             # (2) executes omniopt itself.
+            #
+            # `--dependency` is the one sbatch mechanism whose resolution
+            # (incl. the `omniopt_singleton` auto-serialization) lives here,
+            # mirroring the old bash `.shellscript_functions` logic.
+            _resolved_dependency = _resolve_main_sbatch_dependency(
+                getattr(args, "dependency", None)
+            )
             _sbatch_directives = [
                 f"#SBATCH --mem={getattr(args, 'main_process_gb', 8) or 8}GB",
                 "#SBATCH -N 1",
@@ -14464,6 +14530,8 @@ if __name__ == "__main__":
             _reservation = getattr(args, "reservation", None)
             if _reservation:
                 _sbatch_directives += [f"#SBATCH --reservation={_reservation}"]
+            if _resolved_dependency:
+                _sbatch_directives += [f"#SBATCH --dependency {_resolved_dependency}"]
 
             _import_shlex = __import__("shlex")
             _omniopt_cmd = _import_shlex.join([_OMNIOPT_FILE] + _sys.argv[1:])

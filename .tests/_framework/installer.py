@@ -201,6 +201,21 @@ def _ml_python(modules: str) -> str | None:
     and only trust a path the module actually substituted.  Otherwise a
     failed toolchain/Python load would make us build on the stale login-node
     system python (e.g. Python 3.9.25) -- the exact bug we're fixing.
+
+    CRITICAL (alpha / ROME-cluster case): ``ml Python/3.13.5`` can exit 0
+    while ``command -v python3`` STILL returns ``/usr/bin/python3`` -- e.g.
+    when the module prepends its bin dir but the login shell's PATH has
+    /usr/bin in front, or the module only exposes a versioned binary.
+    So we use a multi-strategy bash script:
+
+      1. snapshot the PATH before the load,
+      2. after the load, walk ``which -a python3`` and pick the FIRST
+         python whose bin dir was NOT in the old PATH (that's the
+         module-provided binary),
+      3. fall back to ``command -v python3.13`` / ``3.12`` / ... for
+         module layouts that only expose a versioned binary,
+      4. only then trust the plain before/after ``command -v python3``
+         substitution check.
     """
     if not _has_lmod() or not modules:
         _install_debug(
@@ -209,11 +224,75 @@ def _ml_python(modules: str) -> str | None:
         )
         return None
     script = _lmod_script(
-        '_before="$(command -v python3 || true)"; '
-        f"ml --quiet {modules} >/dev/null 2>&1; "
-        '_after="$(command -v python3 || true)"; '
-        'if [ -n "$_after" ] && [ "$_after" != "$_before" ]; then '
-        'printf \'%s\' "$_after"; fi'
+        (
+            '# --- snapshot the state BEFORE the module load ---------------------\n'
+            '_om_old_path="$PATH"\n'
+            '_om_old_py="$(command -v python3 2>/dev/null || true)"\n'
+            '_om_old_py_all="$(which -a python3 2>/dev/null || true)"\n'
+            '\n'
+            '# --- load the module(s) quietly -----------------------------------\n'
+            'ml --quiet ' + modules + ' >/dev/null 2>&1\n'
+            '_om_ml_rc=$?\n'
+            '\n'
+            '_om_simple_py="$(command -v python3 2>/dev/null || true)"\n'
+            '_om_new_py=""\n'
+            '\n'
+            '# Strategy 1: the classic "python3 changed after the load" check.\n'
+            'if [ -n "$_om_simple_py" ] && [ "$_om_simple_py" != "$_om_old_py" ]; then\n'
+            '    _om_new_py="$_om_simple_py"\n'
+            '    printf \'strategy=%s path=%s\\n\' "command -v" "$_om_new_py" >&2\n'
+            'fi\n'
+            '\n'
+            '# Strategy 2: module loaded but /usr/bin/python3 still shadows it --\n'
+            '# find a python whose bin dir was NOT in the old PATH.\n'
+            'if [ -z "$_om_new_py" ]; then\n'
+            '    for _om_c in $(which -a python3 2>/dev/null); do\n'
+            '        [ -x "$_om_c" ] || continue\n'
+            '        case ":$_om_old_path:" in\n'
+            '            *":$(dirname "$_om_c"):") ;;\n'
+            '            *)\n'
+            '                _om_new_py="$_om_c"\n'
+            '                printf \'strategy=%s path=%s\\n\' "which -a (new PATH entry)" "$_om_new_py" >&2\n'
+            '                break\n'
+            '                ;;\n'
+            '        esac\n'
+            '    done\n'
+            'fi\n'
+            '\n'
+            '# Strategy 3: some modules only expose a versioned binary (python3.X).\n'
+            'if [ -z "$_om_new_py" ]; then\n'
+            '    for _om_v in 3.13 3.12 3.11 3.10 3.9 3.8; do\n'
+            '        _om_c="$(command -v "python$_om_v" 2>/dev/null || true)"\n'
+            '        if [ -n "$_om_c" ] && [ -x "$_om_c" ] && [ "$_om_c" != "$_om_old_py" ]; then\n'
+            '            _om_new_py="$_om_c"\n'
+            '            printf \'strategy=%s path=%s\\n\' "command -v python$_om_v" "$_om_new_py" >&2\n'
+            '            break\n'
+            '        fi\n'
+            '    done\n'
+            'fi\n'
+            '\n'
+            '# Diagnostics for the debug trace: what changed?\n'
+            '_om_new_path="$PATH"\n'
+            '_om_added=""\n'
+            '_om_savedIFS="$IFS"\n'
+            'IFS=":"\n'
+            'for _om_e in $_om_new_path; do\n'
+            '    [ -z "$_om_e" ] && continue\n'
+            '    case ":$_om_old_path:" in\n'
+            '        *":$_om_e:"*) ;;\n'
+            '        *) _om_added="$_om_added$_om_e\\n" ;;\n'
+            '    esac\n'
+            'done\n'
+            'IFS="$_om_savedIFS"\n'
+            'printf \'ml-rc=%d\\nbefore-python=%s\\nafter-python=%s\\nbefore-python-all=%s\\nadded-path-entries:\\n%s\\n\' \\\n'
+            '    "$_om_ml_rc" "${_om_old_py:-(none)}" "${_om_simple_py:-(none)}" \\\n'
+            '    "${_om_old_py_all:-(none)}" "${_om_added:-(none)}" >&2\n'
+            '\n'
+            '# Final answer on stdout (may be empty if nothing usable was found).\n'
+            'if [ -n "$_om_new_py" ]; then\n'
+            '    printf \'%s\' "$_om_new_py"\n'
+            'fi\n'
+        )
     )
     _install_debug(f"_ml_python({modules!r}): launching bash -lc ...")
     _install_debug(f"  script:\n{script}")
@@ -231,12 +310,13 @@ def _ml_python(modules: str) -> str | None:
     if r.stderr:
         for _ln in (r.stderr or "").splitlines():
             if _ln.strip():
-                _install_debug(f"  stderr> {_ln}")
+                _install_debug(f"  bash-diag> {_ln}")
     lines = (r.stdout or "").strip().splitlines()
     if not lines:
         _install_debug(
-            f"_ml_python({modules!r}): no python3 substitution detected "
-            f"(empty stdout -> lmod load silently failed)"
+            f"_ml_python({modules!r}): NO usable python found (empty stdout). "
+            f"See the bash-diag lines above for the ml-rc / before-python / "
+            f"after-python / new-PATH-entries diagnosis."
         )
         return None
     cand = lines[-1].strip()

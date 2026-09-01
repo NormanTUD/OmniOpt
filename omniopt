@@ -38,6 +38,8 @@ _OMNIOPT_REQUIREMENTS = _os.path.join(_OMNIOPT_DIR, "requirements.txt")
 _OMNIOPT_TEST_REQUIREMENTS = _os.path.join(_OMNIOPT_DIR, "test_requirements.txt")
 _OMNIOPT_HASHTAG = "OMNIOPT_BOOTSTRAPPED"
 _OMNIOPT_MODULES_LOADED = "OMNIOPT_HPC_MODULES_LOADED"
+# Module strings whose env we've already injected into os.environ (in order).
+_OMNIOPT_MODULE_ENV_LOADED: list = []
 
 # ---------------------------------------------------------------------------
 # Debug logging.
@@ -203,10 +205,10 @@ def _omniopt_lmod_bash_prelude() -> str:
     NON-interactive `bash -lc` subprocess.
 
     On HPC login nodes `ml` is usually defined only in `.bashrc` (interactive
-    login), so a `bash -lc` does NOT see it and ``LMOD_CMD`` may not be
-    exported.  We explicitly source the common lmod init files -- this is the
-    step that makes the "load newest Python module" / toolchain path actually
-    work from a subprocess.
+    login), so a `bash -lc` does NOT see it and ``LMOD_CMD`` may not be exported.
+    We explicitly source the common lmod init files -- this is the step that
+    makes the whole "load newest Python module" path actually work here --
+    before running ``cmd``.
     """
     return (
         'if ! command -v ml >/dev/null 2>&1 && [ -n "${LMOD_CMD:-}" ]; then '
@@ -216,6 +218,154 @@ def _omniopt_lmod_bash_prelude() -> str:
         '/etc/profile.d/modules.sh /etc/profile.d/lmod.sh; do '
         '[ -f "$_lmi" ] && . "$_lmi" 2>/dev/null; done; fi; unset _lmi; '
     )
+
+
+# Bash script body for ``_omniopt_ml_module_load_python``.  Same design as
+# the test-framework installer (see ``_BASH_ML_PYTHON_SCRIPT_TEMPLATE`` in
+# .tests/_framework/installer.py):
+#
+#   - run ``ml`` DIRECTLY in the bash -lc (it's a function that eval's
+#     module commands into the current shell -- subshells lose the env),
+#   - find the new python via 3 strategies (command -v python3 changed,
+#     which -a in a new PATH entry, python3.X versioned binary),
+#   - REQUIRE the candidate to actually differ from the old python3
+#     (alpha: ml Python/3.13.5 succeeds but PATH doesn't gain python3),
+#   - PROBE the candidate INSIDE this shell where LD_LIBRARY_PATH /
+#     PYTHONHOME are set (the C extensions live in the module tree),
+#   - on probe success emit python path + base64(JSON env) on stdout
+#     so the Python parent can inject it into os.environ.
+#
+# No ``--quiet`` -- old Lmod (alpha / ROME pre-8.x) treats it as a module
+# name and the load silently fails.
+_OMNIOPT_BASH_ML_PYTHON_TEMPLATE = r"""
+# Pick ml vs module (profile defines ml, LMOD_CMD fallback defines module)
+_om_cmd="ml"
+if ! command -v ml >/dev/null 2>&1; then
+    if command -v module >/dev/null 2>&1; then
+        _om_cmd="module"
+    fi
+fi
+
+# Snapshot BEFORE the module load
+_om_old_path="$PATH"
+_om_old_py="$(command -v python3 2>/dev/null || true)"
+_om_old_py_all="$(which -a python3 2>/dev/null || true)"
+_om_old_ld="$LD_LIBRARY_PATH"
+
+# Load modules directly (NOT in a subshell) so eval's PATH/LD changes
+# persist.  Stderr -> temp file, stdout -> /dev/null.  No --quiet.
+_om_err_file="$(mktemp 2>/dev/null || echo /tmp/.om_ml_$$)"
+"$_om_cmd" {MODS} >/dev/null 2>"$_om_err_file"
+_om_rc=$?
+_om_err="$(cat "$_om_err_file" 2>/dev/null)"
+rm -f "$_om_err_file" 2>/dev/null
+
+_om_simple_py="$(command -v python3 2>/dev/null || true)"
+_om_new_py=""
+
+# Strategy 1: command -v python3 changed after the load
+if [ -n "$_om_simple_py" ] && [ "$_om_simple_py" != "$_om_old_py" ]; then
+    _om_new_py="$_om_simple_py"
+    _om_strategy="S1-command-v"
+fi
+
+# Strategy 2: find a python whose bin dir was NOT in the old PATH
+# (precompute dirname -- command substitution inside case patterns is
+# broken because bash's parser eats the ')' inside $()).
+if [ -z "$_om_new_py" ]; then
+    for _om_c in $(which -a python3 2>/dev/null); do
+        [ -x "$_om_c" ] || continue
+        _om_dn="$(dirname "$_om_c")"
+        _om_in_old=0
+        case ":$_om_old_path:" in
+            *":$_om_dn:"*) _om_in_old=1 ;;
+        esac
+        if [ "$_om_in_old" -eq 0 ] && [ "$_om_c" != "$_om_old_py" ]; then
+            _om_new_py="$_om_c"
+            _om_strategy="S2-which-a(new-PATH-entry)"
+            break
+        fi
+    done
+fi
+
+# Strategy 3: versioned binary (python3.X)
+if [ -z "$_om_new_py" ]; then
+    for _om_v in 3.13 3.12 3.11 3.10 3.9 3.8; do
+        _om_c="$(command -v "python$_om_v" 2>/dev/null || true)"
+        if [ -n "$_om_c" ] && [ -x "$_om_c" ] && [ "$_om_c" != "$_om_old_py" ]; then
+            _om_new_py="$_om_c"
+            _om_strategy="S3-python3.X"
+            break
+        fi
+    done
+fi
+
+# CRITICAL guard: a module "load" can exit 0 yet substitute nothing
+# (alpha: ml Python/3.13.5 succeeds but only sets PYTHONHOME; PATH's
+# python3 stays /usr/bin/python3).  Reject a candidate that's the same
+# as the old python -- otherwise we'd happily report "module python"
+# for the unchanged system python and silently fall back to building on
+# the stale login-node interpreter.
+if [ -n "$_om_new_py" ] && [ "$_om_new_py" = "$_om_old_py" ]; then
+    _om_new_py=""
+fi
+
+# Probe INSIDE this shell (LD_LIBRARY_PATH / PYTHONHOME active)
+_om_probe=""
+if [ -x "$_om_new_py" ]; then
+    _om_probe_out="$("$_om_new_py" -c "import sys, ssl, hashlib, ctypes, struct, json, decimal, _ssl, _ctypes, _decimal; print('OK')" 2>/dev/null)"
+    if [ "$_om_probe_out" = "OK" ]; then
+        _om_probe="passed"
+    else
+        _om_probe="failed(probe-out: ${_om_probe_out:0:120})"
+    fi
+fi
+
+# Diagnostics
+_om_added=""
+_om_added_ld=""
+IFS=':'
+for _om_e in $PATH; do
+    [ -z "$_om_e" ] && continue
+    _om_in_old=0
+    case ":$_om_old_path:" in
+        *":$_om_e:"*) _om_in_old=1 ;;
+    esac
+    [ "$_om_in_old" -eq 0 ] && _om_added="$_om_added$_om_e"$'\n'
+done
+IFS=':'
+for _om_e in $LD_LIBRARY_PATH; do
+    [ -z "$_om_e" ] && continue
+    _om_in_old=0
+    case ":$_om_old_ld:" in
+        *":$_om_e:"*) _om_in_old=1 ;;
+    esac
+    [ "$_om_in_old" -eq 0 ] && _om_added_ld="$_om_added_ld$_om_e"$'\n'
+done
+IFS=' '
+
+_om_module_loaded_no_py=""
+if [ "$_om_rc" -eq 0 ] && [ -n "$_om_added" ] && [ -z "$_om_new_py" ]; then
+    _om_module_loaded_no_py="YES (module loaded fine but did NOT put any python3 in PATH)"
+fi
+
+printf 'lmod-cmd=%s rc=%d strategy=%s\nbefore-py=%s after-py=%s\ncandidate=%s probe=%s\nmodule-loaded-but-no-python3=%s\nbefore-LD=%s\nnew-PATH-entries:\n%s\nnew-LD-entries:\n%s\nml-stderr(first-30-lines):\n' \
+    "$_om_cmd" "$_om_rc" "${_om_strategy:-(none)}" \
+    "${_om_old_py:-(none)}" "${_om_simple_py:-(none)}" \
+    "${_om_new_py:-(none)}" "${_om_probe:-(none)}" \
+    "${_om_module_loaded_no_py:-no}" \
+    "${_om_old_ld:-(none)}" "${_om_added:-(none)}" "${_om_added_ld:-(none)}" >&2
+if [ -n "$_om_err" ]; then
+    printf '%s\n' "$_om_err" | head -n 30 >&2
+fi
+
+# Only emit when we have a NEW python AND it probed OK inside this shell.
+if [ -n "$_om_new_py" ] && [ "$_om_probe" = "passed" ]; then
+    printf '===PYTHON===\n%s\n===ENV_B64===\n' "$_om_new_py"
+    "$_om_new_py" -c "import os, sys, json, base64; sys.stdout.write(base64.b64encode(json.dumps(dict(os.environ)).encode()).decode())" 2>/dev/null
+    printf '\n'
+fi
+"""
 
 
 def _omniopt_ml_module_load_python(modules: list) -> str | None:

@@ -2533,6 +2533,7 @@ try:
         def __enter__(self): return self
         def __exit__(self, *a): return False
         def stop(self): pass
+        def update(self, *_args, **_kwargs): pass
 
     def spinner(text: str) -> Any:
         if not sys.stdout.isatty():

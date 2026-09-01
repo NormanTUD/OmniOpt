@@ -891,7 +891,7 @@ def _install_requirements_rich(
         )
         _try_quiet_pip(venv_dir, "install", "--progress-bar", "off", "-q", "rich")
 
-    child = rf'''
+    child = r'''
 import subprocess, sys, time, re, signal, os
 
 _label = sys.argv[1]

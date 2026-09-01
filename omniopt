@@ -1658,12 +1658,6 @@ def _quiet_install(requirements_file):
     sys.stdout.write(f"[omniopt] installed {_omniopt_label} ({_total} packages, {_el:.1f}s)\n")
     sys.stdout.flush()
     return True
-        # HPC log doesn't get flooded with raw pip spew.
-        _lines = [_ln for _ln in _sys_err.splitlines() if _ln.strip()]
-        for _ln in _lines[-6:]:
-            sys.stdout.write("  " + re.sub(r"\x1b\[[0-9;]*m", "", _ln) + "\n")
-    sys.stdout.flush()
-    return False
 
 
 if not _TTY:

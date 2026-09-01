@@ -1574,6 +1574,13 @@ if "--tests" in _sys.argv:
         for d in reversed(defaults):
             _sys.argv.insert(idx + 1, d)
 
+# CRITICAL: On an HPC login node with lmod, re-exec ourselves inside a
+# bash shell that loads the toolchain / newest Python module FIRST.
+# Without this, the venv gets built from the stale login-node system
+# python (e.g. 3.9.25) instead of the HPC module python.  _omniopt_reexec_with_modules
+# calls os.execve and never returns on success.
+_omniopt_reexec_with_modules()
+
 if not _omniopt_in_venv():
     try:
         _omniopt_bootstrap_and_reexec()

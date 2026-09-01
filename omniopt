@@ -583,13 +583,78 @@ def _omniopt_ml_newest_python_modules() -> list:
     return [_m] if _m else []
 
 
+def _omniopt_hpc_modules() -> list:
+    """Return the lmod module names to load on an HPC login node, chosen by
+    cluster + architecture -- the exact list the old bash
+    ``.shellscript_functions`` used (restored here).
+
+    This is what makes the "load the right ML / toolchain modules on HPC"
+    behaviour work.  Logic mirrors the original bash::
+
+        if [ -z "$LOAD_MODULES" ] || [ "$LOAD_MODULES" -eq 1 ]; then
+            if CLUSTERHOST contains '*capella*':
+                release/24.04 GCCcore/12.3.0 Python/3.11.3 Tkinter/3.11.3 PostgreSQL/16.1
+            else:
+                release/23.04 GCCcore/12.2.0 Python/3.10.8 GCCcore/11.3.0 Tkinter/3.10.4 PostgreSQL/14.4
+                if uname -m == ppc64le:
+                    zlib/1.2.12 GCC/12.2.0 OpenBLAS/0.3.21
+
+    Returns ``[]`` when module loading is disabled via ``LOAD_MODULES=0``.
+    """
+    # ``LOAD_MODULES`` opt-out, exactly like the old bash.
+    _load = _os.environ.get("LOAD_MODULES")
+    if _load is not None and _load != "1":
+        _omniopt_install_debug(
+            "_omniopt_hpc_modules: LOAD_MODULES="
+            f"{_load!r} != 1 -> module loading disabled, returning []"
+        )
+        return []
+
+    _cluster = _os.environ.get("CLUSTERHOST", "")
+    _arch = _platform.machine()
+
+    if _cluster and "capella" in _cluster:
+        # TU Dresden HPC "capella" partition (Lmod lives under /usr/share).
+        _mods = [
+            "release/24.04",
+            "GCCcore/12.3.0",
+            "Python/3.11.3",
+            "Tkinter/3.11.3",
+            "PostgreSQL/16.1",
+        ]
+    else:
+        # All other clusters.
+        _mods = [
+            "release/23.04",
+            "GCCcore/12.2.0",
+            "Python/3.10.8",
+            "GCCcore/11.3.0",
+            "Tkinter/3.10.4",
+            "PostgreSQL/14.4",
+        ]
+        if _arch == "ppc64le":
+            # ML-Power9 partition needs the power-patched BLAS/compiler.
+            _mods += [
+                "zlib/1.2.12",
+                "GCC/12.2.0",
+                "OpenBLAS/0.3.21",
+            ]
+
+    _omniopt_install_debug(
+        f"_omniopt_hpc_modules: CLUSTERHOST={_cluster!r} arch={_arch!r} "
+        f"-> modules {_mods!r}"
+    )
+    return _mods
+
+
 def _omniopt_hpc_module_list() -> list:
     """Return the list of lmod module names to load on an HPC login node,
     or ``[]`` if none should be loaded.
 
-    Preference: the known-good toolchain (which supplies a full Python +
-    PyTorch/MPI stack), otherwise the newest available ``Python`` module.
-    Only consulted when lmod is actually present.
+    Preference: the per-cluster toolchain from the old bash
+    ``.shellscript_functions`` (which supplies the correct Python/Lmod
+    stack for the machine), otherwise the newest available ``Python``
+    module.  Only consulted when lmod is actually present.
     """
     if not _omniopt_has_lmod():
         _omniopt_install_debug(
@@ -599,21 +664,27 @@ def _omniopt_hpc_module_list() -> list:
     _omniopt_install_debug(
         f"================ _omniopt_hpc_module_list: START ================"
     )
-    _tc = ["release/24.04", "GCC/12.3.0", "OpenMPI/4.1.5", "PyTorch/2.1.2"]
+    _tc = _omniopt_hpc_modules()
+    if not _tc:
+        _omniopt_install_debug(
+            "_omniopt_hpc_module_list: no cluster-matched modules "
+            "(LOAD_MODULES=0 or no matching cluster) -> returning []"
+        )
+        return []
     _omniopt_install_debug(
-        f"_omniopt_hpc_module_list: step 1/2 -> toolchain {_tc!r}"
+        f"_omniopt_hpc_module_list: step 1/2 -> cluster modules {_tc!r}"
     )
     # The toolchain is preferred only if the module loading machinery can
     # actually resolve a working python for it.
     if _omniopt_ml_module_load_python(_tc):
         _omniopt_install_debug(
-            f"_omniopt_hpc_module_list: toolchain {_tc!r} yielded a working "
-            f"python -> using it"
+            f"_omniopt_hpc_module_list: cluster modules {_tc!r} yielded a "
+            f"working python -> using it"
         )
         return _tc
     _omniopt_install_debug(
-        "_omniopt_hpc_module_list: toolchain did NOT yield a working python, "
-        "falling back to newest 'ml spider Python'"
+        "_omniopt_hpc_module_list: cluster modules did NOT yield a working "
+        "python, falling back to newest 'ml spider Python'"
     )
     _np = _omniopt_ml_newest_python_modules()
     if _np:
@@ -627,8 +698,9 @@ def _omniopt_hpc_module_list() -> list:
             )
             return _np
     _omniopt_install_debug(
-        "_omniopt_hpc_module_list: WARNING -- toolchain AND newest Python "
-        "both failed; returning [] (boot will fall back to system python)"
+        "_omniopt_hpc_module_list: WARNING -- cluster modules AND newest "
+        "Python both failed; returning [] (boot will fall back to system "
+        "python)"
     )
     return []
 
@@ -1129,7 +1201,7 @@ def _omniopt_install_rich_phase(venv_python: str) -> bool:
         _sys.stderr.write("[omniopt] pip stderr:\n" + _last_stderr + "\n")
     _sys.stderr.write(
         "[omniopt] If this is an HPC login node, load a working Python first, e.g.:\n"
-        "[omniopt]   ml release/24.04 GCC/12.3.0 OpenMPI/4.1.5 PyTorch/2.1.2\n"
+        f"[omniopt]   ml {' '.join(_omniopt_hpc_modules()) or '(see .shellscript_functions / README)'}\n"
         "[omniopt] or the newest available Python module, then re-run omniopt.\n"
         "[omniopt] A crash with 'exit -4' (SIGILL) usually means the active Python\n"
         "[omniopt] was built for a different CPU/ISA than this node.\n"
@@ -2002,7 +2074,7 @@ def _omniopt_print_bootstrap_error(errors: list) -> None:
         "[omniopt] Try one of the following, then re-run omniopt:\n"
         "[omniopt]   1. Free up disk space in your home / scratch area.\n"
         "[omniopt]   2. Reload a known-good Python before running, e.g. on an HPC:\n"
-        "[omniopt]        ml release/24.04 GCC/12.3.0 OpenMPI/4.1.5 PyTorch/2.1.2\n"
+        f"[omniopt]        ml {' '.join(_omniopt_hpc_modules()) or '(see README)'}\n"
         "[omniopt]        # or the newest available Python module:\n"
         "[omniopt]        ml spider Python   # then:  ml Python/<newest>\n"
         "[omniopt]   3. Force a fresh interpreter copy:  rm -rf ~/.omniax_venvs\n"
@@ -14280,11 +14352,12 @@ def _omniopt_lmod_module_snippet() -> str:
 
     This runs *inside* the sbatch job, before the main script and the
     installer/bootstrapper, so the compute node has the correct Python /
-    compiler / MPI / PyTorch environment.  Best-effort only:
+    compiler / Tkinter / PostgreSQL environment.  Best-effort only:
 
       1. initialise lmod if it is not already active in the batch shell;
-      2. try the known-good toolchain
-         ``release/24.04 GCC/12.3.0 OpenMPI/4.1.5 PyTorch/2.1.2``;
+      2. try the per-cluster module list (the exact set the old bash
+         ``.shellscript_functions`` loaded -- see ``_omniopt_hpc_modules``),
+         unless ``LOAD_MODULES=0`` disables it;
       3. otherwise load the newest available ``Python`` module found via
          ``ml spider``;
       4. export ``OMNIOPT_HPC_MODULES_LOADED=1`` so the compute-node
@@ -14295,31 +14368,37 @@ def _omniopt_lmod_module_snippet() -> str:
     (old Lmod rejects it) NOR a single space-joined command (toolchain
     has spaces in the module list).
     """
-    return r'''
+    _mods = _omniopt_hpc_modules()
+    _mods_bash = " ".join(_mods) if _mods else ""
+    _mods_hint = _mods_bash or "none"
+    return fr'''
 __omniopt_hpc=""
-if command -v ml >/dev/null 2>&1 || command -v module >/dev/null 2>&1 || [ -n "${LMOD_CMD:-}" ]; then
-    __omniopt_hpc=1
-else
-    for __lm in /usr/share/lmod/lmod/init/bash /opt/lmod/lmod/init/bash /etc/profile.d/modules.sh /etc/profile.d/lmod.sh; do
-        if [ -f "$__lm" ]; then
-            . "$__lm" 2>/dev/null
-            break
-        fi
-    done
-    if command -v ml >/dev/null 2>&1 || command -v module >/dev/null 2>&1 || [ -n "${LMOD_CMD:-}" ]; then
+__omniopt_mods="{_mods_bash}"
+if [ -z "${{LOAD_MODULES:-}}" ] || [ "${{LOAD_MODULES}}" = "1" ]; then
+    if command -v ml >/dev/null 2>&1 || command -v module >/dev/null 2>&1 || [ -n "${{LMOD_CMD:-}}" ]; then
         __omniopt_hpc=1
+    else
+        for __lm in /usr/share/lmod/lmod/init/bash /opt/lmod/lmod/init/bash /etc/profile.d/modules.sh /etc/profile.d/lmod.sh; do
+            if [ -f "$__lm" ]; then
+                . "$__lm" 2>/dev/null
+                break
+            fi
+        done
+        if command -v ml >/dev/null 2>&1 || command -v module >/dev/null 2>&1 || [ -n "${{LMOD_CMD:-}}" ]; then
+            __omniopt_hpc=1
+        fi
     fi
 fi
 
-if [ -n "$__omniopt_hpc" ]; then
+if [ -n "$__omniopt_hpc" ] && [ -n "$__omniopt_mods" ]; then
     __omniopt_cmd="ml"
     if ! command -v ml >/dev/null 2>&1; then
         if command -v module >/dev/null 2>&1; then __omniopt_cmd="module"; fi
     fi
-    if "$__omniopt_cmd" release/24.04 GCC/12.3.0 OpenMPI/4.1.5 PyTorch/2.1.2 >/dev/null 2>&1; then
-        echo "[omniopt] Loaded HPC toolchain: release/24.04 GCC/12.3.0 OpenMPI/4.1.5 PyTorch/2.1.2" >&2
+    if "$__omniopt_cmd" $__omniopt_mods >/dev/null 2>&1; then
+        echo "[omniopt] Loaded HPC modules: {_mods_hint}" >&2
     else
-        __omniopt_py="$( { "$__omniopt_cmd" spider Python 2>/dev/null; } | grep -oE 'Python/[0-9]+(\.[0-9]+)*' | sort -V | tail -n 1 )"
+        __omniopt_py="$( {{ "$__omniopt_cmd" spider Python 2>/dev/null; }} | grep -oE 'Python/[0-9]+(\.[0-9]+)*' | sort -V | tail -n 1 )"
         if [ -n "$__omniopt_py" ]; then
             if "$__omniopt_cmd" "$__omniopt_py" >/dev/null 2>&1; then
                 echo "[omniopt] Loaded newest available Python module: $__omniopt_py" >&2
@@ -14334,9 +14413,9 @@ if [ -n "$__omniopt_hpc" ]; then
     # already loaded -- avoids a redundant re-load on the compute node.
     export OMNIOPT_HPC_MODULES_LOADED=1
 else
-    echo "[omniopt] No lmod ('ml') detected; using system python." >&2
+    echo "[omniopt] No lmod ('ml') detected or LOAD_MODULES=0; using system python." >&2
 fi
-unset __omniopt_hpc __lm __omniopt_py __omniopt_cmd
+unset __omniopt_hpc __lm __omniopt_py __omniopt_cmd __omniopt_mods
 '''
 
 

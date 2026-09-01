@@ -1085,6 +1085,24 @@ def _omniopt_install_rich_phase(venv_python: str) -> bool:
     """Bootstrap-install `rich` (to power the later progress UI) using a
     chain of increasingly robust pip strategies.
 
+    ABSOLUTELY VITAL -- DO NOT REMOVE, DO NOT "SIMPLIFY".
+    This phase exists ONLY so the per-package Rich progress bar in
+    `_omniopt_run_install_with_rich_progress` has something to render
+    with.  The install contract of this codebase is:
+
+      * packages are installed ONE AT A TIME,
+      * pip's own raw Collecting/Downloading/`━━━` output is NEVER shown
+        while the install is healthy (`--quiet` / `--progress-bar off`),
+      * a custom English progress UI shows
+          "installing <name>  (3/50) -- 47 remaining"
+        on a transient Rich bar (TTY) or one clean line per package
+        (non-TTY / sbatch log),
+      * raw pip output is surfaced ONLY when a package fails.
+
+    Removing this pre-install of rich, or replacing the rich child with a
+    bare `pip install -r requirements.txt`, destroys the UI users see on
+    HPC systems and floods their logs with pip spew.  Do not do it.
+
     Returns ``True`` on success.  On failure it writes a clear, actionable
     diagnostic to stderr and returns ``False`` (the caller decides whether
     to try a different base Python).  Never raises for pip failures.
@@ -1130,6 +1148,17 @@ def _omniopt_install_rich_phase_with_spinner(venv_python: str) -> bool:
 
 def _omniopt_install_requirements(venv_python: str) -> None:
     """Install the requirement files into the venv.
+
+    ABSOLUTELY VITAL DESIGN -- DO NOT "SIMPLIFY" THIS INTO A SINGLE
+    `pip install -r requirements.txt` CALL:
+      * Packages are installed ONE AT A TIME so the UI can show, in
+        English, exactly which package is being installed and how many
+        remain: "installing <name>  (3/50) -- 47 remaining".
+      * pip's own raw Collecting/Downloading/`━━━` output is NEVER shown
+        while the install is healthy; it is surfaced only when a package
+        actually FAILS (de-ANSI'd tail).
+      * TTY: a transient Rich progress bar with elapsed time.
+        Non-TTY (sbatch log, --follow tail): one clean line per package.
 
     Two phases:
       1. Install `rich` by itself with a stdlib-only spinner line

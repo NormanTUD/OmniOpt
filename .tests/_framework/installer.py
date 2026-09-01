@@ -1124,8 +1124,12 @@ def install_packages(packages: List[str], *, quiet: bool = True) -> Path | None:
     """Install the given packages into the framework venv (creating it if
     needed) and return the venv directory, or None on failure."""
     if os.environ.get("DONT_INSTALL_MODULES"):
+        _install_debug("install_packages: DONT_INSTALL_MODULES is set, skip")
         return None
     venv_dir = _resolve_venv_dir()
+    _install_debug(
+        f"install_packages: packages={list(packages)} venv_dir={venv_dir}"
+    )
     if not _create_venv(venv_dir):
         return None
     try:
@@ -1181,10 +1185,17 @@ def ensure_dependencies(*, include_tests: bool = True,
     checking whether the venv's ``site-packages`` is already importable
     for a sentinel package, and if not we prepend it to ``sys.path``.
     """
+    _install_debug(
+        f"================ ensure_dependencies: START ================"
+    )
     if os.environ.get("DONT_INSTALL_MODULES"):
+        _install_debug("ensure_dependencies: DONT_INSTALL_MODULES is set, skip")
         return Path(sys.prefix)
 
     venv_dir = venv_dir or _resolve_venv_dir()
+    _install_debug(
+        f"ensure_dependencies: venv_dir={venv_dir} include_tests={include_tests}"
+    )
     if not _create_venv(venv_dir):
         sys.exit(20)
 
@@ -1209,6 +1220,11 @@ def ensure_dependencies(*, include_tests: bool = True,
     no_main_hash = not hash_file_main.exists() and req_main.exists()
     no_test_hash = want_test and not hash_file_test.exists() and req_test.exists()
 
+    _install_debug(
+        f"ensure_dependencies: hashes main={hash_main[:8]} test={hash_test[:8]} "
+        f"need_main={need_main} need_test={need_test} "
+        f"no_main_hash={no_main_hash} no_test_hash={no_test_hash}"
+    )
     if need_main or need_test or no_main_hash or no_test_hash:
         print("Installing dependencies (this may take a while)...")
         if req_main.exists():
@@ -1227,6 +1243,15 @@ def ensure_dependencies(*, include_tests: bool = True,
         if want_test and req_test.exists():
             hash_file_test.write_text(hash_test)
         print("✅ Dependencies installed.")
+    else:
+        _install_debug(
+            "ensure_dependencies: hashes match -> SKIP install "
+            "(this is the fast path on a warm venv)"
+        )
+    _install_debug(
+        f"================ ensure_dependencies: END (venv={venv_dir}) "
+        f"==============="
+    )
     return venv_dir
 
 

@@ -39,6 +39,45 @@ _OMNIOPT_TEST_REQUIREMENTS = _os.path.join(_OMNIOPT_DIR, "test_requirements.txt"
 _OMNIOPT_HASHTAG = "OMNIOPT_BOOTSTRAPPED"
 _OMNIOPT_MODULES_LOADED = "OMNIOPT_HPC_MODULES_LOADED"
 
+# ---------------------------------------------------------------------------
+# Debug logging.
+#
+# Set ``OMNIOPT_INSTALL_DEBUG=1`` in the environment to make the omniopt
+# bootstrap print a detailed, ordered, timestamped trace of every decision:
+# which Python interpreters it probed, which lmod modules it tried, what
+# the bash subprocess returned, what the venv hash was, which pip strategy
+# it fell back to, etc.  All output goes to stderr so it does not pollute
+# the Rich progress bar (the bar lives on stdout).
+#
+# Same env var as ``.tests/_framework/installer.py`` -- both sides use
+# ``OMNIOPT_INSTALL_DEBUG`` so a single export turns on debug for the
+# whole pipeline (test framework + omniopt bootstrap).  Copy the resulting
+# stderr so we can compare local vs HPC and explain every difference.
+# ---------------------------------------------------------------------------
+
+_OMNIOPT_INSTALL_DEBUG_VAR = "OMNIOPT_INSTALL_DEBUG"
+
+
+def _omniopt_install_debug_enabled() -> bool:
+    """True iff the user asked for detailed omniopt-bootstrap debug logging."""
+    _v = _os.environ.get(_OMNIOPT_INSTALL_DEBUG_VAR, "").strip().lower()
+    return _v in ("1", "true", "yes", "on")
+
+
+def _omniopt_install_debug(msg: str, *, tag: str = "omniopt-bootstrap") -> None:
+    """Emit one timestamped debug line on stderr iff debug logging is on."""
+    if not _omniopt_install_debug_enabled():
+        return
+    try:
+        _ts = _time.strftime("%H:%M:%S")
+    except Exception:
+        _ts = "--:--:--"
+    try:
+        _sys.stderr.write(f"[{_ts}] [{tag}] {msg}\n")
+        _sys.stderr.flush()
+    except Exception:
+        pass
+
 
 def _omniopt_in_venv() -> bool:
     """Return True if we're running inside a virtual environment."""

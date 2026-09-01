@@ -869,6 +869,13 @@ def _pip_supports_progress_bar_off():
     return False
 
 
+# ABSOLUTELY VITAL (child copy): this runs inside the separate child
+# interpreter that renders the per-package Rich progress bar.  Every pip
+# call below goes through `_PROGRESS_BAR_OFF` so pip's own raw progress
+# bars / Collecting noise NEVER reach the terminal.  Packages are installed
+# ONE AT A TIME so the bar can show "installing <name> (i/total) -- N
+# remaining" in English.  Raw pip output is shown ONLY on failure.  Do not
+# collapse this back into a single `pip install -r requirements.txt`.
 _PROGRESS_BAR_OFF = ["--progress-bar", "off"] if _pip_supports_progress_bar_off() else []
 
 

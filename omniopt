@@ -2535,7 +2535,6 @@ try:
 
     def spinner(text: str) -> Any:
         if not sys.stdout.isatty():
-            original_print(re.sub(r"\[[^\]]*\]", "", text))
             return _NullContext()
         return console.status(f"[bold green]{text}", speed=0.2, refresh_per_second=6)
 

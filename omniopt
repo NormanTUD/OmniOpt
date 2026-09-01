@@ -14679,7 +14679,7 @@ if __name__ == "__main__":
                     _sys.exit(_res.returncode)
             _job_id = (_res.stdout.strip().split() or [""])[-1]
             _want_follow = bool(getattr(args, "follow", False))
-            _want_wait = bool(getattr(args, "wait_until_ended", False))
+            _want_wait = bool(args.wait_until_ended)
 
             # Mirror of the old bash wrapper: submission happens regardless of
             # --follow/--wait_until_ended; those only control what we do after.
@@ -14743,6 +14743,7 @@ if __name__ == "__main__":
                 _follow_est = [""]
 
                 import threading as _threading
+
                 def _follow_runner() -> None:
                     while not _follow_done["v"]:
                         if _time.monotonic() >= _follow_next_check[0]:
@@ -14864,6 +14865,7 @@ if __name__ == "__main__":
                     _wait_next_check = [0.0]
 
                     import threading as _threading
+
                     def _wait_runner() -> None:
                         while not _wait_done["v"]:
                             if _time.monotonic() >= _wait_next_check[0]:

@@ -14420,7 +14420,7 @@ def _omniopt_lmod_module_snippet() -> str:
     """
     _mods = _omniopt_hpc_modules()
     _mods_bash = " ".join(_mods) if _mods else ""
-    _mods_hint = _mods_bash or "none"
+    _mods_hint = " · ".join(_mods) if _mods else "none"
     return fr'''
 __omniopt_hpc=""
 __omniopt_mods="{_mods_bash}"
@@ -14545,7 +14545,6 @@ def _resolve_main_sbatch_dependency(dependency: str | None) -> str:
 
     print_red(f"[omniopt] Invalid dependency format: {dependency}")
     return ""
-
 
 
 if __name__ == "__main__":

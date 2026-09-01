@@ -25,8 +25,9 @@ interleave. Failed tests have their output dumped at the end; passing tests
 print only a one-line ``OK`` summary. A summary table is always printed.
 """
 
+from __future__ import annotations
+
 try:
-    from __future__ import annotations
 
     import argparse
     import os

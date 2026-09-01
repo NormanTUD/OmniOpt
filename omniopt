@@ -14705,14 +14705,89 @@ if __name__ == "__main__":
             except (FileNotFoundError, _subprocess.CalledProcessError):
                 _log_path = None
 
+            def _squeue_estimated_start_line() -> str:
+                # Returns a suffix like " · estimated start time: X" or "".
+                # Mirrors the old bash wrapper's `whypending` lookup that
+                # greps for the "Estimated ... time:" line.
+                if _shutil.which("whypending") is None:
+                    return ""
+                try:
+                    _wp = _subprocess.run(
+                        ["whypending", _job_id],
+                        capture_output=True, text=True, timeout=5,
+                    )
+                except (OSError, _subprocess.SubprocessError):
+                    return ""
+                for _line in (_wp.stdout or "").splitlines():
+                    if "Estimated" in _line and "time:" in _line:
+                        _est = _line.split("time:", 1)[1].strip()
+                        if _est:
+                            return f" · estimated start time: {_est}"
+                return ""
+
             if _want_follow:
                 # Mirror of the bash wrapper: if the slurm log path cannot be
                 # determined, error out (old exit code 110).
                 if not _log_path:
                     print_red("[omniopt] LOG_PATH was undefined. Is slurm installed properly?")
                     _sys.exit(110)
-                while not _os.path.exists(_log_path):
-                    _time.sleep(2)
+                # Transient spinner while waiting for the SLURM log to appear.
+                # Every ~30s it re-checks `whypending` (when available) so the
+                # user can see an estimated start time while the job waits in
+                # the queue.  The spinner line is fully cleared once the log
+                # file shows up (mirror of the old bash spinner).
+                _follow_status = [f"[omniopt] Waiting for job {_job_id} to start"]
+                _follow_done = {"v": False}
+                _follow_next_check = [0.0]
+                _follow_est = [""]
+
+                import threading as _threading
+                def _follow_runner() -> None:
+                    while not _follow_done["v"]:
+                        if _time.monotonic() >= _follow_next_check[0]:
+                            _follow_next_check[0] = _time.monotonic() + 30.0
+                            _follow_est[0] = _squeue_estimated_start_line()
+                            _follow_status[0] = (
+                                f"[omniopt] Waiting for job {_job_id} to start"
+                                + _follow_est[0]
+                            )
+                        _time.sleep(0.2)
+
+                _follow_runner_thread = _threading.Thread(
+                    target=_follow_runner, daemon=True
+                )
+                _follow_runner_thread.start()
+
+                _follow_frames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
+                _follow_width = _omniopt_terminal_width()
+                _follow_i = 0
+                try:
+                    while not _os.path.exists(_log_path):
+                        _sys.stdout.write(
+                            "\r\x1b[2K"
+                            + _omniopt_pad_right(
+                                f"{_follow_frames[_follow_i % len(_follow_frames)]} {_follow_status[0]}",
+                                _follow_width,
+                            )
+                        )
+                        _sys.stdout.flush()
+                        _follow_i += 1
+                        _time.sleep(0.1)
+                except KeyboardInterrupt:
+                    _follow_done["v"] = True
+                    _sys.stdout.write(
+                        "\r\x1b[2K"
+                        + _omniopt_pad_right(
+                            f"✗ {_follow_status[0]} (cancelled)", _follow_width
+                        )
+                        + "\n"
+                    )
+                    _sys.stdout.flush()
+                    raise
+                _follow_done["v"] = True
+                _follow_runner_thread.join(timeout=5)
+                _sys.stdout.write("\r\x1b[2K")
+                _sys.stdout.flush()
 
                 # Background poller that kills the tail process once the job
                 # leaves squeue (mirror of the old bash
@@ -14777,21 +14852,70 @@ if __name__ == "__main__":
                 _sys.exit(_job_exit_code)
             elif _want_wait:
                 # Mirror of the bash `--wait_until_ended` path: poll squeue
-                # every 10s, then print the job's whole log.
+                # every 10s, then print the job's whole log.  A transient
+                # spinner shows the estimated start time (re-checked against
+                # `whypending` every ~30s) while the job waits in the queue.
                 if _shutil.which("squeue"):
                     print_yellow(f"[omniopt] Waiting for job {_job_id} to end... "
                                  "(checking every 10 seconds)")
-                    while True:
-                        try:
-                            _sq = _subprocess.run(
-                                ["squeue", "-j", _job_id, "--noheader"],
-                                capture_output=True, text=True, check=True,
-                            )
-                            if not _sq.stdout.strip():
+                    _wait_done = {"v": False}
+                    _wait_est = [""]
+                    _wait_next_check = [0.0]
+
+                    import threading as _threading
+                    def _wait_runner() -> None:
+                        while not _wait_done["v"]:
+                            if _time.monotonic() >= _wait_next_check[0]:
+                                _wait_next_check[0] = _time.monotonic() + 30.0
+                                _wait_est[0] = _squeue_estimated_start_line()
+                            _time.sleep(0.2)
+
+                    _wait_runner_thread = _threading.Thread(
+                        target=_wait_runner, daemon=True
+                    )
+                    _wait_runner_thread.start()
+
+                    _wait_width = _omniopt_terminal_width()
+                    _wait_frames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
+                    _wait_i = 0
+                    try:
+                        while True:
+                            try:
+                                _sq = _subprocess.run(
+                                    ["squeue", "-j", _job_id, "--noheader"],
+                                    capture_output=True, text=True, check=True,
+                                )
+                                if not _sq.stdout.strip():
+                                    break
+                            except (FileNotFoundError, _subprocess.CalledProcessError):
                                 break
-                        except (FileNotFoundError, _subprocess.CalledProcessError):
-                            break
-                        _time.sleep(10)
+                            _sys.stdout.write(
+                                "\r\x1b[2K"
+                                + _omniopt_pad_right(
+                                    f"{_wait_frames[_wait_i % len(_wait_frames)]} "
+                                    f"[omniopt] Waiting for job {_job_id} to end{_wait_est[0]}",
+                                    _wait_width,
+                                )
+                            )
+                            _sys.stdout.flush()
+                            _wait_i += 1
+                            _time.sleep(10)
+                    except KeyboardInterrupt:
+                        _wait_done["v"] = True
+                        _sys.stdout.write(
+                            "\r\x1b[2K"
+                            + _omniopt_pad_right(
+                                f"✗ [omniopt] Waiting for job {_job_id} to end (cancelled)",
+                                _wait_width,
+                            )
+                            + "\n"
+                        )
+                        _sys.stdout.flush()
+                        raise
+                    _wait_done["v"] = True
+                    _wait_runner_thread.join(timeout=5)
+                    _sys.stdout.write("\r\x1b[2K\n")
+                    _sys.stdout.flush()
                     print_yellow("[omniopt] Done waiting for job to end")
                     if _log_path and _os.path.exists(_log_path):
                         _sys.stdout.write(

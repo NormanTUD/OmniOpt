@@ -166,12 +166,36 @@ def _omniopt_probe_python(py: str) -> bool:
 def _omniopt_has_lmod() -> bool:
     """Whether an lmod-style environment-module system (``ml``/``module``)
     is available on this machine (typical for HPC login nodes)."""
+    _omniopt_install_debug("_omniopt_has_lmod: probing for an lmod-style module system...")
     for _cmd in ("ml", "module", "modulecmd"):
-        if _shutil.which(_cmd):
+        _w = _shutil.which(_cmd)
+        _omniopt_install_debug(
+            f"  - PATH probe '{_cmd}': "
+            f"{('FOUND at ' + _w) if _w else 'not in PATH'}"
+        )
+        if _w:
             return True
-    if _os.environ.get("LMOD_CMD") or _os.environ.get("MODULESHOME"):
+    _lmod_cmd = _os.environ.get("LMOD_CMD")
+    _modules_home = _os.environ.get("MODULESHOME")
+    _omniopt_install_debug(
+        f"  - env probe LMOD_CMD={_lmod_cmd!r}, MODULESHOME={_modules_home!r}"
+    )
+    if _lmod_cmd or _modules_home:
         return True
-    return _os.path.exists("/usr/share/lmod/lmod/init/bash") or _os.path.exists("/etc/profile.d/modules.sh")
+    for _init in (
+        "/usr/share/lmod/lmod/init/bash",
+        "/opt/lmod/lmod/init/bash",
+        "/etc/profile.d/modules.sh",
+        "/etc/profile.d/lmod.sh",
+    ):
+        _exists = _os.path.exists(_init)
+        _omniopt_install_debug(
+            f"  - init-file probe '{_init}': {'exists' if _exists else 'missing'}"
+        )
+        if _exists:
+            return True
+    _omniopt_install_debug("_omniopt_has_lmod: no lmod-style module system detected.")
+    return False
 
 
 def _omniopt_lmod_bash_prelude() -> str:
@@ -202,6 +226,9 @@ def _omniopt_ml_module_load_python(modules: list) -> str | None:
     Runs a probe: a Python that crashes (e.g. SIGILL) is rejected.
     """
     if not _omniopt_has_lmod():
+        _omniopt_install_debug(
+            f"_omniopt_ml_module_load_python({modules!r}): skipped (no lmod)"
+        )
         return None
     _mod_cmd = " ".join(_re.escape(m) for m in modules) if modules else ""
     _script = (
@@ -211,21 +238,56 @@ def _omniopt_ml_module_load_python(modules: list) -> str | None:
         "_after=\"$(command -v python3 || true)\"; "
         'if [ -n "$_after" ] && [ "$_after" != "$_before" ]; then printf \'%s\' "$_after"; fi'
     )
+    _omniopt_install_debug(
+        f"_omniopt_ml_module_load_python({modules!r}): launching bash -lc..."
+    )
+    _omniopt_install_debug(f"  script:\n{_script}")
     try:
         _r = _subprocess.run(
             ["bash", "-lc", _script],
             capture_output=True, text=True, timeout=60,
         )
-    except (OSError, _subprocess.TimeoutExpired):
+    except (OSError, _subprocess.TimeoutExpired) as _e:
+        _omniopt_install_debug(
+            f"_omniopt_ml_module_load_python({modules!r}): subprocess "
+            f"failed: {_e!r}"
+        )
         return None
+    _omniopt_install_debug(
+        f"_omniopt_ml_module_load_python({modules!r}): bash exit={_r.returncode} "
+        f"stdout={( _r.stdout or '').strip()!r} stderr-len={len(_r.stderr or '')}"
+    )
+    if _r.stderr:
+        for _ln in (_r.stderr or "").splitlines():
+            if _ln.strip():
+                _omniopt_install_debug(f"  stderr> {_ln}")
     _p = (_r.stdout or "").strip().splitlines()
     if not _p:
+        _omniopt_install_debug(
+            f"_omniopt_ml_module_load_python({modules!r}): no python3 "
+            f"substitution detected (empty stdout -> lmod load silently failed)"
+        )
         return None
     candidate = _p[-1].strip()
+    _omniopt_install_debug(
+        f"_omniopt_ml_module_load_python({modules!r}): candidate python = "
+        f"{candidate!r}"
+    )
     if not candidate or not _os.path.exists(candidate):
+        _omniopt_install_debug(
+            f"_omniopt_ml_module_load_python({modules!r}): candidate path "
+            f"does not exist on disk"
+        )
         return None
     if not _omniopt_probe_python(candidate):
+        _omniopt_install_debug(
+            f"_omniopt_ml_module_load_python({modules!r}): candidate python "
+            f"failed the self-probe (broken / SIGILL / different ISA)"
+        )
         return None
+    _omniopt_install_debug(
+        f"_omniopt_ml_module_load_python({modules!r}): OK -> {candidate}"
+    )
     return candidate
 
 
@@ -284,20 +346,42 @@ def _omniopt_ml_newest_python_modules() -> list:
     """Ask ``ml spider Python`` (via bash/lmod) for the newest ``Python/x``
     module and return it as a one-element module list (empty if none)."""
     if not _omniopt_has_lmod():
+        _omniopt_install_debug(
+            "_omniopt_ml_newest_python_modules: skipped (no lmod)"
+        )
         return []
     _script = (
         _omniopt_lmod_bash_prelude()
         + "{ ml spider Python 2>/dev/null; } | grep -oE 'Python/[0-9]+(\\.[0-9]+)*' | "
         "sort -V | tail -n 1"
     )
+    _omniopt_install_debug(
+        "_omniopt_ml_newest_python_modules: running 'ml spider Python' via "
+        "bash -lc (stderr discarded)"
+    )
+    _omniopt_install_debug(f"  script:\n{_script}")
     try:
         _r = _subprocess.run(
             ["bash", "-lc", _script],
             capture_output=True, text=True, timeout=60,
         )
-    except (OSError, _subprocess.TimeoutExpired):
+    except (OSError, _subprocess.TimeoutExpired) as _e:
+        _omniopt_install_debug(
+            f"_omniopt_ml_newest_python_modules: subprocess failed: {_e!r}"
+        )
         return []
+    _omniopt_install_debug(
+        f"_omniopt_ml_newest_python_modules: bash exit={_r.returncode} "
+        f"stdout-len={len(_r.stdout or '')} stderr-len={len(_r.stderr or '')}"
+    )
+    if _r.stderr:
+        for _ln in (_r.stderr or "").splitlines():
+            if _ln.strip():
+                _omniopt_install_debug(f"  stderr> {_ln}")
     _m = (_r.stdout or "").strip()
+    _omniopt_install_debug(
+        f"_omniopt_ml_newest_python_modules: result = {_m!r}"
+    )
     return [_m] if _m else []
 
 
@@ -310,15 +394,44 @@ def _omniopt_hpc_module_list() -> list:
     Only consulted when lmod is actually present.
     """
     if not _omniopt_has_lmod():
+        _omniopt_install_debug(
+            "_omniopt_hpc_module_list: skipped (no lmod)"
+        )
         return []
+    _omniopt_install_debug(
+        f"================ _omniopt_hpc_module_list: START ================"
+    )
     _tc = ["release/24.04", "GCC/12.3.0", "OpenMPI/4.1.5", "PyTorch/2.1.2"]
+    _omniopt_install_debug(
+        f"_omniopt_hpc_module_list: step 1/2 -> toolchain {_tc!r}"
+    )
     # The toolchain is preferred only if the module loading machinery can
     # actually resolve a working python for it.
     if _omniopt_ml_module_load_python(_tc):
+        _omniopt_install_debug(
+            f"_omniopt_hpc_module_list: toolchain {_tc!r} yielded a working "
+            f"python -> using it"
+        )
         return _tc
+    _omniopt_install_debug(
+        "_omniopt_hpc_module_list: toolchain did NOT yield a working python, "
+        "falling back to newest 'ml spider Python'"
+    )
     _np = _omniopt_ml_newest_python_modules()
-    if _np and _omniopt_ml_module_load_python(_np):
-        return _np
+    if _np:
+        _omniopt_install_debug(
+            f"_omniopt_hpc_module_list: step 2/2 -> newest Python module {_np!r}"
+        )
+        if _omniopt_ml_module_load_python(_np):
+            _omniopt_install_debug(
+                f"_omniopt_hpc_module_list: newest Python {_np!r} worked -> "
+                f"using it"
+            )
+            return _np
+    _omniopt_install_debug(
+        "_omniopt_hpc_module_list: WARNING -- toolchain AND newest Python "
+        "both failed; returning [] (boot will fall back to system python)"
+    )
     return []
 
 

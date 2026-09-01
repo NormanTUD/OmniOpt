@@ -2091,23 +2091,16 @@ def _omniopt_install_with_candidate(base_python: str) -> bool:
     _omniopt_install_debug(
         f"_omniopt_install_with_candidate: venv_dir={venv_dir}"
     )
-    # If we just re-exec'd from a stale login-node Python into an HPC
-    # module Python, the venv dir computed from base_python will already
-    # be different from any pre-existing one.  But to be extra safe,
-    # also nuke any venv whose hash file is from a different Python.
-    if _os.environ.get("OMNIOPT_REEXECED") and _os.path.exists(venv_dir):
-        _hash_file = _os.path.join(venv_dir, "omniopt_requirements_hash")
-        if _os.path.exists(_hash_file):
-            _omniopt_install_debug(
-                f"_omniopt_install_with_candidate: OMNIOPT_REEXECED is set and "
-                f"{_hash_file} exists -> rm -rf {venv_dir} to force a clean "
-                f"rebuild under the new Python"
-            )
-            _sys.stderr.write(
-                f"[omniopt] re-exec'd into new Python; rebuilding venv at {venv_dir}.\n"
-            )
-            _sys.stderr.flush()
-            _shutil.rmtree(venv_dir, ignore_errors=True)
+    # NOTE: we deliberately do NOT wipe the venv here on OMNIOPT_REEXECED.
+    # The venv path already encodes the Python version+arch, so a re-exec
+    # into a different interpreter targets a different (nonexistent) venv
+    # dir and gets created fresh.  If the same venv dir exists, then
+    # _omniopt_create_venv below already validates the interpreter version
+    # and rebuilds ONLY when it genuinely differs.  Wiping the whole venv
+    # on every module re-exec (this runs on every login-node launch with
+    # lmod) deleted a perfectly good warm venv and forced a full reinstall
+    # of all dependencies on every run -- exactly the "installs packages
+    # again and again" regression.
     try:
         _omniopt_create_venv(venv_dir, base_python)
     except Exception as _e:

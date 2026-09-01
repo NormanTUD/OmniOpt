@@ -533,8 +533,8 @@ def _ml_python(modules: str) -> str | None:
 def _resolve_base_python() -> str:
     """Return the interpreter to build the venv from.
 
-    Preference on HPC (lmod present): the known-good toolchain
-    ``release/24.04 GCC/12.3.0 OpenMPI/4.1.5 PyTorch/2.1.2`` first, then
+    Preference on HPC (lmod present): the per-cluster module list from the
+    old bash ``.shellscript_functions`` (via ``_hpc_modules``) first, then
     the newest available ``Python/x.y.z`` from ``ml spider``.  Fallback:
     whatever launched us.  The result is probe-validated and cached.
 

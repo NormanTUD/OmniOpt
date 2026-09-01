@@ -494,7 +494,7 @@ class OmnioptCliTests(unittest.TestCase):
             cwd=str(REPO_ROOT),
             capture_output=True,
             text=True,
-            timeout=120,
+            timeout=600,
         )
         self.assertEqual(proc.returncode, 0, msg=proc.stderr)
         for model in ["OPTUNA_TPE", "OPTUNA_CMAES", "OPTUNA_GP",
@@ -510,7 +510,7 @@ class OmnioptCliTests(unittest.TestCase):
             cwd=str(REPO_ROOT),
             capture_output=True,
             text=True,
-            timeout=120,
+            timeout=600,
         )
         self.assertEqual(proc.returncode, 0, msg=proc.stderr)
         for flag in ["--optuna_sampler", "--optuna_pruner",

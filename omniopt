@@ -13734,7 +13734,9 @@ if __name__ == "__main__":
     # user asked us to) and tail -f the output afterwards" logic.
     # Without this we would only run main_wrapper() locally, which
     # works but defeats the point of running on a login node of an
-    # HPC system.
+    # HPC system.  The bash version submitted to sbatch whenever sbatch
+    # was available; ``--follow`` only controls whether we tail the log
+    # afterwards, NOT whether we submit in the first place.
     try:
         _should_sbatch_submit = (
             _os.environ.get("SLURM_JOB_ID") is None
@@ -13743,7 +13745,7 @@ if __name__ == "__main__":
             and not getattr(args, "tests", False)
             and not getattr(args, "calculate_pareto_front_of_job", None)
         )
-        if _should_sbatch_submit and getattr(args, "follow", False):
+        if _should_sbatch_submit:
             # Build an sbatch wrapper script.  It runs on the compute node
             # and (1) loads the HPC lmod toolchain / newest Python module
             # *before* omniopt and its installer/bootstrapper run, then
@@ -13847,7 +13849,12 @@ if __name__ == "__main__":
                     _sys.stderr.flush()
                     _sys.exit(_res.returncode)
             _job_id = (_res.stdout.strip().split() or [""])[-1]
-            print_yellow(f"[omniopt] Submitted job {_job_id}, waiting for output ...")
+            _want_follow = bool(getattr(args, "follow", False))
+            if _want_follow:
+                _wait_msg = "tailing log output"
+            else:
+                _wait_msg = "waiting for job to finish (no --follow; no live tail)"
+            print_yellow(f"[omniopt] Submitted job {_job_id}, {_wait_msg} ...")
             # Find the SLURM log file via scontrol
             _log_path = None
             try:
@@ -13865,9 +13872,11 @@ if __name__ == "__main__":
             # Start a background poller that kills the tail process once
             # the job leaves squeue (mirror of the old bash
             # `kill_tail_when_squeue_job_empty` helper).
+            # ``--follow`` only controls whether we tail the log; the sbatch
+            # submission itself happens unconditionally on HPC (see above).
             _tail_proc = None
             _poll_thread_stop = False
-            if _log_path:
+            if _log_path and _want_follow:
                 while not _os.path.exists(_log_path):
                     _time.sleep(2)
                 _tail_proc = _subprocess.Popen(

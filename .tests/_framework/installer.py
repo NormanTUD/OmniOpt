@@ -152,33 +152,47 @@ def _ml_python(modules: str) -> str | None:
 def _resolve_base_python() -> str:
     """Return the interpreter to build the venv from.
 
-    Preference on HPC (lmod present): the newest available Python module,
-    else the known-good toolchain's python.  Fallback: whatever launched us.
-    The result is probe-validated and cached.
+    Preference on HPC (lmod present): the known-good toolchain
+    ``release/24.04 GCC/12.3.0 OpenMPI/4.1.5 PyTorch/2.1.2`` first, then
+    the newest available ``Python/x.y.z`` from ``ml spider``.  Fallback:
+    whatever launched us.  The result is probe-validated and cached.
+
+    Mirrors the omniopt main script's ``_omniopt_hpc_module_list`` so the
+    test framework and the script it spawns always agree on which Python
+    the venv should be built from (same ``.omniax_venvs/Python_X.Y.Z``
+    directory, same interpreter binary).
     """
     if _BASE_PY_CACHE:
         return _BASE_PY_CACHE[0]
 
     base: str | None = None
     if _has_lmod():
-        newest = _newest_python_module()
-        if newest:
-            base = _ml_python(newest)
-        if not base and newest:
-            print(
-                f"[installer] lmod found newest Python module {newest!r} "
-                f"but failed to load it; falling back to toolchain.",
-                file=sys.stderr,
-            )
+        # Try the known-good toolchain first.  It ships a full
+        # PyTorch/MPI stack and a working Python on every supported
+        # cluster, so when it loads we know the venv will be usable.
+        tc = "release/24.04 GCC/12.3.0 OpenMPI/4.1.5 PyTorch/2.1.2"
+        base = _ml_python(tc)
         if not base:
-            # Fall back to the known-good toolchain python.
-            tc = "release/24.04 GCC/12.3.0 OpenMPI/4.1.5 PyTorch/2.1.2"
-            base = _ml_python(tc)
-            if not base:
+            # Toolchain not available on this cluster -- fall back to
+            # whatever is the newest available ``Python/x.y.z`` module
+            # so we still build on a recent interpreter instead of the
+            # stale login-node system python.
+            newest = _newest_python_module()
+            if newest:
+                base = _ml_python(newest)
+                if not base:
+                    print(
+                        f"[installer] lmod present but no usable Python "
+                        f"module found (tried toolchain {tc!r}, newest "
+                        f"{newest!r}); falling back to {sys.executable}.",
+                        file=sys.stderr,
+                    )
+            else:
                 print(
-                    f"[installer] lmod present but no usable Python module "
-                    f"found (tried: {newest or 'none'}, {tc!r}); "
-                    f"falling back to {sys.executable}.",
+                    f"[installer] lmod present but toolchain {tc!r} "
+                    f"did not load and 'ml spider Python' returned no "
+                    f"usable Python module; falling back to "
+                    f"{sys.executable}.",
                     file=sys.stderr,
                 )
     else:

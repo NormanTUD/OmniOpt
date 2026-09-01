@@ -850,10 +850,6 @@ def _installed_versions():
         pass
     return versions
 
-def _installed_names():
-    """Return a set of normalized installed distribution names."""
-    return set(_installed_versions().keys())
-
 def _spec_name(spec):
     """Extract the package name from a requirement spec like 'rich>=12.0'."""
     for sep in ["==", ">=", "<=", "~=", "!=", ">", "<", ";", " @ "]:

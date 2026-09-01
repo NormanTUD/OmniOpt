@@ -1727,7 +1727,16 @@ def _omniopt_print_bootstrap_error(errors: list) -> None:
 def _omniopt_install_with_candidate(base_python: str) -> bool:
     """Build + populate a venv for one base Python.  Returns True on
     success (ready to re-exec); False if this candidate failed."""
+    _omniopt_install_debug(
+        f"================ _omniopt_install_with_candidate: START ================"
+    )
+    _omniopt_install_debug(
+        f"_omniopt_install_with_candidate: base_python={base_python}"
+    )
     venv_dir = _omniopt_get_venv_dir(base_python)
+    _omniopt_install_debug(
+        f"_omniopt_install_with_candidate: venv_dir={venv_dir}"
+    )
     # If we just re-exec'd from a stale login-node Python into an HPC
     # module Python, the venv dir computed from base_python will already
     # be different from any pre-existing one.  But to be extra safe,
@@ -1735,6 +1744,11 @@ def _omniopt_install_with_candidate(base_python: str) -> bool:
     if _os.environ.get("OMNIOPT_REEXECED") and _os.path.exists(venv_dir):
         _hash_file = _os.path.join(venv_dir, "omniopt_requirements_hash")
         if _os.path.exists(_hash_file):
+            _omniopt_install_debug(
+                f"_omniopt_install_with_candidate: OMNIOPT_REEXECED is set and "
+                f"{_hash_file} exists -> rm -rf {venv_dir} to force a clean "
+                f"rebuild under the new Python"
+            )
             _sys.stderr.write(
                 f"[omniopt] re-exec'd into new Python; rebuilding venv at {venv_dir}.\n"
             )
@@ -1742,32 +1756,72 @@ def _omniopt_install_with_candidate(base_python: str) -> bool:
             _shutil.rmtree(venv_dir, ignore_errors=True)
     try:
         _omniopt_create_venv(venv_dir, base_python)
-    except Exception:
+    except Exception as _e:
+        _omniopt_install_debug(
+            f"_omniopt_install_with_candidate: symlinked venv creation failed "
+            f"({_e!r}), retrying with --copies"
+        )
         # A symlinked/vendored python can be broken on login nodes; try a
         # real copy of the interpreter instead.
         if _os.path.exists(venv_dir):
             _shutil.rmtree(venv_dir, ignore_errors=True)
         try:
             _omniopt_create_venv(venv_dir, base_python, copies=True)
-        except Exception:
+        except Exception as _e2:
+            _omniopt_install_debug(
+                f"_omniopt_install_with_candidate: --copies venv creation "
+                f"ALSO failed ({_e2!r}), giving up on this candidate"
+            )
             return False
 
     venv_python = _omniopt_venv_python(venv_dir)
     if not _os.path.exists(venv_python):
+        _omniopt_install_debug(
+            f"_omniopt_install_with_candidate: venv python missing at "
+            f"{venv_python}"
+        )
         return False
     if not _omniopt_probe_python(venv_python):
+        _omniopt_install_debug(
+            f"_omniopt_install_with_candidate: venv python at {venv_python} "
+            f"fails the self-probe (broken / SIGILL)"
+        )
         _sys.stderr.write(
             f"[omniopt] venv python at {venv_python} fails a self-check "
             "(broken interpreter); trying another Python.\n"
         )
         _sys.stderr.flush()
         return False
+    _omniopt_install_debug(
+        f"_omniopt_install_with_candidate: venv python {venv_python} looks OK"
+    )
 
     if _omniopt_requirements_changed(venv_dir):
+        _omniopt_install_debug(
+            f"_omniopt_install_with_candidate: requirements hash changed or "
+            f"missing -> running _omniopt_install_requirements"
+        )
         if not _omniopt_install_requirements(venv_python):
+            _omniopt_install_debug(
+                f"_omniopt_install_with_candidate: pip install FAILED for "
+                f"{venv_python}"
+            )
             return False
         _omniopt_save_requirements_hash(venv_dir)
+        _omniopt_install_debug(
+            f"_omniopt_install_with_candidate: requirements hash saved to "
+            f"{venv_dir}"
+        )
+    else:
+        _omniopt_install_debug(
+            f"_omniopt_install_with_candidate: requirements hash UNCHANGED "
+            f"-> skipping pip install (fast warm-venv path)"
+        )
 
+    _omniopt_install_debug(
+        f"_omniopt_install_with_candidate: execve-ing into the venv python "
+        f"{venv_python} with the original argv"
+    )
     env = _os.environ.copy()
     env[_OMNIOPT_HASHTAG] = "1"
     env["RUN_VIA_RUNSH"] = "1"
@@ -1791,27 +1845,60 @@ def _omniopt_bootstrap_and_reexec() -> None:
     (PATH pythons, then HPC module Pythons) before giving up with a
     clear, actionable error message.
     """
+    _omniopt_install_debug(
+        f"================ _omniopt_bootstrap_and_reexec: START ================"
+    )
     _omniopt_check_required_programs()
 
     candidates = _omniopt_python_candidates()
     if not candidates:
+        _omniopt_install_debug(
+            "_omniopt_bootstrap_and_reexec: _omniopt_python_candidates "
+            "returned [] -> using sys.executable as a last-resort fallback"
+        )
         candidates = [_sys.executable]
+    _omniopt_install_debug(
+        f"_omniopt_bootstrap_and_reexec: candidate order = {candidates}"
+    )
 
     errors = []
     for base_python in candidates:
+        _omniopt_install_debug(
+            f"_omniopt_bootstrap_and_reexec: trying candidate "
+            f"{base_python} ({candidates.index(base_python)+1}/{len(candidates)})"
+        )
         try:
             if _omniopt_install_with_candidate(base_python):
+                _omniopt_install_debug(
+                    f"_omniopt_bootstrap_and_reexec: candidate {base_python} "
+                    f"SUCCEEDED (execve never returns past this point)"
+                )
                 return
             errors.append(f"{base_python}: venv/pip setup failed")
         except KeyboardInterrupt:
+            _omniopt_install_debug(
+                "_omniopt_bootstrap_and_reexec: KeyboardInterrupt"
+            )
             _sys.stdout.write("\n[omniopt] install cancelled\n")
             _sys.stdout.flush()
             _sys.exit(130)
         except _subprocess.CalledProcessError as _e:
+            _omniopt_install_debug(
+                f"_omniopt_bootstrap_and_reexec: pip failed (exit "
+                f"{_e.returncode}) for {base_python}"
+            )
             errors.append(f"{base_python}: pip failed (exit {_e.returncode})")
         except Exception as _e:  # noqa: BLE001
+            _omniopt_install_debug(
+                f"_omniopt_bootstrap_and_reexec: candidate {base_python} "
+                f"raised {_e!r}"
+            )
             errors.append(f"{base_python}: {_e!r}")
 
+    _omniopt_install_debug(
+        f"_omniopt_bootstrap_and_reexec: ALL {len(candidates)} candidates "
+        f"failed -> printing diagnostic and exiting 20"
+    )
     _omniopt_print_bootstrap_error(errors)
     _sys.exit(20)
 

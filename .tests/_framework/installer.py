@@ -343,18 +343,23 @@ def _normalize_name(name):
     return re.sub(r"[-_.]+", "-", name).lower()
 
 
-def _installed_names():
-    """Return a set of normalized installed distribution names."""
-    names = set()
+def _installed_versions():
+    """Return {normalized_name: version_string} for installed distributions."""
+    versions = {}
     try:
         import importlib.metadata as _im
         for _d in _im.distributions():
             _n = _d.metadata.get("Name", "") if _d.metadata else ""
             if _n:
-                names.add(_normalize_name(_n))
+                versions[_normalize_name(_n)] = _d.version or ""
     except Exception:
         pass
-    return names
+    return versions
+
+
+def _installed_names():
+    """Return a set of normalized installed distribution names."""
+    return set(_installed_versions().keys())
 
 
 def _spec_name(spec):
@@ -366,6 +371,59 @@ def _spec_name(spec):
     if "[" in spec:
         spec = spec.split("[")[0]
     return spec.strip()
+
+
+def _spec_constraint(spec):
+    """Extract (operator, version) from a spec like 'numpy<2.0'.
+    Returns None if no version constraint."""
+    for op in ("==", ">=", "<=", "~=", "!=", ">", "<"):
+        if op in spec:
+            rest = spec.split(op, 1)[1].strip()
+            rest = rest.split("#")[0].strip().split(";")[0].strip().split(",")[0].strip()
+            return (op, rest)
+    return None
+
+
+def _version_tuple(v):
+    """Parse a version string like '2.2.4' into (2, 2, 4).
+    Non-numeric suffixes are ignored for comparison."""
+    out = []
+    for part in v.split("."):
+        digits = ""
+        for ch in part:
+            if ch.isdigit():
+                digits += ch
+            else:
+                break
+        if digits:
+            out.append(int(digits))
+        else:
+            break
+    return tuple(out) if out else (0,)
+
+
+def _version_satisfies(installed, op, required):
+    """Check if installed version satisfies the constraint."""
+    iv = _version_tuple(installed)
+    rv = _version_tuple(required)
+    if op == "==":
+        return iv == rv
+    if op == ">=":
+        return iv >= rv
+    if op == "<=":
+        return iv <= rv
+    if op == ">":
+        return iv > rv
+    if op == "<":
+        return iv < rv
+    if op == "!=":
+        return iv != rv
+    if op == "~=":
+        if len(rv) < 2:
+            return iv >= rv
+        upper = rv[:-1] + (rv[-1] + 1,)
+        return rv <= iv < upper
+    return True
 
 
 def _flatten_reqs(path, _seen=None):
@@ -399,15 +457,21 @@ def _flatten_reqs(path, _seen=None):
 
 
 def _missing_specs(specs):
-    """Filter specs to only those not yet installed."""
-    installed = _installed_names()
+    """Filter specs to only those not yet installed or with wrong version."""
+    installed = _installed_versions()
     if not installed:
         return list(specs)
     missing = []
     for spec in specs:
         name = _normalize_name(_spec_name(spec))
+        constraint = _spec_constraint(spec)
         if name not in installed:
             missing.append(spec)
+            continue
+        if constraint is not None:
+            op, req_ver = constraint
+            if not _version_satisfies(installed[name], op, req_ver):
+                missing.append(spec)
     return missing
 
 
@@ -417,11 +481,6 @@ def _quiet(_path):
     _missing = _missing_specs(_all_specs)
 
     if not _missing:
-        sys.stdout.write(
-            f"[omniopt] {_label} already installed "
-            f"({len(_all_specs)} packages, skipped)\n"
-        )
-        sys.stdout.flush()
         return 0
 
     _t0 = time.time()
@@ -516,15 +575,10 @@ try:
             _specs = [_reqfile]
 
         # Skip already-installed packages: filter specs against what's
-        # currently installed.  If everything is already installed, skip
-        # pip entirely.
+        # currently installed (and satisfies version constraints).  If
+        # everything is already installed, skip pip entirely -- silently.
         _missing = _missing_specs(_specs)
         if not _missing:
-            sys.stdout.write(
-                f"[omniopt] {_label} already installed "
-                f"({len(_specs)} packages, skipped)\n"
-            )
-            sys.stdout.flush()
             sys.exit(0)
 
         _specs = _missing

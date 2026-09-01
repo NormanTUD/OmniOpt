@@ -14652,7 +14652,8 @@ if __name__ == "__main__":
                 _log_path = None
 
             if _want_follow:
-                # Bubble up any error (no sqeue => just leave squeue).
+                # Mirror of the bash wrapper: if the slurm log path cannot be
+                # determined, error out (old exit code 110).
                 if not _log_path:
                     print_red("[omniopt] LOG_PATH was undefined. Is slurm installed properly?")
                     _sys.exit(110)

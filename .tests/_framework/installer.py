@@ -366,10 +366,18 @@ def _venv_dir_name(base_python: str | None = None) -> str:
             capture_output=True, text=True, timeout=30,
         )
         py_version = (r.stdout or "").strip()
-    except (OSError, subprocess.TimeoutExpired):
+        _install_debug(
+            f"_venv_dir_name: probed {base} -> Python {py_version!r}"
+        )
+    except (OSError, subprocess.TimeoutExpired) as _e:
+        _install_debug(f"_venv_dir_name: probe of {base} failed: {_e!r}")
         py_version = ""
     if not py_version:
         py_version = "unknown_python"
+        _install_debug(
+            "_venv_dir_name: WARNING -- could not read Python version, "
+            "using placeholder 'unknown_python'"
+        )
     return f".omniax_venvs/Python_{py_version}/{_arch()}/"
 
 
@@ -379,11 +387,22 @@ def _resolve_venv_dir() -> Path:
     venv dir matches the interpreter the venv is actually built from."""
     existing = os.environ.get("VIRTUAL_ENV")
     if existing:
+        _install_debug(
+            f"_resolve_venv_dir: using existing VIRTUAL_ENV = {existing}"
+        )
         return Path(existing)
     root = os.environ.get("root_venv_dir")
     if root and Path(root).is_dir():
+        _install_debug(
+            f"_resolve_venv_dir: using root_venv_dir = {root}"
+        )
         return Path(root) / _venv_dir_name()
-    return Path.home() / _venv_dir_name()
+    _home = Path.home()
+    _install_debug(
+        f"_resolve_venv_dir: using HOME = {_home} (no VIRTUAL_ENV, "
+        f"no root_venv_dir)"
+    )
+    return _home / _venv_dir_name()
 
 
 def _read_requirements(path: Path) -> List[str]:

@@ -316,13 +316,24 @@ def _omniopt_reexec_with_modules() -> bool:
     )
     _env = _os.environ.copy()
     _env[_OMNIOPT_MODULES_LOADED] = "1"
+    # Invalidate any old venv built from the stale login-node Python:
+    # the new module Python will compute a different venv dir (version
+    # string in the path), so the old one is harmless, but we also
+    # stamp a marker so install code can detect "we just re-exec'd,
+    # prefer to rebuild from scratch if anything looks suspicious".
+    _env["OMNIOPT_REEXECED"] = "1"
     try:
         _os.execve(
             _shutil.which("bash") or "/bin/bash",
             ["bash", "-lc", _script, "omniopt"],
             _env,
         )
-    except OSError:
+    except OSError as _e:
+        _sys.stderr.write(
+            f"[omniopt] could not re-exec with HPC modules ({_e}); "
+            f"continuing with {_sys.executable}.\n"
+        )
+        _sys.stderr.flush()
         return False
     return True  # execve never returns on success
 
@@ -331,10 +342,40 @@ def _omniopt_create_venv(venv_dir: str, base_python: str | None = None, *, copie
     """Create a working virtualenv from ``base_python`` (default: the
     interpreter that launched us).  ``copies`` forces a real copy of the
     interpreter instead of a symlink -- safer on login nodes where a
-    symlinked python can resolve to the wrong (or a swapped) binary."""
+    symlinked python can resolve to the wrong (or a swapped) binary.
+
+    If the venv already exists but was built from a *different* Python
+    (e.g. the stale login-node 3.9.25 was used before HPC modules were
+    loaded), it's wiped and rebuilt so the venv always matches the
+    requested base_python."""
     base_python = base_python or _sys.executable
     if _os.path.exists(venv_dir):
-        return
+        _existing_py = _omniopt_venv_python(venv_dir)
+        if _os.path.exists(_existing_py):
+            try:
+                _v = _subprocess.run(
+                    [_existing_py, "--version"],
+                    capture_output=True, text=True, timeout=10,
+                )
+                _existing_ver = (_v.stdout or _v.stderr or "").strip()
+            except Exception:
+                _existing_ver = ""
+            try:
+                _b = _subprocess.run(
+                    [base_python, "--version"],
+                    capture_output=True, text=True, timeout=10,
+                )
+                _base_ver = (_b.stdout or _b.stderr or "").strip()
+            except Exception:
+                _base_ver = ""
+            if _existing_ver and _base_ver and _existing_ver == _base_ver:
+                return  # venv matches base_python, reuse it
+            _sys.stderr.write(
+                f"[omniopt] existing venv uses {_existing_ver}, "
+                f"but base_python is {_base_ver}; rebuilding venv.\n"
+            )
+            _sys.stderr.flush()
+        _shutil.rmtree(venv_dir, ignore_errors=True)
     _os.makedirs(_os.path.dirname(venv_dir), exist_ok=True)
     _cmd = [base_python, "-m", "venv", venv_dir]
     if copies:
@@ -1445,6 +1486,18 @@ def _omniopt_install_with_candidate(base_python: str) -> bool:
     """Build + populate a venv for one base Python.  Returns True on
     success (ready to re-exec); False if this candidate failed."""
     venv_dir = _omniopt_get_venv_dir(base_python)
+    # If we just re-exec'd from a stale login-node Python into an HPC
+    # module Python, the venv dir computed from base_python will already
+    # be different from any pre-existing one.  But to be extra safe,
+    # also nuke any venv whose hash file is from a different Python.
+    if _os.environ.get("OMNIOPT_REEXECED") and _os.path.exists(venv_dir):
+        _hash_file = _os.path.join(venv_dir, "omniopt_requirements_hash")
+        if _os.path.exists(_hash_file):
+            _sys.stderr.write(
+                f"[omniopt] re-exec'd into new Python; rebuilding venv at {venv_dir}.\n"
+            )
+            _sys.stderr.flush()
+            _shutil.rmtree(venv_dir, ignore_errors=True)
     try:
         _omniopt_create_venv(venv_dir, base_python)
     except Exception:

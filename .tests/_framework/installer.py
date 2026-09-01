@@ -202,20 +202,43 @@ def _ml_python(modules: str) -> str | None:
     failed toolchain/Python load would make us build on the stale login-node
     system python (e.g. Python 3.9.25) -- the exact bug we're fixing.
 
-    CRITICAL (alpha / ROME-cluster case): ``ml Python/3.13.5`` can exit 0
-    while ``command -v python3`` STILL returns ``/usr/bin/python3`` -- e.g.
-    when the module prepends its bin dir but the login shell's PATH has
-    /usr/bin in front, or the module only exposes a versioned binary.
-    So we use a multi-strategy bash script:
+    CRITICAL -- alpha / ROME-cluster semantics
+    ------------------------------------------
+    ``ml`` on these systems is NOT a binary, it's a BASH FUNCTION defined
+    as::
 
-      1. snapshot the PATH before the load,
-      2. after the load, walk ``which -a python3`` and pick the FIRST
-         python whose bin dir was NOT in the old PATH (that's the
-         module-provided binary),
-      3. fall back to ``command -v python3.13`` / ``3.12`` / ... for
-         module layouts that only expose a versioned binary,
-      4. only then trust the plain before/after ``command -v python3``
-         substitution check.
+        ml () { eval "$($LMOD_DIR/ml_cmd "$@")"; }
+
+    The ``eval`` modifies the *current shell's* environment (PATH,
+    LD_LIBRARY_PATH, MANPATH, ...).  Two consequences matter here:
+
+    1. Running ``ml`` inside ``$(...)`` loses the PATH change (subshells
+       don't propagate env back).  We therefore run ``ml`` DIRECTLY in
+       the bash -lc subprocess and capture stderr to a temp file.
+
+    2. The module python needs the module's LD_LIBRARY_PATH / PYTHONHOME
+       etc. to even import ``_ssl`` / ``_ctypes`` (the compiled C
+       extensions live in the module's tree).  Probing the python from
+       Python WITHOUT that env reports a bogus "SIGILL / broken
+       interpreter" and we wrongly fall back to ``/usr/bin/python3``.
+       The fix: probe the python INSIDE the module-loaded bash, where
+       ``eval`` has already set the right LD_LIBRARY_PATH.  And as a
+       bonus we capture the full module env and inject it into
+       ``os.environ`` here, so every later subprocess (venv creation,
+       pip install, the Rich progress-bar child) inherits it -- exactly
+       like the old bash flow where everything ran in the one shell that
+       had ``ml`` loaded.
+
+    Also: do NOT pass ``--quiet`` to ``ml``.  Old Lmod versions (alpha /
+    ROME pre-8.x) don't understand it and try to load a module literally
+    named ``--quiet``, fail silently, and leave python3 unchanged.
+
+    Multi-strategy python resolution (the bash side):
+      S1. ``command -v python3`` changed after the load (classic).
+      S2. ``which -a python3`` -- pick the first whose bin dir was NOT
+          in the old PATH (handles /usr/bin shadowing).
+      S3. ``command -v python3.13 / 3.12 / 3.11 / ...`` -- module layouts
+          that only expose a versioned binary.
     """
     if not _has_lmod() or not modules:
         _install_debug(
@@ -223,76 +246,12 @@ def _ml_python(modules: str) -> str | None:
             f"(has_lmod={_has_lmod()}, modules={modules!r})"
         )
         return None
+
+    # No --quiet! See CRITICAL above.  ``modules`` may contain spaces
+    # (e.g. "release/24.04 GCC/12.3.0 OpenMPI/4.1.5 PyTorch/2.1.2") which
+    # is exactly what unquoted bash word-splitting wants for ``ml``.
     script = _lmod_script(
-        (
-            '# --- snapshot the state BEFORE the module load ---------------------\n'
-            '_om_old_path="$PATH"\n'
-            '_om_old_py="$(command -v python3 2>/dev/null || true)"\n'
-            '_om_old_py_all="$(which -a python3 2>/dev/null || true)"\n'
-            '\n'
-            '# --- load the module(s) quietly -----------------------------------\n'
-            'ml --quiet ' + modules + ' >/dev/null 2>&1\n'
-            '_om_ml_rc=$?\n'
-            '\n'
-            '_om_simple_py="$(command -v python3 2>/dev/null || true)"\n'
-            '_om_new_py=""\n'
-            '\n'
-            '# Strategy 1: the classic "python3 changed after the load" check.\n'
-            'if [ -n "$_om_simple_py" ] && [ "$_om_simple_py" != "$_om_old_py" ]; then\n'
-            '    _om_new_py="$_om_simple_py"\n'
-            '    printf \'strategy=%s path=%s\\n\' "command -v" "$_om_new_py" >&2\n'
-            'fi\n'
-            '\n'
-            '# Strategy 2: module loaded but /usr/bin/python3 still shadows it --\n'
-            '# find a python whose bin dir was NOT in the old PATH.\n'
-            'if [ -z "$_om_new_py" ]; then\n'
-            '    for _om_c in $(which -a python3 2>/dev/null); do\n'
-            '        [ -x "$_om_c" ] || continue\n'
-            '        case ":$_om_old_path:" in\n'
-            '            *":$(dirname "$_om_c"):") ;;\n'
-            '            *)\n'
-            '                _om_new_py="$_om_c"\n'
-            '                printf \'strategy=%s path=%s\\n\' "which -a (new PATH entry)" "$_om_new_py" >&2\n'
-            '                break\n'
-            '                ;;\n'
-            '        esac\n'
-            '    done\n'
-            'fi\n'
-            '\n'
-            '# Strategy 3: some modules only expose a versioned binary (python3.X).\n'
-            'if [ -z "$_om_new_py" ]; then\n'
-            '    for _om_v in 3.13 3.12 3.11 3.10 3.9 3.8; do\n'
-            '        _om_c="$(command -v "python$_om_v" 2>/dev/null || true)"\n'
-            '        if [ -n "$_om_c" ] && [ -x "$_om_c" ] && [ "$_om_c" != "$_om_old_py" ]; then\n'
-            '            _om_new_py="$_om_c"\n'
-            '            printf \'strategy=%s path=%s\\n\' "command -v python$_om_v" "$_om_new_py" >&2\n'
-            '            break\n'
-            '        fi\n'
-            '    done\n'
-            'fi\n'
-            '\n'
-            '# Diagnostics for the debug trace: what changed?\n'
-            '_om_new_path="$PATH"\n'
-            '_om_added=""\n'
-            '_om_savedIFS="$IFS"\n'
-            'IFS=":"\n'
-            'for _om_e in $_om_new_path; do\n'
-            '    [ -z "$_om_e" ] && continue\n'
-            '    case ":$_om_old_path:" in\n'
-            '        *":$_om_e:"*) ;;\n'
-            '        *) _om_added="$_om_added$_om_e\\n" ;;\n'
-            '    esac\n'
-            'done\n'
-            'IFS="$_om_savedIFS"\n'
-            'printf \'ml-rc=%d\\nbefore-python=%s\\nafter-python=%s\\nbefore-python-all=%s\\nadded-path-entries:\\n%s\\n\' \\\n'
-            '    "$_om_ml_rc" "${_om_old_py:-(none)}" "${_om_simple_py:-(none)}" \\\n'
-            '    "${_om_old_py_all:-(none)}" "${_om_added:-(none)}" >&2\n'
-            '\n'
-            '# Final answer on stdout (may be empty if nothing usable was found).\n'
-            'if [ -n "$_om_new_py" ]; then\n'
-            '    printf \'%s\' "$_om_new_py"\n'
-            'fi\n'
-        )
+        _BASH_ML_PYTHON_SCRIPT_TEMPLATE.replace("{MODS}", modules)
     )
     _install_debug(f"_ml_python({modules!r}): launching bash -lc ...")
     _install_debug(f"  script:\n{script}")
@@ -305,33 +264,76 @@ def _ml_python(modules: str) -> str | None:
         return None
     _install_debug(
         f"_ml_python({modules!r}): bash exit={r.returncode} "
-        f"stdout={(r.stdout or '').strip()!r} stderr-len={len(r.stderr or '')}"
+        f"stdout-len={len(r.stdout or '')} stderr-len={len(r.stderr or '')}"
     )
     if r.stderr:
         for _ln in (r.stderr or "").splitlines():
             if _ln.strip():
                 _install_debug(f"  bash-diag> {_ln}")
-    lines = (r.stdout or "").strip().splitlines()
-    if not lines:
+
+    stdout = (r.stdout or "")
+    if "===PYTHON===" not in stdout or "===ENV_B64===" not in stdout:
         _install_debug(
-            f"_ml_python({modules!r}): NO usable python found (empty stdout). "
-            f"See the bash-diag lines above for the ml-rc / before-python / "
-            f"after-python / new-PATH-entries diagnosis."
+            f"_ml_python({modules!r}): NO usable python found -- neither "
+            f"===PYTHON=== nor ===ENV_B64=== marker on stdout. The bash-diag "
+            f"lines above show what ml / module reported."
         )
         return None
-    cand = lines[-1].strip()
-    _install_debug(f"_ml_python({modules!r}): candidate python = {cand!r}")
-    if not cand or not os.path.exists(cand):
+
+    try:
+        _py_section, _env_section = stdout.split("===ENV_B64===", 1)
+        _env_b64 = _env_section.strip()
+        _py_path = _py_section.split("===PYTHON===", 1)[1].strip().splitlines()
+        _py_path = [ln for ln in _py_path if ln.strip()][-1].strip()
+    except Exception as _e:
+        _install_debug(
+            f"_ml_python({modules!r}): failed to parse stdout markers: {_e!r}"
+        )
+        return None
+
+    _install_debug(f"_ml_python({modules!r}): candidate python = {_py_path!r}")
+    if not _py_path or not os.path.exists(_py_path):
         _install_debug(
             f"_ml_python({modules!r}): candidate path does not exist on disk"
         )
         return None
-    if not _probe_python(cand):
+
+    # Inject the FULL module environment into THIS process so every
+    # later subprocess (venv creation, pip, ...) inherits LD_LIBRARY_PATH
+    # and friends -- this is what made the old bash "work".  We do this
+    # BEFORE re-probing in Python because os.environ leaks into the
+    # subprocess.run that _probe_python uses.
+    try:
+        import base64 as _b64, json as _json
+        _env_dict = _json.loads(_b64.b64decode(_env_b64).decode("utf-8", "replace"))
+        if isinstance(_env_dict, dict):
+            # Preserve PYTHONPATH/USER/... etc. but the module env wins on
+            # collision (matches "we are now inside the module shell").
+            _before_keys = set(os.environ)
+            os.environ.update(_env_dict)
+            _install_debug(
+                f"_ml_python({modules!r}): injected module env into "
+                f"os.environ ({len(_env_dict)} keys, "
+                f"{len(set(_env_dict) - _before_keys)} new, "
+                f"{len(_before_keys - set(_env_dict))} removed, "
+                f"{len(_before_keys & set(_env_dict))} overwritten)"
+            )
+            _MODULE_ENV_LOADED_MODULES.append(modules)
+    except Exception as _e:
         _install_debug(
-            f"_ml_python({modules!r}): candidate python failed the self-probe "
-            f"(broken / SIGILL / different ISA)"
+            f"_ml_python({modules!r}): WARNING -- could not decode/apply "
+            f"module env ({_e!r}); probes/venv may fail without LD_LIBRARY_PATH"
+        )
+
+    if not _probe_python(_py_path):
+        _install_debug(
+            f"_ml_python({modules!r}): candidate python failed the Python-"
+            f"side self-probe (broken / SIGILL / different ISA) even WITH "
+            f"module env injected"
         )
         return None
+    _install_debug(f"_ml_python({modules!r}): OK -> {_py_path}")
+    return _py_path
     _install_debug(f"_ml_python({modules!r}): OK -> {cand}")
     return cand
 

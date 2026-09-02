@@ -26,7 +26,7 @@ def main(argv=None) -> int:  # pylint: disable=unused-argument
 
     all_funcs = []
     for js_file in GUI_DIR.glob("*.js"):
-        if js_file.name in ("gui_js_tests.js",) or "jquery" in js_file.name:
+        if js_file.name in ("gui_js_tests.js", "gui_js_tests_more.js") or "jquery" in js_file.name:
             continue
         try:
             content = js_file.read_text(encoding="utf-8", errors="ignore")

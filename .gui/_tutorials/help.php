@@ -19,12 +19,15 @@
 	$file_path = "../omniopt";
 
 	// Backwards-compat: if the new Python file (omniopt) exists but the
-	// old .omniopt.py doesn't, make a temporary symlink so the PHP
-	// parser (which only handles .py files) still finds the argparse
-	// definitions.  The symlink is removed again at the end of the
-	// request via a shutdown handler.
+	// old .omniopt.py doesn't, make a temporary symlink with a .py
+	// extension so the PHP parser (which only handles .py files) still
+	// finds the argparse definitions.  The symlink lives in PHP's temp
+	// dir because the web server user often can't write into .gui/, and
+	// is removed again at the end of the request via a shutdown
+	// handler.  A uniqid() suffix avoids clashes between concurrent
+	// requests that share the same temp dir.
 	if (!file_exists($file_path . ".py") && file_exists($file_path)) {
-		$link_path = __DIR__ . "/../omniopt.py";
+		$link_path = sys_get_temp_dir() . "/omniopt_" . uniqid("", true) . ".py";
 		if (!@symlink(realpath($file_path), $link_path)) {
 			echo "<p><strong>ERROR:</strong> Could not create symlink $link_path</p>";
 		} else {

@@ -30,8 +30,9 @@ def main(argv=None) -> int:  # pylint: disable=unused-argument
 
     p1 = subprocess.run(["php", "tests.php"], cwd=str(GUI_DIR), env=env)
     p2 = subprocess.run(["php", "tests_extended.php"], cwd=str(GUI_DIR), env=env)
+    p3 = subprocess.run(["php", "tests_more.php"], cwd=str(GUI_DIR), env=env)
 
-    if p1.returncode != 0 or p2.returncode != 0:
+    if p1.returncode != 0 or p2.returncode != 0 or p3.returncode != 0:
         red_text("At least one PHP-unit test failed")
         return 1
     if os.environ.get("SHOW_SUCCESS"):

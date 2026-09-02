@@ -30,10 +30,18 @@ def main(argv=None) -> int:  # pylint: disable=unused-argument
         print(f"{test_file} not found")
         return 1
 
+    more_test_file = GUI_DIR / "gui_js_tests_more.js"
+
     proc = subprocess.run(["node", str(test_file)], cwd=str(GUI_DIR))
     if proc.returncode != 0:
         red_text("At least one JS-unit test failed")
         return 1
+
+    if more_test_file.exists():
+        proc2 = subprocess.run(["node", str(more_test_file)], cwd=str(GUI_DIR))
+        if proc2.returncode != 0:
+            red_text("At least one additional JS-unit test failed")
+            return 1
 
     if os.environ.get("SHOW_SUCCESS"):
         green_text("JS-Unit-Tests OK")

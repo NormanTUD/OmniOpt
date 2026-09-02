@@ -765,6 +765,7 @@ smoke_tests:
   - test_optuna_integration
   - state_files
   - php_unit_tests
+  - js_gui_unit_tests
   - find_missing_f_strings
   - find_functions_with_missing_types
   - single_quotes_in_configloader

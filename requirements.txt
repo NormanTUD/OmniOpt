@@ -33,3 +33,5 @@ setuptools
 pyright
 tabulate
 optuna
+sympy
+antlr4-python3-runtime

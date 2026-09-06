@@ -62,7 +62,11 @@
 		"result_min_max",
 		"job_submit_durations.txt",
 		"generation_times.txt",
-		"git_version"
+		"git_version",
+		"formula.txt",
+		"formula_pretty.txt",
+		"formula_underbraces.txt",
+		"formula_params.json"
 	];
 
 	$acceptable_files = array_map(function($file) {

@@ -1,0 +1,129 @@
+#!/usr/bin/env python3
+"""Smoke test: verify the add_formula_to_overview PHP function in
+.gui/share_functions.php renders the formula block correctly.
+
+We can't load share_functions.php directly because it pulls in globals.php
+which expects $_SERVER etc., so we replicate the relevant logic and
+exercise it.  If the production function drifts from this test, both
+need to be updated together.
+"""
+
+from __future__ import annotations
+
+import html
+import os
+import shutil
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+
+THIS_DIR = Path(__file__).resolve().parent
+REPO_ROOT = THIS_DIR.parent
+SHARE_PHP = REPO_ROOT / ".gui" / "share_functions.php"
+
+# Replicated logic (mirror of add_formula_to_overview in share_functions.php).
+def my_htmlentities(s):
+    return html.escape(s, quote=True)
+
+
+def add_formula_to_overview(run_dir, overview_html, warnings):
+    formula_tex = os.path.join(run_dir, "formula_underbraces.txt")
+    formula_raw = os.path.join(run_dir, "formula.txt")
+    formula_pretty = os.path.join(run_dir, "formula_pretty.txt")
+
+    if not os.path.isfile(formula_tex) or not os.path.isfile(formula_raw):
+        return overview_html, warnings
+
+    latex = open(formula_tex).read().strip()
+    raw = open(formula_raw).read().strip()
+    pretty = open(formula_pretty).read().strip() if os.path.isfile(formula_pretty) else ""
+
+    if not latex or not raw:
+        return overview_html, warnings
+
+    safe_latex = my_htmlentities(latex)
+    safe_raw = my_htmlentities(raw)
+    safe_pretty = f"<pre>{my_htmlentities(pretty)}</pre>" if pretty else ""
+
+    overview_html += "<h2>Formula</h2>\n"
+    overview_html += "<div class='formula_block'>"
+    overview_html += "\\[" + safe_latex + "\\]\n"
+    overview_html += "</div>"
+    overview_html += "<details><summary>Source</summary><pre>" + safe_raw + "</pre></details>"
+    if safe_pretty:
+        overview_html += "<details><summary>ASCII rendering</summary>" + safe_pretty + "</details>"
+
+    return overview_html, warnings
+
+
+def main():
+    failures = 0
+
+    # Test 1: happy path
+    with tempfile.TemporaryDirectory() as run_dir:
+        Path(run_dir, "formula.txt").write_text("f(x) = 2*x + y\n")
+        Path(run_dir, "formula_underbraces.txt").write_text(
+            r"\underbrace{2x}_{\text{x}} + \underbrace{y}_{\text{y}}" + "\n"
+        )
+        Path(run_dir, "formula_pretty.txt").write_text("2*x + y\n")
+        html_out, warnings = add_formula_to_overview(run_dir, "", [])
+        # Backslashes in the LaTeX are NOT escaped by html.escape (they
+        # are not HTML-significant), so we look for them verbatim.
+        checks = [
+            ("<h2>Formula</h2>", "heading"),
+            ("formula_block", "div"),
+            ("\\underbrace{2x}", "mathjax with underbrace"),
+            ("\\]", "mathjax close"),
+            ("<details><summary>Source</summary>", "source details"),
+            ("<details><summary>ASCII rendering</summary>", "ascii details"),
+            ("2*x + y", "raw formula"),
+        ]
+        for needle, label in checks:
+            if needle not in html_out:
+                print(f"FAIL test_happy_path: missing {label!r} ({needle!r})")
+                print(f"GOT: {html_out}")
+                failures += 1
+        if warnings:
+            print(f"FAIL test_happy_path: unexpected warnings {warnings}")
+            failures += 1
+    if failures == 0:
+        print("test_happy_path: ok")
+
+    # Test 2: missing files — html is unchanged
+    with tempfile.TemporaryDirectory() as run_dir:
+        html_out, warnings = add_formula_to_overview(run_dir, "PRESERVE", [])
+        if html_out != "PRESERVE":
+            print(f"FAIL test_missing_files: expected 'PRESERVE', got {html_out!r}")
+            failures += 1
+        if warnings:
+            print(f"FAIL test_missing_files: unexpected warnings {warnings}")
+            failures += 1
+    if failures == 0:
+        print("test_missing_files: ok")
+
+    # Test 3: no formula_pretty — ascii block omitted
+    with tempfile.TemporaryDirectory() as run_dir:
+        Path(run_dir, "formula.txt").write_text("x*x\n")
+        Path(run_dir, "formula_underbraces.txt").write_text(
+            r"\underbrace{x}_{\text{x}}" + "\n"
+        )
+        html_out, _ = add_formula_to_overview(run_dir, "", [])
+        if "ASCII rendering" in html_out:
+            print("FAIL test_no_pretty: ASCII rendering should be absent")
+            failures += 1
+        if "<h2>Formula</h2>" not in html_out:
+            print("FAIL test_no_pretty: missing heading")
+            failures += 1
+    if failures == 0:
+        print("test_no_pretty: ok")
+
+    if failures:
+        print(f"{failures} test(s) failed")
+        return 1
+    print("All share-formula tests passed")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -1,0 +1,158 @@
+#!/usr/bin/env python3
+"""Unit tests for ``.executor_backend.py``.
+
+Covers:
+
+* sbatch detection
+* Backend factory's choice between AutoExecutor / LocalExecutor
+* submit + wait round-trip (when submitit is available)
+* CPUMonitor basic lifecycle
+
+Each test is a ``def test_*() -> bool`` function returning ``True`` on
+success.
+"""
+
+from __future__ import annotations
+
+import os
+import sys
+import tempfile
+import time
+from importlib.machinery import SourceFileLoader
+from pathlib import Path
+
+THIS_DIR = Path(__file__).resolve().parent
+REPO_ROOT = THIS_DIR.parent
+
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from _framework.helpers import red_text  # noqa: E402
+
+
+def _load(name: str, location: Path):
+    return SourceFileLoader(name, str(location)).load_module()
+
+
+eb = _load("eb", REPO_ROOT / ".executor_backend.py")
+
+
+def _check(condition: bool, message: str) -> bool:
+    if not condition:
+        red_text(f"FAIL: {message}")
+        return False
+    return True
+
+
+# ---------------------------------------------------------------------------
+# Detection helpers
+# ---------------------------------------------------------------------------
+
+def test_is_sbatch_in_path_returns_bool() -> bool:
+    val = eb.is_sbatch_in_path()
+    return _check(isinstance(val, bool), f"is_sbatch_in_path() should return bool, got {type(val)}")
+
+
+def test_is_slurm_env_returns_bool() -> bool:
+    val = eb.is_slurm_env()
+    return _check(isinstance(val, bool), f"is_slurm_env() should return bool, got {type(val)}")
+
+
+# ---------------------------------------------------------------------------
+# Backend factory
+# ---------------------------------------------------------------------------
+
+def test_backend_factory_no_sbatch_picks_local() -> bool:
+    if eb.submitit is None:
+        print("  (skipped, submitit missing)")
+        return True
+    with tempfile.TemporaryDirectory() as td:
+        backend = eb.make_backend(td, name="test-no-sbatch", force_local=False, timeout_min=5)
+        # On this test machine sbatch is not on the path, so we expect 'local'.
+        if eb.is_sbatch_in_path():
+            return _check(backend.kind.is_auto, f"expected auto, got {backend.kind.name}")
+        return _check(backend.kind.is_local, f"expected local, got {backend.kind.name}")
+
+
+def test_backend_factory_force_local() -> bool:
+    if eb.submitit is None:
+        print("  (skipped, submitit missing)")
+        return True
+    with tempfile.TemporaryDirectory() as td:
+        backend = eb.make_backend(td, name="test-force-local", force_local=True, timeout_min=5)
+        return _check(backend.kind.is_local, f"force_local=True should yield local, got {backend.kind.name}")
+
+
+def test_backend_submit_and_wait() -> bool:
+    if eb.submitit is None:
+        print("  (skipped, submitit missing)")
+        return True
+
+    def _work(x: int) -> int:
+        time.sleep(0.05)
+        return x * 2
+
+    with tempfile.TemporaryDirectory() as td:
+        backend = eb.make_backend(td, name="test-submit", force_local=True, timeout_min=5)
+        jobs = backend.submit_array(_work, [(i,) for i in range(4)])
+        results = backend.wait(jobs)
+        ok = _check(sorted(results) == [0, 2, 4, 6], f"submit_array+wait should yield [0,2,4,6], got {results}")
+        return ok
+
+
+# ---------------------------------------------------------------------------
+# CPUMonitor
+# ---------------------------------------------------------------------------
+
+def test_cpu_monitor_context_manager() -> bool:
+    if eb.CPUMonitor is None or eb.psutil is None or eb.Console is None:
+        print("  (skipped, rich/psutil missing)")
+        return True
+    try:
+        with eb.CPUMonitor(total=4) as mon:
+            mon.tick(submitted=1)
+            time.sleep(0.2)
+            mon.tick(submitted=1, completed=1)
+            time.sleep(0.2)
+        return _check(True, "CPUMonitor context manager should run without error")
+    except Exception as exc:
+        return _check(False, f"CPUMonitor raised {exc!r}")
+
+
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
+
+TESTS = [
+    test_is_sbatch_in_path_returns_bool,
+    test_is_slurm_env_returns_bool,
+    test_backend_factory_no_sbatch_picks_local,
+    test_backend_factory_force_local,
+    test_backend_submit_and_wait,
+    test_cpu_monitor_context_manager,
+]
+
+
+def main() -> int:
+    failures = 0
+    for t in TESTS:
+        print(f"running {t.__name__} ...", end=" ", flush=True)
+        try:
+            ok = t()
+        except Exception as exc:
+            ok = False
+            red_text(f"\n  EXCEPTION: {exc!r}")
+        if ok:
+            print("ok")
+        else:
+            failures += 1
+            print("FAIL")
+    if failures:
+        red_text(f"\n{failures} test(s) failed")
+        return 1
+    print("\nAll executor_backend tests passed")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

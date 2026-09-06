@@ -3297,6 +3297,9 @@ class ConfigLoader:
     skip_search: bool
     just_return_defaults: bool
     run_mode: str
+    formula: Optional[str]
+    formula_mode: str
+    formula_python_path: str
 
     def __init__(self: Any, _parsing_arguments_loader: Any) -> None:
         self.parser = argparse.ArgumentParser(
@@ -3397,6 +3400,11 @@ class ConfigLoader:
         optional.add_argument('--skip_search', help='Skips the actual search, uses exit code 0 if not the environment variable SKIP_SEARCH_EXIT_CODE is set', action='store_true', default=False)
         optional.add_argument('--nr_evals_per_arm', help='Number of evaluations per arm (hyperparameter combination) to check deviation from random initialization. Default: 1', type=int, default=1)
         optional.add_argument('--dump_config', help='Dump the current configuration to a file. Format is auto-detected from extension (.yaml/.yml, .toml, .json). Use - or omit the path to print to stdout (defaults to YAML). Example: --dump_config my_config.toml', type=str, nargs='?', const='-', default=None)
+
+        # --- Formula mode (new) ---------------------------------------------
+        optional.add_argument('--formula', help='An optional math formula (LaTeX or infix) that defines the objective to minimise/maximise. When set, OmniOpt2 will auto-generate a `--run_program` from this formula and derive hyperparameter suggestions.', type=str, default=None)
+        optional.add_argument('--formula_mode', help='How to interpret --formula: \'auto\' (default, picks latex when \'\\\' is present), \'latex\' or \'infix\'.', type=str, default='auto', choices=['auto', 'latex', 'infix'])
+        optional.add_argument('--formula_python_path', help='Path to the Python interpreter that will be used by the auto-generated run-program. Defaults to the current Python interpreter.', type=str, default=sys.executable)
 
         speed.add_argument('--dont_warm_start_refitting', help='Do not keep Model weights, thus, refit for every generator (may be more accurate, but slower)', action='store_true', default=False)
         speed.add_argument('--refit_on_cv', help='Refit on Cross-Validation (helps in accuracy, but makes generating new points slower)', action='store_true', default=False)
@@ -5028,6 +5036,277 @@ def _find_latest_valid_run_dir(fallback_continue_dir: str) -> Optional[str]:
 
 global_vars["joined_run_program"] = ""
 
+
+def _init_formula() -> None:
+    """Parse ``args.formula`` (if any), print it and wire it into the run.
+
+    This runs **before** the run folder has been created, so it can only:
+
+    * Parse the formula and print the ASCII rendering to stdout.
+    * Set ``global_vars["joined_run_program"]`` to a placeholder that
+      ``main()`` later expands into a real helper script once the run
+      folder exists.
+    """
+    if not getattr(args, "formula", None):
+        return
+
+    try:
+        # Load .formulas.py via importlib (the leading dot prevents a regular
+        # ``import .formulas`` from working because Python's default importer
+        # won't pick up dotfiles).
+        import importlib.util as _il_util  # noqa: F401  (kept local on purpose)
+        formulas_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), ".formulas.py")
+        spec = importlib.util.spec_from_file_location("_omniopt_formulas", formulas_path)
+        if spec is None or spec.loader is None:
+            raise ImportError(f"Could not load spec for {formulas_path}")
+        _formulas_mod = importlib.util.module_from_spec(spec)
+        # Register in sys.modules so dataclass (which looks up the module by
+        # ``__module__``) can find it.  Without this, Python 3.13 raises
+        # AttributeError: 'NoneType' object has no attribute '__dict__'.
+        sys.modules.setdefault("_omniopt_formulas", _formulas_mod)
+        spec.loader.exec_module(_formulas_mod)
+        Formula = _formulas_mod.Formula
+    except Exception as exc:  # pragma: no cover - import error
+        print_red(f"Formula support is unavailable: {exc}")
+        return
+
+    try:
+        # Decode the formula if it's base64-encoded.  The GUI sends
+        # base64 so that special characters survive the shell, but a
+        # human running on the command line might also pipe through
+        # base64.  We try to detect and decode that automatically.
+        raw_formula = args.formula or ""
+        # Drop whitespace / control chars that the shell might have
+        # injected.
+        cleaned = raw_formula.strip()
+        decoded = None
+        import base64 as _b64
+        for candidate in (cleaned, cleaned.replace("\n", "").replace("\r", "").replace("\t", "")):
+            if not candidate:
+                continue
+            try:
+                guess = _b64.b64decode(candidate, validate=True).decode("utf-8", errors="strict")
+                # Heuristic: if it decoded cleanly and contains math-like
+                # characters, treat it as the formula.  Otherwise fall
+                # through to use the raw text.
+                if any(c in guess for c in ("=", "(", ")", "+", "-", "*", "/", "\\")) and "\x00" not in guess:
+                    decoded = guess
+                    break
+            except Exception:
+                continue
+        args_formula = decoded if decoded is not None else cleaned
+        args_formula = args_formula.replace("\n", " ").replace("\t", " ").strip()
+
+        formula_mode = args.formula_mode
+        # Python mode is special: we don't parse the formula, just use the
+        # raw text as the run-program.
+        if formula_mode == "python":
+            formula = None
+            pretty = args_formula
+            latex = ""
+            param_names = []
+        else:
+            formula = Formula.parse(args_formula, mode=formula_mode)
+            pretty = formula.ascii()
+            latex = formula.latex()
+            param_names = sorted(s.name for s in formula.suggestions)
+        # Update args.formula to the cleaned version so all downstream
+        # users see the same string.
+        args.formula = args_formula
+    except Exception as exc:
+        print_red(f"Could not parse --formula {args.formula!r}: {exc}")
+        return
+
+    print_yellow(f"\n[Formula mode] {formula_mode}")
+    if formula is not None:
+        print_yellow("\n[Formula]\n" + pretty + "\n")
+        print_yellow(f"[Formula LaTeX] {latex}")
+    if param_names:
+        print_yellow(f"[Formula hyperparameters] {', '.join(param_names)}")
+
+    # Stash on global_vars so _init_formula_persist() can pick it up later.
+    global_vars["formula_raw"] = args.formula
+    global_vars["formula_mode"] = formula_mode
+    global_vars["formula_pretty"] = pretty if formula is not None else ""
+    global_vars["formula_latex"] = latex
+    global_vars["formula_latex_underbraces"] = (
+        formula.latex_with_underbraces(param_names) if formula is not None else ""
+    )
+    global_vars["formula_param_names"] = param_names
+    global_vars["formula_suggestions"] = (
+        [
+            {
+                "name": s.name,
+                "kind": s.kind,
+                "lower": s.lower,
+                "upper": s.upper,
+                "value_type": s.value_type,
+                "log_scale": s.log_scale,
+            }
+            for s in formula.suggestions
+        ]
+        if formula is not None
+        else []
+    )
+
+    # Auto-generate run program if the user did not supply one.
+    needs_run_program = (
+        not args.run_program
+        and not args.continue_previous_job
+    )
+    if needs_run_program:
+        # Set a placeholder so the "joined_run_program empty" check later
+        # doesn't fire before _init_formula_persist() has had a chance to
+        # write the real helper.  We use a non-empty marker here; the real
+        # command line is assembled in _init_formula_persist().
+        global_vars["joined_run_program"] = "__FORMULA_RUN_PROGRAM_PLACEHOLDER__"
+        global_vars["formula_run_program_placeholder"] = (
+            "__FORMULA_RUN_PROGRAM__ %0"
+        )
+
+
+def _init_formula_persist() -> None:
+    """Write formula files into the (now-existing) run folder."""
+    if not global_vars.get("formula_raw"):
+        return
+
+    run_folder = None
+    try:
+        run_folder = get_current_run_folder()
+    except Exception:
+        run_folder = None
+
+    if not run_folder or not os.path.isdir(run_folder):
+        return
+
+    try:
+        with open(os.path.join(run_folder, "formula.txt"), "w", encoding="utf-8") as fh:
+            fh.write(global_vars["formula_raw"] + "\n")
+        with open(os.path.join(run_folder, "formula_pretty.txt"), "w", encoding="utf-8") as fh:
+            fh.write(global_vars["formula_pretty"] + "\n")
+        with open(os.path.join(run_folder, "formula_underbraces.txt"), "w", encoding="utf-8") as fh:
+                fh.write(global_vars["formula_latex_underbraces"] + "\n")
+        with open(os.path.join(run_folder, "formula_params.json"), "w", encoding="utf-8") as fh:
+            json.dump(global_vars["formula_suggestions"], fh, indent=2)
+    except Exception as exc:
+        print_debug(f"Could not persist formula files: {exc}")
+
+    if global_vars.get("formula_run_program_placeholder"):
+        helper_path = os.path.join(run_folder, "run_with_formula.py")
+        params_json = json.dumps(global_vars["formula_param_names"])
+        try:
+            with open(helper_path, "w", encoding="utf-8") as fh:
+                fh.write(_FORMULA_RUN_PROGRAM_TEMPLATE.format(
+                    repo_root=json.dumps(_OMNIOPT_DIR),
+                    param_names=params_json,
+                    formula=json.dumps(global_vars["formula_raw"]),
+                    mode=json.dumps(global_vars.get("formula_mode", "auto")),
+                ))
+            os.chmod(helper_path, 0o755)
+        except Exception as exc:
+            print_debug(f"Could not write formula helper: {exc}")
+            return
+
+        python_path = args.formula_python_path or sys.executable
+        # Build the run-program: pass each formula parameter as an env
+        # var (``OMNIOPT_PARAM_<NAME>=%NAME``) so ``replace_parameters_in_string``
+        # substitutes them with the actual values.
+        param_names = global_vars.get("formula_param_names") or []
+        env_prefixes = " ".join(
+            f"OMNIOPT_PARAM_{n}=%{n}" for n in param_names
+        )
+        if env_prefixes:
+            global_vars["joined_run_program"] = f"{env_prefixes} {python_path} {helper_path}"
+        else:
+            global_vars["joined_run_program"] = f"{python_path} {helper_path}"
+        if not args.run_program:
+            args.run_program = [global_vars["joined_run_program"].split()]
+
+        # If the user did not provide --parameter, auto-fill from the formula
+        # suggestions so the optimizer has something to search over.
+        if not args.parameter:
+            param_args = []
+            for sug in global_vars.get("formula_suggestions") or []:
+                if not sug.get("name"):
+                    continue
+                if sug.get("kind") == "range":
+                    lower = sug.get("lower")
+                    upper = sug.get("upper")
+                    if lower is None or upper is None:
+                        continue
+                    value_type = sug.get("value_type") or "float"
+                    log_scale = "true" if sug.get("log_scale") else "false"
+                    param_args.append(f"{sug['name']} range {lower} {upper} {value_type} {log_scale}")
+                elif sug.get("kind") == "fixed":
+                    val = sug.get("value", "0")
+                    param_args.append(f"{sug['name']} fixed {val}")
+
+            if param_args:
+                # Each parameter spec becomes its own ``--parameter`` invocation.
+                args.parameter = [[p] for p in param_args]
+                print_yellow(f"[Formula] Auto-filled --parameter: {' --parameter '.join(param_args)}")
+
+
+_OMNIOPT_DIR = os.path.dirname(os.path.realpath(__file__))
+
+
+_FORMULA_RUN_PROGRAM_TEMPLATE = """#!/usr/bin/env python3
+# Auto-generated by OmniOpt2 --formula.  Do not edit by hand.
+#
+# Parameters are received as environment variables of the form
+# ``OMNIOPT_PARAM_<NAME>`` (one per free symbol of the formula).  OmniOpt2
+# sets them on the command line via ``OMNIOPT_PARAM_x=... python
+# run_with_formula.py`` so they survive a shell that would otherwise
+# strip quotes.
+import os
+import sys
+
+REPO_ROOT = {repo_root}
+sys.path.insert(0, REPO_ROOT)
+
+from importlib.machinery import SourceFileLoader  # noqa: E402
+formulas = SourceFileLoader("omniopt_formulas", os.path.join(REPO_ROOT, ".formulas.py")).load_module()  # noqa: E402
+
+_PARAM_NAMES = {param_names}
+_FORMULA = {formula}
+_MODE = {mode}
+
+formula = formulas.Formula.parse(_FORMULA, mode=_MODE)
+callable_fn = formula.lambda_for(_PARAM_NAMES)
+
+params = {{}}
+for n in _PARAM_NAMES:
+    raw_val = os.environ.get("OMNIOPT_PARAM_" + n)
+    if raw_val is not None:
+        try:
+            params[n] = float(raw_val)
+        except ValueError:
+            params[n] = raw_val
+
+result = callable_fn(**params)
+# If the callable returns a list / tuple (multi-objective case), print
+# every component so omniopt's ``get_results`` can match them against
+# ``--result_names``.  Scalar results keep the simple single-line form.
+if isinstance(result, (list, tuple)):
+    for i, component in enumerate(result):
+        try:
+            component = float(component)
+        except (TypeError, ValueError):
+            pass
+        suffix = "" if i == 0 else f"_{{i}}"
+        print(f"RESULT{{suffix}}: {{component}}")
+else:
+    try:
+        result = float(result)
+    except (TypeError, ValueError):
+        pass
+    print(f"RESULT: {{result}}")
+"""
+
+
+_init_formula()
+
+
 if not args.continue_previous_job:
     if args.run_program:
         if isinstance(args.run_program, list):
@@ -5059,7 +5338,13 @@ else:
         else:
             _fatal_error(f"The previous job file {prev_job_file} could not be found. You may forgot to add the run number at the end.", 44)
 
-if not getattr(args, "install", False) and not args.tests and len(global_vars["joined_run_program"]) == 0 and not args.calculate_pareto_front_of_job:
+if (
+    not getattr(args, "install", False)
+    and not args.tests
+    and len(global_vars["joined_run_program"]) == 0
+    and not args.calculate_pareto_front_of_job
+    and not getattr(args, "formula", None)
+):
     _fatal_error("--run_program was empty", 19)
 
 global_vars["experiment_name"] = args.experiment_name
@@ -13473,6 +13758,8 @@ def main() -> None:
     set_run_folder()
 
     RESULT_CSV_FILE = create_folder_and_file(get_current_run_folder())
+
+    _init_formula_persist()
 
     write_revert_to_random_when_seemingly_exhausted_file()
 

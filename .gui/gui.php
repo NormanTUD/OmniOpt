@@ -69,9 +69,41 @@
 		}
 
 		#commands code {
-		    font-size: 0.9em;
-		    line-height: 1.6;
-		    word-break: break-all;
+			font-size: 0.9em;
+			line-height: 1.6;
+			word-break: break-all;
+		}
+
+		/* Formula editor */
+		.formula_tab {
+			background: #fff;
+			border: 1px solid #c0c0d0;
+			border-radius: 6px;
+			padding: 4px 10px;
+			cursor: pointer;
+			font-size: 0.85em;
+		}
+		.formula_tab.active {
+			background: #4a90d9;
+			color: #fff;
+			border-color: #4a90d9;
+		}
+		.formula_tab:hover:not(.active) {
+			background: #eef3fa;
+		}
+		#formula_card textarea {
+			font-size: 0.95em;
+		}
+		#formula_card {
+			width: 100%;
+		}
+		#formula_card_right table {
+			font-size: 0.85em;
+		}
+		#formula_card_right th,
+		#formula_card_right td {
+			padding: 3px 6px;
+			border-bottom: 1px solid #eee;
 		}
 	</style>
 <div id="loader">
@@ -91,6 +123,14 @@
 					</thead>
 					<tbody></tbody>
 				</table>
+
+				<textarea id="formula" style="display: none"></textarea>
+				<select id="formula_mode" style="display: none">
+					<option value="auto">auto</option>
+					<option value="latex">latex</option>
+					<option value="infix">infix</option>
+					<option value="python">python</option>
+				</select>
 
 				<br>
 

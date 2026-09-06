@@ -315,9 +315,18 @@ var tableData = [
 		type: "textarea",
 		value: "",
 		placeholder: "Your program with parameters",
-		required: true,
-		info: "Use Variable names like this: <br><code style=\"white-space: pre\" class=\"highlight_me dark_code_bg invert_in_dark_mode\">bash /absolute/path/to/run.sh --lr=%(lr) --epochs=%(epochs)</code>. See <a target=\"_blank\" href=\"tutorials.php?tutorial=run_sh\">this tutorial</a> to learn about the <code>run.sh</code>-file",
-		help: "This is the program that will be optimized. Use placeholder names for places where your hyperparameters should be, like '%(epochs)'. The GUI will warn you about missing parameter definitions, that need to be there in the parameter selection menu, and will not allow you to run OmniOpt2 unless all parameters are filled."
+		required: false,
+		info: "Use Variable names like this: <br><code style=\"white-space: pre\" class=\"highlight_me dark_code_bg invert_in_dark_mode\">bash /absolute/path/to/run.sh --lr=%(lr) --epochs=%(epochs)</code>. See <a target=\"_blank\" href=\"tutorials.php?tutorial=run_sh\">this tutorial</a> to learn about the <code>run.sh</code>-file.",
+		help: "This is the program that will be optimized. Use placeholder names for places where your hyperparameters should be, like '%(epochs)'. This field is hidden when the formula editor is open — exactly one of the two must be filled.",
+		append_html:
+			"<div style='margin-top: 8px; padding-top: 8px; border-top: 1px dashed #ccc;'>" +
+			"<button type='button' id='formula_toggle_btn' class='formula_tab' style='background:#4a90d9;color:#fff;'>" +
+			"&#9881; Switch to formula editor" +
+			"</button>" +
+			"<span style='margin-left: 10px; font-size: 0.85em; color: #555;'>Click to describe the objective as a math formula (LaTeX, infix or Python). " +
+			"The <i>Run program</i> field above will be hidden while the formula editor is open.</span>" +
+			"<div id='formula_card' style='display: none; margin-top: 10px;'></div>" +
+			"</div>"
 	}
 ];
 
@@ -919,5 +928,34 @@ var hiddenTableData = [
 		type: "checkbox",
 		value: 0,
 		help: "For every commit, the CI pipeline checks all the tests and if they succeed, create a new version tag. If this is activated, you get the latest version that was tested properly and where all tests succeeded. If disabled, you may get the newest version, but it may have preventable bugs."
+	},
+	{
+		label: "Math formula (LaTeX / infix / Python)",
+		id: "formula",
+		type: "textarea",
+		value: "",
+		placeholder: "e.g. f(x, y) = x**2 + 2*x*y + y**2",
+		help: "An optional math formula that defines the objective. When set, OmniOpt2 will auto-generate a run-program and derive hyperparameter suggestions. Use LaTeX (\\\\sigma, \\\\sum, \\\\frac) or Python-style infix (sin(x), 2*x + y). Switching to this field hides the run_program textarea; exactly one of the two must be filled."
+	},
+	{
+		label: "Formula mode",
+		id: "formula_mode",
+		type: "select",
+		options: [
+			{value: "auto", text: "Auto-detect (recommended)"},
+			{value: "latex", text: "LaTeX (\\\\sigma, \\\\sum, \\\\frac)"},
+			{value: "infix", text: "Infix (Python-style: 2*x + sin(y))"},
+			{value: "python", text: "Python (raw run-program override)"}
+		],
+		value: "auto",
+		help: "How to interpret --formula: 'auto' (default), 'latex', 'infix' or 'python' (in python mode the formula text is used as the raw run-program)."
+	},
+	{
+		label: "Formula Python interpreter",
+		id: "formula_python_path",
+		type: "text",
+		value: "",
+		placeholder: "leave empty to use the current Python interpreter",
+		help: "Path to the Python interpreter that will be used by the auto-generated run-program when --formula is set. Defaults to the current Python interpreter."
 	}
 ];

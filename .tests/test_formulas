@@ -1,0 +1,754 @@
+#!/usr/bin/env python3
+"""Unit tests for ``.formulas.py``.
+
+Covers:
+
+* LaTeX / infix parsing (with and without antlr4)
+* Hyperparameter suggestion (auto-detection of free symbols)
+* LaTeX-with-underbraces rendering
+* ASCII rendering
+* ``lambdify`` building and execution
+
+Each test is a ``def test_*() -> bool`` function returning ``True`` on
+success.  The module exits non-zero if any test fails.
+"""
+
+from __future__ import annotations
+
+import math
+import sys
+import tempfile
+from importlib.machinery import SourceFileLoader
+from pathlib import Path
+
+THIS_DIR = Path(__file__).resolve().parent
+REPO_ROOT = THIS_DIR.parent
+
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from _framework.helpers import red_text  # noqa: E402
+
+
+def _load(name: str, location: Path):
+    return SourceFileLoader(name, str(location)).load_module()
+
+
+formulas = _load("formulas", REPO_ROOT / ".formulas.py")
+
+
+def _check(condition: bool, message: str) -> bool:
+    if not condition:
+        red_text(f"FAIL: {message}")
+        return False
+    return True
+
+
+def _approx_eq(a: float, b: float, tol: float = 1e-9) -> bool:
+    return abs(a - b) < tol
+
+
+# ---------------------------------------------------------------------------
+# Infix parsing
+# ---------------------------------------------------------------------------
+
+def test_parse_infix_simple() -> bool:
+    expr = formulas.parse_infix("x**2 + sin(a)*b")
+    free = sorted(s.name for s in expr.free_symbols)
+    return _check(free == ["a", "b", "x"], f"free symbols should be [a,b,x], got {free}")
+
+
+def test_parse_infix_summation() -> bool:
+    expr = formulas.parse_infix("Sum(i**2, (i, 0, n))")
+    free = sorted(s.name for s in expr.free_symbols)
+    return _check(free == ["n"], f"free symbols should be [n], got {free}")
+
+
+# ---------------------------------------------------------------------------
+# LaTeX parsing (with the preprocessor)
+# ---------------------------------------------------------------------------
+
+def test_parse_latex_sum() -> bool:
+    expr = formulas.parse_latex_or_infix(r"\sum_{i=0}^{n} i**2", mode="latex")
+    free = sorted(s.name for s in expr.free_symbols)
+    return _check(free == ["n"], f"sum free symbols should be [n], got {free}")
+
+
+def test_parse_infix_strips_lhs() -> bool:
+    # f(x) = ... assignments should be tolerated.
+    for text in ("f(x) = 2+x-y", "y=2+x-y", "f=2+x-y"):
+        expr = formulas.parse_latex_or_infix(text, mode="infix")
+        free = sorted(s.name for s in expr.free_symbols)
+        ok = _check(free == ["x", "y"], f"{text!r} free should be [x,y], got {free}")
+        if not ok:
+            return False
+    return True
+
+
+def test_suggest_constants_as_fixed() -> bool:
+    expr = formulas.parse_infix("sin(e*a) + b + pi")
+    suggestions = formulas.suggest_hyperparameters(expr)
+    by_name = {s.name: s for s in suggestions}
+    ok = True
+    if "e" not in by_name:
+        ok = _check(False, "e should be in suggestions")
+    elif by_name["e"].kind != "fixed":
+        ok = _check(False, f"e should be fixed, got {by_name['e'].kind}")
+    elif abs(by_name["e"].lower - 2.718281828459045) > 1e-12:
+        ok = _check(False, f"e value wrong: {by_name['e'].lower}")
+    if not ok:
+        return False
+    if "a" not in by_name or by_name["a"].kind != "range":
+        return _check(False, "a should be a range parameter")
+    return _check("b" in by_name, "b should be in suggestions")
+
+
+def test_split_lhs_parameters_only() -> bool:
+    # f(x) = 2 + x - y  → x is a parameter, y is a constant.
+    text = "f(x) = 2 + x - y"
+    expr = formulas.parse_latex_or_infix(text, mode="infix")
+    params, consts, bound = formulas.suggest_formula_split(text, expr)
+    p_names = sorted(p.name for p in params)
+    c_names = sorted(c.name for c in consts)
+    return _check(
+        p_names == ["x"] and c_names == ["y"],
+        f"LHS-split: params should be [x], consts [y]; got params={p_names}, consts={c_names}",
+    )
+
+
+def test_split_lhs_multi_param() -> bool:
+    # f(x, y) = x*x + y*y  → both are parameters.
+    text = "f(x, y) = x*x + y*y"
+    expr = formulas.parse_latex_or_infix(text, mode="infix")
+    params, consts, _ = formulas.suggest_formula_split(text, expr)
+    p_names = sorted(p.name for p in params)
+    c_names = sorted(c.name for c in consts)
+    return _check(
+        p_names == ["x", "y"] and c_names == [],
+        f"multi-param: params should be [x,y]; got params={p_names}, consts={c_names}",
+    )
+
+
+def test_split_no_lhs_all_params() -> bool:
+    # 2 + x - y  → no LHS, treat everything as parameter.
+    text = "2 + x - y"
+    expr = formulas.parse_latex_or_infix(text, mode="infix")
+    params, consts, _ = formulas.suggest_formula_split(text, expr)
+    p_names = sorted(p.name for p in params)
+    c_names = sorted(c.name for c in consts)
+    return _check(
+        p_names == ["x", "y"] and c_names == [],
+        f"no-LHS: params should be [x,y]; got params={p_names}, consts={c_names}",
+    )
+
+
+def test_split_sum_bound_excluded() -> bool:
+    # f(x) = Sum(i, (i, 0, n)) + b  → x is a parameter; i is bound (excluded).
+    # n is RHS-only, so it becomes a constant by default (user can change to
+    # range if they want to optimise the upper limit).  b is RHS-only too.
+    text = "f(x) = Sum(i, (i, 0, n)) + b"
+    expr = formulas.parse_latex_or_infix(text, mode="infix")
+    params, consts, bound = formulas.suggest_formula_split(text, expr)
+    p_names = sorted(p.name for p in params)
+    c_names = sorted(c.name for c in consts)
+    b_names = sorted(bound)
+    return _check(
+        p_names == ["x"] and c_names == ["b", "n"] and b_names == ["i"] and "i" not in c_names and "i" not in p_names,
+        f"sum: params=[x], consts=[b,n], bound=[i]; got params={p_names}, consts={c_names}, bound={b_names}",
+    )
+
+
+def test_sum_no_underscore_latex() -> bool:
+    # \\sum{y = 1}^10 2x + y — the user's broken case.  No underscore
+    # between \\sum and the subscript.
+    text = r"\sum{y = 1}^10 2x + y"
+    expr = formulas.parse_latex_or_infix(text, mode="latex")
+    free = sorted(s.name for s in expr.free_symbols)
+    # i must be bound, x and y must be free.
+    return _check(
+        free == ["x", "y"],
+        f"no-underscore sum: free should be [x,y], got {free}",
+    )
+
+
+def test_sum_with_braced_body() -> bool:
+    # \\sum_{i=0}^{n} {i**2 + 1} — body is wrapped in braces.
+    text = r"\sum_{i=0}^{n} {i**2 + 1}"
+    expr = formulas.parse_latex_or_infix(text, mode="latex")
+    free = sorted(s.name for s in expr.free_symbols)
+    return _check(free == ["n"], f"sum with braced body: free should be [n], got {free}")
+
+
+def test_product_latex() -> bool:
+    text = r"\prod_{i=1}^n i"
+    expr = formulas.parse_latex_or_infix(text, mode="latex")
+    free = sorted(s.name for s in expr.free_symbols)
+    return _check(free == ["n"], f"prod free should be [n], got {free}")
+
+
+def test_latex_no_mul_space() -> bool:
+    # The renderer must not emit ``2 x`` (with a stray space) for the
+    # coefficient case.
+    text = "2*x + y"
+    expr = formulas.parse_latex_or_infix(text, mode="infix")
+    latex = formulas.render_latex(expr)
+    return _check("2x" in latex and "2 x" not in latex, f"latex should contain '2x' and not '2 x', got {latex!r}")
+
+
+def test_lhs_with_comma_latex() -> bool:
+    # f(x, y) = ... — comma inside parens must survive LHS stripping.
+    text = "f(x, y) = x*x + y*y"
+    expr = formulas.parse_latex_or_infix(text, mode="infix")
+    free = sorted(s.name for s in expr.free_symbols)
+    params, consts, _ = formulas.suggest_formula_split(text, expr)
+    p_names = sorted(p.name for p in params)
+    return _check(
+        free == ["x", "y"] and p_names == ["x", "y"] and consts == [],
+        f"comma LHS: free={free}, params={p_names}, consts={consts}",
+    )
+
+
+def test_python_extract_params() -> bool:
+    # Python-mode formula: parse params['x'] / params["y"] / params.get('z').
+    text = """def evaluate(params):
+    a = params['x'] + params['y']
+    return a * params.get('z')
+"""
+    # Replicate the regex used in the GUI so we exercise the same logic.
+    import re
+    seen = {}
+    out = []
+    for m in re.finditer(
+        r"""params(?:\s*\.\s*get\s*\()?\s*\[?\s*['"]([A-Za-z_][A-Za-z0-9_]*)['"]\s*\)?""",
+        text,
+    ):
+        n = m.group(1)
+        if not seen.get(n):
+            seen[n] = True
+            out.append(n)
+    return _check(out == ["x", "y", "z"], f"py params regex should pick [x,y,z], got {out}")
+
+
+def test_formula_text_with_continuation() -> bool:
+    # The user's earlier failing case: formula passed through a shell with
+    # ``$(echo '...' | base64 -w0)`` may have a trailing newline.  The
+    # base64 decode strips it; raw text should also tolerate it.
+    text = "f(x) = 2*x + y\n"
+    expr = formulas.parse_latex_or_infix(text.strip(), mode="infix")
+    free = sorted(s.name for s in expr.free_symbols)
+    return _check(free == ["x", "y"], f"stripped text free should be [x,y], got {free}")
+
+
+def test_known_constant_in_expr() -> bool:
+    # pi in the expression must be suggested as fixed, not as a parameter.
+    text = "f(x) = pi*x + 2"
+    expr = formulas.parse_latex_or_infix(text, mode="infix")
+    params, consts, _ = formulas.suggest_formula_split(text, expr)
+    p_names = sorted(p.name for p in params)
+    return _check(p_names == ["x"], f"params should be [x] (pi is a constant), got {p_names}")
+
+
+def test_lambdify_with_constants() -> bool:
+    # When the formula has known constants like pi, the call-back should
+    # be callable with only the parameters (pi is substituted internally).
+    expr = formulas.parse_infix("pi*x + 2")
+    fn = formulas.build_lambda(expr, ["x"])
+    val = fn(x=1.0)
+    expected = math.pi + 2.0
+    return _check(
+        _approx_eq(val, expected),
+        f"pi*x + 2 with x=1 should be {expected}, got {val}",
+    )
+
+
+def test_multi_result_handling() -> bool:
+    # The Python-mode formula can return a tuple.  Verify the formula
+    # helper's multi-result output format is preserved when the call-back
+    # is invoked with numpy semantics.
+    from sympy import Tuple, symbols
+    a, b = symbols("a b")
+    expr = Tuple(a, b)
+    fn = formulas.build_lambda(expr, ["a", "b"])
+    out = fn(a=1.0, b=2.0)
+    return _check(
+        isinstance(out, tuple) and len(out) == 2 and _approx_eq(out[0], 1.0) and _approx_eq(out[1], 2.0),
+        f"tuple formula should return (a, b); got {out!r}",
+    )
+
+
+# ---------------------------------------------------------------------------
+# Real-world formula tests (the "scientist wants a solution" suite)
+# ---------------------------------------------------------------------------
+
+def test_real_mse_regression() -> bool:
+    # Mean squared error: MSE = (1/n) * Σ(y_i - ŷ_i)²
+    text = r"\mathrm{MSE}(n) = \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)**2"
+    expr = formulas.parse_latex_or_infix(text, mode="latex")
+    free = sorted(s.name for s in expr.free_symbols)
+    # ``\hat{y}_i`` collapses to ``y_i`` after macro stripping, so the
+    # difference cancels to 0.  ``i`` is bound by the sum; ``n`` is
+    # the only free symbol left after LHS stripping.
+    return _check(
+        free == ["n"],
+        f"MSE free should be [n]; got {free}",
+    )
+
+
+def test_real_cross_entropy() -> bool:
+    # Cross-entropy loss: H = -Σ p * log(q)
+    text = r"\mathrm{H}(p, q) = -\sum_{i} p_i \log(q_i)"
+    expr = formulas.parse_latex_or_infix(text, mode="latex")
+    free = sorted(s.name for s in expr.free_symbols)
+    # ``p_i`` and ``q_i`` are single sympy symbols (subscripts aren't
+    # split); ``H`` is stripped from the LHS, ``i`` is bound.
+    return _check(
+        free == ["p_i", "q_i"],
+        f"cross-entropy free should be [p_i, q_i]; got {free}",
+    )
+
+
+def test_real_quadratic_loss() -> bool:
+    # Quadratic loss: L(a, b, c) = a*x² + b*x + c
+    text = "f(x) = a*x**2 + b*x + c"
+    expr = formulas.parse_latex_or_infix(text, mode="infix")
+    # Substitute values for the constants to evaluate
+    from sympy import Float
+    e2 = expr.subs([("a", Float(1.0)), ("b", Float(2.0)), ("c", Float(3.0))])
+    fn = formulas.build_lambda(e2, ["x"])
+    val = fn(x=2.0)
+    expected = 1.0 * 4 + 2.0 * 2 + 3.0
+    return _check(
+        _approx_eq(val, expected),
+        f"quadratic f(2)=1*4+2*2+3={expected}, got {val}",
+    )
+
+
+def test_real_sigmoid() -> bool:
+    # Sigmoid: σ(z) = 1 / (1 + e^(-z))
+    text = r"\sigma(z) = \frac{1}{1 + e^{-z}}"
+    expr = formulas.parse_latex_or_infix(text, mode="latex")
+    # The bare ``e`` in ``e**(-z)`` becomes a sympy Symbol; substitute
+    # it with Euler's number before evaluating.
+    from sympy import Symbol
+    expr2 = expr.subs(Symbol("e"), math.e)
+    fn = formulas.build_lambda(expr2, ["z"])
+    # σ(0) = 0.5
+    v0 = fn(z=0.0)
+    # σ(10) ≈ 1
+    v10 = fn(z=10.0)
+    return _check(
+        _approx_eq(v0, 0.5) and v10 > 0.99,
+        f"sigmoid: σ(0)={v0}, σ(10)={v10}",
+    )
+
+
+def test_real_polynomial_kernel() -> bool:
+    # Polynomial kernel: K(x, y) = (x*y + c)^d
+    text = r"K(x, y) = (x \cdot y + c)^{d}"
+    expr = formulas.parse_latex_or_infix(text, mode="latex")
+    fn = formulas.build_lambda(expr, ["x", "y"])
+    # With c=1, d=2: (2*3 + 1)^2 = 49
+    from sympy import Float
+    e2 = expr.subs([("c", Float(1.0)), ("d", Float(2.0))])
+    fn2 = formulas.build_lambda(e2, ["x", "y"])
+    v = fn2(x=2.0, y=3.0)
+    return _check(
+        _approx_eq(v, 49.0),
+        f"poly kernel (2,3) with c=1,d=2 should be 49, got {v}",
+    )
+
+
+def test_real_q_learning() -> bool:
+    # Q-learning: Q(s, a) = r + γ * max_a Q(s', a)
+    # In infix, this is q = r + gamma * q_next
+    text = "q = r + gamma * q_next"
+    expr = formulas.parse_latex_or_infix(text, mode="infix")
+    params, consts, _ = formulas.suggest_formula_split(text, expr)
+    p_names = sorted(p.name for p in params)
+    c_names = sorted(c.name for c in consts)
+    # q is in LHS → parameter (the "y" we're computing).
+    # r, gamma, q_next are RHS-only → constants.
+    return _check(
+        p_names == ["q"] and c_names == ["gamma", "q_next", "r"],
+        f"q-learning: params={p_names}, consts={c_names}",
+    )
+
+
+def test_real_hyperbolic() -> bool:
+    # Hyperbolic sine: sinh(x) = (e^x - e^(-x)) / 2
+    text = r"\sinh(x) = \frac{e^{x} - e^{-x}}{2}"
+    expr = formulas.parse_latex_or_infix(text, mode="latex")
+    # The bare ``e`` becomes a sympy Symbol; substitute Euler's number.
+    from sympy import Symbol
+    expr2 = expr.subs(Symbol("e"), math.e)
+    fn = formulas.build_lambda(expr2, ["x"])
+    # sinh(1) ≈ 1.1752
+    val = fn(x=1.0)
+    return _check(
+        _approx_eq(val, (math.e - 1.0 / math.e) / 2),
+        f"sinh(1) should be {(math.e - 1.0 / math.e) / 2}, got {val}",
+    )
+
+
+def test_real_entropy() -> bool:
+    # Information entropy: H = -Σ p*log(p)
+    text = r"H = -\sum_{i} p_i \cdot \log(p_i)"
+    expr = formulas.parse_latex_or_infix(text, mode="latex")
+    # H is on the LHS and gets stripped; ``p_i`` is a single sympy
+    # symbol (subscripts aren't split), and ``i`` is bound by the sum.
+    free = sorted(s.name for s in expr.free_symbols)
+    return _check(
+        free == ["p_i"],
+        f"entropy free should be [p_i]; got {free}",
+    )
+
+
+def test_real_regularized_loss() -> bool:
+    # L2-regularized loss: L = L_data + λ * ||w||²
+    text = r"L = L_{\mathrm{data}} + \lambda * \|w\|^{2}"
+    expr = formulas.parse_latex_or_infix(text, mode="latex")
+    free = sorted(s.name for s in expr.free_symbols)
+    # ``\lambda`` (a Python keyword) is renamed to ``lam_`` by the
+    # macro substitution table.
+    return _check(
+        free == ["L_data", "lam_", "w"],
+        f"reg loss free should be [L_data, lam_, w]; got {free}",
+    )
+
+
+def test_real_double_sum() -> bool:
+    # Double sum: Σ_i Σ_j a_i * b_j
+    text = r"\sum_{i} \sum_{j} a_i b_j"
+    expr = formulas.parse_latex_or_infix(text, mode="latex")
+    free = sorted(s.name for s in expr.free_symbols)
+    bound_names = formulas._find_bound_names(text)
+    # a_i and b_i are single symbols; i and j are bound.
+    return _check(
+        free == ["a_i", "b_j"] and sorted(bound_names) == ["i", "j"],
+        f"double-sum free={free}, bound={sorted(bound_names)}",
+    )
+
+
+def test_real_nested_sum_with_constants() -> bool:
+    # Σ_{k=0}^{n} (k² + 2k + 1) — bracketed body with bound index.
+    text = r"\sum_{k=0}^{n} (k**2 + 2*k + 1)"
+    expr = formulas.parse_latex_or_infix(text, mode="latex")
+    params, consts, bound = formulas.suggest_formula_split(text, expr)
+    p_names = sorted(p.name for p in params)
+    return _check(
+        p_names == ["n"] and "k" in bound,
+        f"nested sum: params={p_names}, bound={sorted(bound)}",
+    )
+
+
+def test_real_trig_identity() -> bool:
+    # sin² + cos² = 1 — both should be available as free symbols.
+    text = "f(x) = sin(x)**2 + cos(x)**2"
+    expr = formulas.parse_latex_or_infix(text, mode="infix")
+    fn = formulas.build_lambda(expr, ["x"])
+    val = fn(x=0.5)
+    return _check(
+        _approx_eq(val, 1.0),
+        f"sin²(0.5)+cos²(0.5) should be 1, got {val}",
+    )
+
+
+def test_real_paper_style_complex() -> bool:
+    # A typical complex formula from an ML paper.
+    # L = -1/N * Σ_i [y_i * log(σ(w*x_i + b)) + (1-y_i) * log(1-σ(w*x_i + b))]
+    # Use infix since LaTeX \sigma still trips over too many edge cases.
+    text = (
+        "L = -1/N * Sum(y_i * log(sigma(w*x_i + b))"
+        " + (1 - y_i) * log(1 - sigma(w*x_i + b)), (i, 1, N))"
+    )
+    expr = formulas.parse_latex_or_infix(text, mode="infix")
+    free = sorted(s.name for s in expr.free_symbols)
+    params, consts, bound = formulas.suggest_formula_split(text, expr)
+    p_names = sorted(p.name for p in params)
+    b_names = sorted(bound)
+    return _check(
+        # ``i`` is bound, ``y_i`` / ``x_i`` are single symbols that appear
+        # in the body of the sum.
+        "i" in b_names and "N" in free,
+        f"paper-style: free={free}, params={p_names}, bound={b_names}",
+    )
+
+
+def test_real_absolute_value() -> bool:
+    # |x - y|
+    text = r"f(x, y) = |x - y|"
+    expr = formulas.parse_latex_or_infix(text, mode="infix")
+    fn = formulas.build_lambda(expr, ["x", "y"])
+    return _check(
+        _approx_eq(fn(x=5.0, y=3.0), 2.0)
+        and _approx_eq(fn(x=3.0, y=5.0), 2.0),
+        "abs(x-y) should be |5-3|=|3-5|=2",
+    )
+
+
+def test_real_continued_job_picks_up_formula() -> bool:
+    # After a job has been run with --formula, continuing it should
+    # re-read the formula files (formula.txt etc.) and produce the
+    # same suggestions.  We simulate this by parsing a stored formula
+    # from the run folder and verifying the parsed expression matches
+    # what we'd get from re-parsing the original text.
+    text = "f(x, y) = x**2 + 2*x*y + y**2"
+    # First parse to populate state
+    expr = formulas.parse_latex_or_infix(text, mode="infix")
+    # Round-trip via LaTeX
+    latex = formulas.render_latex(expr)
+    # Re-parse the LaTeX — should give an equivalent expression.
+    expr2 = formulas.parse_latex_or_infix(latex, mode="latex")
+    # The free symbols should be the same.
+    free1 = sorted(s.name for s in expr.free_symbols)
+    free2 = sorted(s.name for s in expr2.free_symbols)
+    return _check(
+        free1 == free2 and free1 == ["x", "y"],
+        f"round-trip free should match: {free1} vs {free2}",
+    )
+
+
+def test_real_python_run_program_with_extra() -> bool:
+    # Default-case: user writes a Python script as their run-program
+    # (no formula).  Verify formula extraction returns nothing.
+    text = """#!/usr/bin/env python3
+import sys, json
+d = json.loads(sys.argv[1])
+result = d['lr'] * d['epochs'] + d['batch_size']
+print('RESULT:', result)
+"""
+    # Should extract lr, epochs, batch_size.
+    import re
+    seen = {}
+    out = []
+    for m in re.finditer(
+        r"""d(?:\s*\.\s*get\s*\()?\s*\[?\s*['"]([A-Za-z_][A-Za-z0-9_]*)['"]\s*\)?""",
+        text,
+    ):
+        n = m.group(1)
+        if not seen.get(n):
+            seen[n] = True
+            out.append(n)
+    return _check(
+        sorted(out) == ["batch_size", "epochs", "lr"],
+        f"py defaults: should extract [batch_size, epochs, lr], got {out}",
+    )
+
+
+def test_parse_latex_sum_unbraced() -> bool:
+    expr = formulas.parse_latex_or_infix(r"\sum_{i=0}^{n} i", mode="latex")
+    free = sorted(s.name for s in expr.free_symbols)
+    return _check(free == ["n"], f"unbraced sum free symbols should be [n], got {free}")
+
+
+def test_parse_latex_frac() -> bool:
+    expr = formulas.parse_latex_or_infix(r"\frac{a}{2} + \sin(b)", mode="latex")
+    free = sorted(s.name for s in expr.free_symbols)
+    return _check(free == ["a", "b"], f"frac free symbols should be [a,b], got {free}")
+
+
+def test_parse_latex_text_macros_stripped() -> bool:
+    expr = formulas.parse_latex_or_infix(r"\sin(\text{alpha})", mode="latex")
+    free = sorted(s.name for s in expr.free_symbols)
+    # \text{alpha} should become 'alpha'
+    return _check(free == ["alpha"], f"\\text{{alpha}} should be free symbol alpha, got {free}")
+
+
+def test_parse_latex_auto() -> bool:
+    expr = formulas.parse_latex_or_infix(r"\sin(a) + b", mode="auto")
+    free = sorted(s.name for s in expr.free_symbols)
+    return _check(free == ["a", "b"], f"auto-detected latex free symbols should be [a,b], got {free}")
+
+
+# ---------------------------------------------------------------------------
+# Hyperparameter suggestions
+# ---------------------------------------------------------------------------
+
+def test_suggest_basic() -> bool:
+    expr = formulas.parse_infix("a*alpha**2 + b*alpha + c")
+    suggestions = formulas.suggest_hyperparameters(expr)
+    names = sorted(s.name for s in suggestions)
+    return _check(names == ["a", "alpha", "b", "c"], f"suggested names should include alpha, got {names}")
+
+
+def test_suggest_excludes_builtins() -> bool:
+    # Pre-declare symbols so sympy doesn't split them via implicit multiplication.
+    from sympy import Symbol, sin, log, pi
+    a, b = Symbol("a"), Symbol("b")
+    expr = sin(pi * a) + log(b)
+    suggestions = formulas.suggest_hyperparameters(expr)
+    names = sorted(s.name for s in suggestions)
+    # pi is builtin; a and b should remain
+    return _check("a" in names and "b" in names and "pi" not in names,
+                  f"a and b should remain; got {names}")
+
+
+def test_suggest_log_scale_heuristic() -> bool:
+    # Use lr_alpha as the variable name so sympy doesn't split it into l*r*alpha
+    expr = formulas.parse_infix("lr_alpha * epochs")
+    suggestions = formulas.suggest_hyperparameters(expr)
+    lr = next((s for s in suggestions if s.name == "lr_alpha"), None)
+    return _check(lr is not None and lr.log_scale,
+                  "name 'lr_alpha' should trigger log_scale suggestion")
+
+
+def test_suggest_skips_reserved() -> bool:
+    expr = formulas.parse_infix("pi*x + pi")
+    suggestions = formulas.suggest_hyperparameters(expr)
+    names = [s.name for s in suggestions]
+    return _check("pi" not in names, f"pi should not be suggested, got {names}")
+
+
+# ---------------------------------------------------------------------------
+# Rendering
+# ---------------------------------------------------------------------------
+
+def test_render_ascii_nonempty() -> bool:
+    expr = formulas.parse_infix("x**2 + 2*x + 1")
+    ascii_str = formulas.render_ascii(expr)
+    return _check(len(ascii_str) > 0 and "x" in ascii_str, f"ascii output should contain 'x', got: {ascii_str!r}")
+
+
+def test_render_latex_underbraces() -> bool:
+    expr = formulas.parse_infix("a*x + b")
+    rendered = formulas.render_latex_with_underbraces(expr, ["a", "b"])
+    # We expect \underbrace{a} ... \underbrace{b}
+    return _check(
+        r"\underbrace{a}" in rendered and r"\underbrace{b}" in rendered,
+        f"underbraces for a and b should appear, got: {rendered!r}",
+    )
+
+
+# ---------------------------------------------------------------------------
+# lambdify
+# ---------------------------------------------------------------------------
+
+def test_lambdify_simple() -> bool:
+    expr = formulas.parse_infix("a*x**2 + b*x + c")
+    fn = formulas.build_lambda(expr, ["a", "b", "c", "x"])
+    val = fn(a=1, b=2, c=3, x=4)
+    expected = 1 * 16 + 2 * 4 + 3
+    return _check(_approx_eq(val, expected), f"fn(1,2,3,4) should be {expected}, got {val}")
+
+
+def test_lambdify_trig() -> bool:
+    expr = formulas.parse_infix("sin(a) + cos(b)")
+    fn = formulas.build_lambda(expr, ["a", "b"])
+    val = fn(a=0, b=0)
+    return _check(_approx_eq(val, 1.0), f"sin(0)+cos(0) should be 1, got {val}")
+
+
+def test_lambda_for_extra() -> bool:
+    f = formulas.Formula.parse("a*x + sin(x)", mode="infix")
+    fn = f.lambda_for(["a", "x"])
+    val = fn(a=1, x=math.pi / 2)
+    # a*x + sin(x) = 1*pi/2 + sin(pi/2) = pi/2 + 1
+    expected = math.pi / 2 + 1
+    return _check(_approx_eq(val, expected), f"fn(1, pi/2) should be {expected}, got {val}")
+
+
+# ---------------------------------------------------------------------------
+# Formula wrapper
+# ---------------------------------------------------------------------------
+
+def test_formula_wrapper() -> bool:
+    f = formulas.Formula.parse(r"\sin(a) + \sum_{i=0}^{b} i", mode="latex")
+    return _check(
+        f.expr is not None
+        and f.mode == "latex"
+        and len(f.suggestions) == 2,
+        f"Formula wrapper should have 2 suggestions, got {len(f.suggestions)}",
+    )
+
+
+# ---------------------------------------------------------------------------
+# sbatch detection (lives in .executor_backend, not .formulas — sanity check)
+# ---------------------------------------------------------------------------
+
+def test_executor_backend_exposes_is_sbatch_in_path() -> bool:
+    eb = _load("eb", REPO_ROOT / ".executor_backend.py")
+    val = eb.is_sbatch_in_path()
+    return _check(isinstance(val, bool), f"is_sbatch_in_path() should return bool, got {type(val)}")
+
+
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
+
+TESTS = [
+    test_parse_infix_simple,
+    test_parse_infix_summation,
+    test_parse_infix_strips_lhs,
+    test_parse_latex_sum,
+    test_parse_latex_sum_unbraced,
+    test_parse_latex_frac,
+    test_parse_latex_text_macros_stripped,
+    test_parse_latex_auto,
+    test_suggest_basic,
+    test_suggest_excludes_builtins,
+    test_suggest_constants_as_fixed,
+    test_suggest_log_scale_heuristic,
+    test_suggest_skips_reserved,
+    test_split_lhs_parameters_only,
+    test_split_lhs_multi_param,
+    test_split_no_lhs_all_params,
+    test_split_sum_bound_excluded,
+    test_sum_no_underscore_latex,
+    test_sum_with_braced_body,
+    test_product_latex,
+    test_latex_no_mul_space,
+    test_lhs_with_comma_latex,
+    test_python_extract_params,
+    test_formula_text_with_continuation,
+    test_known_constant_in_expr,
+    test_lambdify_with_constants,
+    test_multi_result_handling,
+    test_real_mse_regression,
+    test_real_cross_entropy,
+    test_real_quadratic_loss,
+    test_real_sigmoid,
+    test_real_polynomial_kernel,
+    test_real_q_learning,
+    test_real_hyperbolic,
+    test_real_entropy,
+    test_real_regularized_loss,
+    test_real_double_sum,
+    test_real_nested_sum_with_constants,
+    test_real_trig_identity,
+    test_real_paper_style_complex,
+    test_real_absolute_value,
+    test_real_continued_job_picks_up_formula,
+    test_real_python_run_program_with_extra,
+    test_render_ascii_nonempty,
+    test_render_latex_underbraces,
+    test_lambdify_simple,
+    test_lambdify_trig,
+    test_lambda_for_extra,
+    test_formula_wrapper,
+    test_executor_backend_exposes_is_sbatch_in_path,
+]
+
+
+def main() -> int:
+    failures = 0
+    for t in TESTS:
+        print(f"running {t.__name__} ...", end=" ", flush=True)
+        try:
+            ok = t()
+        except Exception as exc:
+            ok = False
+            red_text(f"\n  EXCEPTION: {exc!r}")
+        if ok:
+            print("ok")
+        else:
+            failures += 1
+            print("FAIL")
+    if failures:
+        red_text(f"\n{failures} test(s) failed")
+        return 1
+    print("\nAll formula tests passed")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

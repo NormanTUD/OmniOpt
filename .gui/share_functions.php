@@ -3230,6 +3230,40 @@ $onclick_string
 		return [$overview_html, $warnings];
 	}
 
+	function add_formula_to_overview ($run_dir, $overview_html, $warnings) {
+		$formula_tex = "$run_dir/formula_underbraces.txt";
+		$formula_raw = "$run_dir/formula.txt";
+		$formula_pretty = "$run_dir/formula_pretty.txt";
+
+		if(!is_file($formula_tex) || !is_file($formula_raw)) {
+			return [$overview_html, $warnings];
+		}
+
+		$latex = trim(file_get_contents($formula_tex));
+		$raw = trim(file_get_contents($formula_raw));
+		$pretty = is_file($formula_pretty) ? trim(file_get_contents($formula_pretty)) : "";
+
+		if(!$latex || !$raw) {
+			return [$overview_html, $warnings];
+		}
+
+		$safe_latex = my_htmlentities($latex);
+		$safe_raw = my_htmlentities($raw);
+		$safe_pretty = $pretty !== "" ? "<pre>" . my_htmlentities($pretty) . "</pre>" : "";
+
+		$overview_html .= "<h2>Formula</h2>\n";
+		$overview_html .= "<div class='formula_block'>";
+		// MathJax renders this inline because the page already loads tex-mml-chtml.js.
+		$overview_html .= "\\[" . $safe_latex . "\\]\n";
+		$overview_html .= "</div>";
+		$overview_html .= "<details><summary>Source</summary><pre>" . $safe_raw . "</pre></details>";
+		if($safe_pretty) {
+			$overview_html .= "<details><summary>ASCII rendering</summary>" . $safe_pretty . "</details>";
+		}
+
+		return [$overview_html, $warnings];
+	}
+
 	function add_parameters_to_overview ($run_dir, $overview_html, $warnings) {
 		$parameters_txt_file = "$run_dir/parameters.txt";
 		if(is_file($parameters_txt_file) && filesize($parameters_txt_file) && is_ascii_or_utf8($parameters_txt_file)) {
@@ -3511,6 +3545,7 @@ $onclick_string
 		[$overview_html, $warnings] = add_experiment_overview_to_overview($run_dir, $overview_html, $warnings);
 		[$overview_html, $warnings] = add_best_results_to_overview($run_dir, $overview_html, $warnings);
 		[$overview_html, $warnings] = add_overview_for_jobs_and_generation_stuff($run_dir, $overview_html, $warnings);
+		[$overview_html, $warnings] = add_formula_to_overview($run_dir, $overview_html, $warnings);
 		[$overview_html, $warnings] = add_parameters_to_overview($run_dir, $overview_html, $warnings);
 		[$overview_html, $warnings] = add_constraints_to_overview($run_dir, $overview_html, $warnings);
 		[$overview_html, $warnings, $status_data] = add_overview_table_to_overview_and_get_status_data($run_dir, $status_data, $overview_html, $warnings);

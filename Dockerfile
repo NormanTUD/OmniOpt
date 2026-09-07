@@ -16,6 +16,8 @@ COPY ./.colorfunctions.py ./.colorfunctions.py
 COPY ./.ax.py ./.ax.py
 COPY ./.tpe.py ./.tpe.py
 COPY ./.optuna_tpe.py ./.optuna_tpe.py
+COPY ./.executor_backend.py ./.executor_backend.py
+COPY ./.formulas.py ./.formulas.py
 COPY ./requirements.txt ./requirements.txt
 COPY ./test_requirements.txt ./test_requirements.txt
 

@@ -3359,6 +3359,7 @@ class ConfigLoader:
         optional.add_argument('--checkout_to_latest_tested_version', help='Automatically checkout to latest version that was tested in the CI pipeline', action='store_true', default=False)
         optional.add_argument('--live_share', help='Automatically live-share the current optimization run automatically', action='store_true', default=False)
         optional.add_argument('--disable_tqdm', help='Disables the TQDM progress bar', action='store_true', default=False)
+        optional.add_argument('--local_cpu_monitor', help='Show a live CPU/RAM monitor (via executor_backend.CPUMonitor) while local jobs run. Only active without SLURM and with --num_parallel_jobs > 1; replaces the tqdm bar while active.', action='store_true', default=False)
         optional.add_argument('--disable_previous_job_constraint', help='For continued jobs: Disable getting the constraint of the previous job that is about to be continued', action='store_true', default=False)
         optional.add_argument('--workdir', help='Working directory', default='', type=str)
         optional.add_argument('--occ_type', help=f'Optimization-with-combined-criteria-type (valid types are {joined_valid_occ_types})', type=str, default='euclid')

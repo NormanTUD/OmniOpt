@@ -108,13 +108,20 @@ function decode_base64(input) {
 	return decoded;
 }
 
+function is_base64_like(s) {
+	return typeof s === "string" && s.length >= 4 && /^[A-Za-z0-9+/]+={0,2}$/.test(s);
+}
+
 function addBase64DecodedVersions(cmdString) {
 	return cmdString.replace(/(--[a-zA-Z0-9_]+)=('([^']+)'|"([^"]+)"|([^\s]+))/g, (match, key, _, singleQuoted, doubleQuoted, bare) => {
 		const value = singleQuoted || doubleQuoted || bare;
 
 		let decoded = null;
 		try {
-			if (key === "--run_program" || key === "--run_program_once") {
+			if (
+				(key === "--run_program" || key === "--run_program_once" || key === "--formula") &&
+				is_base64_like(value)
+			) {
 				decoded = decode_base64(value);
 			}
 		} catch (e) {
@@ -123,7 +130,7 @@ function addBase64DecodedVersions(cmdString) {
 
 		if (decoded) {
 			var safeDecoded = decoded.replace(/\x27/g, `'\\''`).trim();
-			return ` ${key}=$(echo '${safeDecoded}' | base64 -w0)`;
+			return ` ${key}=$(printf '%s' '${safeDecoded}' | base64 -w0)`;
 		} else {
 			return match;
 		}
@@ -765,7 +772,7 @@ function _read_term_end(text, start) {
 	return i;
 }
 
-function _add_explicit_grouping(latex) {
+	function _add_explicit_grouping(latex) {
 	var re = /(\\(?:int|oint|iint|iiint|sum|prod))(?:\s*_{\s*[^{}]*\s*}|\s*_\s*[A-Za-z][A-Za-z0-9_]*\s*)?(?:\s*\^\s*\{[^{}]*\}|\s*\^\s*[A-Za-z][A-Za-z0-9_]*\s*)?/g;
 	var result = "";
 	var lastEnd = 0;
@@ -779,6 +786,13 @@ function _add_explicit_grouping(latex) {
 		var ch = latex[pos];
 		if (ch === "(" || ch === "{") { lastEnd = cmdEnd; continue; }
 		if (ch === "\\") { lastEnd = cmdEnd; continue; }
+		var beforeIdx = m.index - 1;
+		while (beforeIdx >= 0 && latex[beforeIdx] === " ") beforeIdx--;
+		var inUserParens = beforeIdx >= 0 && latex[beforeIdx] === "(";
+		if (inUserParens) {
+			lastEnd = cmdEnd;
+			continue;
+		}
 		var termEnd = _read_term_end(latex, pos);
 		if (termEnd > pos) {
 			var body = latex.slice(pos, termEnd);
@@ -846,6 +860,67 @@ expect("grouping: braced sub unbraced sup",
 expect("grouping: no int/sum (unchanged)",
 	_add_explicit_grouping("f(x) = x^2 + 3*x + 1"),
 	"f(x) = x^2 + 3*x + 1");
+expect("grouping: user parens around integral (no \\left injected)",
+	_add_explicit_grouping("f(x) = (\\int_{q=a}^z 2\\cdot x + b)"),
+	"f(x) = (\\int_{q=a}^z 2\\cdot x + b)");
+expect("grouping: user parens around sum (no \\left injected)",
+	_add_explicit_grouping("f(n) = (\\sum_{i=0}^{n} i^2 + 1)"),
+	"f(n) = (\\sum_{i=0}^{n} i^2 + 1)");
+
+// --- Group: regression — printf not echo (backslash corruption) ---
+console.log("\n--- Testing: regression — printf not echo ---");
+{
+	// A formula containing \f (as in \frac) must NOT be corrupted by echo.
+	var formula = "f(x, y) = \\int_{q=x}^y \\frac{x}{y}";
+	var b64 = btoa(unescape(encodeURIComponent(formula)));
+	var cmd = "./omniopt --formula='" + b64 + "'";
+	var nice = addBase64DecodedVersions(cmd);
+	expect_true("printf: uses printf '%s' not echo",
+		nice.indexOf("printf '%s'") !== -1);
+	expect_false("printf: does NOT use echo",
+		/(?<!printf )echo '/.test(nice));
+	// The decoded content in the command must contain literal \f (backslash-f),
+	// NOT a form-feed character (0x0C).
+	expect_true("printf: \\frac preserved (no form-feed)",
+		nice.indexOf("\\frac") !== -1);
+	expect_false("printf: no form-feed char (0x0C) in output",
+		nice.indexOf("\x0c") !== -1);
+}
+
+// --- Group: regression — base64 round-trip for formulas with backslashes ---
+console.log("\n--- Testing: regression — base64 round-trip ---");
+{
+	// Simulate the full round-trip: JS encode → shell decode → JS decode
+	var formula = "f(x, y) = \\int_{q=x}^y \\frac{x}{y}";
+	var b64 = btoa(unescape(encodeURIComponent(formula)));
+	// Decode back (simulating what the shell's base64 -d would produce)
+	var decoded = decodeURIComponent(escape(atob(b64)));
+	expect("roundtrip: formula survives base64", decoded, formula);
+
+	// The nice command's printf argument must decode to the same formula
+	var nice = addBase64DecodedVersions("./omniopt --formula='" + b64 + "'");
+	// Extract the content between printf '%s' '...'
+	var m = nice.match(/printf '%s' '(.+?)' \| base64/);
+	expect_true("roundtrip: printf arg extracted", m !== null);
+	if (m) {
+		// Unescape the shell single-quote escaping
+		var shellArg = m[1].replace(/'\\''/g, "'");
+		expect("roundtrip: printf arg matches original", shellArg, formula);
+	}
+}
+
+// --- Group: regression — no duplicate --formula in command ---
+console.log("\n--- Testing: regression — no duplicate --formula ---");
+{
+	// Simulate what update_command produces: handleFormula adds --formula='b64'
+	// and processTableData must NOT also add a --formula arg.
+	var formula = "f(x) = x^2 + 1";
+	var b64 = btoa(unescape(encodeURIComponent(formula)));
+	var cmd = "./omniopt --formula_mode=auto --formula='" + b64 + "'";
+	var nice = addBase64DecodedVersions(cmd);
+	var count = (nice.match(/--formula=/g) || []).length;
+	expect("no-dup: exactly one --formula=", count, 1);
+}
 
 // ============================================================
 // SUMMARY

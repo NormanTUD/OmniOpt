@@ -543,8 +543,10 @@ function update_command() {
 		command = "bash omniopt_docker omniopt";
 	}
 
+	var formulaHandledIds = new Set(["formula", "formula_mode"]);
 	function processTableData(_tableData) {
 		_tableData.forEach(function(item) {
+			if (formulaHandledIds.has(item.id)) return;
 			if (!item.use_in_curl_bash) {
 				var command_error_and_warning = update_table_row(item, errors, warnings, command);
 				command = command_error_and_warning[0];
@@ -882,7 +884,7 @@ function addBase64DecodedVersions(cmdString) {
 
 		if (decoded) {
 			var safeDecoded = decoded.replace(/\x27/g, `'\\''`).trim();
-			return ` ${key}=$(echo '${safeDecoded}' | base64 -w0)`;
+			return ` ${key}=$(printf '%s' '${safeDecoded}' | base64 -w0)`;
 		} else {
 			return match;
 		}
@@ -1458,11 +1460,9 @@ function _format_param_label(info) {
 		var max = info.max !== "" ? info.max : "?";
 		var numberSet = (info.type === "int") ? "\\mathbb{Z}" : "\\mathbb{R}";
 		var line1 = "[" + min + ", " + max + "] \\in " + numberSet;
-		var line2Parts = [];
-		if (info.type === "int") line2Parts.push("\\text{discrete}");
-		else line2Parts.push("\\text{continuous}");
-		if (info.log_scale) line2Parts.push("\\text{log scale}");
-		return "\\substack{" + line1 + " \\\\ " + line2Parts.join(" ") + "}";
+		var line2 = (info.type === "int") ? "discrete" : "continuous";
+		if (info.log_scale) line2 += ", log";
+		return "\\substack{" + line1 + " \\\\ \\text{" + line2 + "}}";
 	} else if (info.kind === "fixed") {
 		var val = info.value !== "" ? info.value : "?";
 		return "\\substack{" + val + " \\\\ \\text{fixed}}";
@@ -1522,6 +1522,16 @@ function _add_explicit_grouping(latex) {
 		var ch = latex[pos];
 		if (ch === "(" || ch === "{") { lastEnd = cmdEnd; continue; }
 		if (ch === "\\") { lastEnd = cmdEnd; continue; }
+		// If the integral/sum is inside user-written parens (i.e. the char
+		// before the command is `(`), skip adding \left( \right) — the
+		// user's parens already define the scope.
+		var beforeIdx = m.index - 1;
+		while (beforeIdx >= 0 && latex[beforeIdx] === " ") beforeIdx--;
+		var inUserParens = beforeIdx >= 0 && latex[beforeIdx] === "(";
+		if (inUserParens) {
+			lastEnd = cmdEnd;
+			continue;
+		}
 		var termEnd = _read_term_end(latex, pos);
 		if (termEnd > pos) {
 			var body = latex.slice(pos, termEnd);

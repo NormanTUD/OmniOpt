@@ -953,6 +953,123 @@ def test_user_formula_integral_evaluates() -> bool:
     )
 
 
+def test_outer_parens_extend_integral_body() -> bool:
+    """(\\int_{q=a}^z 2x + b)  →  both 2x AND b are inside the integral."""
+    processed = formulas.preprocess_latex(r"(\int_{q=a}^{z} 2x + b)")
+    return _check(
+        processed == "(Integral(2*x + b, (q, a, z)))",
+        f"outer parens should extend body, got {processed!r}",
+    )
+
+
+def test_outer_parens_extend_sum_body() -> bool:
+    """(\\sum_{i=0}^{n} i^2 + 1)  →  both i^2 AND 1 are inside the sum."""
+    processed = formulas.preprocess_latex(r"(\sum_{i=0}^{n} i^2 + 1)")
+    return _check(
+        processed == "(Sum(i**2 + 1, (i, 0, n)))",
+        f"outer parens should extend sum body, got {processed!r}",
+    )
+
+
+def test_outer_parens_around_integral_only() -> bool:
+    """(\\int_{a}^{b} x^2) + 1  →  only x^2 inside; +1 is outside."""
+    processed = formulas.preprocess_latex(r"(\int_{a}^{b} x^2) + 1")
+    return _check(
+        processed == "(Integral(x**2, (x, a, b))) + 1",
+        f"parens around integral only, got {processed!r}",
+    )
+
+
+def test_outer_parens_integral_evaluates() -> bool:
+    """(\\int_{q=a}^z 2x + b) evaluates as (2x+b)*(z-a)."""
+    text = r"f(x, y, a, z) = (\int_{q = a}^z 2x + b)"
+    expr = formulas.parse_latex_or_infix(text, mode="latex")
+    fn = formulas.build_lambda(expr, ["a", "b", "x", "z"])
+    val = fn(a=1.0, b=10.0, x=3.0, z=4.0)
+    expected = (2.0 * 3.0 + 10.0) * (4.0 - 1.0)  # 16 * 3 = 48
+    return _check(
+        _approx_eq(val, expected),
+        f"paren-integral eval: expected {expected}, got {val}",
+    )
+
+
+# ---------------------------------------------------------------------------
+# Regression: \frac must not be split into individual letters
+# ---------------------------------------------------------------------------
+
+def test_regression_frac_not_split_into_letters() -> bool:
+    """\\frac{x}{y} must parse as x/y, NOT as a*c*r*x*y."""
+    processed = formulas.preprocess_latex(r"\frac{x}{y}")
+    return _check(
+        processed == "(x)/(y)",
+        f"\\frac{{x}}{{y}} should be (x)/(y), got {processed!r}",
+    )
+
+
+def test_regression_frac_inside_integral() -> bool:
+    """\\int_{q=x}^y \\frac{x}{y} must parse as Integral(x/y, (q, x, y))."""
+    text = r"f(x, y) = \int_{q=x}^y \frac{x}{y}"
+    expr = formulas.parse_latex_or_infix(text, mode="latex")
+    free = sorted(s.name for s in expr.free_symbols)
+    # Only x and y should be free (q is bound by the integral).
+    return _check(
+        free == ["x", "y"],
+        f"frac-in-integral free should be [x,y], got {free}",
+    )
+
+
+def test_regression_frac_inside_integral_evaluates() -> bool:
+    """\\int_{q=x}^y x/y dq = x/y * (y-x) = x - x^2/y."""
+    text = r"f(x, y) = \int_{q=x}^y \frac{x}{y}"
+    expr = formulas.parse_latex_or_infix(text, mode="latex")
+    fn = formulas.build_lambda(expr, ["x", "y"])
+    val = fn(x=2.0, y=4.0)
+    # x/y * (y-x) = 0.5 * 2 = 1.0
+    expected = (2.0 / 4.0) * (4.0 - 2.0)
+    return _check(
+        _approx_eq(val, expected),
+        f"frac-in-integral eval: expected {expected}, got {val}",
+    )
+
+
+def test_regression_backslash_f_not_formfeed() -> bool:
+    """Ensure \\frac survives the full preprocess without becoming form-feed."""
+    text = r"\frac{x}{y}"
+    processed = formulas.preprocess_latex(text)
+    return _check(
+        "\x0c" not in processed and "frac" not in processed,
+        f"no form-feed or literal 'frac' in output, got {processed!r}",
+    )
+
+
+def test_regression_echo_corruption_formfeed_repaired() -> bool:
+    """Formulas corrupted by shell echo (\\f -> form feed) are auto-repaired."""
+    # Simulate: echo '...\\frac{x}{y}' produces \x0crac{x}{y}
+    corrupted = "f(x, y) = \\int_{q=x}^y \x0crac{x}{y}"
+    expr = formulas.parse_latex_or_infix(corrupted, mode="auto")
+    free = sorted(s.name for s in expr.free_symbols)
+    return _check(
+        free == ["x", "y"],
+        f"echo-corrupted formula should still parse to free=[x,y], got {free}",
+    )
+
+
+def test_regression_echo_corruption_full_eval() -> bool:
+    """Corrupted formula still evaluates correctly end-to-end."""
+    import base64
+    # The exact base64 that $(echo 'f(x, y) = \\int_{q=x}^y \\frac{x}{y}' | base64 -w0) produces
+    corrupted_b64 = "Zih4LCB5KSA9IFxpbnRfe3E9eH1eeSAMcmFje3h9e3l9Cg=="
+    corrupted = base64.b64decode(corrupted_b64).decode("utf-8", errors="replace")
+    expr = formulas.parse_latex_or_infix(corrupted, mode="auto")
+    fn = formulas.build_lambda(expr, ["x", "y"])
+    val = fn(x=2.0, y=4.0)
+    expected = (2.0 / 4.0) * (4.0 - 2.0)  # x/y * (y-x) = 1.0
+    return _check(
+        _approx_eq(val, expected),
+        f"echo-corrupted eval: expected {expected}, got {val}",
+    )
+
+
 # ---------------------------------------------------------------------------
 # sbatch detection (lives in .executor_backend, not .formulas — sanity check)
 # ---------------------------------------------------------------------------
@@ -1045,6 +1162,16 @@ TESTS = [
     test_sum_grouping_explicit_parens_include_all,
     test_user_formula_integral_end_to_end,
     test_user_formula_integral_evaluates,
+    test_outer_parens_extend_integral_body,
+    test_outer_parens_extend_sum_body,
+    test_outer_parens_around_integral_only,
+    test_outer_parens_integral_evaluates,
+    test_regression_frac_not_split_into_letters,
+    test_regression_frac_inside_integral,
+    test_regression_frac_inside_integral_evaluates,
+    test_regression_backslash_f_not_formfeed,
+    test_regression_echo_corruption_formfeed_repaired,
+    test_regression_echo_corruption_full_eval,
     test_executor_backend_exposes_is_sbatch_in_path,
 ]
 

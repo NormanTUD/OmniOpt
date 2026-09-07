@@ -136,6 +136,34 @@ def strip_text_macros(latex: str) -> str:
     return text
 
 
+def _sanitize_shell_corruption(text: str) -> str:
+    """Repair common shell ``echo`` corruption of LaTeX backslash sequences.
+
+    When a formula is passed through ``echo '...' | base64`` (instead of
+    ``printf '%s' '...' | base64``), the shell interprets ``\\f`` as a form
+    feed (0x0C), ``\\n`` as newline, ``\\t`` as tab, etc.  This function
+    detects and reverses the most common corruptions so the parser still
+    produces correct results.
+    """
+    # \f -> form feed (0x0C):  \frac -> \x0crac, \ff -> \x0cf
+    # Repair: form-feed followed by known LaTeX continuations.
+    repairs = [
+        ("\x0crac", "\\frac"),
+        ("\x0cdfrac", "\\dfrac"),
+        ("\x0ctfrac", "\\tfrac"),
+        ("\x0cbox", "\\fbox"),
+        ("\x0c", ""),  # stray form feed with no known continuation
+    ]
+    for broken, fixed in repairs:
+        text = text.replace(broken, fixed)
+    # Strip any remaining non-printable control chars (except \t, \n, \r).
+    text = "".join(
+        ch for ch in text
+        if ch in ("\t", "\n", "\r") or ord(ch) >= 32
+    )
+    return text
+
+
 def preprocess_latex(latex: str) -> str:
     """Best-effort preprocessing of LaTeX so :func:`parse_expr` can chew it.
 
@@ -144,7 +172,8 @@ def preprocess_latex(latex: str) -> str:
     passed through verbatim so :func:`parse_expr` (or
     :func:`sympy.parsing.latex.parse_latex`) can complain about it.
     """
-    text = strip_text_macros(latex)
+    text = _sanitize_shell_corruption(latex)
+    text = strip_text_macros(text)
 
     # \frac{a}{b}  ->  (a)/(b)  (must come before general macro substitution)
     text = _expand_frac(text)
@@ -391,19 +420,41 @@ def _expand_sum(text: str) -> str:
         # Consume optional whitespace.
         while j < len(text) and text[j].isspace():
             j += 1
-        body, j_after = _read_sum_body(text, j)
+        # If the sum is wrapped in user parens, the body extends to the
+        # matching ``)``.
+        body = None
+        j_after = j
+        k = start - 1
+        while k >= 0 and text[k].isspace():
+            k -= 1
+        if k >= 0 and text[k] == "(":
+            depth = 1
+            p = k + 1
+            while p < len(text) and depth > 0:
+                if text[p] == "(":
+                    depth += 1
+                elif text[p] == ")":
+                    depth -= 1
+                p += 1
+            if depth == 0:
+                paren_close = p - 1
+                if paren_close > j:
+                    body = text[j:paren_close].strip()
+                    j_after = paren_close
         if body is None:
-            # No explicit body — e.g. ``\sum_a`` (degenerate sum where
-            # the bound variable is also the summand).  Fall back to the
-            # bound variable as the body so the LaTeX still parses.
-            var, lower = _split_var_lower(sub_text)
-            if var:
-                out.append(f"Sum({var}, ({var}, {lower}, {sup_text.strip() or 'oo'}))")
+            body, j_after = _read_sum_body(text, j)
+            if body is None:
+                # No explicit body — e.g. ``\sum_a`` (degenerate sum where
+                # the bound variable is also the summand).  Fall back to the
+                # bound variable as the body so the LaTeX still parses.
+                var, lower = _split_var_lower(sub_text)
+                if var:
+                    out.append(f"Sum({var}, ({var}, {lower}, {sup_text.strip() or 'oo'}))")
+                    i = j
+                    continue
+                out.append(text[start:j])
                 i = j
                 continue
-            out.append(text[start:j])
-            i = j
-            continue
         var, lower = _split_var_lower(sub_text)
         upper = sup_text.strip() or "oo"
         out.append(f"Sum({body}, ({var}, {lower}, {upper}))")
@@ -438,11 +489,35 @@ def _expand_int(text: str) -> str:
         # Consume optional whitespace.
         while j < len(text) and text[j].isspace():
             j += 1
-        body, j_after = _read_sum_body(text, j)
+        # If the integral is wrapped in user parens — i.e. the character
+        # immediately before ``\int`` (skipping spaces) is ``(`` — the body
+        # extends to the matching ``)``.  This lets users write
+        # ``(\int_a^b 2x + b)`` to mean "integrate the whole ``2x + b``".
+        body = None
+        j_after = j
+        k = start - 1
+        while k >= 0 and text[k].isspace():
+            k -= 1
+        if k >= 0 and text[k] == "(":
+            depth = 1
+            p = k + 1
+            while p < len(text) and depth > 0:
+                if text[p] == "(":
+                    depth += 1
+                elif text[p] == ")":
+                    depth -= 1
+                p += 1
+            if depth == 0:
+                paren_close = p - 1
+                if paren_close > j:
+                    body = text[j:paren_close].strip()
+                    j_after = paren_close
         if body is None:
-            out.append(text[start:j])
-            i = j
-            continue
+            body, j_after = _read_sum_body(text, j)
+            if body is None:
+                out.append(text[start:j])
+                i = j
+                continue
         # The integration variable is the bit after ``d`` if present, else
         # we fall back to the subscript variable (single-letter case).
         var, lower, upper = _split_int_bounds(sub_text, sup_text)
@@ -732,11 +807,31 @@ def _expand_prod(text: str) -> str:
         j = m.end()
         while j < len(text) and text[j].isspace():
             j += 1
-        body, j_after = _read_sum_body(text, j)
+        body = None
+        j_after = j
+        k = start - 1
+        while k >= 0 and text[k].isspace():
+            k -= 1
+        if k >= 0 and text[k] == "(":
+            depth = 1
+            p = k + 1
+            while p < len(text) and depth > 0:
+                if text[p] == "(":
+                    depth += 1
+                elif text[p] == ")":
+                    depth -= 1
+                p += 1
+            if depth == 0:
+                paren_close = p - 1
+                if paren_close > j:
+                    body = text[j:paren_close].strip()
+                    j_after = paren_close
         if body is None:
-            out.append(text[start:j])
-            i = j
-            continue
+            body, j_after = _read_sum_body(text, j)
+            if body is None:
+                out.append(text[start:j])
+                i = j
+                continue
         var, lower = _split_var_lower(sub_text)
         upper = sup_text.strip() or "oo"
         out.append(f"Product({body}, ({var}, {lower}, {upper}))")

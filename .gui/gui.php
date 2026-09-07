@@ -74,7 +74,6 @@
 		    top: 20px;
 		    border-radius: 12px;
 		    padding: 20px;
-		    max-height: 80vh;
 		    overflow-y: auto;
 		}
 

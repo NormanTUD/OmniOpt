@@ -978,6 +978,8 @@ def parse_infix(expr_str: str, local_dict: Optional[Dict[str, "Expr"]] = None) -
         merged.update(local_dict)
     text = expr_str
     text = _expand_abs(text)
+    # Convert `^` to `**` (infix users type `a^b` for power, not XOR).
+    text = text.replace("^", "**")
     # Strip ``\func`` so ``\sigma(z)`` parses like ``sigma(z)``.
     text = re.sub(
         r"\\(sin|cos|tan|asin|acos|atan|sinh|cosh|tanh|exp|log|ln|sqrt|abs|sigma|sign|min|max|erf|sigmoid|softmax|relu|leakyrelu|tanh|hardtanh|softplus|gelu|mish|step)\b",

@@ -115,6 +115,19 @@
 			padding: 3px 6px;
 			border-bottom: 1px solid #eee;
 		}
+		#formula_preview {
+			overflow: visible !important;
+		}
+		#formula_preview mjx-container,
+		#formula_preview .mjx-container,
+		#formula_preview .MJx-Container,
+		#formula_preview .MJXc-Display {
+			overflow: visible !important;
+		}
+		#formula_preview mjx-container mjx-munder,
+		#formula_preview .mjx-container .mjx-munder {
+			overflow: visible !important;
+		}
 	</style>
 <div id="loader">
 	<div class="spinner"></div> Loading...

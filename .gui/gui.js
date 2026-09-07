@@ -842,6 +842,8 @@ function update_command() {
 	show_warnings_and_errors(warnings, errors);
 
 	update_url();
+
+	_schedule_formula_preview_refresh();
 }
 
 function encode_base64 (v) {
@@ -913,7 +915,8 @@ function build_formula_card_html() {
 		"</div>" +
 		"</div>" +
 		"<div id='formula_hint' style='margin-top: 6px; font-size: 0.85em; color: #555;'></div>" +
-		"<div id='formula_preview' style='margin-top: 8px; padding: 8px; background: #fff; border: 1px dashed #c0c0d0; border-radius: 8px; min-height: 40px; font-size: 1.05em;'></div>" +
+		"<div id='formula_preview' style='margin-top: 8px; padding: 8px 8px 16px 8px; background: #fff; border: 1px dashed #c0c0d0; border-radius: 8px; min-height: 50px; font-size: 1.05em; overflow: visible;'></div>" +
+		"<div id='formula_param_legend' style='margin-top: 4px; font-size: 0.82em; color: #444; min-height: 1.2em;'></div>" +
 		"<div id='formula_error' style='margin-top: 4px; font-size: 0.85em; color: #b00020;'></div>" +
 		"</div>" +
 		"<div id='formula_card_right' style='flex: 0 0 380px; min-width: 320px; padding: 10px; background: #fafaff; border: 1px solid #d6d6e6; border-radius: 10px;'>" +
@@ -939,6 +942,41 @@ function build_formula_card_html() {
 // token and removes ones that are obviously sympy built-ins or known math
 // constants.  The Python side does the authoritative parse; this is just for
 // quick client-side feedback.
+function _strip_underbraces(text) {
+	var result = "";
+	var i = 0;
+	var marker = "\\underbrace{";
+	while (i < text.length) {
+		var idx = text.indexOf(marker, i);
+		if (idx === -1) {
+			result += text.substring(i);
+			break;
+		}
+		result += text.substring(i, idx);
+		var pos = idx + marker.length;
+		var depth = 1;
+		while (pos < text.length && depth > 0) {
+			if (text[pos] === "{") depth++;
+			else if (text[pos] === "}") depth--;
+			pos++;
+		}
+		var content = text.substring(idx + marker.length, pos - 1);
+		result += content;
+		if (pos < text.length && text[pos] === "_") pos++;
+		if (pos < text.length && text[pos] === "{") {
+			depth = 1;
+			pos++;
+			while (pos < text.length && depth > 0) {
+				if (text[pos] === "{") depth++;
+				else if (text[pos] === "}") depth--;
+				pos++;
+			}
+		}
+		i = pos;
+	}
+	return result;
+}
+
 var FORMULA_RESERVED = new Set([
 	// sympy constants
 	"pi", "E", "I", "oo", "inf", "infty", "nan", "NaN", "True", "False",
@@ -951,6 +989,11 @@ var FORMULA_RESERVED = new Set([
 	"math", "numpy", "np", "self", "def", "return", "import", "from",
 	"if", "else", "elif", "for", "while", "in", "and", "or", "not",
 	"params", "evaluate", "_raw",
+	// LaTeX commands
+	"underbrace", "overbrace", "substack", "mathbb", "text", "mathrm",
+	"mathbf", "mathcal", "operatorname", "left", "right", "displaystyle",
+	"quad", "qquad", "cdot", "times", "cdot", "limits", "hat", "bar",
+	"vec", "dot", "tilde", "widehat", "overline", "underline",
 ]);
 
 var FORMULA_CONSTANTS = {
@@ -1103,7 +1146,7 @@ function client_extract_formula_params(text, mode) {
 function client_extract_formula_params_impl(text, mode) {
 	if (!text || !text.trim()) return { parameters: [], constants: [], bound: [] };
 	if (typeof text !== "string") return { parameters: [], constants: [], bound: [] };
-	var raw = text;
+	var raw = _strip_underbraces(text);
 
 	var split;
 	try { split = _split_assignment(raw); }
@@ -1280,7 +1323,7 @@ function client_apply_suggestions(result) {
 				firstEmptyIdx = -1;
 			} else {
 				$("#main_add_row_button").click();
-				targetIndex = idx;
+				targetIndex = $(".parameterRow").length - 1;
 			}
 			var $row = $(".parameterRow").eq(targetIndex);
 			if ($row.length === 0) return;
@@ -1304,6 +1347,111 @@ function client_apply_suggestions(result) {
 	}
 
 	update_command();
+}
+
+var _formula_preview_callback = null;
+var _formulaPreviewTimer = null;
+
+function _schedule_formula_preview_refresh() {
+	if (_formulaPreviewTimer) clearTimeout(_formulaPreviewTimer);
+	_formulaPreviewTimer = setTimeout(function () {
+		_formulaPreviewTimer = null;
+		if (typeof _formula_preview_callback === "function") {
+			_formula_preview_callback();
+		}
+	}, 300);
+}
+
+function get_current_parameter_info() {
+	var info = {};
+	$(".parameterRow").each(function () {
+		var name = $(this).find(".parameterName").val().trim();
+		if (!name || !/^[a-zA-Z_]+$/.test(name)) return;
+		var option = $(this).find(".optionSelect").val();
+		if (option === "range") {
+			info[name] = {
+				kind: "range",
+				min: $(this).find(".minValue").val() || "",
+				max: $(this).find(".maxValue").val() || "",
+				type: $(this).find(".numberTypeSelect").val() || "float",
+				log_scale: $(this).find(".log_scale").is(":checked")
+			};
+		} else if (option === "fixed") {
+			info[name] = {
+				kind: "fixed",
+				value: $(this).find(".fixedValue").val() || ""
+			};
+		} else if (option === "choice") {
+			info[name] = {
+				kind: "choice",
+				values: $(this).find(".choiceValues").val() || ""
+			};
+		}
+	});
+	return info;
+}
+
+function _convert_infix_to_latex(text) {
+	text = text.replace(/([a-zA-Z_)\d]|(\}))\s*\*\*\s*([a-zA-Z_]\w*|\d+(?:\.\d+)?)/g, "$1^{$3}");
+	text = text.replace(/\*\*/g, "^");
+	text = text.replace(/\b(sin|cos|tan|asin|acos|atan|sinh|cosh|tanh|sqrt|exp|log|ln)\b/g, "\\$1");
+	return text;
+}
+
+function _format_param_label(info) {
+	if (info.kind === "range") {
+		var min = info.min !== "" ? info.min : "?";
+		var max = info.max !== "" ? info.max : "?";
+		var numberSet = (info.type === "int") ? "\\mathbb{Z}" : "\\mathbb{R}";
+		var line1 = "[" + min + ", " + max + "] \\in " + numberSet;
+		var line2Parts = [];
+		if (info.type === "int") line2Parts.push("\\text{discrete}");
+		else line2Parts.push("\\text{continuous}");
+		if (info.log_scale) line2Parts.push("\\text{log scale}");
+		return "\\substack{" + line1 + " \\\\ " + line2Parts.join(" ") + "}";
+	} else if (info.kind === "fixed") {
+		var val = info.value !== "" ? info.value : "?";
+		return "\\substack{" + val + " \\\\ \\text{fixed}}";
+	} else if (info.kind === "choice") {
+		var vals = info.values ? info.values.split(",").map(function (v) { return "\\text{" + v.trim() + "}"; }).filter(Boolean).join(", ") : "?";
+		return "\\substack{\\{" + vals + "\\} \\\\ \\text{choice}}";
+	}
+	return "";
+}
+
+function _add_parameter_underbraces(latex, paramInfo) {
+	var names = Object.keys(paramInfo);
+	if (!names.length) return latex;
+
+	var eqIdx = -1;
+	var depth = 0;
+	for (var i = 0; i < latex.length; i++) {
+		var ch = latex[i];
+		if (ch === "{") depth++;
+		else if (ch === "}") depth--;
+		else if (ch === "=" && depth === 0) eqIdx = i;
+	}
+
+	var lhs, rhs;
+	if (eqIdx >= 0) {
+		lhs = latex.substring(0, eqIdx + 1);
+		rhs = latex.substring(eqIdx + 1);
+	} else {
+		lhs = "";
+		rhs = latex;
+	}
+
+	names.sort(function (a, b) { return b.length - a.length; });
+	var escaped = names.map(function (n) { return n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); });
+	var re = new RegExp("\\b(" + escaped.join("|") + ")\\b", "g");
+
+	rhs = rhs.replace(re, function (match, p1, offset) {
+		var info = paramInfo[match];
+		var label = _format_param_label(info);
+		return "\\underbrace{" + match + "}_{" + label + "}";
+	});
+
+	return lhs + rhs;
 }
 
 function setup_formula_editor() {
@@ -1442,9 +1590,12 @@ function setup_formula_card_inner() {
 	}
 
 	function client_render_formula_preview_inner(text, $prev, $err) {
+		var $legend = $("#formula_card #formula_param_legend");
+
 		if (!text || !text.trim()) {
 			$prev.empty();
 			$err.empty();
+			if ($legend.length) $legend.html("");
 			return;
 		}
 
@@ -1458,13 +1609,37 @@ function setup_formula_card_inner() {
 		if (mode === "python") {
 			$prev.html("<em style='color:#777'>Python mode — no preview.</em>");
 			$err.empty();
+			if ($legend.length) $legend.html("");
 			return;
 		}
 		if (mode === "infix") {
-			// Infix is shown as-is in the textarea; no LaTeX rendering.
-			$prev.empty();
-			$err.empty();
-			return;
+			text = _convert_infix_to_latex(text);
+		}
+
+		var _pi = get_current_parameter_info();
+		var _hasUnderbraces = text.indexOf("\\underbrace") !== -1;
+		if (!_hasUnderbraces && Object.keys(_pi).length) {
+			text = _add_parameter_underbraces(text, _pi);
+			_hasUnderbraces = true;
+		}
+
+		if ($legend.length) {
+			if (Object.keys(_pi).length) {
+				var legendParts = [];
+				for (var _ln in _pi) {
+					var _li = _pi[_ln];
+					if (_li.kind === "range") {
+						legendParts.push("<code>" + _ln + "</code> ∈ [" + (_li.min || "?") + ", " + (_li.max || "?") + "] (" + (_li.type || "float") + (_li.log_scale ? ", log" : "") + ")");
+					} else if (_li.kind === "fixed") {
+						legendParts.push("<code>" + _ln + "</code> = " + (_li.value || "?") + " (fixed)");
+					} else if (_li.kind === "choice") {
+						legendParts.push("<code>" + _ln + "</code> ∈ {" + (_li.values || "?") + "}");
+					}
+				}
+				$legend.html(legendParts.join(" &nbsp;·&nbsp; "));
+			} else {
+				$legend.html("");
+			}
 		}
 
 		// Sanity-check the input: refuse to render empty / whitespace /
@@ -1482,11 +1657,12 @@ function setup_formula_card_inner() {
 		// Detect obviously broken LaTeX before handing it to MathJax so we
 		// can show a useful error message instead of a giant red ``?``.
 		var stripped = text
+			.replace(/\\underbrace\{[^{}]*\}\{[^{}]*\}/g, "")
 			.replace(/^\s*[a-zA-Z_][a-zA-Z0-9_]*\s*\([^)]*\)\s*=\s*/, "")
 			.replace(/^\s*[a-zA-Z_][a-zA-Z0-9_]*\s*=\s*/, "");
 		var balanceErrors = [];
-		if (/\\\s/.test(text)) balanceErrors.push("stray space after a backslash");
-		if (/[{}]\s*[+\-*/^=]/.test(stripped)) balanceErrors.push("brace next to an operator (probably missing ``\\right``)");
+		if (/\\\s/.test(text) && !_hasUnderbraces) balanceErrors.push("stray space after a backslash");
+		if (!_hasUnderbraces && /[{}]\s*[+\-*/^=]/.test(stripped)) balanceErrors.push("brace next to an operator (probably missing ``\\right``)");
 		// Count opening and closing braces; an imbalance is almost
 		// certainly a typo.
 		var depth = 0, maxDepth = 0, bchar;
@@ -1720,6 +1896,10 @@ function setup_formula_card_inner() {
 	else if (initial_mode === "python") set_active_tab("python");
 	else set_active_tab("infix");
 	update_everything();
+
+	_formula_preview_callback = function () {
+		client_render_formula_preview($("#formula").val() || "");
+	};
 }
 
 function updateOptions(select) {
@@ -2287,7 +2467,9 @@ function run_when_document_ready () {
 				// Belt-and-suspenders: also call the renderer directly so
 				// the preview shows up even if the input handler is
 				// somehow shadowed by a third-party script.
-				client_render_formula_preview(fm);
+				if (typeof _formula_preview_callback === "function") {
+					_formula_preview_callback();
+				}
 				// Auto-apply the suggestions so the parameter table is
 				// populated when restoring from URL.
 				setTimeout(function () {

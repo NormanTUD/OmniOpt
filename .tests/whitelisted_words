@@ -3791,3 +3791,9 @@ sumvhi
 renderNode
 startupTimeout
 typesetClear
+numberSet
+eqIdx
+overbrace
+substack
+vec
+widehat

@@ -201,6 +201,15 @@ def preprocess_latex(latex: str) -> str:
     text = _expand_abs(text)
 
     # \sin / \cos / \tan / \exp / \log / \ln / \sigma / etc. -> sympy names
+    # The first sub handles the brace form (\sin{x} -> sin(x)) so we don't
+    # end up with adjacent identifiers like `abs{a}` that sympy would
+    # parse as `a*b*s*a` via implicit multiplication.  The second sub
+    # handles the no-brace form (\sin x -> sin x).
+    text = re.sub(
+        r"\\(sin|cos|tan|asin|acos|atan|sinh|cosh|tanh|exp|log|ln|sqrt|abs|sigma|sign|min|max|erf|sigmoid|softmax|relu|leakyrelu|tanh|hardtanh|softplus|gelu|mish|step)\s*\{([^{}]*)\}",
+        r"\1(\2)",
+        text,
+    )
     text = re.sub(
         r"\\(sin|cos|tan|asin|acos|atan|sinh|cosh|tanh|exp|log|ln|sqrt|abs|sigma|sign|min|max|erf|sigmoid|softmax|relu|leakyrelu|tanh|hardtanh|softplus|gelu|mish|step)\b",
         r"\1",
@@ -952,14 +961,24 @@ def _default_local_dict() -> Dict[str, "Expr"]:
     prevents formulas like ``gamma * q_next`` from parsing.  By binding
     these names to plain ``Symbol`` placeholders, the parser accepts
     the user's free variables.
+
+    Also register the standard rounding/sign helpers so the
+    ``implicit_multiplication_application`` transformation doesn't split
+    them into single letters (``ceil`` → ``c*e*i*l``).
     """
-    from sympy import Symbol
+    from sympy import Symbol, ceiling, floor, sign
     return {
         "gamma": Symbol("gamma"),
         "Gamma": Symbol("Gamma"),
         "Beta": Symbol("Beta"),
         "Zeta": Symbol("Zeta"),
         "E": Symbol("E"),
+        # Rounding / sign helpers — sympy builtins, but we register them
+        # explicitly so ``implicit_multiplication_application`` doesn't
+        # break the multi-letter names into single-letter variables.
+        "ceil": ceiling,
+        "floor": floor,
+        "sign": sign,
         "N": Symbol("N"),
     }
 
@@ -1188,6 +1207,7 @@ def suggest_hyperparameters(
             value_type = "int"
             lower = 0.0
             upper = 10.0
+            log_scale = False
         elif name.startswith("lr_") or name.startswith("log_") or name.endswith("_log"):
             value_type = "float"
             lower = 1e-5
@@ -1561,11 +1581,11 @@ def _format_suggestion_label(s: "SuggestedParameter") -> str:
 # ---------------------------------------------------------------------------
 
 def build_lambda(
-    expr: "Expr",
+    expr: object,
     parameter_names: Sequence[str],
     *,
     modules: Optional[Sequence[str]] = None,
-) -> Callable[..., float]:
+) -> Callable[..., float | Tuple[float, ...]]:
     """Return a numeric call-back that takes ``parameter_names`` as kwargs.
 
     Uses :func:`sympy.lambdify` with ``numpy`` semantics so the call-back can
@@ -1581,44 +1601,67 @@ def build_lambda(
 
     # Walk the expression tree and pre-evaluate any ``Integral`` whose
     # integration variable has definite bounds.  Sympy can usually
-    # evaluate ``\\int_{a}^{b} f(x)\\,dx`` to a closed form in the
+    # evaluate ``\int_{a}^{b} f(x)\,dx`` to a closed form in the
     # other variables (``q*(b - a)`` for constant ``f``), which we want
     # the numeric call-back to compute instead of trying to compile
     # sympy's symbolic integrator.
-    def _eval_integrals(e: "Expr") -> "Expr":
-        if e.is_Atom:
+    #
+    # The input can also be a Python ``tuple`` (the multi-objective
+    # case ``f(x) = (x**2, (x - 3)**2)`` parses into a tuple of sympy
+    # expressions); recurse element-wise and pass the tuple through.
+    def _eval_integrals(e: object) -> object:
+        if isinstance(e, tuple):
+            return tuple(_eval_integrals(x) for x in e)
+        # After this guard, ``e`` is a sympy ``Expr`` (or close enough).
+        if not hasattr(e, "is_Atom"):
             return e
-        if isinstance(e, _Integral):
-            if e.limits:
+        expr_e: "Expr" = e
+        if expr_e.is_Atom:
+            return expr_e
+        if isinstance(expr_e, _Integral):
+            if expr_e.limits:
                 # Definite integral (no symbolic ``oo`` or ``-oo``).  Try
                 # to evaluate it; fall back to the original on failure.
                 try:
-                    evaluated = e.doit()
+                    evaluated = expr_e.doit()
                     # If the result still contains an ``Integral`` node,
                     # sympy couldn't find a closed form — bail.
                     if not evaluated.has(_Integral):
                         return evaluated
                 except Exception:
                     pass
-            return e
-        return e.func(*[_eval_integrals(arg) for arg in e.args])
+            return expr_e
+        return expr_e.func(*[_eval_integrals(arg) for arg in expr_e.args])
 
     expr = _eval_integrals(expr)
 
-    free = sorted(expr.free_symbols, key=lambda s: s.name)
+    # Multi-objective formulas parse into a Python tuple of sympy
+    # expressions (one entry per objective).  Build one lambda per
+    # component and return a tuple of callables; ``_wrap_lambda``
+    # already preserves tuple return values, so each component runs
+    # through the normal numeric pipeline.
+    if isinstance(expr, tuple):
+        component_lambdas: list[Callable[..., float | Tuple[float, ...]]] = [
+            build_lambda(c, parameter_names, modules=modules) for c in expr
+        ]
+        return _wrap_lambda_tuple(component_lambdas, parameter_names)
+
+    # After the tuple branch, ``expr`` is a sympy ``Expr``.
+    expr_typed: "Expr" = expr
+    free = sorted(expr_typed.free_symbols, key=lambda s: s.name)
     ordered = [s for s in free if s.name in set(parameter_names)]
     extras = [s for s in free if s.name not in set(parameter_names)]
     if extras:
         # Re-substitute extras as ``0`` so sympy doesn't try to treat them
         # as parameters.  In practice users should call this with values
         # for any ``fixed`` parameters before evaluating.
-        expr = expr.subs([(s, 0) for s in extras])
+        expr_typed = expr_typed.subs([(s, 0) for s in extras])
         free = ordered
 
     if modules is None:
         modules = ["numpy"]
 
-    fn = lambdify(ordered, expr, modules=modules)
+    fn = lambdify(ordered, expr_typed, modules=modules)
     return _wrap_lambda(fn, ordered)
 
 
@@ -1642,6 +1685,39 @@ def _wrap_lambda(fn: Callable[..., float], ordered: Sequence[Symbol]) -> Callabl
             return result
 
     wrapper.__doc__ = f"lambda for formula with params {[s.name for s in ordered]}"
+    return wrapper
+
+
+def _wrap_lambda_tuple(
+    callables: Sequence[Callable[..., float | Tuple[float, ...]]],
+    parameter_names: Sequence[str],
+) -> Callable[..., Tuple[float, ...]]:
+    """Wrap one wrapper per tuple element for multi-objective formulas.
+
+    The output preserves the order of ``callables`` and returns a tuple
+    of floats when invoked with the parameter kwargs.
+    """
+
+    def wrapper(**kwargs: float) -> Tuple[float, ...]:
+        results: list[float] = []
+        for c in callables:
+            r = c(**kwargs)
+            # ``r`` can be a float or a tuple (nested multi-objective); we
+            # flatten by recursing on tuples.  Scalar values are coerced.
+            if isinstance(r, tuple):
+                # Flatten: take the first element if it's a scalar, else
+                # fall back to NaN so we never raise out of the wrapper.
+                results.append(float(r[0]) if r else float("nan"))
+            else:
+                try:
+                    results.append(float(r))
+                except (TypeError, ValueError):
+                    results.append(float("nan"))
+        return tuple(results)
+
+    wrapper.__doc__ = (
+        f"multi-objective lambda with params {list(parameter_names)}"
+    )
     return wrapper
 
 
@@ -1677,7 +1753,7 @@ class Formula:
         names = list(parameter_names) if parameter_names is not None else [s.name for s in self.suggestions]
         return render_latex_with_underbraces(self.expr, names)
 
-    def lambda_for(self, parameter_names: Sequence[str]) -> Callable[..., float]:
+    def lambda_for(self, parameter_names: Sequence[str]) -> Callable[..., float | Tuple[float, ...]]:
         return build_lambda(self.expr, parameter_names)
 
 

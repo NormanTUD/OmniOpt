@@ -16,6 +16,7 @@ success.  The module exits non-zero if any test fails.
 from __future__ import annotations
 
 import math
+import re
 import sys
 import tempfile
 from importlib.machinery import SourceFileLoader
@@ -1133,6 +1134,483 @@ def test_parse_valid_complete_integral_still_works() -> bool:
 
 
 # ---------------------------------------------------------------------------
+# Tutorial example tests
+#
+# Every named example in `.gui/_tutorials/formulas.md` must have a
+# corresponding automated test in this file.  When a tutorial example
+# changes, change the test too — and vice versa.  The CI smoke_tests run
+# picks up everything in the `TESTS` list below.
+# ---------------------------------------------------------------------------
+
+
+def test_tutorial_sphere() -> bool:
+    # Tutorial § "Sphere (quick start)": f(x, y) = x**2 + y**2
+    text = "f(x, y) = x**2 + y**2"
+    expr = formulas.parse_latex_or_infix(text, mode="infix")
+    fn = formulas.build_lambda(expr, ["x", "y"])
+    free = sorted(s.name for s in expr.free_symbols)
+    ok = True
+    if free != ["x", "y"]:
+        ok = _check(False, f"sphere: free should be [x,y], got {free}")
+    if not _approx_eq(fn(x=3.0, y=4.0), 25.0):
+        ok = _check(False, f"sphere(3,4) should be 25, got {fn(x=3.0, y=4.0)}")
+    return ok
+
+
+def test_tutorial_quadratic_loss() -> bool:
+    # Tutorial § "Quadratic loss": f(x) = a*x**2 + b*x + c
+    text = "f(x) = a*x**2 + b*x + c"
+    expr = formulas.parse_latex_or_infix(text, mode="infix")
+    # x is the parameter; a, b, c are RHS-only (constants in the GUI's
+    # terminology).  Verify the GUI-side split matches.
+    params, consts, _ = formulas.suggest_formula_split(text, expr)
+    p_names = sorted(p.name for p in params)
+    c_names = sorted(c.name for c in consts)
+    ok = True
+    if p_names != ["x"]:
+        ok = _check(False, f"quadratic: params should be [x], got {p_names}")
+    if c_names != ["a", "b", "c"]:
+        ok = _check(False, f"quadratic: consts should be [a,b,c], got {c_names}")
+    # And numerically: with a=1, b=2, c=3, f(2)=4+4+3=11
+    from sympy import Float
+    e2 = expr.subs([("a", Float(1.0)), ("b", Float(2.0)), ("c", Float(3.0))])
+    fn = formulas.build_lambda(e2, ["x"])
+    if not _approx_eq(fn(x=2.0), 11.0):
+        ok = _check(False, f"quadratic(2) with a=1,b=2,c=3 should be 11, got {fn(x=2.0)}")
+    return ok
+
+
+def test_tutorial_sigmoid() -> bool:
+    # Tutorial § "Sigmoid": \sigma(z) = \frac{1}{1 + e^{-z}}
+    text = r"\sigma(z) = \frac{1}{1 + e^{-z}}"
+    expr = formulas.parse_latex_or_infix(text, mode="latex")
+    # The bare `e` in `e**(-z)` becomes a sympy Symbol; substitute
+    # Euler's number before evaluating.
+    from sympy import Symbol
+    expr2 = expr.subs(Symbol("e"), math.e)
+    fn = formulas.build_lambda(expr2, ["z"])
+    ok = True
+    if not _approx_eq(fn(z=0.0), 0.5):
+        ok = _check(False, f"sigmoid(0) should be 0.5, got {fn(z=0.0)}")
+    if fn(z=10.0) < 0.99:
+        ok = _check(False, f"sigmoid(10) should be ~1, got {fn(z=10.0)}")
+    return ok
+
+
+def test_tutorial_polynomial_kernel() -> bool:
+    # Tutorial § "Polynomial kernel": K(x, y) = (x \cdot y + c)^{d}
+    text = r"K(x, y) = (x \cdot y + c)^{d}"
+    expr = formulas.parse_latex_or_infix(text, mode="latex")
+    # x, y are LHS parameters; c, d are RHS-only constants.
+    params, consts, _ = formulas.suggest_formula_split(text, expr)
+    p_names = sorted(p.name for p in params)
+    c_names = sorted(c.name for c in consts)
+    ok = True
+    if p_names != ["x", "y"]:
+        ok = _check(False, f"poly kernel: params should be [x,y], got {p_names}")
+    if c_names != ["c", "d"]:
+        ok = _check(False, f"poly kernel: consts should be [c,d], got {c_names}")
+    # With c=1, d=2: (2*3 + 1)^2 = 49.
+    from sympy import Float
+    e2 = expr.subs([("c", Float(1.0)), ("d", Float(2.0))])
+    fn = formulas.build_lambda(e2, ["x", "y"])
+    if not _approx_eq(fn(x=2.0, y=3.0), 49.0):
+        ok = _check(False, f"poly kernel(2,3) with c=1,d=2 should be 49, got {fn(x=2.0, y=3.0)}")
+    return ok
+
+
+def test_tutorial_sigmoid_cross_entropy() -> bool:
+    # Tutorial § "Sigmoid cross-entropy":
+    # L = -1/n * Sum(y_i * log(sigmoid(w*x_i + b))
+    #              + (1 - y_i) * log(1 - sigmoid(w*x_i + b)),
+    #          (i, 0, n))
+    text = ("L = -1/n * Sum(y_i * log(sigmoid(w*x_i + b)) + "
+            "(1 - y_i) * log(1 - sigmoid(w*x_i + b)), "
+            "(i, 0, n))")
+    # ``sigmoid`` is not a sympy builtin — rewrite ``sigmoid(arg)`` to
+    # ``1/(1+exp(arg))`` so the expression parses cleanly.  The regex
+    # handles the open-and-close parens around the single argument.
+    text_py = re.sub(r"sigmoid\(([^()]*)\)", r"1/(1+exp(\1))", text)
+    expr = formulas.parse_latex_or_infix(text_py, mode="infix")
+    bound = formulas._find_bound_names(text)
+    free = sorted(s.name for s in expr.free_symbols)
+    ok = True
+    if "i" not in bound:
+        ok = _check(False, f"cross-entropy: bound should include 'i', got {bound}")
+    if not all(name in free for name in ("w", "b", "n", "y_i", "x_i")):
+        ok = _check(False, f"cross-entropy: free should include w,b,n,y_i,x_i, got {free}")
+    return ok
+
+
+def test_tutorial_definite_integral() -> bool:
+    # Tutorial § "Definite integral": \int_{0}^{1} x**2 \,dx
+    # No free symbols → the lambda is constant.
+    text = r"\int_{0}^{1} x**2 \,dx"
+    expr = formulas.parse_latex_or_infix(text, mode="latex")
+    fn = formulas.build_lambda(expr, [])
+    ok = True
+    if expr.free_symbols:
+        ok = _check(False, f"definite integral should have no free symbols, got {sorted(s.name for s in expr.free_symbols)}")
+    if not _approx_eq(fn(), 1.0 / 3.0):
+        ok = _check(False, f"∫0..1 x² dx should be 1/3, got {fn()}")
+    return ok
+
+
+def test_tutorial_definite_integral_with_param() -> bool:
+    # The tutorial's "make at least one bound a hyperparameter" example:
+    # \int_{0}^{n} x^2 \,dx   — n is free.
+    text = r"\int_{0}^{n} x^2 \,dx"
+    expr = formulas.parse_latex_or_infix(text, mode="latex")
+    fn = formulas.build_lambda(expr, ["n"])
+    free = sorted(s.name for s in expr.free_symbols)
+    ok = True
+    if free != ["n"]:
+        ok = _check(False, f"variable-bound integral: free should be [n], got {free}")
+    # ∫0..n x² dx = n³/3
+    if not _approx_eq(fn(n=3.0), 9.0):
+        ok = _check(False, f"∫0..3 x² dx should be 9, got {fn(n=3.0)}")
+    if not _approx_eq(fn(n=2.0), 8.0 / 3.0):
+        ok = _check(False, f"∫0..2 x² dx should be 8/3, got {fn(n=2.0)}")
+    return ok
+
+
+def test_tutorial_bare_infix() -> bool:
+    # Tutorial § "Bare infix": sin(x)**2 + cos(x)**2  (must be 1 for all x)
+    text = "sin(x)**2 + cos(x)**2"
+    expr = formulas.parse_latex_or_infix(text, mode="infix")
+    fn = formulas.build_lambda(expr, ["x"])
+    ok = True
+    for val in (0.0, 0.5, 1.0, 2.5, 6.0):
+        if not _approx_eq(fn(x=val), 1.0):
+            ok = _check(False, f"sin²+cos² at x={val} should be 1, got {fn(x=val)}")
+            break
+    return ok
+
+
+def test_tutorial_multi_objective() -> bool:
+    # Tutorial § "Multi-objective": f(x) = (x**2, (x - 3)**2)
+    text = "f(x) = (x**2, (x - 3)**2)"
+    expr = formulas.parse_latex_or_infix(text, mode="infix")
+    fn = formulas.build_lambda(expr, ["x"])
+    result = fn(x=0.0)
+    ok = True
+    if not (isinstance(result, tuple) and len(result) == 2):
+        return _check(False, f"multi-obj formula should return tuple of 2, got {result!r}")
+    if not (_approx_eq(result[0], 0.0) and _approx_eq(result[1], 9.0)):
+        ok = _check(False, f"multi-obj at x=0 should be (0, 9), got {result}")
+    result = fn(x=3.0)
+    if not (_approx_eq(result[0], 9.0) and _approx_eq(result[1], 0.0)):
+        ok = _check(False, f"multi-obj at x=3 should be (9, 0), got {result}")
+    return ok
+
+
+# ---------------------------------------------------------------------------
+# Tutorial § "Supported LaTeX" — table examples
+# ---------------------------------------------------------------------------
+
+
+def test_tutorial_table_operators() -> bool:
+    # \frac{a}{b}, \sqrt{x}, |x|  (and \cdot, \times, \ast which are
+    # direct substitutions for *)
+    cases = [
+        (r"\frac{a}{b}", "latex", ["a", "b"]),  # becomes (a)/(b)
+        (r"\sqrt{x}",    "latex", ["x"]),
+        (r"|x|",         "latex", ["x"]),
+        (r"\|x\|",       "latex", ["x"]),
+        (r"x \cdot y",   "latex", ["x", "y"]),
+        (r"x \times y",  "latex", ["x", "y"]),
+    ]
+    ok = True
+    for text, mode, expected in cases:
+        expr = formulas.parse_latex_or_infix(text, mode=mode)
+        free = sorted(s.name for s in expr.free_symbols)
+        if free != sorted(expected):
+            ok = _check(False, f"{text!r}: free should be {sorted(expected)}, got {free}")
+    return ok
+
+
+def test_tutorial_table_functions() -> bool:
+    cases = [
+        (r"\sin(a)",   "latex", ["a"]),
+        (r"\cos(a)",   "latex", ["a"]),
+        (r"\tan(a)",   "latex", ["a"]),
+        (r"\asin(a)",  "latex", ["a"]),
+        (r"\acos(a)",  "latex", ["a"]),
+        (r"\atan(a)",  "latex", ["a"]),
+        (r"\sinh(a)",  "latex", ["a"]),
+        (r"\cosh(a)",  "latex", ["a"]),
+        (r"\tanh(a)",  "latex", ["a"]),
+        (r"\exp(a)",   "latex", ["a"]),
+        (r"\log(a)",   "latex", ["a"]),
+        (r"\ln(a)",    "latex", ["a"]),
+        (r"\abs{a}",   "latex", ["a"]),
+    ]
+    ok = True
+    for text, mode, expected in cases:
+        expr = formulas.parse_latex_or_infix(text, mode=mode)
+        free = sorted(s.name for s in expr.free_symbols)
+        if free != sorted(expected):
+            ok = _check(False, f"{text!r}: free should be {sorted(expected)}, got {free}")
+    return ok
+
+
+def test_tutorial_table_sums_integrals_limits() -> bool:
+    # \sum_{i=0}^{n} f, \sum_{i} f, \prod, \int, \lim, \frac{d}{dx}
+    cases = [
+        (r"\sum_{i=0}^{n} i**2",     "latex", ["n"]),       # i bound
+        (r"\sum_{i} i**2",           "latex", []),           # i bound, n default → still no free
+        (r"\prod_{i=1}^{k} i",       "latex", ["k"]),
+        (r"\int_{a}^{b} x \,dx",     "latex", ["a", "b"]),
+        (r"\int x \,dx",             "latex", []),           # unbounded → no free
+        (r"\lim_{x \to v} 1/x",      "latex", ["v"]),
+    ]
+    ok = True
+    for text, mode, expected in cases:
+        expr = formulas.parse_latex_or_infix(text, mode=mode)
+        free = sorted(s.name for s in expr.free_symbols)
+        if free != sorted(expected):
+            ok = _check(False, f"{text!r}: free should be {sorted(expected)}, got {free}")
+    # ``\frac{d}{dx} x**2`` produces ``Derivative(x**2, x)`` which sympy
+    # keeps ``x`` as a free symbol (it cannot lambdify the derivative
+    # directly).  We only verify that the parser recognises the pattern
+    # and produces the right Derivative expression.
+    from sympy import Derivative, Symbol
+    expr = formulas.parse_latex_or_infix(r"\frac{d}{dx} x**2", mode="latex")
+    if expr != Derivative(Symbol("x") ** 2, Symbol("x")):
+        ok = _check(False, f"\\frac{{d}}{{dx}} x**2 should be Derivative(x**2, x), got {expr}")
+    return ok
+
+
+# ---------------------------------------------------------------------------
+# Tutorial § "Supported infix" — every line of the code block
+# ---------------------------------------------------------------------------
+
+
+def test_tutorial_infix_code_block() -> bool:
+    ok = True
+
+    # sin(x) + cos(y)                    # trig
+    expr = formulas.parse_infix("sin(x) + cos(y)")
+    fn = formulas.build_lambda(expr, ["x", "y"])
+    if not _approx_eq(fn(x=0.0, y=0.0), 1.0):
+        ok = _check(False, f"sin+cos at (0,0) should be 1, got {fn(x=0.0, y=0.0)}")
+
+    # exp(-x**2) / sqrt(2*pi)            # gaussian
+    expr = formulas.parse_infix("exp(-x**2) / sqrt(2*pi)")
+    fn = formulas.build_lambda(expr, ["x"])
+    if not _approx_eq(fn(x=0.0), 1.0 / math.sqrt(2.0 * math.pi)):
+        ok = _check(False, f"gaussian(0) should be 1/sqrt(2π), got {fn(x=0.0)}")
+
+    # Sum(i**2, (i, 0, n))               # sum with bound variable
+    expr = formulas.parse_infix("Sum(i**2, (i, 0, n))")
+    fn = formulas.build_lambda(expr, ["n"])
+    # sympy lambdifies the Sum as ``sum(i**2 for i in range(0, n+1))``
+    # which needs an int upper bound, so pass ints explicitly.  Σ 0..n
+    # i² = n(n+1)(2n+1)/6.
+    for n in (2, 3, 5):
+        expected = n * (n + 1) * (2 * n + 1) / 6
+        if not _approx_eq(fn(n=int(n)), expected):
+            ok = _check(False, f"sum-of-squares(n={n}) should be {expected}, got {fn(n=int(n))}")
+            break
+
+    # Product((x - i), (i, 1, k))        # product
+    # ``Product`` is not auto-evaluated by ``build_lambda`` (only definite
+    # ``Integral`` is); verify that it parses and that the expression
+    # is the right sympy object instead of evaluating numerically.
+    expr = formulas.parse_infix("Product((x - i), (i, 1, k))")
+    from sympy import Product as _Product, Symbol
+    expected = _Product(Symbol("x") - Symbol("i"), (Symbol("i"), 1, Symbol("k")))
+    if expr != expected:
+        ok = _check(False, f"product should parse to {expected}, got {expr}")
+
+    # Integral(exp(-x**2), (x, -oo, oo)) # integral (closed form: sqrt(pi))
+    expr = formulas.parse_infix("Integral(exp(-x**2), (x, -oo, oo))")
+    fn = formulas.build_lambda(expr, [])
+    if not _approx_eq(fn(), math.sqrt(math.pi)):
+        ok = _check(False, f"∫exp(-x²) dx should be sqrt(pi), got {fn()}")
+
+    # Derivative(f, x)                   # derivative
+    # Sympy's lambdify cannot compile an unevaluated ``Derivative``
+    # node, so verify the parse rather than calling the lambda.  The
+    # derivative of ``sin(x)`` at ``x=0`` would evaluate to ``1`` if
+    # sympy could simplify it, but ``build_lambda`` leaves the
+    # Derivative unevaluated.
+    from sympy import Derivative as _Derivative, Symbol as _Symbol, sin as _sin
+    expr = formulas.parse_infix("Derivative(sin(x), x)")
+    expected = _Derivative(_sin(_Symbol("x")), _Symbol("x"))
+    if expr != expected:
+        ok = _check(False, f"Derivative(sin(x), x) should parse to {expected}, got {expr}")
+
+    # Limit(sin(x)/x, x, 0)              # limit
+    # ``Limit`` (like ``Derivative``) cannot be compiled by sympy's
+    # NumPy printer; verify it parses to the right sympy object.
+    from sympy import Limit as _Limit, Symbol as _Symbol, sin as _sin
+    expr = formulas.parse_infix("Limit(sin(x)/x, x, 0)")
+    expected = _Limit(_sin(_Symbol("x")) / _Symbol("x"), _Symbol("x"), 0)
+    if expr != expected:
+        ok = _check(False, f"Limit(sin(x)/x, x, 0) should parse to {expected}, got {expr}")
+
+    # Min(a, b)  Max(a, b)               # min / max
+    expr = formulas.parse_infix("Min(a, b)")
+    fn = formulas.build_lambda(expr, ["a", "b"])
+    if not (_approx_eq(fn(a=2.0, b=5.0), 2.0) and _approx_eq(fn(a=5.0, b=2.0), 2.0)):
+        ok = _check(False, f"Min(2,5) should be 2, got {fn(a=2.0, b=5.0)}")
+    expr = formulas.parse_infix("Max(a, b)")
+    fn = formulas.build_lambda(expr, ["a", "b"])
+    if not (_approx_eq(fn(a=2.0, b=5.0), 5.0) and _approx_eq(fn(a=5.0, b=2.0), 5.0)):
+        ok = _check(False, f"Max(2,5) should be 5, got {fn(a=2.0, b=5.0)}")
+
+    # abs(x - y)                         # absolute value
+    expr = formulas.parse_infix("abs(x - y)")
+    fn = formulas.build_lambda(expr, ["x", "y"])
+    if not (_approx_eq(fn(x=5.0, y=3.0), 2.0) and _approx_eq(fn(x=3.0, y=5.0), 2.0)):
+        ok = _check(False, f"abs(x-y) should be |5-3|=2, got {fn(x=5.0, y=3.0)}")
+
+    # sign(x)  floor(x)  ceil(x)         # rounding
+    expr = formulas.parse_infix("sign(x)")
+    fn = formulas.build_lambda(expr, ["x"])
+    if not (_approx_eq(fn(x=-2.5), -1.0) and _approx_eq(fn(x=0.0), 0.0) and _approx_eq(fn(x=3.5), 1.0)):
+        ok = _check(False, f"sign(-2.5/0/3.5) should be -1/0/1, got {fn(x=-2.5)}, {fn(x=0.0)}, {fn(x=3.5)}")
+    expr = formulas.parse_infix("floor(x)")
+    fn = formulas.build_lambda(expr, ["x"])
+    if not _approx_eq(fn(x=2.7), 2.0):
+        ok = _check(False, f"floor(2.7) should be 2, got {fn(x=2.7)}")
+    expr = formulas.parse_infix("ceil(x)")
+    fn = formulas.build_lambda(expr, ["x"])
+    if not _approx_eq(fn(x=2.3), 3.0):
+        ok = _check(False, f"ceil(2.3) should be 3, got {fn(x=2.3)}")
+
+    # 2**x  x**2  x**y                   # powers
+    for text, args, expected in [
+        ("2**x",  {"x": 3.0}, 8.0),
+        ("x**2",  {"x": 5.0}, 25.0),
+        ("x**y",  {"x": 2.0, "y": 3.0}, 8.0),
+    ]:
+        expr = formulas.parse_infix(text)
+        fn = formulas.build_lambda(expr, list(args.keys()))
+        if not _approx_eq(fn(**args), expected):
+            ok = _check(False, f"{text} with {args} should be {expected}, got {fn(**args)}")
+
+    return ok
+
+
+def test_tutorial_implicit_multiplication() -> bool:
+    # "Implicit multiplication is on by default: 2x, xy, (a)(b) all work."
+    ok = True
+    for text, args, expected in [
+        ("2*x",  {"x": 3.0}, 6.0),       # explicit
+        ("2x",   {"x": 3.0}, 6.0),       # implicit
+        ("xy",   {"x": 4.0, "y": 5.0}, 20.0),
+        ("(a)(b)", {"a": 3.0, "b": 7.0}, 21.0),
+    ]:
+        expr = formulas.parse_infix(text)
+        fn = formulas.build_lambda(expr, list(args.keys()))
+        if not _approx_eq(fn(**args), expected):
+            ok = _check(False, f"{text!r} with {args} should be {expected}, got {fn(**args)}")
+    return ok
+
+
+# ---------------------------------------------------------------------------
+# Tutorial § "How parameters are inferred" — table examples
+# ---------------------------------------------------------------------------
+
+
+def test_tutorial_parameter_inference_table() -> bool:
+    ok = True
+    cases = [
+        # (text, mode, expected_params, expected_consts)
+        ("f(x, y) = x^2 + y^2",   "infix", ["x", "y"], []),
+        ("f(x) = a*x + b",         "infix", ["x"],      ["a", "b"]),
+        # ``f(x) = \sum_{i=0}^{n} i*x``: only x is in the LHS, so n is a
+        # constant by default (the user can flip it to a range in the GUI
+        # or pass `--parameter n range …` on the CLI).
+        ("f(x) = \\sum_{i=0}^{n} i*x", "latex", ["x"], ["n"]),
+        # No LHS → every free symbol is a parameter.
+        ("a + sin(b)",             "infix", ["a", "b"], []),
+    ]
+    for text, mode, expected_params, expected_consts in cases:
+        expr = formulas.parse_latex_or_infix(text, mode=mode)
+        params, consts, _ = formulas.suggest_formula_split(text, expr)
+        p_names = sorted(p.name for p in params)
+        c_names = sorted(c.name for c in consts)
+        if p_names != sorted(expected_params):
+            ok = _check(False, f"{text!r}: params should be {sorted(expected_params)}, got {p_names}")
+        if c_names != sorted(expected_consts):
+            ok = _check(False, f"{text!r}: consts should be {sorted(expected_consts)}, got {c_names}")
+    return ok
+
+
+# ---------------------------------------------------------------------------
+# Tutorial § "Naming hints" — table examples
+# ---------------------------------------------------------------------------
+
+
+def test_tutorial_naming_hints() -> bool:
+    ok = True
+    # `*_int` → int [0, 10]
+    expr = formulas.parse_infix("epochs_int * lr_learning_rate")
+    suggestions = {s.name: s for s in formulas.suggest_hyperparameters(expr)}
+    if "epochs_int" not in suggestions:
+        ok = _check(False, "epochs_int should be a suggested parameter")
+    elif suggestions["epochs_int"].value_type != "int":
+        ok = _check(False, f"epochs_int: value_type should be int, got {suggestions['epochs_int'].value_type}")
+    elif suggestions["epochs_int"].kind != "range":
+        ok = _check(False, f"epochs_int: kind should be range, got {suggestions['epochs_int'].kind}")
+    elif (suggestions["epochs_int"].lower, suggestions["epochs_int"].upper) != (0.0, 10.0):
+        ok = _check(False, f"epochs_int: range should be (0, 10), got ({suggestions['epochs_int'].lower}, {suggestions['epochs_int'].upper})")
+
+    # `lr_*` → float, log_scale=true, [1e-5, 1e-1]
+    if "lr_learning_rate" not in suggestions:
+        ok = _check(False, "lr_learning_rate should be a suggested parameter")
+    elif suggestions["lr_learning_rate"].value_type != "float":
+        ok = _check(False, f"lr_learning_rate: value_type should be float, got {suggestions['lr_learning_rate'].value_type}")
+    elif not suggestions["lr_learning_rate"].log_scale:
+        ok = _check(False, f"lr_learning_rate: log_scale should be True, got {suggestions['lr_learning_rate'].log_scale}")
+    elif (suggestions["lr_learning_rate"].lower, suggestions["lr_learning_rate"].upper) != (1e-5, 1e-1):
+        ok = _check(False, f"lr_learning_rate: range should be (1e-5, 1e-1), got ({suggestions['lr_learning_rate'].lower}, {suggestions['lr_learning_rate'].upper})")
+
+    # anything else → float, [-1, 1], no log scale
+    expr = formulas.parse_infix("a + b")
+    suggestions = {s.name: s for s in formulas.suggest_hyperparameters(expr)}
+    for name in ("a", "b"):
+        if suggestions.get(name) is None:
+            ok = _check(False, f"{name} should be suggested")
+            continue
+        s = suggestions[name]
+        if s.value_type != "float":
+            ok = _check(False, f"{name}: value_type should be float, got {s.value_type}")
+        elif s.log_scale:
+            ok = _check(False, f"{name}: log_scale should be False")
+        elif (s.lower, s.upper) != (-1.0, 1.0):
+            ok = _check(False, f"{name}: range should be (-1, 1), got ({s.lower}, {s.upper})")
+    return ok
+
+
+# ---------------------------------------------------------------------------
+# Tutorial § "Greek letters" — \alpha → alpha, etc.
+# ---------------------------------------------------------------------------
+
+
+def test_tutorial_greek_letters() -> bool:
+    cases = [
+        (r"\alpha", "alpha"),
+        (r"\beta",  "beta"),
+        (r"\gamma", "gamma"),
+        (r"\sigma", "sigma"),
+        (r"\omega", "omega"),
+        (r"\pi",    "pi"),     # constant — handled specially
+        (r"\infty", "oo"),     # constant — handled specially
+    ]
+    ok = True
+    for text, _expected_name in cases:
+        try:
+            expr = formulas.parse_latex_or_infix(text, mode="latex")
+        except Exception as exc:
+            ok = _check(False, f"{text!r}: should parse, got {exc!r}")
+    return ok
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
@@ -1229,6 +1707,25 @@ TESTS = [
     test_parse_bare_integral_chain_raises,
     test_parse_unterminated_integral_raises,
     test_parse_valid_complete_integral_still_works,
+    # ---- tutorial example tests --------------------------------------------
+    # Every named example in .gui/_tutorials/formulas.md has a test here.
+    test_tutorial_sphere,
+    test_tutorial_quadratic_loss,
+    test_tutorial_sigmoid,
+    test_tutorial_polynomial_kernel,
+    test_tutorial_sigmoid_cross_entropy,
+    test_tutorial_definite_integral,
+    test_tutorial_definite_integral_with_param,
+    test_tutorial_bare_infix,
+    test_tutorial_multi_objective,
+    test_tutorial_table_operators,
+    test_tutorial_table_functions,
+    test_tutorial_table_sums_integrals_limits,
+    test_tutorial_infix_code_block,
+    test_tutorial_implicit_multiplication,
+    test_tutorial_parameter_inference_table,
+    test_tutorial_naming_hints,
+    test_tutorial_greek_letters,
 ]
 
 

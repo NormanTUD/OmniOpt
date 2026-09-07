@@ -160,7 +160,11 @@ These files store some states used mainly to continue jobs. Not all of these fil
 - `continue_from_run_uuid`: UUID of a run that was continued
 - `database.db`: A SQLite3-database that stores that run's data
 - `cpu_ram_usage.csv`: Logs CPU and RAM usage
-- `run_with_formula.py`: Python script for running equations
+- `run_with_formula.py`: Python script auto-generated when the run uses `--formula`. Loads the formula, evaluates it with the trial's parameter values and prints a `RESULT: …` line.
+- `formula.txt`: Raw formula exactly as you typed it (only present when `--formula` was used). See the [formula tutorial](tutorials?tutorial=formulas).
+- `formula_pretty.txt`: ASCII rendering of the formula (sympy `pretty()`). Handy when you only have a terminal.
+- `formula_underbraces.txt`: LaTeX rendering of the formula with `\underbrace{param}{[min, max]}` annotations on each parameter. The shared overview page renders this with MathJax.
+- `formula_params.json`: List of `SuggestedParameter` records (name, kind, lower, upper, value_type, log_scale). Useful for re-using the formula in another run.
 - `custom_generation_strategy`: Custom generation strategy file
 - `defective_nodes`: A list of nodes that were detected as defective, i.e. a GPU was allocated but none was given. Requires `--auto_exclude_defective_hosts` to be set
 - `experiment_name`: The name of this experiment

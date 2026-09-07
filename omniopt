@@ -3903,6 +3903,17 @@ try:
             with spinner("Importing ax random seed..."):
                 ax_backend.set_rng_seed(args.seed)
 
+    with spinner("Loading executor backend..."):
+        _eb_path = f"{script_dir}/.executor_backend.py"
+        _eb_spec = importlib.util.spec_from_file_location(
+            name="executor_backend",
+            location=_eb_path,
+        )
+        if _eb_spec is None or _eb_spec.loader is None:
+            raise ImportError(f"Could not load .executor_backend.py from {_eb_path}")
+        executor_backend = importlib.util.module_from_spec(_eb_spec)
+        _eb_spec.loader.exec_module(executor_backend)
+
     with spinner("Loading data science stack..."):
         import pandas as pd
         import submitit
@@ -4625,7 +4636,7 @@ class SearchSpaceExhausted (Exception):
     pass
 
 NR_INSERTED_JOBS: int = 0
-submitit_executor: Union[LocalExecutor, AutoExecutor, None] = None
+submitit_executor: Optional[Any] = None
 
 NR_OF_0_RESULTS: int = 0
 

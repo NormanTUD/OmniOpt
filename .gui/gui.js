@@ -779,7 +779,7 @@ function update_command() {
 	// as the field has content, so the indicator is reactive.
 	$("#run_program").toggleClass("field_missing", !rp && !fm);
 	$("#formula").toggleClass("field_missing", !rp && !fm);
-	$("#formula_pane_text, #formula_pane_python").toggleClass("field_missing", !rp && !fm);
+	$("#formula_pane_text").toggleClass("field_missing", !rp && !fm);
 	if (!rp && !fm) {
 		errors.push("<img src='i/warning.svg' style='height: 1em' /> Either <i>Run program</i> or the <i>Formula editor</i> must be filled.");
 	}
@@ -899,21 +899,10 @@ function build_formula_card_html() {
 	return (
 		"<div style='display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px;'>" +
 		"<div id='formula_card_left' style='flex: 1 1 380px; min-width: 320px;'>" +
-		"<div style='display: flex; gap: 6px; margin-bottom: 6px; align-items: center;'>" +
-		"<button type='button' id='formula_tab_text' class='formula_tab' data-mode='text'>Formula</button>" +
-		"<button type='button' id='formula_tab_python' class='formula_tab' data-mode='python'>Python</button>" +
-		"</div>" +
 		"<div id='formula_panel_text'>" +
 		"<textarea id='formula_pane_text' placeholder=\"f(x, y) = \\frac{x}{y} + \\sin(a)   or   f(x) = 2*x + y\" style='width: 100%; min-height: 80px; font-family: monospace;'></textarea>" +
 		"</div>" +
-		"<div id='formula_panel_python' style='display: none;'>" +
-		"<textarea id='formula_pane_python' placeholder=\"def evaluate(params):&#10;    return math.sin(params['a']*params['x']) + params['b']\" style='width: 100%; min-height: 110px; font-family: monospace;'></textarea>" +
-		"<div style='margin-top: 4px; font-size: 0.85em; color: #555;'>" +
-		"Python tab: define <code>evaluate(params)</code> returning a float. The <code>params</code> dict also has a <code>'_raw'</code> key with the raw values." +
-		"</div>" +
-		"</div>" +
-		"<div id='formula_hint' style='margin-top: 6px; font-size: 0.85em; color: #555;'></div>" +
-		"<div id='formula_preview' style='margin-top: 8px; padding: 8px 8px 16px 8px; background: #fff; border: 1px dashed #c0c0d0; border-radius: 8px; min-height: 50px; font-size: 1.05em; overflow: visible;'></div>" +
+		"<div id='formula_preview' style='position: relative; margin-top: 8px; padding: 8px 8px 16px 8px; background: #fff; border: 1px dashed #c0c0d0; border-radius: 8px; min-height: 50px; font-size: 1.05em; overflow: visible;'></div>" +
 		"<div id='formula_param_legend' style='margin-top: 4px; font-size: 0.82em; color: #444; min-height: 1.2em;'></div>" +
 		"<div id='formula_error' style='margin-top: 4px; font-size: 0.85em; color: #b00020;'></div>" +
 		"</div>" +
@@ -927,11 +916,219 @@ function build_formula_card_html() {
 		"<div style='margin-top: 10px; font-size: 0.8em; color: #777;'>" +
 		"<b>Parameters</b> are variables that appear on the left-hand side of the formula (e.g. <code>x</code> in <code>f(x) = …</code>).<br>" +
 		"<b>Constants</b> are variables that appear only on the right-hand side — they keep their default value.<br>" +
-		"Variables bound by <code>\\sum</code> or <code>\\prod</code> are excluded automatically." +
+		"Variables bound by <code>\\sum</code> or <code>\\prod</code> are excluded automatically.<br><br>" +
+		"Click the numbers in the rendered formula (e.g. <code>[-5, 10]</code> under a parameter) to edit them." +
 		"</div>" +
 		"</div>" +
 		"</div>"
 	);
+}
+
+
+// ---------------------------------------------------------------------------
+// Inline-editable parameter bounds in the rendered formula preview.
+//
+// MathJax CHTML renders each glyph as an (empty) ``<mjx-c class="mjx-cXXXX">``
+// element where XXXX is the Unicode codepoint.  We decode the underbrace
+// label back into text, locate the min/max numbers of auto-generated
+// parameter ranges, and lay a clickable overlay on top of each number at its
+// exact bounding box.  Clicking swaps the overlay for a tiny input; committing
+// writes the new bound back into the parameter table, the command and the URL.
+// ---------------------------------------------------------------------------
+
+function _decode_mjx_glyphs(rootEl) {
+	// Collect (character, element) pairs in document order by decoding the
+	// ``mjx-cXXXX`` class on every glyph element.  MathJax glyph codes are
+	// Unicode codepoints; a few are mapped to ASCII so the decoded text can
+	// be matched against the raw min/max strings from the parameter table.
+	var glyphs = [];
+	var els = rootEl.querySelectorAll("mjx-c, .mjx-c");
+	for (var i = 0; i < els.length; i++) {
+		var el = els[i];
+		var m = null;
+		var cls = el.className;
+		if (typeof cls === "string") {
+			m = /(?:^|\s)mjx-c([0-9A-Fa-f]{2,6})(?:\s|$)/.exec(cls);
+		} else if (el.classList) {
+			for (var ci = 0; ci < el.classList.length; ci++) {
+				var cm = /^mjx-c([0-9A-Fa-f]{2,6})$/.exec(el.classList[ci]);
+				if (cm) { m = cm; break; }
+			}
+		}
+		if (!m) continue;
+		var cp = parseInt(m[1], 16);
+		if (!(cp >= 0x20) || (cp >= 0xD800 && cp <= 0xDFFF)) continue;
+		var ch;
+		if (cp === 0x2212 || cp === 0x2213) ch = "-";   // minus signs
+		else if (cp === 0x2217) ch = "*";
+		else if (cp === 0x2219) ch = ".";
+		else {
+			try {
+				ch = String.fromCodePoint ? String.fromCodePoint(cp) : String.fromCharCode(cp);
+			} catch (e) {
+				continue;
+			}
+		}
+		glyphs.push({ ch: ch, el: el });
+	}
+	return glyphs;
+}
+
+function _attach_editable_preview_overlays(node) {
+	var $prev = $(node);
+	$prev.find(".omniopt_bound_overlay").remove();
+	if (!node || !node.querySelector) return;
+	if (node.getAttribute("data-omniopt-editable-bounds") !== "1") return;
+
+	var pi = (typeof get_current_parameter_info === "function") ? get_current_parameter_info() : {};
+	// Build a per-value queue of (param name, side) targets.
+	var byValue = {};
+	for (var nm in pi) {
+		var p = pi[nm];
+		if (!p || p.kind !== "range") continue;
+		var sides = [{ side: "min", v: p.min }, { side: "max", v: p.max }];
+		for (var si = 0; si < sides.length; si++) {
+			var vs = String(sides[si].v).trim();
+			if (vs === "" || vs === "?") continue;
+			if (!isFinite(parseFloat(vs))) continue;
+			if (!byValue[vs]) byValue[vs] = [];
+			byValue[vs].push({ name: nm, side: sides[si].side });
+		}
+	}
+	var tokens = Object.keys(byValue).sort(function (a, b) { return b.length - a.length; });
+	if (tokens.length === 0) return;
+
+	var container = node.querySelector("mjx-container, .mjx-container");
+	if (!container) return;
+
+	// Only the underbrace *labels* (``<mjx-under>``) are inspected so the
+	// plain occurrences of the same numbers inside the equation body are
+	// never turned into editable overlays.
+	var underEls = node.querySelectorAll("mjx-under, .mjx-under");
+	for (var ui = 0; ui < underEls.length; ui++) {
+		var glyphs = _decode_mjx_glyphs(underEls[ui]);
+		if (!glyphs.length) continue;
+		var text = "";
+		for (var gi = 0; gi < glyphs.length; gi++) text += glyphs[gi].ch;
+
+		var claimed = {};
+		for (var t = 0; t < tokens.length; t++) {
+			var token = tokens[t];
+			if (!byValue[token].length) continue; // all targets for this value used
+			var startFrom = 0, idx, foundToken = -1;
+			while ((idx = text.indexOf(token, startFrom)) !== -1) {
+				var overlap = false;
+				for (var ci = idx; ci < idx + token.length; ci++) {
+					if (claimed[ci]) { overlap = true; break; }
+				}
+				if (overlap) { startFrom = idx + 1; continue; }
+				foundToken = idx;
+				for (var c2 = idx; c2 < idx + token.length; c2++) claimed[c2] = true;
+				break;
+			}
+			if (foundToken === -1) continue;
+			var target = byValue[token].shift();
+			if (!target) continue;
+			_attach_editable_overlay($prev, glyphs, foundToken, foundToken + token.length, target, token);
+		}
+	}
+}
+
+function _attach_editable_overlay($prev, glyphs, startIdx, endIdx, target, token) {
+	var rect = null;
+	for (var i = startIdx; i < endIdx && i < glyphs.length; i++) {
+		var r = glyphs[i].el.getBoundingClientRect();
+		if (!r || (r.width === 0 && r.height === 0)) continue;
+		if (!rect) {
+			rect = { left: r.left, top: r.top, right: r.right, bottom: r.bottom };
+		} else {
+			if (r.left < rect.left) rect.left = r.left;
+			if (r.top < rect.top) rect.top = r.top;
+			if (r.right > rect.right) rect.right = r.right;
+			if (r.bottom > rect.bottom) rect.bottom = r.bottom;
+		}
+	}
+	if (!rect) return;
+
+	var host = $prev[0];
+	var cRect = host.getBoundingClientRect();
+	var bL = host.clientLeft || 0;
+	var bT = host.clientTop || 0;
+	var oW = Math.max((rect.right - rect.left) + 4, 26);
+	var oH = Math.max((rect.bottom - rect.top) + 2, 16);
+	var left = (rect.left - cRect.left - bL) - (oW - (rect.right - rect.left)) / 2;
+	var top = (rect.top - cRect.top - bT) - (oH - (rect.bottom - rect.top)) / 2;
+
+	var $ov = $("<span>", {
+		"class": "omniopt_bound_overlay",
+		"data-name": target.name,
+		"data-side": target.side,
+		title: "Click to edit " + target.name + " (" + target.side + ")"
+	}).css({ left: left + "px", top: top + "px", width: oW + "px", height: oH + "px" });
+	$prev.append($ov);
+
+	var editing = false;
+	$ov.on("mousedown", function (ev) { ev.preventDefault(); });
+	$ov.on("click", function () {
+		if (editing) return;
+		editing = true;
+		var newW = Math.max(oW, token.length * 10 + 14);
+		$ov.css({ width: newW + "px", background: "rgba(255,255,255,0.9)", boxShadow: "0 0 0 1px rgba(74,144,217,0.9)", zIndex: 10 });
+		var $inp = $("<input>", { type: "text", value: token });
+		$ov.append($inp);
+		$inp.focus();
+		try { $inp[0].select(); } catch (e) { /* non-fatal */ }
+
+		function commit() {
+			var val = $inp.val().trim();
+			var parsed = parseFloat(val);
+			if (val !== "" && !isNaN(parsed)) {
+				// Find the matching parameter row in the config table.
+				var $row = null;
+				$(".parameterRow").each(function () {
+					if ($(this).find(".parameterName").val().trim() === target.name) {
+						$row = $(this);
+						return false;
+					}
+				});
+				if ($row) {
+					var $field = $row.find(target.side === "min" ? ".minValue" : ".maxValue");
+					$field.val(String(parsed)).trigger("change");
+					if (typeof update_command === "function") update_command();
+					// Re-render the preview (and its legend) with the new bounds.
+					if (typeof _formula_preview_callback === "function") {
+						try { _formula_preview_callback(); } catch (e) { /* non-fatal */ }
+					}
+				}
+			}
+			$ov.remove();
+			editing = false;
+		}
+
+		$inp.on("blur", commit);
+		$inp.on("keydown", function (e) {
+			if (e.key === "Enter") {
+				e.preventDefault();
+				$inp.blur();
+			} else if (e.key === "Escape") {
+				$ov.remove();
+				editing = false;
+			}
+		});
+	});
+}
+
+// Keep inline-editable overlays glued to the rendered numbers when the page
+// is resized or the sidebar changes the layout behind them.
+if (typeof window !== "undefined" && window.addEventListener) {
+	window.addEventListener("resize", function () {
+		setTimeout(function () {
+			var $prev = $("#formula_preview");
+			if (!$prev.length) return;
+			if ($prev[0].getAttribute("data-omniopt-editable-bounds") !== "1") return;
+			try { _attach_editable_preview_overlays($prev[0]); } catch (e) { /* swallow */ }
+		}, 60);
+	});
 }
 
 
@@ -1135,34 +1332,6 @@ function _strip_sumprod_bodies(text) {
 
 // Extract parameter names from a Python-mode formula by scanning for
 // ``params['x']`` / ``params["x"]`` / ``params.get('x')`` patterns.
-function client_extract_python_params(text) {
-	if (!text) return [];
-	var seen = {};
-	var out = [];
-	// ``params\.get\(`` for the ``params.get('x')`` form, ``params\[`` for
-	// ``params['x']``, with optional trailing ``)`` / ``]`` so we still
-	// close the call.
-	var re = /params(?:\s*\.\s*get\s*\()?\s*\[?\s*['"]([A-Za-z_][A-Za-z0-9_]*)['"]\s*\)?/g;
-	var m;
-	while ((m = re.exec(text)) !== null) {
-		var n = m[1];
-		if (!seen[n]) {
-			seen[n] = true;
-			out.push(n);
-		}
-	}
-	return out.map(function (n) {
-		if (n.endsWith("_int")) {
-			return { name: n, kind: "range", lower: 0, upper: 10, value_type: "int", log_scale: false };
-		}
-		if (n.startsWith("lr_") || n.startsWith("log_") || n.endsWith("_log")) {
-			return { name: n, kind: "range", lower: 1e-5, upper: 1e-1, value_type: "float", log_scale: true };
-		}
-		return { name: n, kind: "range", lower: -1, upper: 1, value_type: "float", log_scale: false };
-	});
-}
-
-
 function client_extract_formula_params(text, mode) {
 	// Guard rail: any thrown error must fall back to an empty suggestion
 	// list so the rest of the GUI still works (no broken `apply` button).
@@ -1606,69 +1775,75 @@ function _add_parameter_underbraces(latex, paramInfo) {
 	return lhs + _restore_subsup(work, prot.parts);
 }
 
+// The "Run program" / "Formula" tab bar lives inside the run_program row of
+// the table.  On load we move it above the run_program textarea so it reads as
+// a proper tab bar, then handle tab switching: the two are mutually exclusive
+// (exactly one of them is filled in).  Defined at the top level because
+// ``restoreFormula`` (in a different scope) also switches tabs.
+function _position_run_program_tabbar() {
+	var $tabbar = $("#run_program_tabbar");
+	var $wrapper = $("#run_program_wrapper");
+	if ($tabbar.length && $wrapper.length) {
+		var $next = $tabbar.next();
+		if ($next.length === 0 || $next[0] !== $wrapper[0]) {
+			$tabbar.insertBefore($wrapper);
+		}
+	}
+}
+
+function _set_tab(state) {
+	_position_run_program_tabbar();
+	var $card = $("#formula_card");
+	var $wrapper = $("#run_program_wrapper");
+	if (state === "formula") {
+		if (!$card.data("built")) {
+			$card.html(build_formula_card_html());
+			$card.data("built", true);
+			setup_formula_card_inner();
+		}
+		$card.show();
+		$wrapper.hide();
+		$("#rp_tab_formula").addClass("rp_tab_active");
+		$("#rp_tab_run").removeClass("rp_tab_active");
+	} else {
+		$card.hide();
+		$wrapper.show();
+		$("#rp_tab_run").addClass("rp_tab_active");
+		$("#rp_tab_formula").removeClass("rp_tab_active");
+	}
+}
+
 function setup_formula_editor() {
-	// The "Use formula editor" toggle button lives INSIDE the run_program
-	// row of the table.  When clicked, we lazily build the formula card
-	// and toggle mutual exclusivity: run_program is hidden while the
-	// formula editor is open, and vice versa.
-	$(document).on("click", "#formula_toggle_btn", function () {
-		var $card = $("#formula_card");
-		var $wrapper = $("#run_program_wrapper");
-		if ($card.is(":visible")) {
-			// Closing the formula editor reveals run_program.
-			$card.hide();
-			$wrapper.show();
-			$(this).html("&#9881; Switch to formula editor");
-		} else {
-			// Opening the formula editor hides run_program and clears any
-			// leftover run_program text — the formula will generate its
-			// own run_program at invocation time, so the leftover would
-			// just confuse the user.
-			$("#run_program").val("");
-			$wrapper.hide();
-			if (!$card.data("built")) {
-				$card.html(build_formula_card_html());
-				$card.data("built", true);
-				setup_formula_card_inner();
-			}
-			$card.show();
-			// Ensure the Formula tab is active when opening.
-			$card.find(".formula_tab").removeClass("active");
-			$card.find("#formula_tab_text").addClass("active");
-			$card.find("#formula_panel_text").show();
-			$card.find("#formula_panel_python").hide();
-			$(this).html("&#9881; Switch back to Run program");
-		}
-		update_command();
+
+	$(document).on("click", "#rp_tab_run", function () {
+		_set_tab("run");
 	});
 
-	// If the user starts typing into run_program, hide the formula card.
+	$(document).on("click", "#rp_tab_formula", function () {
+		_set_tab("formula");
+		// Re-anchor the editable bound overlays to the now-visible layout.
+		setTimeout(function () {
+			var $prev = $("#formula_preview");
+			if ($prev.length) {
+				try { _attach_editable_preview_overlays($prev[0]); } catch (e) { /* swallow */ }
+			}
+		}, 10);
+	});
+
+	// If the user starts typing into run_program, switch to the Run program
+	// tab so the (hidden, stale) formula card doesn't linger.
 	$(document).on("input", "#run_program", function () {
-		var $card = $("#formula_card");
-		if ($card.is(":visible") && $(this).val().trim() !== "") {
-			$card.hide();
-			$("#formula_toggle_btn").html("&#9881; Switch to formula editor");
+		if ($(this).val().trim() !== "") {
+			_set_tab("run");
 		}
 	});
 
-	// If the user starts typing into the formula editor, hide run_program.
+	// If the user starts typing into the formula editor, switch to the
+	// Formula tab.
 	$(document).on("input", "#formula", function () {
-		var $wrapper = $("#run_program_wrapper");
-		if ($wrapper.is(":visible") && $(this).val().trim() !== "") {
-			$wrapper.hide();
-			$("#formula_toggle_btn").html("&#9881; Switch back to Run program");
-			// Make sure the card is built and visible.
-			var $card = $("#formula_card");
-			if (!$card.data("built")) {
-				$card.html(build_formula_card_html());
-				$card.data("built", true);
-				setup_formula_card_inner();
-			}
-			if (!$card.is(":visible")) {
-				$card.show();
-			}
+		if ($(this).val().trim() !== "") {
+			_set_tab("formula");
 		}
-		if (typeof update_command === "function") update_command();
 	});
 
 	// Persist the hidden #formula and #formula_mode on every change so the
@@ -1676,19 +1851,17 @@ function setup_formula_editor() {
 	$(document).on("change input", "#formula, #formula_mode", function () {
 		if (typeof update_command === "function") update_command();
 	});
+
+	// Arrange the tab bar above the run_program textarea right away (on
+	// initial load neither the Formula tab nor restoreFormula will have run).
+	_position_run_program_tabbar();
+	_set_tab($("#formula_card").length && $("#formula_card").is(":visible") ? "formula" : "run");
 }
 
 function setup_formula_card_inner() {
-	function set_active_tab(mode) {
-		$("#formula_card .formula_tab").removeClass("active");
-		$("#formula_card #formula_tab_" + mode).addClass("active");
-		$("#formula_card #formula_panel_text").toggle(mode === "text");
-		$("#formula_card #formula_panel_python").toggle(mode === "python");
-	}
-
 	function sync_to_main_textarea(text) {
 		$("#formula").val(text).trigger("change");
-		var $panes = $("#formula_card #formula_pane_text, #formula_card #formula_pane_python");
+		var $panes = $("#formula_card #formula_pane_text");
 		if ($panes.length) {
 			$panes.val(text);
 		}
@@ -1696,9 +1869,6 @@ function setup_formula_card_inner() {
 
 	function auto_detect_mode(text) {
 		if (!text) return "auto";
-		if (/^\s*(def|import|from)\b/.test(text) || /\n/.test(text)) {
-			return "python";
-		}
 		if (/\\(sin|cos|tan|sum|prod|frac|sqrt|text|textit|begin|end)\b/.test(text)) {
 			return "latex";
 		}
@@ -1706,19 +1876,8 @@ function setup_formula_card_inner() {
 	}
 
 	function current_mode() {
-		// Mode is derived from which tab is active; the tab is the source
-		// of truth now (no more select pill).
-		var $active = $("#formula_card .formula_tab.active");
-		if ($active.length === 0) return "auto";
-		return $active.data("mode") || "auto";
-	}
-
-	function update_hint() {
-		var text = $("#formula").val();
-		var det = auto_detect_mode(text);
-		var active = current_mode();
-		var hint = "Auto-detected mode: <b>" + det + "</b> &nbsp;·&nbsp; active tab: <b>" + active + "</b>";
-		$("#formula_hint").html(hint);
+		var m = ($("#formula_mode").val() || "").trim();
+		return (m === "latex" || m === "infix") ? m : "auto";
 	}
 
 	function client_render_formula_preview(text) {
@@ -1759,12 +1918,6 @@ function setup_formula_card_inner() {
 			mode = "auto";
 		}
 
-		if (mode === "python") {
-			$prev.html("<em style='color:#777'>Python mode — no preview.</em>");
-			$err.empty();
-			if ($legend.length) $legend.html("");
-			return;
-		}
 		if (mode === "infix" || mode === "text" || mode === "auto") {
 			var detected = auto_detect_mode(text);
 			if (detected === "infix") {
@@ -1780,6 +1933,12 @@ function setup_formula_card_inner() {
 		if (!_hasUnderbraces && Object.keys(_pi).length) {
 			text = _add_parameter_underbraces(text, _pi);
 			_hasUnderbraces = true;
+			// Mark the preview so the post-typeset pass knows the bounds
+			// shown under the parameters are auto-generated (and therefore
+			// safe to make inline-editable).
+			$prev[0].setAttribute("data-omniopt-editable-bounds", "1");
+		} else {
+			$prev[0].removeAttribute("data-omniopt-editable-bounds");
 		}
 
 		if ($legend.length) {
@@ -1912,6 +2071,16 @@ function setup_formula_card_inner() {
 				}
 				if (window.MathJax.typesetPromise) {
 					window.MathJax.typesetPromise([node])
+						.then(function () {
+							// After the math is rendered, make auto-generated
+							// parameter bounds ([min, max] under braces) clickable
+							// for inline editing.
+							try {
+								_attach_editable_preview_overlays(node);
+							} catch (e) {
+								console.error("[formula preview] overlay attach failed:", e);
+							}
+						})
 						.catch(function (err) {
 							console.error("[formula preview] typeset failed:", err);
 							if ($err) {
@@ -1952,10 +2121,6 @@ function setup_formula_card_inner() {
 	function refresh_suggestions() {
 		var text = $("#formula").val() || "";
 		var mode = current_mode();
-		if (mode === "python") {
-			$("#formula_card #formula_suggestions").html("<em>Python code — parameters are read from the <code>params</code> dict; no auto-extraction.</em>");
-			return;
-		}
 		var result;
 		try {
 			result = client_extract_formula_params(text, mode);
@@ -1969,7 +2134,6 @@ function setup_formula_card_inner() {
 	}
 
 	function update_everything() {
-		update_hint();
 		refresh_suggestions();
 		client_render_formula_preview($("#formula").val() || "");
 	}
@@ -1979,30 +2143,15 @@ function setup_formula_card_inner() {
 			.replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 	}
 
-	$("#formula_card #formula_tab_text").on("click", function () {
-		set_active_tab("text");
-		sync_to_main_textarea($("#formula_pane_text").val());
-		$("#formula_mode").val("auto").trigger("change");
-		update_everything();
-	});
-	$("#formula_card #formula_tab_python").on("click", function () {
-		set_active_tab("python");
-		sync_to_main_textarea($("#formula_pane_python").val());
-		$("#formula_mode").val("python").trigger("change");
-		update_everything();
-	});
-
-	$("#formula_card #formula_pane_text, #formula_card #formula_pane_python").on("input", function () {
+	$("#formula_card #formula_pane_text").on("input", function () {
 		var text = $(this).val();
-		$("#formula_card #formula_pane_text").val(text);
-		$("#formula_card #formula_pane_python").val(text);
 		sync_to_main_textarea(text);
 		update_everything();
 		if (typeof update_command === "function") update_command();
 	});
 
-	// Ctrl/Cmd + Enter on any formula pane applies the suggestions.
-	$("#formula_card #formula_pane_text, #formula_card #formula_pane_python").on("keydown", function (ev) {
+	// Ctrl/Cmd + Enter on the formula pane applies the suggestions.
+	$("#formula_card #formula_pane_text").on("keydown", function (ev) {
 		if ((ev.ctrlKey || ev.metaKey) && (ev.key === "Enter" || ev.keyCode === 13)) {
 			ev.preventDefault();
 			$("#formula_card #formula_apply_btn").trigger("click");
@@ -2012,21 +2161,13 @@ function setup_formula_card_inner() {
 	$("#formula_card #formula_apply_btn").on("click", function () {
 		var text = $("#formula").val() || "";
 		var mode = current_mode();
-		if (mode === "python") {
-			// For Python mode, scan for params['x'] / params["x"] patterns
-			// to extract parameters from the user code.
-			var pyParams = client_extract_python_params(text);
-			client_apply_suggestions({ parameters: pyParams, constants: [], bound: [] });
-		} else {
-			var result = client_extract_formula_params(text, mode);
-			client_apply_suggestions(result);
-		}
+		var result = client_extract_formula_params(text, mode);
+		client_apply_suggestions(result);
 		update_command();
 	});
 
 	$("#formula_card #formula_clear_btn").on("click", function () {
 		$("#formula_card #formula_pane_text").val("");
-		$("#formula_card #formula_pane_python").val("");
 		sync_to_main_textarea("");
 		update_everything();
 		update_command();
@@ -2036,15 +2177,7 @@ function setup_formula_card_inner() {
 	var initial = $("#formula").val() || "";
 	if (initial) {
 		$("#formula_card #formula_pane_text").val(initial);
-		$("#formula_card #formula_pane_python").val(initial);
 	}
-	var initial_mode = $("#formula_mode").val() || "auto";
-	// Default to the matching tab based on the mode (so the user sees
-	// their original input).  "auto" lands on "infix" since most
-	// scientists paste infix expressions.
-	if (initial_mode === "latex") set_active_tab("text");
-	else if (initial_mode === "python") set_active_tab("python");
-	else set_active_tab("infix");
 	update_everything();
 
 	_formula_preview_callback = function () {
@@ -2332,7 +2465,6 @@ function update_url() {
 	var FORMULA_FIELDS = {
 		formula: true,
 		formula_mode: true,
-		formula_python_path: true,
 	};
 
 	function push_value(item) {
@@ -2385,7 +2517,6 @@ function update_url() {
 	(function pushFormula() {
 		var formulaEl = $("#formula");
 		var modeEl = $("#formula_mode");
-		var pythonPathEl = $("#formula_python_path");
 		if (formulaEl.length === 0 || modeEl.length === 0) return;
 		var formulaVal = formulaEl.val() || "";
 		var hasFormula = formulaVal.trim() !== "";
@@ -2397,14 +2528,6 @@ function update_url() {
 				console.error("Base64 encoding failed for formula:", e);
 			}
 			params.push("formula_mode=" + encodeURIComponent(modeEl.val() || "auto"));
-		}
-		// Only persist the Python interpreter override when the user
-		// actually customised it.
-		if (pythonPathEl.length > 0) {
-			var pyPath = pythonPathEl.val() || "";
-			if (pyPath.trim() !== "") {
-				params.push("formula_python_path=" + encodeURIComponent(pyPath));
-			}
 		}
 	})();
 
@@ -2584,27 +2707,23 @@ function run_when_document_ready () {
 			// If not base64, it's already the raw formula (e.g. from a
 			// share-page link) — use it as-is.
 			// Validate the mode before assigning.
-			var validModes = ["auto", "latex", "infix", "python"];
+			var validModes = ["auto", "latex", "infix"];
 			if (validModes.indexOf(fmMode) < 0) fmMode = "auto";
 			$("#formula").val(fm);
 			$("#formula_mode").val(fmMode);
 			// Open the formula card and hide run_program to mirror the
 			// scientist's prior state.
-			var $btn = $("#formula_toggle_btn");
 			var $card = $("#formula_card");
-			var $wrap = $("#run_program_wrapper");
 			if ($card.length && !$card.data("built")) {
 				$card.html(build_formula_card_html());
 				$card.data("built", true);
 				setup_formula_card_inner();
 			}
-			$card.show();
-			$wrap.hide();
+			_set_tab("formula");
 		// Clear any leftover run_program text — when the formula
 		// editor is active we generate the run_program automatically,
 		// so the leftover is just confusing.
 		$("#run_program").val("").trigger("change");
-			$btn.html("&#9881; Switch back to Run program");
 		} else if (rpEmpty && fmEmpty) {
 			// Nothing yet: keep run_program visible and don't auto-open
 			// the formula editor — let the scientist pick.
@@ -2615,7 +2734,7 @@ function run_when_document_ready () {
 				// Push the formula into all three panes and trigger the
 				// active pane so ``update_everything`` runs and MathJax
 				// gets a chance to render the preview.
-				$("#formula_card #formula_pane_text, #formula_card #formula_pane_python").val(fm);
+				$("#formula_card #formula_pane_text").val(fm);
 				$("#formula_pane_text").trigger("input");
 				// Belt-and-suspenders: also call the renderer directly so
 				// the preview shows up even if the input handler is

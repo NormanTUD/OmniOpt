@@ -1548,9 +1548,9 @@ def _format_suggestion_label(s: "SuggestedParameter") -> str:
         if s.log_scale:
             line2 += ", log"
         return f"\\substack{{{line1} \\\\ \\text{{{line2}}}}}"
-    elif s.kind == "fixed":
+    if s.kind == "fixed":
         return f"\\substack{{{s.lower} \\\\ \\text{{fixed}}}}"
-    elif s.kind == "choice":
+    if s.kind == "choice":
         vals = ", ".join("\\text{" + v.strip() + "}" for v in str(s.lower).split(",") if v.strip())
         return "\\substack{\\{" + vals + "\\} \\\\ \\text{choice}}"
     return f"\\text{{{s.name}}}"

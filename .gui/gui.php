@@ -128,6 +128,74 @@
 		#formula_preview .mjx-container .mjx-munder {
 			overflow: visible !important;
 		}
+
+		.rp_tab {
+			font-size: 0.9em;
+			padding: 5px 14px;
+		}
+		.rp_tab_active {
+			background: #4a90d9;
+			color: #fff;
+			border-color: #4a90d9;
+			font-weight: 600;
+		}
+
+		.omniopt_bound_overlay {
+			position: absolute;
+			box-sizing: border-box;
+			cursor: cell;
+			z-index: 5;
+			border-radius: 3px;
+			transition: background 0.12s ease, box-shadow 0.12s ease;
+		}
+		.omniopt_bound_overlay:hover {
+			background: rgba(74, 144, 217, 0.16);
+			box-shadow: 0 0 0 1px rgba(74, 144, 217, 0.75);
+		}
+		.omniopt_bound_overlay::after {
+			content: "\270E";
+			position: absolute;
+			top: -7px;
+			right: -7px;
+			width: 14px;
+			height: 14px;
+			line-height: 13px;
+			font-size: 9px;
+			text-align: center;
+			color: #fff;
+			background: #4a90d9;
+			border-radius: 50%;
+			box-shadow: 0 0 2px rgba(0, 0, 0, 0.35);
+			opacity: 0;
+			pointer-events: none;
+			transition: opacity 0.12s ease;
+		}
+		.omniopt_bound_overlay:hover::after {
+			opacity: 1;
+		}
+		.omniopt_bound_overlay input {
+			position: absolute;
+			left: 50%;
+			top: 50%;
+			transform: translate(-50%, -50%);
+			min-width: 44px;
+			width: auto;
+			padding: 1px 4px;
+			box-sizing: border-box;
+			text-align: center;
+			font-family: monospace;
+			font-size: 13px;
+			color: #1a1a1a;
+			background: #fff;
+			border: 1px solid #4a90d9;
+			border-radius: 4px;
+			box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+			z-index: 10;
+		}
+		.omniopt_bound_overlay input:focus {
+			outline: none;
+			box-shadow: 0 0 0 2px rgba(74, 144, 217, 0.35);
+		}
 	</style>
 <div id="loader">
 	<div class="spinner"></div> Loading...
@@ -152,7 +220,6 @@
 					<option value="auto">auto</option>
 					<option value="latex">latex</option>
 					<option value="infix">infix</option>
-					<option value="python">python</option>
 				</select>
 
 				<br>

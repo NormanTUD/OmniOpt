@@ -772,6 +772,12 @@ function update_command() {
 	// Cross-field: either Run program OR the formula must be filled.
 	var rp = ($("#run_program").val() || "").trim();
 	var fm = ($("#formula").val() || "").trim();
+	// Highlight the offending field(s) in red so the user immediately
+	// sees which one they need to fill.  The class is removed as soon
+	// as the field has content, so the indicator is reactive.
+	$("#run_program").toggleClass("field_missing", !rp && !fm);
+	$("#formula").toggleClass("field_missing", !rp && !fm);
+	$("#formula_pane_text, #formula_pane_infix, #formula_pane_python").toggleClass("field_missing", !rp && !fm);
 	if (!rp && !fm) {
 		errors.push("<img src='i/warning.svg' style='height: 1em' /> Either <i>Run program</i> or the <i>Formula editor</i> must be filled.");
 	}

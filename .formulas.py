@@ -1510,7 +1510,14 @@ def render_display_latex(
         if name in seen:
             continue
         pattern = re.compile(rf"(?<![A-Za-z0-9_\\]){re.escape(name)}(?![A-Za-z0-9_])")
-        if pattern.search(annotated):
+        match = pattern.search(annotated)
+        if match:
+            # Skip underbrace if the param is in exponent position (preceded by ^).
+            # \underbrace in superscript position renders the label sideways.
+            start = match.start()
+            if start > 0 and annotated[start - 1] == "^":
+                seen.add(name)
+                continue
             # Build the label.
             sug = info_by_name.get(name)
             if sug is not None:

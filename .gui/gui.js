@@ -1384,6 +1384,13 @@ function setup_formula_card_inner() {
 
 	function sync_to_main_textarea(text) {
 		$("#formula").val(text).trigger("change");
+		// Keep the visible panes in sync so they show the same content.
+		// ``setup_formula_card_inner`` runs once per page so the panes
+		// are guaranteed to exist by the time we get here.
+		var $panes = $("#formula_card #formula_pane_text, #formula_card #formula_pane_infix, #formula_card #formula_pane_python");
+		if ($panes.length) {
+			$panes.val(text);
+		}
 	}
 
 	function auto_detect_mode(text) {
@@ -2272,7 +2279,15 @@ function run_when_document_ready () {
 		// Defer so the formula card's input handlers are wired up.
 		setTimeout(function () {
 			if (!fmEmpty) {
+				// Push the formula into all three panes and trigger the
+				// active pane so ``update_everything`` runs and MathJax
+				// gets a chance to render the preview.
+				$("#formula_card #formula_pane_text, #formula_card #formula_pane_infix, #formula_card #formula_pane_python").val(fm);
 				$("#formula_pane_text").trigger("input");
+				// Belt-and-suspenders: also call the renderer directly so
+				// the preview shows up even if the input handler is
+				// somehow shadowed by a third-party script.
+				client_render_formula_preview(fm);
 				// Auto-apply the suggestions so the parameter table is
 				// populated when restoring from URL.
 				setTimeout(function () {

@@ -35,14 +35,11 @@ from typing import Any, Callable, Iterable, List, Optional, Sequence
 
 try:
     import submitit
-    from submitit import AutoExecutor, DebugJob, Job, LocalExecutor, LocalJob
+    from submitit import AutoExecutor, LocalExecutor
 except ImportError:  # pragma: no cover - submitit is required for runtime
     submitit = None  # type: ignore
     AutoExecutor = None  # type: ignore
     LocalExecutor = None  # type: ignore
-    Job = None  # type: ignore
-    LocalJob = None  # type: ignore
-    DebugJob = None  # type: ignore
 
 try:
     import psutil

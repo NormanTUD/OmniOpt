@@ -848,13 +848,24 @@ function decode_base64 (input) {
 	return decoded;
 }
 
+function is_base64_like(s) {
+	// Only base64-decode strings that consist entirely of base64
+	// characters.  This protects against the recursive re-decode
+	// path catching ``$(echo ...`` (the previous output of this
+	// function) and trying to decode it.
+	return typeof s === "string" && /^[A-Za-z0-9+/]+={0,2}$/.test(s);
+}
+
 function addBase64DecodedVersions(cmdString) {
 	return cmdString.replace(/(--[a-zA-Z0-9_]+)=('([^']+)'|"([^"]+)"|([^\s]+))/g, (match, key, _, singleQuoted, doubleQuoted, bare) => {
 		const value = singleQuoted || doubleQuoted || bare;
 
 		let decoded = null;
 		try {
-			if (key === "--run_program" || key === "--run_program_once" || key === "--formula") {
+			if (
+				(key === "--run_program" || key === "--run_program_once" || key === "--formula") &&
+				is_base64_like(value)
+			) {
 				decoded = decode_base64(value);
 			}
 		} catch (e) {
@@ -867,7 +878,7 @@ function addBase64DecodedVersions(cmdString) {
 		} else {
 			return match;
 		}
-});
+	});
 }
 
 // ---------------------------------------------------------------------------
@@ -882,28 +893,22 @@ function build_formula_card_html() {
 		"<button type='button' id='formula_tab_text' class='formula_tab' data-mode='text'>LaTeX</button>" +
 		"<button type='button' id='formula_tab_infix' class='formula_tab' data-mode='infix'>Infix</button>" +
 		"<button type='button' id='formula_tab_python' class='formula_tab' data-mode='python'>Python</button>" +
-		"<span style='margin-left: auto; font-size: 0.85em; color: #555;'>" +
-		"<select id='formula_mode_pill' style='font-size: 0.9em;'>" +
-		"<option value='auto'>auto</option>" +
-		"<option value='latex'>latex</option>" +
-		"<option value='infix'>infix</option>" +
-		"<option value='python'>python</option>" +
-		"</select>" +
-		"</span>" +
 		"</div>" +
 		"<div id='formula_panel_text'>" +
-		"<textarea id='formula_pane_text' placeholder=\"LaTeX: \\\\sin(a*x) + \\\\sum_{i=0}^{b} i^2  or  f(x) = 2+x-y\" style='width: 100%; min-height: 80px; font-family: monospace;'></textarea>" +
+		"<textarea id='formula_pane_text' placeholder=\"LaTeX: \\sin(a*x) + \\sum_{i=0}^{b} i^2  or  f(x) = 2+x-y\" style='width: 100%; min-height: 80px; font-family: monospace;'></textarea>" +
 		"</div>" +
 		"<div id='formula_panel_infix' style='display: none;'>" +
 		"<textarea id='formula_pane_infix' placeholder=\"Infix: sin(a*x) + Sum(i**2, (i, 0, b))  or  f(x) = 2*x + y\" style='width: 100%; min-height: 80px; font-family: monospace;'></textarea>" +
 		"</div>" +
 		"<div id='formula_panel_python' style='display: none;'>" +
-		"<textarea id='formula_pane_python' placeholder=\"def evaluate(params):\\n    return math.sin(params['a']*params['x']) + params['b']\" style='width: 100%; min-height: 110px; font-family: monospace;'></textarea>" +
+		"<textarea id='formula_pane_python' placeholder=\"def evaluate(params):&#10;    return math.sin(params['a']*params['x']) + params['b']\" style='width: 100%; min-height: 110px; font-family: monospace;'></textarea>" +
 		"<div style='margin-top: 4px; font-size: 0.85em; color: #555;'>" +
 		"Python tab: define <code>evaluate(params)</code> returning a float. The <code>params</code> dict also has a <code>'_raw'</code> key with the raw values." +
 		"</div>" +
 		"</div>" +
 		"<div id='formula_hint' style='margin-top: 6px; font-size: 0.85em; color: #555;'></div>" +
+		"<div id='formula_preview' style='margin-top: 8px; padding: 8px; background: #fff; border: 1px dashed #c0c0d0; border-radius: 8px; min-height: 40px; font-size: 1.05em;'></div>" +
+		"<div id='formula_error' style='margin-top: 4px; font-size: 0.85em; color: #b00020;'></div>" +
 		"</div>" +
 		"<div id='formula_card_right' style='flex: 0 0 380px; min-width: 320px; padding: 10px; background: #fafaff; border: 1px solid #d6d6e6; border-radius: 10px;'>" +
 		"<h4 style='margin-top: 0; margin-bottom: 6px;'>Suggested parameters</h4>" +
@@ -983,26 +988,42 @@ function _collect_identifiers(text) {
 // assignments here, so any `==`, `<=`, `>=` would also be picked up but the
 // caller can deal with it).  Returns {lhs: "", rhs: text} if no `=` exists.
 function _split_assignment(text) {
-	// Walk through char-by-char, tracking brace depth.
+	// Walk through char-by-char, tracking brace depth.  Use the LAST
+	// top-level ``=`` as the LHS / RHS separator so chained assignments
+	// like ``a + b = c = c - d`` (mathematically nonsensical, but valid
+	// Python) land as ``lhs = "a + b = c"``, ``rhs = "c - d"`` — the
+	// outermost assignment is what controls the parameter list.
 	var depth = 0;
+	var lastIdx = -1;
 	for (var i = 0; i < text.length; i++) {
 		var ch = text[i];
 		if (ch === "{") depth++;
 		else if (ch === "}") depth--;
 		else if (ch === "=" && depth === 0) {
-			return { lhs: text.substring(0, i), rhs: text.substring(i + 1) };
+			lastIdx = i;
 		}
+	}
+	if (lastIdx >= 0) {
+		return { lhs: text.substring(0, lastIdx), rhs: text.substring(lastIdx + 1) };
 	}
 	return { lhs: "", rhs: text };
 }
 
 // Strip the function name + parens from a left-hand side like `f(x, y)` or `f(g(x))`
 // so we are left with the actual parameter list inside the outermost parens.
+// Returns an empty list if the LHS isn't shaped like a function definition
+// (no ``(`` present, or the LHS contains more than one identifier / operator).
 function _lhs_parameter_names(lhs) {
-	// Find the LAST '(' in the lhs.
-	var idx = lhs.lastIndexOf("(");
-	if (idx < 0) return _collect_identifiers(_strip_macros(lhs)).list;
-	var inner = lhs.substring(idx + 1, lhs.lastIndexOf(")"));
+	var open = lhs.indexOf("(");
+	if (open < 0) return [];
+	var close = lhs.lastIndexOf(")");
+	if (close < open) return [];
+	var name = lhs.substring(0, open).trim();
+	// The LHS must look like ``f`` or ``f.f`` (a function name, not an
+	// arithmetic expression).  This guards against ``a + b = c = c - d``
+	// being interpreted as parameters.
+	if (!/^[A-Za-z_][A-Za-z0-9_.]*$/.test(name)) return [];
+	var inner = lhs.substring(open + 1, close);
 	return _collect_identifiers(_strip_macros(inner)).list;
 }
 
@@ -1011,19 +1032,19 @@ function _lhs_parameter_names(lhs) {
 // bound variable names that were inside the underscores.
 function _strip_sumprod_bodies(text) {
 	var boundNames = {};
-	var re = /\\(?:sum|prod)\s*_\s*\{([^{}]+)\}(?:\s*\^\s*\{[^{}]+\})?\s*(\{(?:[^{}]|\{[^{}]*\})*\}|[A-Za-z_][A-Za-z0-9_]*)/g;
+	var re = /\\(?:sum|prod)\s*_\s*(?:\{([^{}]+)\}|([A-Za-z][A-Za-z0-9_]*))(?:\s*\^\s*\{[^{}]+\})?\s*(\{(?:[^{}]|\{[^{}]*\})*\}|[A-Za-z_][A-Za-z0-9_]*)/g;
 	var m;
 	while ((m = re.exec(text)) !== null) {
-		// The first capture group may be "i" or "i=0" — split on "=" for the variable.
-		var lhs = m[1];
-		var name = lhs.indexOf("=") >= 0 ? lhs.split("=", 1)[0].trim() : lhs.trim();
+		// The subscript group may be "i" or "i=0" — split on "=" for the variable.
+		var sub = m[1] || m[2] || "";
+		var name = sub.indexOf("=") >= 0 ? sub.split("=", 1)[0].trim() : sub.trim();
 		boundNames[name] = true;
 	}
 	// Replace the matched span (and any following brace block) with spaces
 	// so the bound variable name doesn't accidentally appear in the RHS
 	// identifier scan.
 	text = text.replace(
-		/\\(?:sum|prod)\s*_\s*\{[^{}]+\}(?:\s*\^\s*\{[^{}]+\})?\s*(\{(?:[^{}]|\{[^{}]*\})*\}|[A-Za-z_][A-Za-z0-9_]*)/g,
+		/\\(?:sum|prod)\s*_\s*(?:\{[^{}]+\}|[A-Za-z][A-Za-z0-9_]*)(?:\s*\^\s*\{[^{}]+\})?\s*(\{(?:[^{}]|\{[^{}]*\})*\}|[A-Za-z_][A-Za-z0-9_]*)/g,
 		" "
 	);
 	return { text: text, bound: boundNames };
@@ -1061,40 +1082,64 @@ function client_extract_python_params(text) {
 
 
 function client_extract_formula_params(text, mode) {
+	// Guard rail: any thrown error must fall back to an empty suggestion
+	// list so the rest of the GUI still works (no broken `apply` button).
+	try {
+		return client_extract_formula_params_impl(text, mode);
+	} catch (e) {
+		try {
+			console.error("[formula extraction] failed:", e, "for text:", text);
+		} catch (_) { /* swallow */ }
+		return { parameters: [], constants: [], bound: [], error: (e && e.message) ? e.message : String(e) };
+	}
+}
+
+function client_extract_formula_params_impl(text, mode) {
 	if (!text || !text.trim()) return { parameters: [], constants: [], bound: [] };
+	if (typeof text !== "string") return { parameters: [], constants: [], bound: [] };
 	var raw = text;
 
-	var split = _split_assignment(raw);
+	var split;
+	try { split = _split_assignment(raw); }
+	catch (e) { return { parameters: [], constants: [], bound: [] }; }
 	var lhsRaw = split.lhs;
 	var rhsRaw = split.rhs;
 
-	var boundInfo = _strip_sumprod_bodies(raw);
-	var boundNames = boundInfo.bound;
+	var boundInfo;
+	try { boundInfo = _strip_sumprod_bodies(raw); }
+	catch (e) { return { parameters: [], constants: [], bound: [] }; }
+	var boundNames = (boundInfo && boundInfo.bound) || {};
 
 	// Left-hand side: find the parameter names of the function (variables
 	// that appear inside the outermost parentheses of the left side).
-	// If there is no left side, there are no "parameters" and everything
-	// is treated as a constant.
+	// If there is no LHS, every free symbol in the RHS becomes a parameter
+	// (otherwise bare expressions like ``a + sin(b)`` would lose all of
+	// their variables to the ``constant`` bucket).
 	var lhsIdents = [];
 	if (lhsRaw.trim().length > 0) {
-		lhsIdents = _lhs_parameter_names(lhsRaw);
+		try { lhsIdents = _lhs_parameter_names(lhsRaw) || []; }
+		catch (e) { lhsIdents = []; }
 	}
 	var lhsSet = {};
 	for (var i = 0; i < lhsIdents.length; i++) lhsSet[lhsIdents[i]] = true;
 
 	// Right-hand side: strip the function macros, collect identifiers.
-	var rhsClean = _strip_macros(boundInfo.text);
+	var rhsClean = "";
+	try { rhsClean = _strip_macros(boundInfo.text); } catch (e) {}
 	// Re-locate `=` for the stripped right-hand side — the bound-stripping
 	// may have shifted positions.
-	var rhsOnly = _split_assignment(rhsClean).rhs;
-	var rhsInfo = _collect_identifiers(rhsOnly);
-	var rhsIdents = rhsInfo.list;
+	var rhsOnly = rhsClean;
+	try { rhsOnly = _split_assignment(rhsClean).rhs; } catch (e) {}
+	var rhsInfo;
+	try { rhsInfo = _collect_identifiers(rhsOnly); } catch (e) { rhsInfo = { list: [], set: [] }; }
+	var rhsIdents = rhsInfo.list || [];
 
 	// Build the parameter and constant lists.
 	var parameters = [];
 	var constants = [];
 	var seenP = {};
 	var seenC = {};
+	var hasLhs = lhsIdents.length > 0;
 	for (var j = 0; j < lhsIdents.length; j++) {
 		var n = lhsIdents[j];
 		if (!seenP[n]) {
@@ -1104,12 +1149,23 @@ function client_extract_formula_params(text, mode) {
 	}
 	for (var k = 0; k < rhsIdents.length; k++) {
 		var rn = rhsIdents[k];
+		if (!rn) continue;
 		if (boundNames[rn]) continue;          // bound by sum/prod
 		if (lhsSet[rn]) continue;              // already a parameter
-		if (FORMULA_RESERVED.has(rn)) continue; // safety
-		if (!seenC[rn]) {
+		if (FORMULA_RESERVED && FORMULA_RESERVED.has && FORMULA_RESERVED.has(rn)) continue; // safety
+		if (!seenP[rn] && !seenC[rn]) {
+			seenP[rn] = true;
 			seenC[rn] = true;
-			constants.push(rn);
+			// With an LHS, RHS-only identifiers are *constants* (so the user
+			// sees the split between parameters and fixed values).
+			// Without an LHS, every free symbol is a *parameter* (so a bare
+			// expression like ``a + sin(b)`` ends up with ``a`` and ``b``
+			// as optimisable ranges rather than mysterious constants).
+			if (hasLhs) {
+				constants.push(rn);
+			} else {
+				parameters.push(rn);
+			}
 		}
 	}
 
@@ -1190,15 +1246,36 @@ function client_apply_suggestions(result) {
 	// by index even if other code paths mutate the DOM in between.
 	var initialCount = $(".parameterRow").length;
 
+	// Find the first existing empty row (the GUI always renders one
+	// blank parameter row on load).  Filling it lets the first suggestion
+	// land in row 0 instead of being pushed past an empty placeholder.
+	var firstEmptyIdx = -1;
+	for (var ei = 0; ei < initialCount; ei++) {
+		var $probe = $(".parameterRow").eq(ei);
+		var probeName = $probe.find(".parameterName").val();
+		if (!probeName || probeName.trim() === "") {
+			firstEmptyIdx = ei;
+			break;
+		}
+	}
+
 	for (var i = 0; i < all.length; i++) {
-		(function (s, targetIndex) {
+		(function (s, idx) {
 			var existing = false;
 			$(".parameterName").each(function () {
 				if ($(this).val() === s.name) existing = true;
 			});
 			if (existing) return;
 
-			$("#main_add_row_button").click();
+			var targetIndex;
+			if (firstEmptyIdx >= 0) {
+				// Reuse the blank row first.
+				targetIndex = firstEmptyIdx;
+				firstEmptyIdx = -1;
+			} else {
+				$("#main_add_row_button").click();
+				targetIndex = idx;
+			}
 			var $row = $(".parameterRow").eq(targetIndex);
 			if ($row.length === 0) return;
 
@@ -1280,6 +1357,13 @@ function setup_formula_editor() {
 				$card.show();
 			}
 		}
+		if (typeof update_command === "function") update_command();
+	});
+
+	// Persist the hidden #formula and #formula_mode on every change so the
+	// URL always carries the latest values (a refresh restores them).
+	$(document).on("change input", "#formula, #formula_mode", function () {
+		if (typeof update_command === "function") update_command();
 	});
 }
 
@@ -1307,47 +1391,228 @@ function setup_formula_card_inner() {
 		return "infix";
 	}
 
+	function current_mode() {
+		// Mode is derived from which tab is active; the tab is the source
+		// of truth now (no more select pill).
+		var $active = $("#formula_card .formula_tab.active");
+		if ($active.length === 0) return "auto";
+		return $active.data("mode") || "auto";
+	}
+
 	function update_hint() {
 		var text = $("#formula").val();
-		var mode = $("#formula_mode_pill").val();
 		var det = auto_detect_mode(text);
-		var hint = "Auto-detected mode: <b>" + det + "</b>";
-		if (mode !== "auto" && mode !== det) {
-			hint += " &nbsp;(overridden to <b>" + mode + "</b>)";
-		}
+		var active = current_mode();
+		var hint = "Auto-detected mode: <b>" + det + "</b> &nbsp;·&nbsp; active tab: <b>" + active + "</b>";
 		$("#formula_hint").html(hint);
+	}
+
+	function client_render_formula_preview(text) {
+		var $prev = $("#formula_card #formula_preview");
+		var $err = $("#formula_card #formula_error");
+
+		// Guard rail: if the card isn't in the DOM yet, do nothing.
+		if (!$prev.length || !$err.length) {
+			return;
+		}
+
+		try {
+			client_render_formula_preview_inner(text, $prev, $err);
+		} catch (e) {
+			// Last-resort guard rail — anything that throws here must
+			// not break the rest of the page (form, command, etc.).
+			try {
+				console.error("[formula preview] uncaught error:", e);
+				$err.text("Preview error: " + (e && e.message ? e.message : String(e)));
+			} catch (_) { /* swallow */ }
+		}
+	}
+
+	function client_render_formula_preview_inner(text, $prev, $err) {
+		if (!text || !text.trim()) {
+			$prev.empty();
+			$err.empty();
+			return;
+		}
+
+		var mode;
+		try {
+			mode = current_mode();
+		} catch (e) {
+			mode = "auto";
+		}
+
+		if (mode === "python") {
+			$prev.html("<em style='color:#777'>Python mode — no preview.</em>");
+			$err.empty();
+			return;
+		}
+		if (mode === "infix") {
+			// Infix is shown as-is in the textarea; no LaTeX rendering.
+			$prev.empty();
+			$err.empty();
+			return;
+		}
+
+		// Sanity-check the input: refuse to render empty / whitespace /
+		// extreme-length LaTeX so we never break MathJax.
+		if (typeof text !== "string") {
+			$err.text("Preview error: formula is not a string");
+			return;
+		}
+		if (text.length > 5000) {
+			$err.text("Formula is too long to preview (>5000 chars)");
+			$prev.empty();
+			return;
+		}
+
+		// Detect obviously broken LaTeX before handing it to MathJax so we
+		// can show a useful error message instead of a giant red ``?``.
+		var stripped = text
+			.replace(/^\s*[a-zA-Z_][a-zA-Z0-9_]*\s*\([^)]*\)\s*=\s*/, "")
+			.replace(/^\s*[a-zA-Z_][a-zA-Z0-9_]*\s*=\s*/, "");
+		var balanceErrors = [];
+		if (/\\\s/.test(text)) balanceErrors.push("stray space after a backslash");
+		if (/[{}]\s*[+\-*/^=]/.test(stripped)) balanceErrors.push("brace next to an operator (probably missing ``\\right``)");
+		// Count opening and closing braces; an imbalance is almost
+		// certainly a typo.
+		var depth = 0, maxDepth = 0, bchar;
+		for (var bi = 0; bi < text.length; bi++) {
+			bchar = text[bi];
+			if (bchar === "{") { depth++; if (depth > maxDepth) maxDepth = depth; }
+			else if (bchar === "}") { depth--; if (depth < 0) break; }
+		}
+		if (depth !== 0) balanceErrors.push("unbalanced braces (depth=" + depth + ")");
+		// Reject control characters / null bytes that MathJax can't digest.
+		if (/[\x00-\x08\x0b\x0c\x0e-\x1f]/.test(text)) balanceErrors.push("control characters in formula");
+
+		// HTML-escape the four characters that would otherwise let the
+		// user's text break out of the preview div; keep ``\\`` intact so
+		// LaTeX commands like ``\\sin`` survive.
+		var safe;
+		try {
+			safe = text
+				.replace(/&/g, "&amp;")
+				.replace(/</g, "&lt;")
+				.replace(/>/g, "&gt;")
+				.replace(/[\x00-\x1f]/g, "");
+		} catch (e) {
+			$err.text("Preview error: failed to escape formula");
+			return;
+		}
+
+		$err.empty();
+
+		var $renderDiv;
+		try {
+			$prev.empty();
+			$renderDiv = $("<div></div>").text("").appendTo($prev);
+			// Use MathJax's safe-HTML setter: this preserves LaTeX
+			// commands (``\\sin``, ``\\frac``) while still letting us
+			// emit the ``\\[…\\]`` display wrapper.
+			$renderDiv.html("\\[" + safe + "\\]");
+		} catch (e) {
+			$err.text("Preview error: failed to insert formula into DOM");
+			return;
+		}
+
+		if (balanceErrors.length) {
+			$err.text("Possible issues: " + balanceErrors.join("; "));
+		}
+
+		// Ask MathJax to typeset.  Wait for its startup promise first so we
+		// don't lose the first render when MathJax is still loading.
+		client_mathjax_typeset($renderDiv[0], $err);
+	}
+
+	function client_mathjax_typeset(node, $err) {
+		// If MathJax isn't loaded at all, show a friendly fallback so
+		// the user still sees *something* rather than a blank box.
+		if (!window.MathJax) {
+			if ($err) {
+				$err.text($err.text() ? $err.text() + "; " : "" +
+					"MathJax not loaded — showing raw formula.");
+			}
+			return;
+		}
+		// MathJax v3 exposes ``MathJax.typesetPromise``.  Earlier versions
+		// used ``MathJax.Hub.Queue``; if neither is available we just
+		// keep the rendered (but un-typeset) HTML.
+		try {
+			var run = function () {
+				if (window.MathJax.typesetPromise) {
+					window.MathJax.typesetPromise([node])
+						.catch(function (err) {
+							console.error("[formula preview] typeset failed:", err);
+							if ($err) {
+								$err.text("LaTeX render failed: " + (err && err.message ? err.message : "unknown"));
+							}
+						});
+				} else if (window.MathJax.Hub && window.MathJax.Hub.Queue) {
+					window.MathJax.Hub.Queue(["Typeset", window.MathJax.Hub, node]);
+				} else {
+					console.warn("[formula preview] no typeset API on MathJax");
+				}
+			};
+			if (window.MathJax.startup && window.MathJax.startup.promise) {
+				window.MathJax.startup.promise.then(run, function (err) {
+					console.error("[formula preview] MathJax startup failed:", err);
+				});
+			} else {
+				run();
+			}
+		} catch (e) {
+			console.error("[formula preview] typeset threw:", e);
+		}
 	}
 
 	function refresh_suggestions() {
 		var text = $("#formula").val() || "";
-		var mode = $("#formula_mode_pill").val() || "auto";
+		var mode = current_mode();
 		if (mode === "python") {
 			$("#formula_card #formula_suggestions").html("<em>Python code — parameters are read from the <code>params</code> dict; no auto-extraction.</em>");
 			return;
 		}
-		var result = client_extract_formula_params(text, mode);
+		var result;
+		try {
+			result = client_extract_formula_params(text, mode);
+		} catch (e) {
+			$("#formula_card #formula_suggestions").html(
+				"<span style='color:#b00020'>Broken formula: " + client_escape_html(String(e)) + "</span>"
+			);
+			return;
+		}
 		client_render_suggestions(result);
 	}
 
 	function update_everything() {
 		update_hint();
 		refresh_suggestions();
+		client_render_formula_preview($("#formula").val() || "");
+	}
+
+	function client_escape_html(s) {
+		return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+			.replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 	}
 
 	$("#formula_card #formula_tab_text").on("click", function () {
 		set_active_tab("text");
 		sync_to_main_textarea($("#formula_pane_text").val());
-		$("#formula_mode_pill").val("latex").trigger("change");
+		$("#formula_mode").val("latex").trigger("change");
+		update_everything();
 	});
 	$("#formula_card #formula_tab_infix").on("click", function () {
 		set_active_tab("infix");
 		sync_to_main_textarea($("#formula_pane_infix").val());
-		$("#formula_mode_pill").val("infix").trigger("change");
+		$("#formula_mode").val("infix").trigger("change");
+		update_everything();
 	});
 	$("#formula_card #formula_tab_python").on("click", function () {
 		set_active_tab("python");
 		sync_to_main_textarea($("#formula_pane_python").val());
-		$("#formula_mode_pill").val("python").trigger("change");
+		$("#formula_mode").val("python").trigger("change");
+		update_everything();
 	});
 
 	$("#formula_card #formula_pane_text, #formula_card #formula_pane_infix, #formula_card #formula_pane_python").on("input", function () {
@@ -1357,6 +1622,7 @@ function setup_formula_card_inner() {
 		$("#formula_card #formula_pane_python").val(text);
 		sync_to_main_textarea(text);
 		update_everything();
+		if (typeof update_command === "function") update_command();
 	});
 
 	// Ctrl/Cmd + Enter on any formula pane applies the suggestions.
@@ -1367,15 +1633,9 @@ function setup_formula_card_inner() {
 		}
 	});
 
-	$("#formula_card #formula_mode_pill").on("change", function () {
-		var v = $(this).val();
-		$("#formula_mode").val(v).trigger("change");
-		update_everything();
-	});
-
 	$("#formula_card #formula_apply_btn").on("click", function () {
 		var text = $("#formula").val() || "";
-		var mode = $("#formula_mode_pill").val() || "auto";
+		var mode = current_mode();
 		if (mode === "python") {
 			// For Python mode, scan for params['x'] / params["x"] patterns
 			// to extract parameters from the user code.
@@ -1405,7 +1665,6 @@ function setup_formula_card_inner() {
 		$("#formula_card #formula_pane_python").val(initial);
 	}
 	var initial_mode = $("#formula_mode").val() || "auto";
-	$("#formula_card #formula_mode_pill").val(initial_mode);
 	// Default to the matching tab based on the mode (so the user sees
 	// their original input).  "auto" lands on "infix" since most
 	// scientists paste infix expressions.
@@ -1690,7 +1949,16 @@ function update_url() {
 
 	var params = [];
 
+	// Field IDs that are emitted by ``pushFormula`` below; skip them
+	// here so we don't write the same key twice into the URL.
+	var FORMULA_FIELDS = {
+		formula: true,
+		formula_mode: true,
+		formula_python_path: true,
+	};
+
 	function push_value(item) {
+		if (FORMULA_FIELDS[item.id]) return;
 		var element = $("#" + item.id);
 		var value;
 
@@ -1699,8 +1967,10 @@ function update_url() {
 		} else {
 			value = element.val();
 
-			// Base64-encode run_program_once and external_generator for the URL
-			if (item.id === "run_program_once" || item.id === "external_generator") {
+			// Base64-encode run_program, run_program_once and external_generator
+			// for the URL so newlines and special characters survive a refresh
+			// and we don't blow past the browser's URL-length limit.
+			if (item.id === "run_program" || item.id === "run_program_once" || item.id === "external_generator") {
 				if (value && value.trim() !== "") {
 					try {
 						// encodeURIComponent trick preserves multi-byte chars
@@ -1712,6 +1982,14 @@ function update_url() {
 			}
 
 			value = encodeURIComponent(value);
+		}
+
+		// Skip empty / default values so the URL stays compact.
+		if (value === "" || value === "0" || value === "false") {
+			// Keep checkboxes (booleans default to 0 = off) but skip empty text fields.
+			if (typeof value === "string" && value === "") {
+				return;
+			}
 		}
 
 		params.push(item.id + "=" + value);
@@ -1729,17 +2007,27 @@ function update_url() {
 	(function pushFormula() {
 		var formulaEl = $("#formula");
 		var modeEl = $("#formula_mode");
+		var pythonPathEl = $("#formula_python_path");
 		if (formulaEl.length === 0 || modeEl.length === 0) return;
 		var formulaVal = formulaEl.val() || "";
-		if (formulaVal.trim() !== "") {
+		var hasFormula = formulaVal.trim() !== "";
+		if (hasFormula) {
 			try {
-				formulaVal = btoa(unescape(encodeURIComponent(formulaVal)));
+				var b64 = btoa(unescape(encodeURIComponent(formulaVal)));
+				params.push("formula=" + encodeURIComponent(b64));
 			} catch (e) {
 				console.error("Base64 encoding failed for formula:", e);
 			}
+			params.push("formula_mode=" + encodeURIComponent(modeEl.val() || "auto"));
 		}
-		params.push("formula=" + encodeURIComponent(formulaVal));
-		params.push("formula_mode=" + encodeURIComponent(modeEl.val() || "auto"));
+		// Only persist the Python interpreter override when the user
+		// actually customised it.
+		if (pythonPathEl.length > 0) {
+			var pyPath = pythonPathEl.val() || "";
+			if (pyPath.trim() !== "") {
+				params.push("formula_python_path=" + encodeURIComponent(pyPath));
+			}
+		}
 	})();
 
 	var parameterIndex = 0;
@@ -1776,14 +2064,14 @@ function update_url() {
 				params.push(param_base + "_type=" + encodeURIComponent(option));
 				params.push(param_base + "_value=" + encodeURIComponent(fixedValue));
 			}
+			parameterIndex++;
 		}
-		parameterIndex++;
+		// Rows without a parameter name are skipped but their index is
+		// preserved so the URL stays compact (no gaps in numbering).
 	});
 
-	params.push("partition=" + encodeURIComponent($("#partition").val()));
-
 	if (initialized) {
-		var url = window.location.origin + window.location.pathname + "?" + params.join("&") + "&num_parameters=" + $(".parameterRow").length;
+		var url = window.location.origin + window.location.pathname + "?" + params.join("&") + "&num_parameters=" + parameterIndex;
 
 		try {
 			window.history.replaceState(null, null, url);
@@ -1868,6 +2156,22 @@ function run_when_document_ready () {
 			// Strip surrounding single quotes if present
 			if (item.id === "result_names") {
 				paramValue = paramValue.replace(/^'(.*)'$/, '$1');
+			}
+
+			// Base64-decode the long text fields.  We detect them by trying
+			// to decode; if that fails we leave the value alone (so the
+			// URL-encoded form still works for older / hand-crafted URLs).
+			if (item.id === "run_program" || item.id === "run_program_once" || item.id === "external_generator") {
+				if (paramValue !== "") {
+					try {
+						paramValue = decodeURIComponent(escape(atob(paramValue)));
+					} catch (e) {
+						// Not base64 — keep the raw URL-decoded value.
+						try {
+							paramValue = decodeURIComponent(paramValue);
+						} catch (e2) { /* keep as-is */ }
+					}
+				}
 			}
 
 			var $element = $("#" + item.id);

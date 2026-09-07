@@ -28,7 +28,6 @@ from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Tuple
 
 try:
-    import sympy  # noqa: F401
     from sympy import (
         Expr,
         Float,
@@ -110,6 +109,13 @@ _MACRO_REPLACEMENTS = {
     r"\ ": " ",
     r"\quad": "  ",
     r"\qquad": "   ",
+    # Bound / infinite notation
+    r"\infty": "oo",
+    r"\inf": "oo",
+    # Limit / "to" notation
+    r"\to": ",",
+    r"\rightarrow": ",",
+    r"\Rightarrow": ",",
 }
 
 
@@ -143,11 +149,20 @@ def preprocess_latex(latex: str) -> str:
     # \frac{a}{b}  ->  (a)/(b)  (must come before general macro substitution)
     text = _expand_frac(text)
 
+    # \frac{d}{dx} BODY  ->  Derivative(BODY, x)
+    text = _expand_derivative_sentinel(text)
+
     # \sum_{i=0}^{n} f  ->  Sum(f, (i, 0, n))
     text = _expand_sum(text)
 
     # \prod_{i=0}^{n} f  ->  Product(f, (i, 0, n))
     text = _expand_prod(text)
+
+    # \int_{a}^{b} f \,dx  ->  Integral(f, (x, a, b))
+    text = _expand_int(text)
+
+    # \lim_{x \to v} f  ->  Limit(f, x, v)
+    text = _expand_lim(text)
 
     # \sqrt{...}  ->  sqrt(...)
     text = _expand_sqrt(text)
@@ -165,7 +180,7 @@ def preprocess_latex(latex: str) -> str:
     # Drop more LaTeX macros that don't change semantics: spacing,
     # decorative symbols, styling.
     text = re.sub(
-        r"\\(hat|tilde|bar|vec|dot|ddot|widehat|widetilde|overbrace|underbrace|overline|underline|cdot|times|ast|circ|bullet|dagger|ddagger|oplus|otimes|equiv|sim|approx|neq|le|ge|leq|geq|to|rightarrow|leftarrow|mapsto|Rightarrow|Leftarrow|partial|nabla|infty|partial)\b",
+        r"\\(hat|tilde|bar|vec|dot|ddot|widehat|widetilde|overbrace|underbrace|overline|underline|cdot|times|ast|circ|bullet|dagger|ddagger|oplus|otimes|equiv|sim|approx|neq|le|ge|leq|geq|to|rightarrow|leftarrow|mapsto|Rightarrow|Leftarrow|partial|nabla|partial)\b",
         r"",
         text,
     )
@@ -180,6 +195,11 @@ def preprocess_latex(latex: str) -> str:
 
     # Drop stray single-token braces that confuse parse_expr (e.g. `{x}^2` -> `x^2`).
     text = re.sub(r"\{([A-Za-z_][A-Za-z0-9_]*)\}", r"\1", text)
+
+    # Convert remaining ``{...}`` to ``(...)`` so Python doesn't see them
+    # as a set literal.  Only the outer-most non-nested braces are touched
+    # (the parser has already resolved all nested braces by this point).
+    text = re.sub(r"\{([^{}]*)\}", r"(\1)", text)
 
     # Convert `^` to `**` for Python's parser.
     text = text.replace("^", "**")
@@ -245,7 +265,12 @@ def _add_implicit_multiplication(text: str) -> str:
 
 
 def _expand_frac(text: str) -> str:
-    """Replace ``\\frac{a}{b}`` (and ``\\dfrac``/``\\tfrac``) with ``(a)/(b)``."""
+    """Replace ``\\frac{a}{b}`` (and ``\\dfrac``/``\\tfrac``) with ``(a)/(b)``.
+
+    Special case: ``\\frac{d}{dvar}`` is interpreted as the derivative
+    ``Derivative(body, var)`` once the body is read.  We don't do the
+    body substitution here because the body lives outside the frac.
+    """
     out = []
     i = 0
     while i < len(text):
@@ -274,19 +299,68 @@ def _expand_frac(text: str) -> str:
             out.append(text[start:j_after_num])
             i = j_after_num
             continue
+        # Detect ``\frac{d}{dvar}`` and stash the variable in den for the
+        # body reader to pick up later via a sentinel.
+        den_stripped = den.strip()
+        m_dvar = re.match(r"^d\s*([A-Za-z])\s*$", den_stripped)
+        if num.strip() == "d" and m_dvar:
+            # Emit a sentinel that ``_expand_derivative`` replaces after
+            # the body has been read (look for ``__DERIV_<var>__``).
+            out.append(f"__DERIV_{m_dvar.group(1)}__")
+            i = j_after_den
+            continue
         out.append(f"({num})/({den})")
         i = j_after_den
     return "".join(out)
 
 
+def _expand_derivative_sentinel(text: str) -> str:
+    """Find the body after a ``__DERIV_<var>__`` sentinel and emit ``Derivative(body, var)``.
+
+    The body is read up to end-of-string or a top-level ``+``/``-`` /
+    ``=`` operator (so terms like ``\\frac{d}{dx} x^2 + y^2`` become
+    ``Derivative(x**2, x) + y**2``).
+    """
+    sentinel_re = re.compile(r"__DERIV_([A-Za-z])__")
+    out = []
+    i = 0
+    while i < len(text):
+        m = sentinel_re.search(text, i)
+        if not m:
+            out.append(text[i:])
+            break
+        start = m.start()
+        var = m.group(1)
+        out.append(text[i:start])
+        j = m.end()
+        body, j_after = _read_derivative_body(text, j)
+        if body is None:
+            out.append(text[start:j])
+            i = j
+            continue
+        out.append(f"Derivative({body}, {var})")
+        i = j_after
+    return "".join(out)
+
+
+def _read_derivative_body(text: str, start: int) -> Tuple[Optional[str], int]:
+    """Read the body following a ``\\frac{d}{dx}`` sentinel."""
+    while start < len(text) and text[start].isspace():
+        start += 1
+    if start >= len(text):
+        return None, start
+    body, j = _read_balanced_expression(text, start)
+    return body, j
+
+
 def _expand_sum(text: str) -> str:
-    """Replace ``\\sum_{var=lo}^{hi} BODY`` with ``Sum(BODY, (var, lo, hi))``.
+    """Replace ``\\sum_{v=lo}^{hi} BODY`` with ``Sum(BODY, (v, lo, hi))``.
 
     Tolerant of:
-    * ``\\sum_{var}^{hi} BODY``  (no ``=lo``; defaults to 0)
-    * ``\\sum_{var=lo} BODY``     (no upper bound; defaults to ``oo``)
+    * ``\\sum_{v}^{hi} BODY``  (no ``=lo``; defaults to 0)
+    * ``\\sum_{v=lo} BODY``     (no upper bound; defaults to ``oo``)
     * ``\\sum BODY``              (no bounds — we still wrap if ``BODY`` is small)
-    * ``\\sum{var}^{hi}`` (no leading underscore — LaTeX accepts this)
+    * ``\\sum{v}^{hi}`` (no leading underscore — LaTeX accepts this)
     * BODY in ``{...}``, ``(...)``, an identifier, a function call, or a
       full expression terminated by ``\\``, end-of-string, a closing
       brace, or an operator that clearly ends the sum (e.g. ``+``, ``-``,
@@ -301,8 +375,8 @@ def _expand_sum(text: str) -> str:
     # matching at the underscore.
     head_re = re.compile(
         r"\\sum"
-        r"(?:\s*_?\s*(?:\{([^{}]+)\}|([A-Za-z][A-Za-z0-9_]*)))?"
-        r"(?:\s*\^\s*(?:\{([^{}]+)\}|([A-Za-z][A-Za-z0-9_]*|\d+)))?"
+        r"(?:\s*_?\s*(?:\{([^{}]+)\}|(\\[A-Za-z]+|[A-Za-z][A-Za-z0-9_]*)))?"
+        r"(?:\s*\^\s*(?:\{([^{}]+)\}|(\\[A-Za-z]+|[A-Za-z][A-Za-z0-9_]*|\d+)))?"
     )
     while i < len(text):
         m = head_re.search(text, i)
@@ -319,13 +393,130 @@ def _expand_sum(text: str) -> str:
             j += 1
         body, j_after = _read_sum_body(text, j)
         if body is None:
-            # Couldn't read a body — bail out and leave the original text.
+            # No explicit body — e.g. ``\sum_a`` (degenerate sum where
+            # the bound variable is also the summand).  Fall back to the
+            # bound variable as the body so the LaTeX still parses.
+            var, lower = _split_var_lower(sub_text)
+            if var:
+                out.append(f"Sum({var}, ({var}, {lower}, {sup_text.strip() or 'oo'}))")
+                i = j
+                continue
             out.append(text[start:j])
             i = j
             continue
         var, lower = _split_var_lower(sub_text)
         upper = sup_text.strip() or "oo"
         out.append(f"Sum({body}, ({var}, {lower}, {upper}))")
+        i = j_after
+    return "".join(out)
+
+
+def _expand_int(text: str) -> str:
+    """Replace ``\\int_{lo}^{hi} BODY\\,dvar`` with ``Integral(BODY, (var, lo, hi))``.
+
+    Tolerates missing ``dvar`` at the end (we treat the last identifier
+    in the body as the integration variable) and missing bounds
+    (defaults to ``(-oo, oo)``).
+    """
+    head_re = re.compile(
+        r"\\int"
+        r"(?:\s*_\s*(?:\{([^{}]+)\}|(\\[A-Za-z]+|[A-Za-z][A-Za-z0-9_]*|\d+)))?"
+        r"(?:\s*\^\s*(?:\{([^{}]+)\}|(\\[A-Za-z]+|[A-Za-z][A-Za-z0-9_]*|\d+)))?"
+    )
+    out = []
+    i = 0
+    while i < len(text):
+        m = head_re.search(text, i)
+        if not m:
+            out.append(text[i:])
+            break
+        start = m.start()
+        sub_text = m.group(1) or m.group(2) or ""
+        sup_text = m.group(3) or m.group(4) or "oo"
+        out.append(text[i:start])
+        j = m.end()
+        # Consume optional whitespace.
+        while j < len(text) and text[j].isspace():
+            j += 1
+        body, j_after = _read_sum_body(text, j)
+        if body is None:
+            out.append(text[start:j])
+            i = j
+            continue
+        # The integration variable is the bit after ``d`` if present, else
+        # we fall back to the subscript variable (single-letter case).
+        var, lower, upper = _split_int_bounds(sub_text, sup_text)
+        dvar_match = re.search(r"\s*\\?d\s*([A-Za-z])\b", body)
+        if dvar_match:
+            var = dvar_match.group(1)
+            # Strip the ``dx`` from the body so the integrand is what the
+            # user actually wrote (without the differential).
+            body = body[: dvar_match.start()] + body[dvar_match.end():]
+        out.append(f"Integral({body}, ({var}, {lower}, {upper}))")
+        i = j_after
+    return "".join(out)
+
+
+def _split_int_bounds(sub_text: str, sup_text: str) -> Tuple[str, str, str]:
+    """Pull ``var, lower, upper`` from ``\\int``'s subscript/superscript.
+
+    Defaults: ``var='x'`` (later replaced from the ``dvar`` in the body),
+    ``lower='-oo'``, ``upper='oo'``.
+
+    Forms accepted:
+      * ``\\int_{x=a}^{b}``  -> var='x', lower='a', upper='b'
+      * ``\\int_{a}^{b}``    -> lower='a', upper='b' (var from differential)
+      * ``\\int_a^b``        -> same as above, no braces
+      * ``\\int``            -> bounds default to (-oo, oo)
+    """
+    upper = sup_text.strip() or "oo"
+    sub_text = sub_text.strip()
+    if not sub_text:
+        return "x", "-oo", upper or "oo"
+    if "=" in sub_text:
+        var, lower = sub_text.split("=", 1)
+        return var.strip() or "x", lower.strip() or "-oo", upper or "oo"
+    # No `=` in subscript: treat the whole subscript as the lower bound
+    # (the variable will come from the ``dvar`` in the body).
+    return "x", sub_text or "-oo", upper or "oo"
+
+
+def _expand_lim(text: str) -> str:
+    """Replace ``\\lim_{var \\to value} BODY`` with ``Limit(BODY, var, value)``.
+
+    Accepts ``\\to``, ``,`` or ``=`` as the variable / value separator.
+    """
+    head_re = re.compile(
+        r"\\lim"
+        r"(?:\s*_?\s*\{([^{}]+)\})?"
+    )
+    out = []
+    i = 0
+    while i < len(text):
+        m = head_re.search(text, i)
+        if not m:
+            out.append(text[i:])
+            break
+        start = m.start()
+        # ``\to`` and friends live inside the subscript — split here so we
+        # don't depend on the macro replacements running first.
+        sub_text = (m.group(1) or "").strip()
+        sub_text = re.sub(r"\\to\b|\\rightarrow\b|\\Rightarrow\b|=", ",", sub_text)
+        out.append(text[i:start])
+        j = m.end()
+        while j < len(text) and text[j].isspace():
+            j += 1
+        body, j_after = _read_sum_body(text, j)
+        if body is None:
+            out.append(text[start:j])
+            i = j
+            continue
+        parts = [p.strip() for p in sub_text.split(",") if p.strip()]
+        if len(parts) >= 2:
+            var, value = parts[0], parts[1]
+        else:
+            var, value = (parts[0] if parts else "x"), "0"
+        out.append(f"Limit({body}, {var}, {value})")
         i = j_after
     return "".join(out)
 
@@ -353,21 +544,41 @@ def _read_sum_body(text: str, start: int) -> Tuple[Optional[str], int]:
     if text[start] == "{":
         body, j = _read_brace_block(text, start)
         if body is not None:
-            return body, j
+            # Keep the outer braces so Python doesn't see them as a set
+            # literal; downstream preprocessing strips them safely.  Also
+            # keep any trailing token (``^expo``, `` dx``) so we don't drop
+            # the differential after a braced integrand.
+            rest, rest_end = _read_balanced_expression(text, j)
+            if rest_end > j and rest is not None:
+                return text[start:rest_end].strip(), rest_end
+            return text[start:j], j
     # 2) Paren block: ( ... )
     if text[start] == "(":
         body, j = _read_paren_block(text, start)
         if body is not None:
-            return body, j
+            # Keep any trailing token (``^expo``, `` dx``) so we don't drop
+            # the differential after a parenthesised integrand.
+            rest, rest_end = _read_balanced_expression(text, j)
+            if rest_end > j and rest is not None:
+                return text[start:rest_end].strip(), rest_end
+            return text[start:j], j
     # 3) A backslash macro possibly followed by parens: \\foo or \\foo(...)
     if text[start] == "\\":
         m = re.match(r"\\[A-Za-z]+", text[start:])
         if m:
             j = start + m.end()
             if j < len(text) and text[j] == "(":
+                # Read the parenthesised argument list and keep the whole
+                # ``\foo(args)`` form so the caller sees a complete body.
                 body, j_after = _read_paren_block(text, j)
                 if body is not None:
-                    return body, j_after
+                    # If there's more text after the parens (e.g. a
+                    # differential ``\sin(x) dx``), keep reading so we
+                    # don't drop the trailing bits.
+                    rest, rest_end = _read_balanced_expression(text, j_after)
+                    if rest_end > j_after and rest is not None:
+                        return text[start:rest_end].strip(), rest_end
+                    return text[start:j_after], j_after
             # If the macro is itself a ``\sum`` / ``\prod`` (nested),
             # capture it together with any subscript/superscript and let
             # the caller re-enter ``_expand_sum`` so the entire nested
@@ -383,8 +594,14 @@ def _read_sum_body(text: str, start: int) -> Tuple[Optional[str], int]:
                 elif body is not None and body.lstrip().startswith("\\prod"):
                     body = _expand_prod(body)
                 return body, j_after
+            # If there's more text after the macro (e.g. ``\sin x dx``),
+            # include it in the body so callers can detect the differential.
+            rest, rest_end = _read_balanced_expression(text, j)
+            if rest_end > j and rest is not None:
+                return text[start:rest_end].strip(), rest_end
             return inner, j
-    # 4) Single identifier or function call
+    # 4) Single identifier or function call (optionally followed by ``^`` and
+    #    a sub-expression so things like ``x^2 dx`` are read as one body).
     m = re.match(r"[A-Za-z_][A-Za-z0-9_]*", text[start:])
     if m:
         j = start + m.end()
@@ -394,7 +611,24 @@ def _read_sum_body(text: str, start: int) -> Tuple[Optional[str], int]:
                 return body, j_after
             return text[start:j], j
         if j < len(text) and text[j] == "^":
-            return text[start:j], j  # leave the ^-exponent for the next pass
+            # Consume the exponent so the body extends to ``x^2`` rather than
+            # just ``x`` (relevant for ``\int ... x^2 dx``).
+            j += 1
+            if j < len(text) and text[j] == "{":
+                _, j = _read_brace_block(text, j)
+                if j < 0:
+                    j = start + m.end()
+            else:
+                _, j = _read_balanced_expression(text, j)
+            # If there's more text after the exponent (e.g. ``dx``), keep
+            # reading it so the differential is part of the body.
+            body, body_end = _read_balanced_expression(text, j)
+            if body_end > j and body is not None:
+                return (text[start:body_end].strip(), body_end)
+            return text[start:j].strip(), j
+        # Identifier followed by whitespace + more text — fall through to
+        # the balanced-expression reader so multi-token bodies like
+        # ``x dx`` are read as one.
     # 5) Multi-token expression: read until end-of-string or the next
     #    *closing brace / paren / bracket* at depth 0 or an operator that
     #    clearly ends the sum (top-level + or -, top-level =).
@@ -476,8 +710,8 @@ def _expand_prod(text: str) -> str:
     i = 0
     head_re = re.compile(
         r"\\prod"
-        r"(?:\s*_?\s*(?:\{([^{}]+)\}|([A-Za-z][A-Za-z0-9_]*)))?"
-        r"(?:\s*\^\s*(?:\{([^{}]+)\}|([A-Za-z][A-Za-z0-9_]*|\d+)))?"
+        r"(?:\s*_?\s*(?:\{([^{}]+)\}|(\\[A-Za-z]+|[A-Za-z][A-Za-z0-9_]*)))?"
+        r"(?:\s*\^\s*(?:\{([^{}]+)\}|(\\[A-Za-z]+|[A-Za-z][A-Za-z0-9_]*|\d+)))?"
     )
     while i < len(text):
         m = head_re.search(text, i)
@@ -901,7 +1135,7 @@ def suggest_formula_split(
         reserved = set()
     reserved_set = set(_DEFAULT_RESERVED) | set(reserved)
 
-    lhs, rhs = _split_assignment(raw_text)
+    lhs, _ = _split_assignment(raw_text)
     bound_names = set(_find_bound_names(raw_text))
 
     # Parameter names: identifiers inside the outermost parentheses of the
@@ -1025,25 +1259,29 @@ def _outermost_paren_content(text: str) -> str:
 
 
 def _find_bound_names(text: str) -> "List[str]":
-    """Find identifier names bound by ``\\sum_{...}`` / ``\\prod_{...}``.
+    """Find identifier names bound by ``\\sum_{...}`` / ``\\prod_{...}`` /
+    ``\\int_{...}^{...}``.
 
-    Also handles the sympy Python-style ``Sum(expr, (var, lo, hi))`` and
-    ``Product(expr, (var, lo, hi))`` calls where ``var`` is the bound name.
+    Also handles the sympy Python-style ``Sum(expr, (var, lo, hi))``,
+    ``Product(expr, (var, lo, hi))`` and ``Integral(expr, (var, lo, hi))``
+    calls where ``var`` is the bound name.
     """
     bound: List[str] = []
-    # LaTeX form: \sum_{var=...}^{...} ... or \sum_{var=...} ...
+    # LaTeX form: \sum_{var=...}^{...} ..., \prod_{...}, \int_{...}^{...} ...
     for m in re.finditer(
-        r"\\(?:sum|prod)\s*_\s*\{([^{}]+)\}",
+        r"\\(?:sum|prod|int)\s*_\s*(?:\{([^{}]+)\}|([A-Za-z][A-Za-z0-9_]*))",
         text,
     ):
-        inside = m.group(1).strip()
+        inside = (m.group(1) or m.group(2) or "").strip()
         if "=" in inside:
             inside = inside.split("=", 1)[0].strip()
+        if "," in inside:
+            inside = inside.split(",", 1)[0].strip()
         if inside and inside not in bound:
             bound.append(inside)
-    # Python sympy form: Sum(expr, (var, lo, hi), ...) or Product(...)
+    # Python sympy form: Sum/Product/Integral(expr, (var, lo, hi), ...)
     for m in re.finditer(
-        r"\b(?:Sum|Product)\s*\(",
+        r"\b(?:Sum|Product|Integral)\s*\(",
         text,
     ):
         start = m.end()
@@ -1142,7 +1380,40 @@ def build_lambda(
     Uses :func:`sympy.lambdify` with ``numpy`` semantics so the call-back can
     be vectorised cheaply.  When sympy can't lambdify (e.g. free symbols that
     aren't in ``parameter_names``) we fall back to ``math`` semantics.
+
+    Definite ``Integral`` nodes are evaluated with :meth:`sympy.Expr.doit`
+    up front so the resulting lambda doesn't have to know how to compile
+    sympy's symbolic integration.  Indefinite integrals (``\\int f \\,dx``
+    with no upper bound) are left intact.
     """
+    from sympy import Integral as _Integral
+
+    # Walk the expression tree and pre-evaluate any ``Integral`` whose
+    # integration variable has definite bounds.  Sympy can usually
+    # evaluate ``\\int_{a}^{b} f(x)\\,dx`` to a closed form in the
+    # other variables (``q*(b - a)`` for constant ``f``), which we want
+    # the numeric call-back to compute instead of trying to compile
+    # sympy's symbolic integrator.
+    def _eval_integrals(e: "Expr") -> "Expr":
+        if e.is_Atom:
+            return e
+        if isinstance(e, _Integral):
+            if e.limits:
+                # Definite integral (no symbolic ``oo`` or ``-oo``).  Try
+                # to evaluate it; fall back to the original on failure.
+                try:
+                    evaluated = e.doit()
+                    # If the result still contains an ``Integral`` node,
+                    # sympy couldn't find a closed form — bail.
+                    if not evaluated.has(_Integral):
+                        return evaluated
+                except Exception:
+                    pass
+            return e
+        return e.func(*[_eval_integrals(arg) for arg in e.args])
+
+    expr = _eval_integrals(expr)
+
     free = sorted(expr.free_symbols, key=lambda s: s.name)
     ordered = [s for s in free if s.name in set(parameter_names)]
     extras = [s for s in free if s.name not in set(parameter_names)]

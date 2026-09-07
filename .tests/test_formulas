@@ -560,6 +560,192 @@ def test_parse_latex_auto() -> bool:
     return _check(free == ["a", "b"], f"auto-detected latex free symbols should be [a,b], got {free}")
 
 
+def test_parse_latex_integral_basic() -> bool:
+    expr = formulas.parse_latex_or_infix(r"\int_0^1 x^2 \,dx", mode="latex")
+    from sympy import Integral, Symbol
+    return _check(
+        expr == Integral(Symbol("x") ** 2, (Symbol("x"), 0, 1)),
+        f"\\int_0^1 x^2 dx should be Integral(x**2, (x, 0, 1)), got {expr}",
+    )
+
+
+def test_parse_latex_integral_trig() -> bool:
+    expr = formulas.parse_latex_or_infix(r"\int_0^\pi \sin(x) \,dx", mode="latex")
+    from sympy import Integral, Symbol, sin, pi
+    expected = Integral(sin(Symbol("x")), (Symbol("x"), 0, pi))
+    return _check(
+        expr == expected,
+        f"\\int_0^\\pi sin(x) dx should match, got {expr}",
+    )
+
+
+def test_parse_latex_integral_squared() -> bool:
+    expr = formulas.parse_latex_or_infix(r"\int_0^1 (x+1)^2 \,dx", mode="latex")
+    from sympy import Integral, Symbol
+    expected = Integral((Symbol("x") + 1) ** 2, (Symbol("x"), 0, 1))
+    return _check(
+        expr == expected,
+        f"\\int_0^1 (x+1)^2 dx should match, got {expr}",
+    )
+
+
+def test_parse_latex_integral_unbounded() -> bool:
+    expr = formulas.parse_latex_or_infix(r"\int_{-\infty}^{\infty} e^{-x^2} dx", mode="latex")
+    # ``e`` is treated as a sympy Symbol; we only verify the structural
+    # shape (integrand + bounds), not the symbolic equivalence.
+    from sympy import Integral, Symbol, oo
+    expected = Integral(Symbol("e") ** (-(Symbol("x") ** 2)),
+                        (Symbol("x"), -oo, oo))
+    return _check(
+        expr == expected,
+        f"\\int_-\\infty^\\infty e^(-x^2) dx should match, got {expr}",
+    )
+
+
+def test_parse_latex_sum_to_infinity() -> bool:
+    expr = formulas.parse_latex_or_infix(r"\sum_{i=0}^\infty i^2", mode="latex")
+    from sympy import Sum, Symbol, oo
+    expected = Sum(Symbol("i") ** 2, (Symbol("i"), 0, oo))
+    return _check(
+        expr == expected,
+        f"\\sum_{{i=0}}^\\infty i^2 should match, got {expr}",
+    )
+
+
+def test_parse_latex_sum_degenerate() -> bool:
+    # \sum_a  ->  Sum(a, (a, 0, oo))  (the bound variable is also the summand)
+    expr = formulas.parse_latex_or_infix(r"\sum_a", mode="latex")
+    from sympy import Sum, Symbol, oo
+    expected = Sum(Symbol("a"), (Symbol("a"), 0, oo))
+    return _check(
+        expr == expected,
+        f"\\sum_a should be Sum(a, (a, 0, oo)), got {expr}",
+    )
+
+
+def test_parse_latex_limit_basic() -> bool:
+    expr = formulas.parse_latex_or_infix(r"\lim_{x \to \infty} 1/x", mode="latex")
+    from sympy import Limit, Symbol, oo
+    expected = Limit(1 / Symbol("x"), Symbol("x"), oo)
+    return _check(
+        expr == expected,
+        f"\\lim_{{x \\to \\infty}} 1/x should match, got {expr}",
+    )
+
+
+def test_parse_latex_limit_to_zero() -> bool:
+    expr = formulas.parse_latex_or_infix(r"\lim_{x \to 0} \sin(x)/x", mode="latex")
+    from sympy import Limit, Symbol, sin
+    expected = Limit(sin(Symbol("x")) / Symbol("x"), Symbol("x"), 0)
+    return _check(
+        expr == expected,
+        f"\\lim_{{x \\to 0}} sin(x)/x should match, got {expr}",
+    )
+
+
+def test_parse_latex_derivative_basic() -> bool:
+    expr = formulas.parse_latex_or_infix(r"\frac{d}{dx} x^2", mode="latex")
+    from sympy import Derivative, Symbol
+    expected = Derivative(Symbol("x") ** 2, Symbol("x"))
+    return _check(
+        expr == expected,
+        f"\\frac{{d}}{{dx}} x^2 should be Derivative(x**2, x), got {expr}",
+    )
+
+
+def test_parse_latex_infinity_standalone() -> bool:
+    expr = formulas.parse_latex_or_infix(r"\infty", mode="latex")
+    from sympy import oo
+    return _check(
+        expr == oo,
+        f"\\infty should be oo, got {expr}",
+    )
+
+
+def test_bound_names_include_integral_var() -> bool:
+    # The integral's dummy variable should be tracked as bound so it
+    # doesn't show up as a hyperparameter suggestion.
+    bound = formulas._find_bound_names(r"\int_{x=5}^{10} q")
+    return _check(
+        bound == ["x"],
+        f"\\int__{{x=5}}^{{10}} should bind x, got {bound}",
+    )
+
+
+def test_integral_zero_bounds_evaluated() -> bool:
+    # \\int_{5}^{5} q dx = 0  (degenerate but well-defined)
+    expr = formulas.parse_latex_or_infix(r"\int_{5}^{5} q", mode="latex")
+    fn = formulas.build_lambda(expr, ["q"])
+    val = fn(q=42.0)
+    return _check(
+        _approx_eq(val, 0.0),
+        f"\\int_{{5}}^{{5}} q should evaluate to 0, got {val}",
+    )
+
+
+def test_integral_with_constant_bounds_evaluated() -> bool:
+    # \\int_{0}^{1} q dx = q  (constant integrand, definite bounds)
+    expr = formulas.parse_latex_or_infix(r"\int_{0}^{1} q \,dx", mode="latex")
+    fn = formulas.build_lambda(expr, ["q"])
+    val = fn(q=7.0)
+    return _check(
+        _approx_eq(val, 7.0),
+        f"\\int_{{0}}^{{1}} q dx should equal q (got {val})",
+    )
+
+
+def test_integral_with_variable_bounds_left_intact() -> bool:
+    # \\int_{a}^{b} q \,dx = q * (b - a)  (closed-form)
+    expr = formulas.parse_latex_or_infix(r"\int_{a}^{b} q \,dx", mode="latex")
+    fn = formulas.build_lambda(expr, ["q", "a", "b"])
+    val = fn(q=2.0, a=1.0, b=4.0)
+    return _check(
+        _approx_eq(val, 6.0),
+        f"\\int_a^b q dx with q=2, a=1, b=4 should be 6, got {val}",
+    )
+
+
+def test_real_world_formula_with_integral() -> bool:
+    # f(x) = a + sin(b) + x * \\int_{x = 5}^5 q
+    # The integral is degenerate (bounds equal) so the whole formula
+    # collapses to ``a + sin(b)``; ``x`` and ``q`` are still free
+    # symbols though, since ``x`` appears in both the LHS and the
+    # integral (integral binding takes precedence).
+    text = r"f(x) = a + \sin(b) + x * \int_{x = 5}^5 q"
+    expr = formulas.parse_latex_or_infix(text, mode="latex")
+    free = sorted(s.name for s in expr.free_symbols)
+    return _check(
+        free == ["a", "b", "q", "x"],
+        f"free symbols should be [a, b, q, x], got {free}",
+    )
+
+
+def test_real_world_formula_with_integral_evaluates() -> bool:
+    # Same formula but evaluate it as a numeric lambda.
+    text = r"f(x) = a + \sin(b) + x * \int_{x = 5}^5 q"
+    expr = formulas.parse_latex_or_infix(text, mode="latex")
+    fn = formulas.build_lambda(expr, ["a", "b", "q", "x"])
+    val = fn(a=1.0, b=3.0, q=4.0, x=2.0)
+    expected = 1.0 + math.sin(3.0)  # integral evaluates to 0, so x * 0 = 0
+    return _check(
+        _approx_eq(val, expected),
+        f"expected {expected}, got {val}",
+    )
+
+
+def test_integral_not_treated_as_variable_in_lhs() -> bool:
+    # When ``f(x) = ...`` meets ``\\int_{x=...} ...``, the integral's
+    # binding variable shadows the LHS parameter.  Verify the bound
+    # detection picks up the integral variable even though ``x``
+    # already appears in the LHS.
+    text = r"f(x) = a + \int_{x=5}^{10} q"
+    bound = formulas._find_bound_names(text)
+    return _check(
+        "x" in bound,
+        f"x should be in bound names (integral wins over LHS), got {bound}",
+    )
+
+
 # ---------------------------------------------------------------------------
 # Hyperparameter suggestions
 # ---------------------------------------------------------------------------
@@ -684,6 +870,23 @@ TESTS = [
     test_parse_latex_frac,
     test_parse_latex_text_macros_stripped,
     test_parse_latex_auto,
+    test_parse_latex_integral_basic,
+    test_parse_latex_integral_trig,
+    test_parse_latex_integral_squared,
+    test_parse_latex_integral_unbounded,
+    test_parse_latex_sum_to_infinity,
+    test_parse_latex_sum_degenerate,
+    test_parse_latex_limit_basic,
+    test_parse_latex_limit_to_zero,
+    test_parse_latex_derivative_basic,
+    test_parse_latex_infinity_standalone,
+    test_bound_names_include_integral_var,
+    test_integral_zero_bounds_evaluated,
+    test_integral_with_constant_bounds_evaluated,
+    test_integral_with_variable_bounds_left_intact,
+    test_real_world_formula_with_integral,
+    test_real_world_formula_with_integral_evaluates,
+    test_integral_not_treated_as_variable_in_lhs,
     test_suggest_basic,
     test_suggest_excludes_builtins,
     test_suggest_constants_as_fixed,

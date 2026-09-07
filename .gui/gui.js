@@ -779,7 +779,7 @@ function update_command() {
 	// as the field has content, so the indicator is reactive.
 	$("#run_program").toggleClass("field_missing", !rp && !fm);
 	$("#formula").toggleClass("field_missing", !rp && !fm);
-	$("#formula_pane_text, #formula_pane_infix, #formula_pane_python").toggleClass("field_missing", !rp && !fm);
+	$("#formula_pane_text, #formula_pane_python").toggleClass("field_missing", !rp && !fm);
 	if (!rp && !fm) {
 		errors.push("<img src='i/warning.svg' style='height: 1em' /> Either <i>Run program</i> or the <i>Formula editor</i> must be filled.");
 	}
@@ -1627,6 +1627,11 @@ function setup_formula_editor() {
 				setup_formula_card_inner();
 			}
 			$card.show();
+			// Ensure the Formula tab is active when opening.
+			$card.find(".formula_tab").removeClass("active");
+			$card.find("#formula_tab_text").addClass("active");
+			$card.find("#formula_panel_text").show();
+			$card.find("#formula_panel_python").hide();
 			$(this).html("&#9881; Switch back to Run program");
 		}
 		update_command();
@@ -1673,16 +1678,12 @@ function setup_formula_card_inner() {
 		$("#formula_card .formula_tab").removeClass("active");
 		$("#formula_card #formula_tab_" + mode).addClass("active");
 		$("#formula_card #formula_panel_text").toggle(mode === "text");
-		$("#formula_card #formula_panel_infix").toggle(mode === "infix");
 		$("#formula_card #formula_panel_python").toggle(mode === "python");
 	}
 
 	function sync_to_main_textarea(text) {
 		$("#formula").val(text).trigger("change");
-		// Keep the visible panes in sync so they show the same content.
-		// ``setup_formula_card_inner`` runs once per page so the panes
-		// are guaranteed to exist by the time we get here.
-		var $panes = $("#formula_card #formula_pane_text, #formula_card #formula_pane_infix, #formula_card #formula_pane_python");
+		var $panes = $("#formula_card #formula_pane_text, #formula_card #formula_pane_python");
 		if ($panes.length) {
 			$panes.val(text);
 		}
@@ -1759,8 +1760,11 @@ function setup_formula_card_inner() {
 			if ($legend.length) $legend.html("");
 			return;
 		}
-		if (mode === "infix") {
-			text = _convert_infix_to_latex(text);
+		if (mode === "infix" || mode === "text" || mode === "auto") {
+			var detected = auto_detect_mode(text);
+			if (detected === "infix") {
+				text = _convert_infix_to_latex(text);
+			}
 		}
 		text = text.replace(/\*/g, "\\cdot ");
 		text = text.replace(/([\d)])([a-zA-Z_])/g, "$1\\cdot $2");
@@ -1973,13 +1977,7 @@ function setup_formula_card_inner() {
 	$("#formula_card #formula_tab_text").on("click", function () {
 		set_active_tab("text");
 		sync_to_main_textarea($("#formula_pane_text").val());
-		$("#formula_mode").val("latex").trigger("change");
-		update_everything();
-	});
-	$("#formula_card #formula_tab_infix").on("click", function () {
-		set_active_tab("infix");
-		sync_to_main_textarea($("#formula_pane_infix").val());
-		$("#formula_mode").val("infix").trigger("change");
+		$("#formula_mode").val("auto").trigger("change");
 		update_everything();
 	});
 	$("#formula_card #formula_tab_python").on("click", function () {
@@ -1989,10 +1987,9 @@ function setup_formula_card_inner() {
 		update_everything();
 	});
 
-	$("#formula_card #formula_pane_text, #formula_card #formula_pane_infix, #formula_card #formula_pane_python").on("input", function () {
+	$("#formula_card #formula_pane_text, #formula_card #formula_pane_python").on("input", function () {
 		var text = $(this).val();
 		$("#formula_card #formula_pane_text").val(text);
-		$("#formula_card #formula_pane_infix").val(text);
 		$("#formula_card #formula_pane_python").val(text);
 		sync_to_main_textarea(text);
 		update_everything();
@@ -2000,7 +1997,7 @@ function setup_formula_card_inner() {
 	});
 
 	// Ctrl/Cmd + Enter on any formula pane applies the suggestions.
-	$("#formula_card #formula_pane_text, #formula_card #formula_pane_infix, #formula_card #formula_pane_python").on("keydown", function (ev) {
+	$("#formula_card #formula_pane_text, #formula_card #formula_pane_python").on("keydown", function (ev) {
 		if ((ev.ctrlKey || ev.metaKey) && (ev.key === "Enter" || ev.keyCode === 13)) {
 			ev.preventDefault();
 			$("#formula_card #formula_apply_btn").trigger("click");
@@ -2024,7 +2021,6 @@ function setup_formula_card_inner() {
 
 	$("#formula_card #formula_clear_btn").on("click", function () {
 		$("#formula_card #formula_pane_text").val("");
-		$("#formula_card #formula_pane_infix").val("");
 		$("#formula_card #formula_pane_python").val("");
 		sync_to_main_textarea("");
 		update_everything();
@@ -2035,7 +2031,6 @@ function setup_formula_card_inner() {
 	var initial = $("#formula").val() || "";
 	if (initial) {
 		$("#formula_card #formula_pane_text").val(initial);
-		$("#formula_card #formula_pane_infix").val(initial);
 		$("#formula_card #formula_pane_python").val(initial);
 	}
 	var initial_mode = $("#formula_mode").val() || "auto";
@@ -2612,7 +2607,7 @@ function run_when_document_ready () {
 				// Push the formula into all three panes and trigger the
 				// active pane so ``update_everything`` runs and MathJax
 				// gets a chance to render the preview.
-				$("#formula_card #formula_pane_text, #formula_card #formula_pane_infix, #formula_card #formula_pane_python").val(fm);
+				$("#formula_card #formula_pane_text, #formula_card #formula_pane_python").val(fm);
 				$("#formula_pane_text").trigger("input");
 				// Belt-and-suspenders: also call the renderer directly so
 				// the preview shows up even if the input handler is

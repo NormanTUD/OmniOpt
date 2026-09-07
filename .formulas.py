@@ -620,8 +620,15 @@ def _read_sum_body(text: str, start: int) -> Tuple[Optional[str], int]:
                     j = start + m.end()
             else:
                 _, j = _read_balanced_expression(text, j)
-            # If there's more text after the exponent (e.g. ``dx``), keep
-            # reading it so the differential is part of the body.
+            # After the exponent, only continue reading if the next
+            # non-whitespace char is NOT a top-level + or - (which would
+            # mean the integrand/summand ended).  This keeps ``x^2 dx``
+            # together but stops at ``x^2 + b``.
+            k = j
+            while k < len(text) and text[k].isspace():
+                k += 1
+            if k < len(text) and text[k] in "+-":
+                return text[start:j].strip(), j
             body, body_end = _read_balanced_expression(text, j)
             if body_end > j and body is not None:
                 return (text[start:body_end].strip(), body_end)

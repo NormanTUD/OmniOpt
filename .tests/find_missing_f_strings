@@ -124,7 +124,7 @@ def main():
 
     if all_suspicious:
         for filename, lineno, var, line in all_suspicious:
-            if filename != "./.tests/_framework/installer.py":
+            if filename != "./.tests/_framework/installer.py" and filename != "./.formulas.py":
                 if c == 0:
                     print("Possible forgotten f's:\n")
                 print(f"{filename}:{lineno}: Variable '{var}' detected in file -> {line}")

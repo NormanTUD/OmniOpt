@@ -742,6 +742,111 @@ console.log("\n--- Testing: real-world complex formula ---");
 		Array.isArray(r.parameters) && Array.isArray(r.constants));
 }
 
+// --- Group: _read_term_end / _add_explicit_grouping ---
+function _read_term_end(text, start) {
+	var i = start;
+	var depth = 0;
+	var sawAny = false;
+	while (i < text.length) {
+		var ch = text[i];
+		if (ch === "(" || ch === "{" || ch === "[") { depth++; sawAny = true; i++; continue; }
+		if (ch === ")" || ch === "}" || ch === "]") {
+			if (depth === 0) break;
+			depth--; sawAny = true; i++; continue;
+		}
+		if (depth === 0 && (ch === "+" || ch === "-") && sawAny) {
+			var nxt = text[i + 1] || "";
+			if (nxt !== ch) break;
+		}
+		if (depth === 0 && ch === "=" && sawAny) break;
+		i++;
+		sawAny = true;
+	}
+	return i;
+}
+
+function _add_explicit_grouping(latex) {
+	var re = /(\\(?:int|oint|iint|iiint|sum|prod))(?:\s*_{\s*[^{}]*\s*}|\s*_\s*[A-Za-z][A-Za-z0-9_]*\s*)?(?:\s*\^\s*\{[^{}]*\}|\s*\^\s*[A-Za-z][A-Za-z0-9_]*\s*)?/g;
+	var result = "";
+	var lastEnd = 0;
+	var m;
+	while ((m = re.exec(latex)) !== null) {
+		var cmdEnd = m.index + m[0].length;
+		result += latex.slice(lastEnd, cmdEnd);
+		var pos = cmdEnd;
+		while (pos < latex.length && latex[pos] === " ") pos++;
+		if (pos >= latex.length) { lastEnd = cmdEnd; continue; }
+		var ch = latex[pos];
+		if (ch === "(" || ch === "{") { lastEnd = cmdEnd; continue; }
+		if (ch === "\\") { lastEnd = cmdEnd; continue; }
+		var termEnd = _read_term_end(latex, pos);
+		if (termEnd > pos) {
+			var body = latex.slice(pos, termEnd);
+			result += "\\left(" + body + "\\right)";
+			lastEnd = termEnd;
+		} else {
+			lastEnd = cmdEnd;
+		}
+	}
+	result += latex.slice(lastEnd);
+	return result;
+}
+
+console.log("\n--- Testing: _read_term_end ---");
+expect("term_end: simple var", _read_term_end("x + b", 0), 2);
+expect("term_end: digit*var", _read_term_end("2x + b", 0), 3);
+expect("term_end: var^2", _read_term_end("x^2 + 1", 0), 4);
+expect("term_end: var*var", _read_term_end("x*b + c", 0), 4);
+expect("term_end: with dx", _read_term_end("x\\,dx", 0), 5);
+expect("term_end: no operator", _read_term_end("x^2", 0), 3);
+expect("term_end: paren body", _read_term_end("(a + b) + c", 0), 8);
+expect("term_end: exp with -", _read_term_end("e^{-x} dx", 0), 9);
+
+// --- Group: _add_explicit_grouping ---
+console.log("\n--- Testing: _add_explicit_grouping ---");
+expect("grouping: integral digit+letter + b",
+	_add_explicit_grouping("f(x) = \\int_{q=a}^{z} 2\\cdot x + b"),
+	"f(x) = \\int_{q=a}^{z}\\left(2\\cdot x \\right)+ b");
+expect("grouping: integral x^2 + 1",
+	_add_explicit_grouping("f(x) = \\int_{a}^{b} x^2 + 1"),
+	"f(x) = \\int_{a}^{b}\\left(x^2 \\right)+ 1");
+expect("grouping: already parened (unchanged)",
+	_add_explicit_grouping("f(x) = \\int_{a}^{b} (x^2 + 1)"),
+	"f(x) = \\int_{a}^{b} (x^2 + 1)");
+expect("grouping: sum i^2 + 1",
+	_add_explicit_grouping("f(n) = \\sum_{i=0}^{n} i^2 + 1"),
+	"f(n) = \\sum_{i=0}^{n}\\left(i^2 \\right)+ 1");
+expect("grouping: sum 2i + 1",
+	_add_explicit_grouping("f(n) = \\sum_{i=0}^{n} 2i + 1"),
+	"f(n) = \\sum_{i=0}^{n}\\left(2i \\right)+ 1");
+expect("grouping: integral with dx (no + after)",
+	_add_explicit_grouping("f(x) = \\int_{a}^{b} x\\,dx"),
+	"f(x) = \\int_{a}^{b}\\left(x\\,dx\\right)");
+expect("grouping: frac untouched",
+	_add_explicit_grouping("f(x, y) = \\frac{x}{y} + 2"),
+	"f(x, y) = \\frac{x}{y} + 2");
+expect("grouping: integral exp",
+	_add_explicit_grouping("f(x) = \\int_{0}^{\\infty} e^{-x} dx"),
+	"f(x) = \\int_{0}^{\\infty}\\left(e^{-x} dx\\right)");
+expect("grouping: double sum",
+	_add_explicit_grouping("f(n, m) = \\sum_{i=0}^{n} \\sum_{j=0}^{m} a_{ij}"),
+	"f(n, m) = \\sum_{i=0}^{n} \\sum_{j=0}^{m}\\left(a_{ij}\\right)");
+expect("grouping: unbraced sub/sup",
+	_add_explicit_grouping("f(x) = \\int_a^b x^2 + 1"),
+	"f(x) = \\int_a^b \\left(x^2 \\right)+ 1");
+expect("grouping: no bounds",
+	_add_explicit_grouping("f(x) = \\int x^2 dx"),
+	"f(x) = \\int\\left(x^2 dx\\right)");
+expect("grouping: unbraced sub only",
+	_add_explicit_grouping("f(n) = \\sum_i i^2 + 1"),
+	"f(n) = \\sum_i \\left(i^2 \\right)+ 1");
+expect("grouping: braced sub unbraced sup",
+	_add_explicit_grouping("f(x, y, a, z) = \\int_{q = a}^z 2\\cdot x + b"),
+	"f(x, y, a, z) = \\int_{q = a}^z \\left(2\\cdot x \\right)+ b");
+expect("grouping: no int/sum (unchanged)",
+	_add_explicit_grouping("f(x) = x^2 + 3*x + 1"),
+	"f(x) = x^2 + 3*x + 1");
+
 // ============================================================
 // SUMMARY
 // ============================================================

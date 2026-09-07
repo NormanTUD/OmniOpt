@@ -985,16 +985,23 @@ var FORMULA_RESERVED = new Set([
 	"sinh", "cosh", "tanh",
 	"exp", "log", "ln", "sqrt", "abs", "Min", "Max",
 	"Sum", "Product", "Integral", "Derivative",
+	"max", "min", "norm", "trace", "det", "rank",
+	"ReLU", "relu", "softmax", "sigmoid", "tanh",
+	"clip", "clamp", "ceil", "floor", "round",
+	"argmax", "argmin", "argsort",
 	// python built-ins that often leak in
 	"math", "numpy", "np", "self", "def", "return", "import", "from",
 	"if", "else", "elif", "for", "while", "in", "and", "or", "not",
 	"params", "evaluate", "_raw",
-	// LaTeX commands
+	// LaTeX commands and environments
 	"underbrace", "overbrace", "substack", "mathbb", "text", "mathrm",
 	"mathbf", "mathcal", "operatorname", "left", "right", "displaystyle",
 	"quad", "qquad", "cdot", "times", "limits", "hat", "bar",
 	"vec", "dot", "tilde", "widehat", "overline", "underline",
-	"int", "oint", "iint", "forall", "exists", "infty", "partial",
+	"int", "oint", "iint", "forall", "exists", "partial",
+	"frac", "dfrac", "tfrac", "sqrt", "begin", "end",
+	"cases", "sim", "propto", "approx", "neq", "leq", "geq",
+	"to", "rightarrow", "mapsto", "sum", "prod",
 ]);
 
 var FORMULA_CONSTANTS = {
@@ -1006,13 +1013,29 @@ var FORMULA_CONSTANTS = {
 
 // Strip formatting/structural macros that obscure identifiers.
 function _strip_macros(text) {
-	text = text.replace(
-		/\\(text|textit|textbf|mathrm|operatorname|mathbf|mathcal|mathbb|mathfrak|mathsf|mathtt|mbox|boldsymbol)\*?\s*\{((?:[^{}]|\{[^{}]*\})*)\}/g,
-		"$1"
-	);
-	text = text.replace(/\\(sin|cos|tan|asin|acos|atan|sinh|cosh|tanh|exp|log|ln|sqrt|abs)\b/g, "$1");
-	text = text.replace(/\\(sum|prod|frac|dfrac|tfrac|sqrt|left|right|displaystyle|textstyle|mathit|mathrm|operatorname|int|oint|iint)\b/g, "");
+	// \frac{num}{den} → (num)/(den)
+	text = text.replace(/\\(?:frac|dfrac|tfrac)\s*\{([^{}]*)\}\s*\{([^{}]*)\}/g, "($1)/($2)");
+	// \sqrt[n]{x} or \sqrt{x} → (x)
+	text = text.replace(/\\sqrt\s*(?:\[[^[\]]*\])?\s*\{((?:[^{}]|\{[^{}]*\})*)\}/g, "($1)");
+	// \text{...}, \mathbb{...}, etc. → keep content
+	text = text.replace(/\\(?:text|textit|textbf|mathrm|operatorname|mathbf|mathcal|mathbb|mathfrak|mathsf|mathtt|mbox|boldsymbol)\*?\s*\{((?:[^{}]|\{[^{}]*\})*)\}/g, "$1");
+	// \| → remove (norm delimiters)
+	text = text.replace(/\\\|/g, "");
+	// \max, \min, \argmax, \argmin → remove name, keep args
+	text = text.replace(/\\(?:max|min|argmax|argmin|norm|trace|det)\b/g, "");
+	// \begin{...}, \end{...} → remove
+	text = text.replace(/\\(?:begin|end)\s*\{[^{}]*\}/g, " ");
+	// \sim, \propto, \approx, \neq, \leq, \geq, \to, \left, \right → remove
+	text = text.replace(/\\(?:sim|propto|approx|neq|leq|geq|to|rightarrow|mapsto|left|right|displaystyle|textstyle)\b[|(\[.]?/g, " ");
+	// \sin, \cos, etc. → keep name (filtered by FORMULA_RESERVED)
+	text = text.replace(/\\(sin|cos|tan|asin|acos|atan|sinh|cosh|tanh|exp|log|ln|abs)\b/g, "$1");
+	// Greek letters → ASCII names (these ARE parameter names)
+	text = text.replace(/\\(alpha|beta|gamma|delta|epsilon|zeta|eta|theta|vartheta|iota|kappa|lambda|mu|nu|xi|omicron|rho|sigma|tau|upsilon|phi|varphi|chi|psi|omega|Gamma|Delta|Theta|Lambda|Xi|Pi|Sigma|Phi|Psi|Omega)\b/g, "$1");
+	// \sum, \prod, \int, etc. → remove (handled by _strip_sumprod_bodies)
+	text = text.replace(/\\(?:sum|prod|int|oint|iint)\b/g, "");
+	// Any remaining \command → space
 	text = text.replace(/\\[A-Za-z]+/g, " ");
+	// Clean up: {single_var} → var
 	text = text.replace(/\{([A-Za-z_][A-Za-z0-9_]*)\}/g, "$1");
 	return text;
 }
@@ -1026,6 +1049,10 @@ function _collect_identifiers(text) {
 	var m;
 	while ((m = re.exec(text)) !== null) {
 		var name = m[0];
+		if (name === "_") continue;
+		// Normalize indexed variables: x_1, x_2 → x
+		var baseName = name.replace(/_\d+$/, "");
+		if (baseName.length > 0 && baseName !== name) name = baseName;
 		if (FORMULA_RESERVED.has(name)) continue;
 		out.push(name);
 		seen[name] = (seen[name] || 0) + 1;
@@ -1077,26 +1104,33 @@ function _lhs_parameter_names(lhs) {
 	return _collect_identifiers(_strip_macros(inner)).list;
 }
 
-// Strip out the body of every `\sum_{var=...}^{...} body` and `\prod_...`.
-// Returns the text with those bodies replaced by spaces and the set of
-// bound variable names that were inside the underscores.
+// Extract bound variable names from \sum_{...}, \prod_{...}, \int_{...},
+// \mathbb{E}_{...}, \oint_{...}, \iint_{...}.
+// Returns { text: text (unchanged), bound: {name: true, ...} }.
 function _strip_sumprod_bodies(text) {
 	var boundNames = {};
-	var re = /\\(?:sum|prod|int)\s*_\s*(?:\{([^{}]+)\}|([A-Za-z][A-Za-z0-9_]*))(?:\s*\^\s*(?:\{[^{}]+\}|([A-Za-z][A-Za-z0-9_]*|\d+)))?\s*(\{(?:[^{}]|\{[^{}]*\})*\}|[A-Za-z_][A-Za-z0-9_]*)/g;
+	// Match \sum_{...}, \prod_{...}, \int_{...}, \oint_{...}, \iint_{...}
+	var re1 = /\\(?:sum|prod|int|oint|iint)\s*_\s*\{([^{}]+)\}/g;
 	var m;
-	while ((m = re.exec(text)) !== null) {
-		// The subscript group may be "i" or "i=0" — split on "=" for the variable.
-		var sub = m[1] || m[2] || "";
-		var name = sub.indexOf("=") >= 0 ? sub.split("=", 1)[0].trim() : sub.trim();
-		boundNames[name] = true;
+	while ((m = re1.exec(text)) !== null) {
+		var sub = m[1];
+		var name = sub.indexOf("=") >= 0 ? sub.split("=")[0].trim() : sub.trim();
+		if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(name)) boundNames[name] = true;
 	}
-	// Replace the matched span (and any following brace block) with spaces
-	// so the bound variable name doesn't accidentally appear in the RHS
-	// identifier scan.
-	text = text.replace(
-		/\\(?:sum|prod|int)\s*_\s*(?:\{[^{}]+\}|[A-Za-z][A-Za-z0-9_]*)(?:\s*\^\s*(?:\{[^{}]+\}|([A-Za-z][A-Za-z0-9_]*|\d+)))?\s*(\{(?:[^{}]|\{[^{}]*\})*\}|[A-Za-z_][A-Za-z0-9_]*)/g,
-		" "
-	);
+	// Match \sum_var, \int_var (single char subscript without braces)
+	var re2 = /\\(?:sum|prod|int|oint|iint)\s*_([A-Za-z_][A-Za-z0-9_]*)/g;
+	while ((m = re2.exec(text)) !== null) {
+		var name = m[1];
+		if (name.indexOf("=") >= 0) name = name.split("=")[0].trim();
+		if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(name)) boundNames[name] = true;
+	}
+	// Match \mathbb{E}_{x\sim...} or E_{x~...}
+	var re3 = /(?:\\mathbb\{E\}|E)\s*_\s*\{([^{}]+)\}/g;
+	while ((m = re3.exec(text)) !== null) {
+		var sub = m[1];
+		var name = sub.split(/\\sim|~|=|,/)[0].trim();
+		if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(name)) boundNames[name] = true;
+	}
 	return { text: text, bound: boundNames };
 }
 
@@ -1275,7 +1309,7 @@ function client_render_suggestions(result) {
 	}
 	if (result.bound && result.bound.length) {
 		html += "<tr><td colspan='4' style='padding-top: 6px; color:#777; font-style: italic;'>" +
-			"bound by \\sum / \\prod (excluded): " +
+			"bound variables (excluded): " +
 			result.bound.map(function (b) { return "<code>" + b + "</code>"; }).join(", ") +
 			"</td></tr>";
 	}
@@ -1407,7 +1441,14 @@ function get_current_parameter_info() {
 function _convert_infix_to_latex(text) {
 	text = text.replace(/([a-zA-Z_)\d]|(\}))\s*\*\*\s*([a-zA-Z_]\w*|\d+(?:\.\d+)?)/g, "$1^{$3}");
 	text = text.replace(/\*\*/g, "^");
-	text = text.replace(/\b(sin|cos|tan|asin|acos|atan|sinh|cosh|tanh|sqrt|exp|log|ln)\b/g, "\\$1");
+	// Function names → LaTeX
+	text = text.replace(/\b(sin|cos|tan|asin|acos|atan|sinh|cosh|tanh|exp|log|ln)\b/g, "\\$1");
+	text = text.replace(/\bsqrt\s*\(/g, "\\sqrt{");
+	text = text.replace(/\babs\s*\(/g, "\\left|");
+	text = text.replace(/\b(max|min)\s*\(/g, "\\$1(");
+	text = text.replace(/\b(ReLU|relu|sigmoid|softmax|clip|clamp|ceil|floor)\s*\(/g, "\\text{$1}(");
+	// abs( closing → |
+	text = text.replace(/\)\s*(?=[+\-*/^,)\s]|$)/g, ")");
 	return text;
 }
 
@@ -1465,6 +1506,55 @@ function _restore_subsup(text, parts) {
 	return text.replace(/\x00(\d+)\x00/g, function (m, idx) {
 		return parts[parseInt(idx)];
 	});
+}
+
+function _add_explicit_grouping(latex) {
+	var re = /(\\(?:int|oint|iint|iiint|sum|prod))(?:\s*_{\s*[^{}]*\s*}|\s*_\s*[A-Za-z][A-Za-z0-9_]*\s*)?(?:\s*\^\s*\{[^{}]*\}|\s*\^\s*[A-Za-z][A-Za-z0-9_]*\s*)?/g;
+	var result = "";
+	var lastEnd = 0;
+	var m;
+	while ((m = re.exec(latex)) !== null) {
+		var cmdEnd = m.index + m[0].length;
+		result += latex.slice(lastEnd, cmdEnd);
+		var pos = cmdEnd;
+		while (pos < latex.length && latex[pos] === " ") pos++;
+		if (pos >= latex.length) { lastEnd = cmdEnd; continue; }
+		var ch = latex[pos];
+		if (ch === "(" || ch === "{") { lastEnd = cmdEnd; continue; }
+		if (ch === "\\") { lastEnd = cmdEnd; continue; }
+		var termEnd = _read_term_end(latex, pos);
+		if (termEnd > pos) {
+			var body = latex.slice(pos, termEnd);
+			result += "\\left(" + body + "\\right)";
+			lastEnd = termEnd;
+		} else {
+			lastEnd = cmdEnd;
+		}
+	}
+	result += latex.slice(lastEnd);
+	return result;
+}
+
+function _read_term_end(text, start) {
+	var i = start;
+	var depth = 0;
+	var sawAny = false;
+	while (i < text.length) {
+		var ch = text[i];
+		if (ch === "(" || ch === "{" || ch === "[") { depth++; sawAny = true; i++; continue; }
+		if (ch === ")" || ch === "}" || ch === "]") {
+			if (depth === 0) break;
+			depth--; sawAny = true; i++; continue;
+		}
+		if (depth === 0 && (ch === "+" || ch === "-") && sawAny) {
+			var nxt = text[i + 1] || "";
+			if (nxt !== ch) break;
+		}
+		if (depth === 0 && ch === "=" && sawAny) break;
+		i++;
+		sawAny = true;
+	}
+	return i;
 }
 
 function _add_parameter_underbraces(latex, paramInfo) {
@@ -1668,6 +1758,7 @@ function setup_formula_card_inner() {
 		}
 		text = text.replace(/\*/g, "\\cdot ");
 		text = text.replace(/([\d)])([a-zA-Z_])/g, "$1\\cdot $2");
+		text = _add_explicit_grouping(text);
 
 		var _pi = get_current_parameter_info();
 		var _hasUnderbraces = text.indexOf("\\underbrace") !== -1;

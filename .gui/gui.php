@@ -174,27 +174,112 @@
 			opacity: 1;
 		}
 		.omniopt_bound_overlay input {
-			position: absolute;
-			left: 50%;
-			top: 50%;
-			transform: translate(-50%, -50%);
-			min-width: 44px;
-			width: auto;
-			padding: 1px 4px;
+			display: none;
+		}
+		.omniopt_edit_pop {
+			position: fixed;
+			z-index: 9999;
 			box-sizing: border-box;
-			text-align: center;
+			width: 188px;
+			padding: 8px 10px;
+			background: #fff;
+			border: 1px solid #c6cdd6;
+			border-radius: 8px;
+			box-shadow: 0 4px 16px rgba(20, 40, 70, 0.22);
+			font-size: 12px;
+			line-height: 1.35;
+			color: #1a1a1a;
+		}
+		.omniopt_edit_head {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 6px;
+			margin-bottom: 6px;
+		}
+		.omniopt_edit_name {
 			font-family: monospace;
 			font-size: 13px;
+			font-weight: bold;
+			color: #1d3d7a;
+			background: rgba(74, 144, 217, 0.12);
+			border-radius: 4px;
+			padding: 1px 5px;
+			white-space: nowrap;
+		}
+		.omniopt_edit_chip {
+			font-size: 10px;
+			font-style: italic;
+			color: #5b6472;
+			white-space: nowrap;
+		}
+		.omniopt_edit_inputrow {
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			margin-bottom: 6px;
+		}
+		.omniopt_edit_inputrow label {
+			font-size: 11px;
+			color: #5b6472;
+			min-width: 34px;
+			text-align: right;
+			white-space: nowrap;
+		}
+		.omniopt_edit_inputrow input {
+			flex: 1;
+			min-width: 0;
+			box-sizing: border-box;
+			padding: 3px 6px;
+			font-family: monospace;
+			font-size: 12px;
 			color: #1a1a1a;
 			background: #fff;
-			border: 1px solid #4a90d9;
+			border: 1px solid #9db3cf;
 			border-radius: 4px;
-			box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
-			z-index: 10;
 		}
-		.omniopt_bound_overlay input:focus {
+		.omniopt_edit_inputrow input:focus {
 			outline: none;
-			box-shadow: 0 0 0 2px rgba(74, 144, 217, 0.35);
+			border-color: #4a90d9;
+			box-shadow: 0 0 0 2px rgba(74, 144, 217, 0.28);
+		}
+		.omniopt_edit_meta {
+			font-size: 10px;
+			color: #5b6472;
+			margin-bottom: 4px;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+		.omniopt_edit_hint {
+			font-size: 10px;
+			color: #8a93a0;
+			border-top: 1px solid #eef1f5;
+			padding-top: 4px;
+			margin-top: 2px;
+		}
+
+		.omniopt_edit_btn {
+			position: absolute;
+			box-sizing: border-box;
+			width: 15px;
+			height: 15px;
+			padding: 0;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			border: none;
+			border-radius: 50%;
+			background: transparent;
+			cursor: cell;
+			z-index: 8;
+			opacity: 0.55;
+			transition: opacity 0.12s ease, background 0.12s ease, box-shadow 0.12s ease;
+		}
+		.omniopt_edit_btn:hover {
+			opacity: 1;
+			background: rgba(74, 144, 217, 0.18);
+			box-shadow: 0 0 0 1px rgba(74, 144, 217, 0.55);
 		}
 	</style>
 <div id="loader">

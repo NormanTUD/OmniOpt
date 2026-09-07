@@ -930,11 +930,36 @@ function build_formula_card_html() {
 //
 // MathJax CHTML renders each glyph as an (empty) ``<mjx-c class="mjx-cXXXX">``
 // element where XXXX is the Unicode codepoint.  We decode the underbrace
-// label back into text, locate the min/max numbers of auto-generated
-// parameter ranges, and lay a clickable overlay on top of each number at its
-// exact bounding box.  Clicking swaps the overlay for a tiny input; committing
-// writes the new bound back into the parameter table, the command and the URL.
+// label back into text, locate the editable values of *each* annotated
+// parameter in its own label, and lay a clickable (transparent) overlay on
+// top of each value at its exact bounding box.  Clicking opens a small
+// fixed-position popover that names the parameter and shows its current
+// settings; committing writes the new value back into the parameter table,
+// the command and the URL.  Parameters without an annotated underbrace slot
+// (e.g. in exponent position, or hand-written formulas) get a small "body
+// badge" over the parameter's own glyph instead.
 // ---------------------------------------------------------------------------
+
+function _normalize_math_text(str) {
+	// MathJax renders variables in the Mathematical Alphanumeric Symbols
+	// block (e.g. italic "a" = U+1D44E, a surrogate pair in UTF-16), so
+	// decoded glyph text has to be mapped back to ASCII before comparing
+	// against parameter names and label tokens.
+	var out = "";
+	var i = 0;
+	while (i < str.length) {
+		var cp = str.codePointAt(i);
+		if (cp >= 0x1D400 && cp <= 0x1D419) { out += String.fromCharCode(0x41 + (cp - 0x1D400)); }
+		else if (cp >= 0x1D41A && cp <= 0x1D433) { out += String.fromCharCode(0x61 + (cp - 0x1D41A)); }
+		else if (cp >= 0x1D434 && cp <= 0x1D44D) { out += String.fromCharCode(0x41 + (cp - 0x1D434)); }
+		else if (cp >= 0x1D44E && cp <= 0x1D467) { out += String.fromCharCode(0x61 + (cp - 0x1D44E)); }
+		else if (cp >= 0x1D468 && cp <= 0x1D481) { out += String.fromCharCode(0x41 + (cp - 0x1D468)); }
+		else if (cp >= 0x1D482 && cp <= 0x1D49B) { out += String.fromCharCode(0x61 + (cp - 0x1D482)); }
+		else { out += String.fromCodePoint(cp); }
+		i += (cp > 0xFFFF) ? 2 : 1;
+	}
+	return out;
+}
 
 function _decode_mjx_glyphs(rootEl) {
 	// Collect (character, element) pairs in document order by decoding the
@@ -974,70 +999,233 @@ function _decode_mjx_glyphs(rootEl) {
 	return glyphs;
 }
 
-function _attach_editable_preview_overlays(node) {
-	var $prev = $(node);
-	$prev.find(".omniopt_bound_overlay").remove();
-	if (!node || !node.querySelector) return;
-	if (node.getAttribute("data-omniopt-editable-bounds") !== "1") return;
+function _find_parameter_row(name) {
+	var $row = null;
+	$(".parameterRow").each(function () {
+		if ($(this).find(".parameterName").val().trim() === name) {
+			$row = $(this);
+			return false;
+		}
+	});
+	return $row;
+}
 
-	var pi = (typeof get_current_parameter_info === "function") ? get_current_parameter_info() : {};
-	// Build a per-value queue of (param name, side) targets.
-	var byValue = {};
-	for (var nm in pi) {
-		var p = pi[nm];
-		if (!p || p.kind !== "range") continue;
-		var sides = [{ side: "min", v: p.min }, { side: "max", v: p.max }];
-		for (var si = 0; si < sides.length; si++) {
-			var vs = String(sides[si].v).trim();
-			if (vs === "" || vs === "?") continue;
-			if (!isFinite(parseFloat(vs))) continue;
-			if (!byValue[vs]) byValue[vs] = [];
-			byValue[vs].push({ name: nm, side: sides[si].side });
+// The table column that holds a value for a given kind/side.
+function _cell_field_for(kind, side) {
+	if (kind === "range") return (side === "min" || side === "max") ? (side === "min" ? ".minValue" : ".maxValue") : null;
+	if (kind === "fixed") return ".fixedValue";
+	if (kind === "choice") return ".choiceValues";
+	return null;
+}
+
+// The list of editable (side, value) tokens we expect to find rendered in an
+// underbrace *label*.  ``value`` is the text the decoder will produce for the
+// glyphs (spaces/separators MathJax renders via CSS are intentionally not
+// part of it).
+function _label_tokens_for_param(param) {
+	if (param.kind === "range") {
+		var out = [];
+		var minV = String(param.min == null ? "" : param.min).trim();
+		var maxV = String(param.max == null ? "" : param.max).trim();
+		if (minV !== "" && minV !== "?" && isFinite(parseFloat(minV))) out.push({ side: "min", value: minV });
+		if (maxV !== "" && maxV !== "?" && isFinite(parseFloat(maxV))) out.push({ side: "max", value: maxV });
+		return out;
+	}
+	if (param.kind === "fixed") {
+		var v = String(param.value == null ? "" : param.value).trim();
+		return (v !== "" && v !== "?") ? [{ side: "value", value: v }] : [];
+	}
+	if (param.kind === "choice") {
+		var items = (param.values || "").split(",").map(function (x) { return x.trim(); }).filter(Boolean);
+		return items.length ? [{ side: "values", value: items.join(",") }] : [];
+	}
+	return [];
+}
+
+// Resolve which parameter an underbrace ``<mjx-under>`` (label) belongs to.
+// MathJax renders ``\underbrace{X}_{Y}`` as ``<mjx-munder>`` (base = X with
+// the brace below it) followed by a *sibling* ``<mjx-under>`` holding Y, so
+// the owning munder is the element that immediately precedes the label.  The
+// parameter name is the first plain identifier inside that munder that does
+// not sit inside another label.
+function _resolve_under_label_param(underEl) {
+	var mder = null;
+	if (underEl.parentElement && underEl.parentElement.children) {
+		var kids = underEl.parentElement.children;
+		for (var ki = 0; ki < kids.length; ki++) {
+			if (kids[ki] === underEl) {
+				if (ki > 0) {
+					var prev = kids[ki - 1];
+					if (prev.tagName && prev.tagName.toLowerCase() === "mjx-munder" ||
+						(typeof prev.className === "string" && prev.className.indexOf("mjx-munder") !== -1)) {
+						mder = prev;
+					}
+				}
+				break;
+			}
 		}
 	}
-	var tokens = Object.keys(byValue).sort(function (a, b) { return b.length - a.length; });
-	if (tokens.length === 0) return;
+	// Fallback: some MathJax versions nest the label inside the munder.
+	if (!mder) {
+		var walk = underEl;
+		while (walk && walk !== document.body) {
+			if (walk.tagName && walk.tagName.toLowerCase() === "mjx-munder" ||
+				(typeof walk.className === "string" && walk.className.indexOf("mjx-munder") !== -1)) {
+				mder = walk;
+				break;
+			}
+			walk = walk.parentElement;
+		}
+	}
+	if (!mder) return "";
+	var mis = mder.querySelectorAll("mjx-mi, .mjx-mi");
+	for (var i = 0; i < mis.length; i++) {
+		var el = mis[i];
+		var inside = el;
+		var inLabel = false;
+		while (inside && inside !== mder) {
+			if (inside.tagName && (inside.tagName.toLowerCase() === "mjx-under" ||
+				(typeof inside.className === "string" && inside.className.indexOf("mjx-under") !== -1))) {
+				inLabel = true;
+				break;
+			}
+			inside = inside.parentElement;
+		}
+		if (inLabel) continue;
+		var g = _decode_mjx_glyphs(el);
+		if (!g.length) continue;
+		var t = "";
+		for (var gi = 0; gi < g.length; gi++) t += g[gi].ch;
+		var tn = _normalize_math_text(t).trim();
+		if (tn) return tn;
+	}
+	return "";
+}
+
+// Whether an integer index points right after the closing match of a numeric
+// token (protects "10" from matching inside "1000" or "−1" matching "1").
+function _is_number_boundary(text, start, len) {
+	var before = start > 0 ? text[start - 1] : "";
+	var after = text[start + len] || "";
+	return !/[0-9]/.test(before) && !/[0-9]/.test(after) && after !== ".";
+}
+
+// Find the first occurrence of ``name`` as a plain math identifier in the
+// formula *body* (skipping anything inside an underbrace label).
+function _find_body_identifier(container, name) {
+	var candidates = container.querySelectorAll("mjx-mi, .mjx-mi");
+	for (var i = 0; i < candidates.length; i++) {
+		var el = candidates[i];
+		var par = el;
+		var inUnder = false;
+		while (par && par !== container) {
+			if (par.tagName.toLowerCase() === "mjx-under" ||
+				String(par.className).indexOf("mjx-under") !== -1) {
+				inUnder = true;
+				break;
+			}
+			par = par.parentElement;
+		}
+		if (inUnder) continue;
+		var g = _decode_mjx_glyphs(el);
+		if (!g.length) continue;
+		var t = "";
+		for (var gi = 0; gi < g.length; gi++) t += g[gi].ch;
+		if (_normalize_math_text(t) === name) return el;
+	}
+	return null;
+}
+
+function _attach_editable_preview_overlays(node) {
+	// A stale popover (from a committed/re-rendered edit) must not linger.
+	window.__oattach = window.__oattach || [];
+	if (window.__oattach) window.__oattach.push("enter");
+	if ($(".omniopt_edit_pop").length) $(".omniopt_edit_pop").remove();
+
+	var $prev = $(node);
+	$prev.find(".omniopt_bound_overlay, .omniopt_edit_btn").remove();
+	if (!node || !node.querySelector) return;
+
+	var pi = (typeof get_current_parameter_info === "function") ? get_current_parameter_info() : {};
+	if (!Object.keys(pi).length) return;
 
 	var container = node.querySelector("mjx-container, .mjx-container");
 	if (!container) return;
 
-	// Only the underbrace *labels* (``<mjx-under>``) are inspected so the
-	// plain occurrences of the same numbers inside the equation body are
-	// never turned into editable overlays.
+	// 1) Underbrace-label editing.  Each ``<mjx-under>`` (the brace bridge is
+	//    empty and skipped) is resolved to its owning parameter via the
+	//    enclosing ``<mjx-munder>``, then the min/max/value tokens expected
+	//    for that parameter are located inside the decoded label.
+	var labeled = {};
 	var underEls = node.querySelectorAll("mjx-under, .mjx-under");
 	for (var ui = 0; ui < underEls.length; ui++) {
-		var glyphs = _decode_mjx_glyphs(underEls[ui]);
+		var underEl = underEls[ui];
+		var glyphs = _decode_mjx_glyphs(underEl);
 		if (!glyphs.length) continue;
 		var text = "";
 		for (var gi = 0; gi < glyphs.length; gi++) text += glyphs[gi].ch;
-
+		text = _normalize_math_text(text);
+		var name = _resolve_under_label_param(underEl);
+		if (window.__oattach) window.__oattach.push("under text='" + text + "' name='" + name + "'");
+		if (!name || !pi[name]) continue;
 		var claimed = {};
-		for (var t = 0; t < tokens.length; t++) {
-			var token = tokens[t];
-			if (!byValue[token].length) continue; // all targets for this value used
-			var startFrom = 0, idx, foundToken = -1;
-			while ((idx = text.indexOf(token, startFrom)) !== -1) {
+
+		var tokens = _label_tokens_for_param(pi[name]);
+		if (window.__oattach) window.__oattach.push("tokens=" + JSON.stringify(tokens));
+		for (var ti = 0; ti < tokens.length; ti++) {
+			var token = tokens[ti];
+			var found = -1;
+			var startFrom = 0;
+			while ((found = text.indexOf(token.value, startFrom)) !== -1) {
+				var isNum = isFinite(parseFloat(token.value)) && token.value.trim() !== "";
+				if (isNum && !_is_number_boundary(text, found, token.value.length)) {
+					startFrom = found + 1;
+					continue;
+				}
 				var overlap = false;
-				for (var ci = idx; ci < idx + token.length; ci++) {
+				for (var ci = found; ci < found + token.value.length; ci++) {
 					if (claimed[ci]) { overlap = true; break; }
 				}
-				if (overlap) { startFrom = idx + 1; continue; }
-				foundToken = idx;
-				for (var c2 = idx; c2 < idx + token.length; c2++) claimed[c2] = true;
-				break;
+				if (!overlap) break;
+				startFrom = found + 1;
 			}
-			if (foundToken === -1) continue;
-			var target = byValue[token].shift();
-			if (!target) continue;
-			_attach_editable_overlay($prev, glyphs, foundToken, foundToken + token.length, target, token);
+			if (found === -1) continue;
+			for (var c2 = found; c2 < found + token.value.length; c2++) claimed[c2] = true;
+			labeled[name] = true;
+			if (window.__oattach) window.__oattach.push("MATCH token=" + token.value + " at " + found);
+			_attach_editable_overlay($prev, glyphs, found, found + token.value.length,
+				{ name: name, kind: pi[name].kind, side: token.side }, token.value);
 		}
+
+		if (labeled[name]) {
+			var badgeTarget =
+				(pi[name].kind === "range") ?
+					{ name: name, kind: pi[name].kind, side: "body" } :
+					{ name: name, kind: pi[name].kind, side: "value" };
+			_attach_edit_badge($prev, glyphs, badgeTarget);
+		}
+	}
+
+	// 2) Body badges for params without an annotated label slot.
+	for (var nm in pi) {
+		if (labeled[nm]) continue;
+		var mi = _find_body_identifier(container, nm);
+		if (window.__oattach) window.__oattach.push("body-check " + nm + " mi=" + (mi ? mi.tagName : "null"));
+		if (!mi) continue;
+		var g = _decode_mjx_glyphs(mi);
+		if (!g.length) continue;
+		labeled[nm] = true;
+		_attach_editable_overlay($prev, g, 0, g.length,
+			{ name: nm, kind: pi[nm].kind, side: "body" }, nm);
 	}
 }
 
 function _attach_editable_overlay($prev, glyphs, startIdx, endIdx, target, token) {
+	if (window.__oattach) window.__oattach.push("ov-call " + target.name + "/" + target.side + " idx " + startIdx + "-" + endIdx + " glen " + glyphs.length);
 	var rect = null;
 	for (var i = startIdx; i < endIdx && i < glyphs.length; i++) {
 		var r = glyphs[i].el.getBoundingClientRect();
+		if (window.__oattach) window.__oattach.push("  glyph rect " + i + " w=" + (r && r.width) + " h=" + (r && r.height));
 		if (!r || (r.width === 0 && r.height === 0)) continue;
 		if (!rect) {
 			rect = { left: r.left, top: r.top, right: r.right, bottom: r.bottom };
@@ -1059,63 +1247,201 @@ function _attach_editable_overlay($prev, glyphs, startIdx, endIdx, target, token
 	var left = (rect.left - cRect.left - bL) - (oW - (rect.right - rect.left)) / 2;
 	var top = (rect.top - cRect.top - bT) - (oH - (rect.bottom - rect.top)) / 2;
 
+	var hint = "Edit " + target.name +
+		(target.side === "body" ? " (" + target.kind + ")" : " (" + target.side + ")");
 	var $ov = $("<span>", {
 		"class": "omniopt_bound_overlay",
 		"data-name": target.name,
+		"data-kind": target.kind,
 		"data-side": target.side,
-		title: "Click to edit " + target.name + " (" + target.side + ")"
+		title: hint
 	}).css({ left: left + "px", top: top + "px", width: oW + "px", height: oH + "px" });
 	$prev.append($ov);
 
-	var editing = false;
 	$ov.on("mousedown", function (ev) { ev.preventDefault(); });
 	$ov.on("click", function () {
-		if (editing) return;
-		editing = true;
-		var newW = Math.max(oW, token.length * 10 + 14);
-		$ov.css({ width: newW + "px", background: "rgba(255,255,255,0.9)", boxShadow: "0 0 0 1px rgba(74,144,217,0.9)", zIndex: 10 });
-		var $inp = $("<input>", { type: "text", value: token });
-		$ov.append($inp);
+		_open_inline_editor($ov, target);
+	});
+}
+
+// Open the (fixed-position) popover editor that lets the user change
+// ``target``; ``$handle`` is hidden while it is open and reappears when the
+// user cancels (a successful commit re-renders the preview anyway).
+function _open_inline_editor($handle, target) {
+	$handle.hide();
+	var $pop = $("<div class='omniopt_edit_pop'></div>");
+	_build_edit_pop($pop, target, function (didCommit) {
+		$pop.remove();
+		if (didCommit) {
+			$handle.remove();
+			if (typeof update_command === "function") update_command();
+			if (typeof _formula_preview_callback === "function") {
+				try { _formula_preview_callback(); } catch (e) { /* non-fatal */ }
+			}
+		} else {
+			$handle.show();
+		}
+	});
+	_position_edit_pop($pop, $handle[0].getBoundingClientRect());
+	document.body.appendChild($pop[0]);
+	var $inp = $pop.find("input").first();
+	if ($inp.length) {
 		$inp.focus();
 		try { $inp[0].select(); } catch (e) { /* non-fatal */ }
+	}
+}
 
-		function commit() {
-			var val = $inp.val().trim();
-			var parsed = parseFloat(val);
-			if (val !== "" && !isNaN(parsed)) {
-				// Find the matching parameter row in the config table.
-				var $row = null;
-				$(".parameterRow").each(function () {
-					if ($(this).find(".parameterName").val().trim() === target.name) {
-						$row = $(this);
-						return false;
-					}
-				});
-				if ($row) {
-					var $field = $row.find(target.side === "min" ? ".minValue" : ".maxValue");
-					$field.val(String(parsed)).trigger("change");
-					if (typeof update_command === "function") update_command();
-					// Re-render the preview (and its legend) with the new bounds.
-					if (typeof _formula_preview_callback === "function") {
-						try { _formula_preview_callback(); } catch (e) { /* non-fatal */ }
-					}
+// A small, persistent pencil badge pinned to the right end of the first label
+// row, so it is obvious that the numbers under the brace are editable.  It is
+// deliberately subtle (thin, low opacity) so it fits into the rendered
+// formula, and lights up on hover.
+function _attach_edit_badge($prev, glyphs, target) {
+	var cRect = $prev[0].getBoundingClientRect();
+	// Rightmost glyph of the top label row (0.5px slack for rounding).
+	var topRow = null;
+	for (var i = 0; i < glyphs.length; i++) {
+		var r = glyphs[i].el.getBoundingClientRect();
+		if (!r || (r.width === 0 && r.height === 0)) continue;
+		if (topRow === null) {
+			topRow = { top: r.top, right: r.right, bottom: r.bottom, left: r.left };
+		} else {
+			if (r.top < topRow.top) topRow.top = r.top;
+			if (r.right > topRow.right) topRow.right = r.right;
+			if (r.bottom > topRow.bottom) topRow.bottom = r.bottom;
+		}
+	}
+	if (!topRow) return;
+
+	var size = 15;
+	var centerY = (topRow.top + topRow.bottom) / 2;
+	var left = (topRow.right - cRect.left) + 3;
+	var top = (centerY - cRect.top) - size / 2 + 1;
+
+	var hint = "Edit " + target.name;
+	var $btn = $("<button>", {
+		"class": "omniopt_edit_btn",
+		"data-name": target.name,
+		"data-kind": target.kind,
+		"data-side": target.side,
+		"aria-label": hint,
+		title: hint,
+		html: '<svg viewBox="0 0 16 16" width="9" height="9" aria-hidden="true">' +
+			'<path d="M11.2 2.2c.8-.8 2-.8 2.8 0s.8 2 0 2.8l-1.1 1.1-2.8-2.8z" fill="#3572a5"/>' +
+			'<path d="M9.9 3.5L12.5 6l-6.9 6.9-3.3.8.8-3.3z" fill="#3572a5"/></svg>'
+	}).css({ left: left + "px", top: top + "px" });
+	$prev.append($btn);
+
+	$btn.on("mousedown", function (ev) { ev.preventDefault(); });
+	$btn.on("click", function () {
+		_open_inline_editor($btn, target);
+	});
+}
+
+function _position_edit_pop($pop, rect) {
+	var pad = 8;
+	var w = $pop.outerWidth() || 170;
+	var h = $pop.outerHeight() || 96;
+	var left = rect.right + pad;
+	if (left + w > window.innerWidth - pad) left = rect.left - pad - w;
+	if (left < pad) left = pad;
+	var top = rect.top + (rect.height / 2) - Math.min(h / 2, 24);
+	if (top + h > window.innerHeight - pad) top = window.innerHeight - pad - h;
+	if (top < pad) top = pad;
+	$pop.css({ left: left + "px", top: top + "px" });
+}
+
+function _build_edit_pop($pop, target, done) {
+	var row = _find_parameter_row(target.name);
+	var kind = target.kind;
+
+	var head = $("<div class='omniopt_edit_head'></div>");
+	head.append($("<code class='omniopt_edit_name'></code>").text(target.name));
+	var chipTxt = kind;
+	if (kind === "range" && target.side !== "body") chipTxt += " " + target.side;
+	head.append($("<span class='omniopt_edit_chip'></span>").text(chipTxt));
+	$pop.append(head);
+
+	var labelText = "";
+	var $inp = $("<input type='text' autocomplete='off' spellcheck='false'>");
+	var metaText = "";
+
+	if (kind === "range") {
+		var min = row ? (row.find(".minValue").val() || "") : "";
+		var max = row ? (row.find(".maxValue").val() || "") : "";
+		if (target.side === "body") {
+			labelText = "min, max";
+			$inp.val((min !== "" ? min : "?" ) + ", " + (max !== "" ? max : "?"));
+		} else {
+			labelText = target.side;
+			$inp.val(target.side === "min" ? min : max);
+		}
+		var typeTxt = row ? (row.find(".numberTypeSelect").val() || "float") : "float";
+		metaText = "range [" + (min || "?") + ", " + (max || "?") + "]" +
+			" \u00b7 " + typeTxt +
+			(row && row.find(".log_scale").is(":checked") ? " \u00b7 log" : "");
+	} else if (kind === "fixed") {
+		labelText = "value";
+		$inp.val(row ? (row.find(".fixedValue").val() || "") : "");
+		metaText = "fixed constant \u00b7 passed to every run";
+	} else if (kind === "choice") {
+		labelText = "values";
+		$inp.val(row ? (row.find(".choiceValues").val() || "") : "");
+		metaText = "comma-separated choices";
+	}
+
+	var inputRow = $("<div class='omniopt_edit_inputrow'></div>");
+	inputRow.append($("<label></label>").text(labelText));
+	inputRow.append($inp);
+	$pop.append(inputRow);
+	if (metaText) $pop.append($("<div class='omniopt_edit_meta'></div>").text(metaText));
+	$pop.append($("<div class='omniopt_edit_hint'></div>").text("Enter = save \u00b7 Esc = cancel"));
+
+	var committed = false;
+	function commit() {
+		if (committed || !row) return;
+		committed = true;
+		var val = $inp.val().trim();
+		var ok = false;
+		if (kind === "range") {
+			if (target.side === "min" || target.side === "max") {
+				if (val !== "" && isFinite(parseFloat(val))) {
+					row.find(target.side === "min" ? ".minValue" : ".maxValue")
+						.val(String(parseFloat(val))).trigger("change");
+					ok = true;
+				}
+			} else {
+				var parts = val.split(",").map(function (x) { return x.trim(); });
+				if (parts.length === 2 && parts[0] !== "" && isFinite(parseFloat(parts[0])) &&
+					parts[1] !== "" && isFinite(parseFloat(parts[1]))) {
+					row.find(".minValue").val(String(parseFloat(parts[0]))).trigger("change");
+					row.find(".maxValue").val(String(parseFloat(parts[1]))).trigger("change");
+					ok = true;
 				}
 			}
-			$ov.remove();
-			editing = false;
-		}
-
-		$inp.on("blur", commit);
-		$inp.on("keydown", function (e) {
-			if (e.key === "Enter") {
-				e.preventDefault();
-				$inp.blur();
-			} else if (e.key === "Escape") {
-				$ov.remove();
-				editing = false;
+		} else if (kind === "fixed") {
+			if (val !== "") {
+				row.find(".fixedValue").val(val).trigger("change");
+				ok = true;
 			}
-		});
+		} else if (kind === "choice") {
+			var items = val.split(",").map(function (x) { return x.trim(); }).filter(Boolean);
+			if (items.length) {
+				row.find(".choiceValues").val(items.join(",")).trigger("change");
+				ok = true;
+			}
+		}
+		done(ok);
+	}
+	$inp.on("keydown", function (e) {
+		if (e.key === "Enter") {
+			e.preventDefault();
+			commit();
+		} else if (e.key === "Escape") {
+			e.preventDefault();
+			done(false);
+		}
 	});
+	$inp.on("blur", commit);
 }
 
 // Keep inline-editable overlays glued to the rendered numbers when the page
@@ -1125,7 +1451,6 @@ if (typeof window !== "undefined" && window.addEventListener) {
 		setTimeout(function () {
 			var $prev = $("#formula_preview");
 			if (!$prev.length) return;
-			if ($prev[0].getAttribute("data-omniopt-editable-bounds") !== "1") return;
 			try { _attach_editable_preview_overlays($prev[0]); } catch (e) { /* swallow */ }
 		}, 60);
 	});
@@ -1624,7 +1949,7 @@ function _format_param_label(info) {
 		var min = info.min !== "" ? info.min : "?";
 		var max = info.max !== "" ? info.max : "?";
 		var numberSet = (info.type === "int") ? "\\mathbb{Z}" : "\\mathbb{R}";
-		var line1 = "[" + min + ", " + max + "] \\in " + numberSet;
+		var line1 = "[" + min + ",\\, " + max + "] \\in " + numberSet;
 		var line2 = (info.type === "int") ? "discrete" : "continuous";
 		if (info.log_scale) line2 += ", log";
 		return "\\substack{" + line1 + " \\\\ \\text{" + line2 + "}}";
@@ -1632,7 +1957,7 @@ function _format_param_label(info) {
 		var val = info.value !== "" ? info.value : "?";
 		return "\\substack{" + val + " \\\\ \\text{fixed}}";
 	} else if (info.kind === "choice") {
-		var vals = info.values ? info.values.split(",").map(function (v) { return "\\text{" + v.trim() + "}"; }).filter(Boolean).join(", ") : "?";
+		var vals = info.values ? info.values.split(",").map(function (v) { return "\\text{" + v.trim() + "}"; }).filter(Boolean).join(",\\, ") : "?";
 		return "\\substack{\\{" + vals + "\\} \\\\ \\text{choice}}";
 	}
 	return "";
@@ -1793,6 +2118,7 @@ function _position_run_program_tabbar() {
 
 function _set_tab(state) {
 	_position_run_program_tabbar();
+	if ($(".omniopt_edit_pop").length) $(".omniopt_edit_pop").remove();
 	var $card = $("#formula_card");
 	var $wrapper = $("#run_program_wrapper");
 	if (state === "formula") {
@@ -1933,12 +2259,6 @@ function setup_formula_card_inner() {
 		if (!_hasUnderbraces && Object.keys(_pi).length) {
 			text = _add_parameter_underbraces(text, _pi);
 			_hasUnderbraces = true;
-			// Mark the preview so the post-typeset pass knows the bounds
-			// shown under the parameters are auto-generated (and therefore
-			// safe to make inline-editable).
-			$prev[0].setAttribute("data-omniopt-editable-bounds", "1");
-		} else {
-			$prev[0].removeAttribute("data-omniopt-editable-bounds");
 		}
 
 		if ($legend.length) {

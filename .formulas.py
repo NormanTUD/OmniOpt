@@ -1543,7 +1543,7 @@ def _format_suggestion_label(s: "SuggestedParameter") -> str:
     """Build the ``\\substack{...}`` label for a parameter's underbrace."""
     if s.kind == "range":
         number_set = "\\mathbb{Z}" if s.value_type == "int" else "\\mathbb{R}"
-        line1 = f"[{s.lower}, {s.upper}] \\in {number_set}"
+        line1 = f"[{s.lower},\\, {s.upper}] \\in {number_set}"
         line2 = "discrete" if s.value_type == "int" else "continuous"
         if s.log_scale:
             line2 += ", log"
@@ -1551,7 +1551,7 @@ def _format_suggestion_label(s: "SuggestedParameter") -> str:
     if s.kind == "fixed":
         return f"\\substack{{{s.lower} \\\\ \\text{{fixed}}}}"
     if s.kind == "choice":
-        vals = ", ".join("\\text{" + v.strip() + "}" for v in str(s.lower).split(",") if v.strip())
+        vals = ",\\, ".join("\\text{" + v.strip() + "}" for v in str(s.lower).split(",") if v.strip())
         return "\\substack{\\{" + vals + "\\} \\\\ \\text{choice}}"
     return f"\\text{{{s.name}}}"
 

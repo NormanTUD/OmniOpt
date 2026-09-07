@@ -922,6 +922,125 @@ console.log("\n--- Testing: regression — no duplicate --formula ---");
 	expect("no-dup: exactly one --formula=", count, 1);
 }
 
+// --- Group: underbrace annotation helpers (_protect_subsup, --add funcs) ---
+console.log("\n--- Testing: underbrace annotation helpers ---");
+{
+	function _protect_subsup(text) {
+		var parts = [], result = "", i = 0;
+		while (i < text.length) {
+			if (text[i] === "_" || text[i] === "^") {
+				var j = i + 1;
+				if (j < text.length && text[j] === "{") {
+					var depth = 1; j++;
+					while (j < text.length && depth > 0) {
+						if (text[j] === "{") depth++;
+						else if (text[j] === "}") depth--;
+						j++;
+					}
+				} else if (j < text.length) { j++; }
+				parts.push(text.substring(i, j));
+				result += "\x00" + (parts.length - 1) + "\x00";
+				i = j;
+			} else { result += text[i]; i++; }
+		}
+		return { text: result, parts: parts };
+	}
+	function _restore_subsup(text, parts) {
+		return text.replace(/\x00(\d+)\x00/g, function (m, idx) { return parts[parseInt(idx)]; });
+	}
+	function _format_param_label(info) {
+		if (info.kind === "range") {
+			var min = info.min !== "" ? info.min : "?";
+			var max = info.max !== "" ? info.max : "?";
+			var numberSet = (info.type === "int") ? "\\mathbb{Z}" : "\\mathbb{R}";
+			var line1 = "[" + min + ",\\, " + max + "] \\in " + numberSet;
+			var line2 = (info.type === "int") ? "discrete" : "continuous";
+			if (info.log_scale) line2 += ", log";
+			return "\\substack{" + line1 + " \\\\ \\text{" + line2 + "}}";
+		} else if (info.kind === "fixed") {
+			var val = info.value !== "" ? info.value : "?";
+			return "\\substack{" + val + " \\\\ \\text{fixed}}";
+		} else if (info.kind === "choice") {
+			var vals = info.values ? info.values.split(",").map(function (v) { return "\\text{" + v.trim() + "}"; }).filter(Boolean).join(",\\, ") : "?";
+			return "\\substack{\\{" + vals + "\\} \\\\ \\text{choice}}";
+		}
+		return "";
+	}
+	function _add_parameter_underbraces(latex, paramInfo) {
+		var names = Object.keys(paramInfo);
+		if (!names.length) return latex;
+		var eqIdx = -1, depth = 0;
+		for (var i = 0; i < latex.length; i++) {
+			var ch = latex[i];
+			if (ch === "{") depth++;
+			else if (ch === "}") depth--;
+			else if (ch === "=" && depth === 0) eqIdx = i;
+		}
+		var lhs, rhs;
+		if (eqIdx >= 0) { lhs = latex.substring(0, eqIdx + 1); rhs = latex.substring(eqIdx + 1); }
+		else { lhs = ""; rhs = latex; }
+		var prot = _protect_subsup(rhs);
+		var work = prot.text;
+		names.sort(function (a, b) { return b.length - a.length; });
+		var escaped = names.map(function (n) { return n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); });
+		var re = new RegExp("(?<![A-Za-z0-9_])(?:" + escaped.join("|") + ")(?![A-Za-z0-9_])", "g");
+		work = work.replace(re, function (match, offset) {
+			var info = paramInfo[match];
+			var label = _format_param_label(info);
+			var before = offset > 0 ? work[offset - 1] : "";
+			var after = offset + match.length < work.length ? work[offset + match.length] : "";
+			if (before === "^" || after === "^") return match;
+			return "\\underbrace{" + match + "}_{" + label + "}";
+		});
+		return lhs + _restore_subsup(work, prot.parts);
+	}
+
+	var rangePi = {
+		a: { kind: "range", min: "-1", max: "1", type: "float", log_scale: false },
+		b: { kind: "range", min: "0", max: "10", type: "float", log_scale: false }
+	};
+
+	// _protect_subsup shields subscript/superscript content so identifiers
+	// inside ``^{...}`` / ``_{...}`` never match a parameter name.  The
+	// leading caret is consumed too — that is deliberate: it keeps the
+	// existing behaviour where ``a`` in ``a^b`` *is* annotated (the user
+	// wants the underbraces to stay visible).
+	var protected = _protect_subsup("a^b");
+	expect("protect: caret runs shielded", protected.text, "a\x000\x00");
+	expect("protect: part keeps caret", JSON.stringify(protected.parts), JSON.stringify(["^b"]));
+	expect("protect: restore reproduces input", _restore_subsup(protected.text, protected.parts), "a^b");
+
+	// Exponent base keeps its underbrace; the exponent member (protected)
+	// does not get one — it is edited via a body badge instead.
+	var annotated = _add_parameter_underbraces("f(a,b) = a^b", rangePi);
+	expect_true("annotate: exponent base a still wrapped", annotated.indexOf("\\underbrace{a}_{") !== -1);
+	expect_false("annotate: exponent member b NOT wrapped", annotated.indexOf("\\underbrace{b}_{") !== -1);
+
+	// Normal body occurrences of every param DO get animated.
+	var ann2 = _add_parameter_underbraces("f(a,b) = a + sin(b*2)", rangePi);
+	expect_true("annotate: a wrapped", ann2.indexOf("\\underbrace{a}_{") !== -1);
+	expect_true("annotate: b wrapped", ann2.indexOf("\\underbrace{b}_{") !== -1);
+	expect_false("annotate: no leftover protection marks", ann2.indexOf("\x00") !== -1);
+
+	// Subscripted identifier must not be confused with the same-name param.
+	var p3 = _protect_subsup("x_{min}k");
+	expect("subsup: subscript hidden", p3.text, "x\x000\x00k");
+	var ann3 = _add_parameter_underbraces("x_{min} + min", { min: { kind: "range", min: "0", max: "5", type: "float", log_scale: false } });
+	expect_true("annotate: subscript min NOT wrapped", ann3.indexOf("x_\\underbrace") === -1);
+	expect_true("annotate: body min wrapped", ann3.indexOf("\\underbrace{min}_{") !== -1);
+
+	// Label formatting: visible spacing after the comma.
+	var rLabel = _format_param_label({ kind: "range", min: "10", max: "1000", type: "float", log_scale: false });
+	expect_true("label: range has \\, after comma", rLabel.indexOf("[10,\\, 1000]") !== -1);
+	var cLabel = _format_param_label({ kind: "choice", values: "yes, no, maybe" });
+	expect_true("label: choice joins with \\,", cLabel.indexOf("\\text{no},\\, \\text{maybe}") !== -1);
+	var fLabel = _format_param_label({ kind: "fixed", value: "5.0" });
+	expect_true("label: fixed shows value", fLabel.indexOf("\\substack{5.0") !== -1);
+
+	// choice label: single brace pair wrapping the values
+	expect("label: choice braces", cLabel, "\\substack{\\{\\text{yes},\\, \\text{no},\\, \\text{maybe}\\} \\\\ \\text{choice}}");
+}
+
 // ============================================================
 // SUMMARY
 // ============================================================

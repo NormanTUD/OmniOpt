@@ -1138,8 +1138,6 @@ function _find_body_identifier(container, name) {
 
 function _attach_editable_preview_overlays(node) {
 	// A stale popover (from a committed/re-rendered edit) must not linger.
-	window.__oattach = window.__oattach || [];
-	if (window.__oattach) window.__oattach.push("enter");
 	if ($(".omniopt_edit_pop").length) $(".omniopt_edit_pop").remove();
 
 	var $prev = $(node);
@@ -1166,12 +1164,10 @@ function _attach_editable_preview_overlays(node) {
 		for (var gi = 0; gi < glyphs.length; gi++) text += glyphs[gi].ch;
 		text = _normalize_math_text(text);
 		var name = _resolve_under_label_param(underEl);
-		if (window.__oattach) window.__oattach.push("under text='" + text + "' name='" + name + "'");
 		if (!name || !pi[name]) continue;
 		var claimed = {};
 
 		var tokens = _label_tokens_for_param(pi[name]);
-		if (window.__oattach) window.__oattach.push("tokens=" + JSON.stringify(tokens));
 		for (var ti = 0; ti < tokens.length; ti++) {
 			var token = tokens[ti];
 			var found = -1;
@@ -1192,7 +1188,6 @@ function _attach_editable_preview_overlays(node) {
 			if (found === -1) continue;
 			for (var c2 = found; c2 < found + token.value.length; c2++) claimed[c2] = true;
 			labeled[name] = true;
-			if (window.__oattach) window.__oattach.push("MATCH token=" + token.value + " at " + found);
 			_attach_editable_overlay($prev, glyphs, found, found + token.value.length,
 				{ name: name, kind: pi[name].kind, side: token.side }, token.value);
 		}
@@ -1210,7 +1205,6 @@ function _attach_editable_preview_overlays(node) {
 	for (var nm in pi) {
 		if (labeled[nm]) continue;
 		var mi = _find_body_identifier(container, nm);
-		if (window.__oattach) window.__oattach.push("body-check " + nm + " mi=" + (mi ? mi.tagName : "null"));
 		if (!mi) continue;
 		var g = _decode_mjx_glyphs(mi);
 		if (!g.length) continue;
@@ -1221,11 +1215,9 @@ function _attach_editable_preview_overlays(node) {
 }
 
 function _attach_editable_overlay($prev, glyphs, startIdx, endIdx, target, token) {
-	if (window.__oattach) window.__oattach.push("ov-call " + target.name + "/" + target.side + " idx " + startIdx + "-" + endIdx + " glen " + glyphs.length);
 	var rect = null;
 	for (var i = startIdx; i < endIdx && i < glyphs.length; i++) {
 		var r = glyphs[i].el.getBoundingClientRect();
-		if (window.__oattach) window.__oattach.push("  glyph rect " + i + " w=" + (r && r.width) + " h=" + (r && r.height));
 		if (!r || (r.width === 0 && r.height === 0)) continue;
 		if (!rect) {
 			rect = { left: r.left, top: r.top, right: r.right, bottom: r.bottom };

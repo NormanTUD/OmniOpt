@@ -213,6 +213,14 @@ class Backend:
         """Submit a callable to the underlying executor."""
         return self.executor.submit(fn, *args, **kwargs)
 
+    def update_parameters(self, **params: Any) -> None:
+        """Forward :meth:`submitit.core.executor.Executor.update_parameters` to the
+        wrapped executor.  Lets callers (e.g. OmniOpt's defective-node handling)
+        stay agnostic about whether the backend is ``LocalExecutor`` or
+        ``AutoExecutor``.
+        """
+        self.executor.update_parameters(**params)
+
     def submit_array(self, fn: Callable[..., Any], args_list: Iterable[Sequence[Any]]) -> List[Any]:
         """Submit a list of argument-tuples (for SLURM job arrays or local batch)."""
         jobs = []

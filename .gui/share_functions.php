@@ -2082,10 +2082,13 @@
 			handle_jit_security_error($t);
 		}
 
-		$glob_str = $GLOBALS["sharesPath"]."/$user_id/$experiment_name/*/run_uuid";
+		$glob_str = $GLOBALS["sharesPath"]."/$user_id/$experiment_name/*/state_files/run_uuid";
 		$files = glob($glob_str);
+		if ($files === false) $files = [];
+		// Fallback: older shares may have stored it at the top level.
+		$files = array_merge($files, glob($GLOBALS["sharesPath"]."/$user_id/$experiment_name/*/run_uuid") ?: []);
 
-		if ($files === false) return null;
+		if (empty($files)) return null;
 
 		foreach ($files as $file) {
 			$rawContent = file_get_contents($file);
@@ -2096,7 +2099,13 @@
 			$fileContent = str_replace([" ", "\n", "\r", "\t"], '', $rawContent);
 
 			if ($fileContent === $targetUUID) {
-				return dirname($file);
+				// File is at <run>/state_files/run_uuid or <run>/run_uuid.
+				// Go up to the run folder (the numeric directory).
+				$parent = dirname($file);
+				if (basename($parent) === "state_files") {
+					return dirname($parent);
+				}
+				return $parent;
 			}
 		}
 

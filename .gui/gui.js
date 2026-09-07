@@ -2570,11 +2570,11 @@ function run_when_document_ready () {
 		if (!fmEmpty) {
 			fm = fm.replace(/^'(.*)'$/, '$1');
 			try {
+				if (is_base64_like(fm)) {
 				fm = decodeURIComponent(escape(atob(fm)));
-			} catch (e) {
-				console.error("Base64 decoding failed for formula:", e);
-				fm = "";
 			}
+			// If not base64, it's already the raw formula (e.g. from a
+			// share-page link) — use it as-is.
 			// Validate the mode before assigning.
 			var validModes = ["auto", "latex", "infix", "python"];
 			if (validModes.indexOf(fmMode) < 0) fmMode = "auto";

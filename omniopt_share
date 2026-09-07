@@ -161,6 +161,17 @@ def collect_shareable_files(
                     }
                 )
 
+    # state_files/run_uuid (no extension — always include for update matching)
+    run_uuid_file = root / "state_files" / "run_uuid"
+    if run_uuid_file.is_file():
+        out.append(
+            {
+                "name": "run_uuid",
+                "archive_path": "state_files/run_uuid",
+                "local_path": run_uuid_file,
+            }
+        )
+
     # single_runs/<digit>/<file.{out,err}>  (optional)
     if send_single_runs:
         sr = root / "single_runs"
@@ -232,8 +243,9 @@ def build_manifest(
             }
         )
 
-    # If update is requested and the run dir has a run_uuid, copy it
-    if update_uuid is None and update:
+    # Always read the run_uuid if present — the server uses it to detect
+    # whether this is a re-share of the same run (and updates in place).
+    if update_uuid is None:
         run_uuid_path = Path(run_dir) / "state_files" / "run_uuid"
         if run_uuid_path.is_file():
             update_uuid = run_uuid_path.read_text(encoding="utf-8").strip()

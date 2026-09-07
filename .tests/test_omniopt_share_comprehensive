@@ -960,7 +960,8 @@ def test_build_manifest_explicit_uuid_overrides_state_files() -> bool:
 
 
 def test_build_manifest_no_update_uuid_when_not_updating() -> bool:
-    """If update=False, do NOT pick up the run_uuid automatically."""
+    """UUID is ALWAYS picked up from state_files/run_uuid (regardless of
+    the update flag) so the server can match re-shares to the same run."""
     with tempfile.TemporaryDirectory() as tmp:
         run = _make_run_dir(Path(tmp))
         m = os_.build_manifest(
@@ -972,9 +973,10 @@ def test_build_manifest_no_update_uuid_when_not_updating() -> bool:
             password=None,
             send_single_runs=False,
         )
+    # _make_run_dir creates state_files/run_uuid with a known UUID.
     return _check(
-        m["update_uuid"] is None,
-        f"update_uuid should be None when not updating, got {m['update_uuid']!r}",
+        m["update_uuid"] is not None and m["update_uuid"] != "",
+        f"update_uuid should always be populated from run_uuid file, got {m['update_uuid']!r}",
     )
 
 

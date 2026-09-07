@@ -6602,12 +6602,23 @@ def get_results(input_string: Optional[Union[int, str]]) -> Optional[Union[Dict[
         results: Dict[str, Optional[float]] = {}
 
         for column_name in arg_result_names:
-            _pattern = rf'\s*{re.escape(column_name)}\d*:\s*(-?\d+(?:\.\d+)?)'
+            # Match: real, scientific notation, or complex (extract real part).
+            _pattern = rf'\s*{re.escape(column_name)}\d*:\s*(\(?-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?(?:[-+]\d+(?:\.\d+)?(?:[eE][+-]?\d+)?j)?\)?)'
 
             matches = re.findall(_pattern, input_string)
 
             if matches:
-                results[column_name] = [float(match) for match in matches][0]
+                raw = matches[0].strip()
+                # Handle complex numbers: take the real part.
+                if 'j' in raw or 'J' in raw:
+                    real_part = re.match(r'[\(]?\s*(-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)', raw)
+                    if real_part:
+                        results[column_name] = float(real_part.group(1))
+                    else:
+                        results[column_name] = None
+                        add_to_global_error_list(f"'{column_name}': complex number without parsable real part: {raw}")
+                else:
+                    results[column_name] = float(raw.strip('()'))
             else:
                 results[column_name] = None
                 insensitive_matches = re.findall(_pattern, input_string, re.IGNORECASE)

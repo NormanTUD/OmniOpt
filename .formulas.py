@@ -1512,10 +1512,15 @@ def render_display_latex(
         pattern = re.compile(rf"(?<![A-Za-z0-9_\\]){re.escape(name)}(?![A-Za-z0-9_])")
         match = pattern.search(annotated)
         if match:
-            # Skip underbrace if the param is in exponent position (preceded by ^).
-            # \underbrace in superscript position renders the label sideways.
+            # Skip underbrace if the param is in exponent position (preceded
+            # by ^) or is the base of an exponent (followed by ^).  In both
+            # cases the underbrace label collides with the superscript and
+            # renders sideways or stacked.
             start = match.start()
-            if start > 0 and annotated[start - 1] == "^":
+            end = match.end()
+            preceded_by_caret = start > 0 and annotated[start - 1] == "^"
+            followed_by_caret = end < len(annotated) and annotated[end] == "^"
+            if preceded_by_caret or followed_by_caret:
                 seen.add(name)
                 continue
             # Build the label.
@@ -1525,7 +1530,7 @@ def render_display_latex(
             else:
                 label = "\\text{" + name + "}"
             replacement = "\\underbrace{" + name + "}{" + label + "}"
-            annotated = pattern.sub(lambda m: replacement, annotated, count=1)
+            annotated = annotated[:start] + replacement + annotated[end:]
             seen.add(name)
 
     # Combine LHS + annotated RHS.

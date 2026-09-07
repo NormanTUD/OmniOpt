@@ -405,7 +405,7 @@ function update_table_row (item, errors, warnings, command) {
 		// it, so the placeholder-vs-parameter cross-check is misleading.
 		// Skip it entirely in that case so the scientist can leave an
 		// old run_program around without seeing red.
-		var formulaIsActive = ($("#formula").val() || "").trim() !== "";
+		var formulaIsActive = ($("#formula").val() || "").trim() !== "" || (value || "").includes("run_with_formula.py");
 		if (!formulaIsActive) {
 			var variables_in_run_program = get_var_names_from_run_program(value);
 			//value = quote_variables(value);
@@ -1592,9 +1592,14 @@ function _add_parameter_underbraces(latex, paramInfo) {
 	var escaped = names.map(function (n) { return n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); });
 	var re = new RegExp("(?<![A-Za-z0-9_])(?:" + escaped.join("|") + ")(?![A-Za-z0-9_])", "g");
 
-	work = work.replace(re, function (match) {
+	work = work.replace(re, function (match, offset) {
 		var info = paramInfo[match];
 		var label = _format_param_label(info);
+		var before = offset > 0 ? work[offset - 1] : "";
+		var after = offset + match.length < work.length ? work[offset + match.length] : "";
+		// Skip if in exponent position (preceded by ^) or base of an
+		// exponent (followed by ^) — underbrace label collides with ^
+		if (before === "^" || after === "^") return match;
 		return "\\underbrace{" + match + "}_{" + label + "}";
 	});
 
@@ -2595,10 +2600,10 @@ function run_when_document_ready () {
 			}
 			$card.show();
 			$wrap.hide();
-			// Clear any leftover run_program text — when the formula
-			// editor is active we generate the run_program automatically,
-			// so the leftover is just confusing.
-			$("#run_program").val("");
+		// Clear any leftover run_program text — when the formula
+		// editor is active we generate the run_program automatically,
+		// so the leftover is just confusing.
+		$("#run_program").val("").trigger("change");
 			$btn.html("&#9881; Switch back to Run program");
 		} else if (rpEmpty && fmEmpty) {
 			// Nothing yet: keep run_program visible and don't auto-open

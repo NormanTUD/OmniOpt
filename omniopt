@@ -3419,7 +3419,7 @@ class ConfigLoader:
         speed.add_argument('--transforms', nargs='*', choices=['Cont_X_trans', 'Cont_X_trans_Y_trans'], default=[], help='Enable input/target transformations (choose one or both: Cont_X_trans, Cont_X_trans_Y_trans)')
         speed.add_argument('--number_of_generators', help='Number of generator main scripts, only works with Slurm', type=int, default=1)
 
-        slurm.add_argument('--num_parallel_jobs', help='Number of parallel SLURM jobs (default: 20)', type=int, default=20)
+        slurm.add_argument('--num_parallel_jobs', help='Number of parallel jobs. Default: 20 with SLURM, 1 (serial) without. Set explicitly to run multiple jobs in parallel on a machine without SLURM.', type=int, default=None)
         slurm.add_argument('--worker_timeout', help='Timeout for SLURM jobs (i.e. for each single point to be optimized)', type=int, default=30)
         slurm.add_argument('--slurm_use_srun', help='Using srun instead of sbatch', action='store_true', default=False)
         slurm.add_argument('--time', help='Time for the main job', default='', type=str)
@@ -4605,11 +4605,21 @@ if args.model and str(args.model).upper() not in SUPPORTED_MODELS:
     print(f"\033[91mUnsupported model '{args.model}'. Valid models are: {joined_supported_models}\033[0m")
     my_exit(203)
 
-if isinstance(args.num_parallel_jobs, int) or helpers.looks_like_int(args.num_parallel_jobs):
+_sbatch_present = shutil.which("sbatch") is not None
+if args.num_parallel_jobs is None:
+    # Not provided via CLI or config file: default to 20 on SLURM, 1 (serial) locally.
+    num_parallel_jobs: int = 20 if _sbatch_present else 1
+elif isinstance(args.num_parallel_jobs, int) or helpers.looks_like_int(args.num_parallel_jobs):
     num_parallel_jobs = int(args.num_parallel_jobs)
+else:
+    _fatal_error(f"--num_parallel_jobs must be an integer, is {args.num_parallel_jobs!r}", 106)
 
 if num_parallel_jobs <= 0:
     _fatal_error(f"--num_parallel_jobs must be 1 or larger, is {num_parallel_jobs}", 106)
+
+# Keep the parsed namespace consistent with the resolved value so that any
+# downstream ``args.num_parallel_jobs`` reference sees a concrete int.
+args.num_parallel_jobs = num_parallel_jobs
 
 class SearchSpaceExhausted (Exception):
     pass
@@ -5635,8 +5645,33 @@ if IS_NVIDIA_SMI_SYSTEM and getattr(args, "gpus", 0) == 0:
     args.gpus = 1
     print_yellow_if_not_in_test_mode("[omniopt] nvidia-smi detected, auto-enabling --gpus=1")
 
-if not SYSTEM_HAS_SBATCH:
-    num_parallel_jobs = 1
+def _local_parallelism_cap(mem_gb) -> int:
+    """Max parallel local jobs that fit in available RAM, given ``mem_gb`` per job."""
+    if psutil is None:
+        return 1
+    try:
+        per_job_gb = float(mem_gb)
+    except (TypeError, ValueError):
+        per_job_gb = 1.0
+    per_job_gb = max(per_job_gb, 1.0)
+    try:
+        avail_gb = psutil.virtual_memory().available / 1024 ** 3
+    except Exception:
+        return 1
+    return max(1, int(avail_gb / per_job_gb))
+
+if not SYSTEM_HAS_SBATCH and num_parallel_jobs > 1:
+    # LocalExecutor has no built-in concurrency cap, so an unchecked
+    # ``--num_parallel_jobs`` could spawn far more subprocesses than the
+    # machine has RAM for.  Cap it by available memory (``mem_gb`` per job).
+    _ram_cap = _local_parallelism_cap(args.mem_gb)
+    if num_parallel_jobs > _ram_cap:
+        print_yellow_if_not_in_test_mode(
+            f"[omniopt] local --num_parallel_jobs={num_parallel_jobs} exceeds available RAM "
+            f"(mem_gb={args.mem_gb}); capping to {_ram_cap}."
+        )
+        num_parallel_jobs = _ram_cap
+    args.num_parallel_jobs = num_parallel_jobs
 
 if SYSTEM_HAS_SBATCH and not args.force_local_execution and args.raw_samples < args.num_parallel_jobs:
     _fatal_error(f"Has --raw_samples={args.raw_samples}, but --num_parallel_jobs={args.num_parallel_jobs}. Cannot continue, since --raw_samples must be larger or equal to --num_parallel_jobs.", 48)

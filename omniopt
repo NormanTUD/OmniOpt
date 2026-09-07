@@ -11954,9 +11954,6 @@ def get_next_trials(nr_of_jobs_to_get: int) -> Tuple[Union[None, dict], bool]:
         return None, True
 
 def get_next_nr_steps(_num_parallel_jobs: int, _max_eval: int) -> int:
-    if not SYSTEM_HAS_SBATCH:
-        return 1
-
     simulated_nr_inserted_jobs = get_nr_of_imported_jobs()
 
     max_eval_plus_inserted = _max_eval + simulated_nr_inserted_jobs
@@ -12562,7 +12559,7 @@ def execute_trials(
 
     cnt = 0
 
-    nr_workers = max(1, min(len(index_param_list), args.max_num_of_parallel_sruns))
+    nr_workers = max(1, min(len(index_param_list), max(num_parallel_jobs, args.max_num_of_parallel_sruns)))
 
     with ThreadPoolExecutor(max_workers=nr_workers) as tp_executor:
         future_to_args = {tp_executor.submit(execute_evaluation, _args): _args for _args in index_param_list}

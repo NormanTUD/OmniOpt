@@ -12719,28 +12719,30 @@ def _set_global_executor() -> None:
     log_folder: str = f'{get_current_run_folder()}/single_runs/%j'
     subjob_uuid = str(uuid.uuid4())
 
-    if args.force_local_execution:
-        submitit_executor = LocalExecutor(folder=log_folder)
-    else:
-        submitit_executor = AutoExecutor(folder=log_folder)
+    # Route both local and SLURM execution through the executor_backend
+    # abstraction so the two share one interface.  ``force_local`` mirrors the
+    # old explicit LocalExecutor/AutoExecutor choice, and ``make_backend`` also
+    # falls back to a local executor automatically when ``sbatch`` is not on
+    # PATH (so a non-SLURM machine works without ``--force_local_execution``).
+    # ``make_backend`` already applies all parameters (SLURM-only ones only for
+    # the auto backend) via ``update_parameters``.
+    submitit_executor = executor_backend.make_backend(
+        folder=log_folder,
+        name=f'{global_vars["experiment_name"]}_{run_uuid}_{subjob_uuid}',
+        force_local=args.force_local_execution,
+        timeout_min=args.worker_timeout,
+        cpus_per_task=args.cpus_per_task,
+        nodes=args.nodes_per_job,
+        mem_gb=args.mem_gb,
+        gpus=args.gpus,
+        slurm_signal_delay_s=args.slurm_signal_delay_s,
+        slurm_use_srun=args.slurm_use_srun,
+        exclude=args.exclude,
+    )
 
     if submitit_executor:
-        params = {
-            "name": f'{global_vars["experiment_name"]}_{run_uuid}_{subjob_uuid}',
-            "timeout_min": args.worker_timeout,
-            "slurm_gres": f"gpu:{args.gpus}",
-            "cpus_per_task": args.cpus_per_task,
-            "nodes": args.nodes_per_job,
-            "stderr_to_stdout": True,
-            "mem_gb": args.mem_gb,
-            "slurm_signal_delay_s": args.slurm_signal_delay_s,
-            "slurm_use_srun": args.slurm_use_srun,
-            "exclude": args.exclude,
-        }
-
-        submitit_executor.update_parameters(**params)
-
-        print_debug("submitit_executor.update_parameters(\n" + json.dumps(params, indent=4) + "\n)")
+        _kind = getattr(getattr(submitit_executor, "kind", None), "name", "unknown")
+        print_debug(f"submitit_executor backend kind: {_kind}")
 
         if args.exclude:
             print_yellow(f"Excluding the following nodes: {args.exclude}")

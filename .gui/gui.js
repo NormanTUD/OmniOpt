@@ -2573,6 +2573,9 @@ function run_when_document_ready () {
 				if (is_base64_like(fm)) {
 				fm = decodeURIComponent(escape(atob(fm)));
 			}
+			} catch(e) {
+				// If atob throws (not valid base64), keep the raw value.
+			}
 			// If not base64, it's already the raw formula (e.g. from a
 			// share-page link) — use it as-is.
 			// Validate the mode before assigning.

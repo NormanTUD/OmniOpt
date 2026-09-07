@@ -1038,7 +1038,7 @@ function _lhs_parameter_names(lhs) {
 // bound variable names that were inside the underscores.
 function _strip_sumprod_bodies(text) {
 	var boundNames = {};
-	var re = /\\(?:sum|prod)\s*_\s*(?:\{([^{}]+)\}|([A-Za-z][A-Za-z0-9_]*))(?:\s*\^\s*\{[^{}]+\})?\s*(\{(?:[^{}]|\{[^{}]*\})*\}|[A-Za-z_][A-Za-z0-9_]*)/g;
+	var re = /\\(?:sum|prod|int)\s*_\s*(?:\{([^{}]+)\}|([A-Za-z][A-Za-z0-9_]*))(?:\s*\^\s*(?:\{[^{}]+\}|([A-Za-z][A-Za-z0-9_]*|\d+)))?\s*(\{(?:[^{}]|\{[^{}]*\})*\}|[A-Za-z_][A-Za-z0-9_]*)/g;
 	var m;
 	while ((m = re.exec(text)) !== null) {
 		// The subscript group may be "i" or "i=0" — split on "=" for the variable.
@@ -1050,7 +1050,7 @@ function _strip_sumprod_bodies(text) {
 	// so the bound variable name doesn't accidentally appear in the RHS
 	// identifier scan.
 	text = text.replace(
-		/\\(?:sum|prod)\s*_\s*(?:\{[^{}]+\}|[A-Za-z][A-Za-z0-9_]*)(?:\s*\^\s*\{[^{}]+\})?\s*(\{(?:[^{}]|\{[^{}]*\})*\}|[A-Za-z_][A-Za-z0-9_]*)/g,
+		/\\(?:sum|prod|int)\s*_\s*(?:\{[^{}]+\}|[A-Za-z][A-Za-z0-9_]*)(?:\s*\^\s*(?:\{[^{}]+\}|([A-Za-z][A-Za-z0-9_]*|\d+)))?\s*(\{(?:[^{}]|\{[^{}]*\})*\}|[A-Za-z_][A-Za-z0-9_]*)/g,
 		" "
 	);
 	return { text: text, bound: boundNames };

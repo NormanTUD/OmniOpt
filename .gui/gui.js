@@ -992,8 +992,9 @@ var FORMULA_RESERVED = new Set([
 	// LaTeX commands
 	"underbrace", "overbrace", "substack", "mathbb", "text", "mathrm",
 	"mathbf", "mathcal", "operatorname", "left", "right", "displaystyle",
-	"quad", "qquad", "cdot", "times", "cdot", "limits", "hat", "bar",
+	"quad", "qquad", "cdot", "times", "limits", "hat", "bar",
 	"vec", "dot", "tilde", "widehat", "overline", "underline",
+	"int", "oint", "iint", "forall", "exists", "infty", "partial",
 ]);
 
 var FORMULA_CONSTANTS = {
@@ -1010,8 +1011,8 @@ function _strip_macros(text) {
 		"$1"
 	);
 	text = text.replace(/\\(sin|cos|tan|asin|acos|atan|sinh|cosh|tanh|exp|log|ln|sqrt|abs)\b/g, "$1");
-	text = text.replace(/\\(sum|prod|frac|dfrac|tfrac|sqrt|left|right|displaystyle|textstyle|mathit|mathrm|operatorname)\b/g, "");
-	text = text.replace(/\\([A-Za-z]+)/g, "$1");
+	text = text.replace(/\\(sum|prod|frac|dfrac|tfrac|sqrt|left|right|displaystyle|textstyle|mathit|mathrm|operatorname|int|oint|iint)\b/g, "");
+	text = text.replace(/\\[A-Za-z]+/g, " ");
 	text = text.replace(/\{([A-Za-z_][A-Za-z0-9_]*)\}/g, "$1");
 	return text;
 }
@@ -1431,6 +1432,41 @@ function _format_param_label(info) {
 	return "";
 }
 
+function _protect_subsup(text) {
+	var parts = [];
+	var result = "";
+	var i = 0;
+	while (i < text.length) {
+		if (text[i] === "_" || text[i] === "^") {
+			var j = i + 1;
+			if (j < text.length && text[j] === "{") {
+				var depth = 1;
+				j++;
+				while (j < text.length && depth > 0) {
+					if (text[j] === "{") depth++;
+					else if (text[j] === "}") depth--;
+					j++;
+				}
+			} else if (j < text.length) {
+				j++;
+			}
+			parts.push(text.substring(i, j));
+			result += "\x00" + (parts.length - 1) + "\x00";
+			i = j;
+		} else {
+			result += text[i];
+			i++;
+		}
+	}
+	return { text: result, parts: parts };
+}
+
+function _restore_subsup(text, parts) {
+	return text.replace(/\x00(\d+)\x00/g, function (m, idx) {
+		return parts[parseInt(idx)];
+	});
+}
+
 function _add_parameter_underbraces(latex, paramInfo) {
 	var names = Object.keys(paramInfo);
 	if (!names.length) return latex;
@@ -1453,17 +1489,20 @@ function _add_parameter_underbraces(latex, paramInfo) {
 		rhs = latex;
 	}
 
+	var prot = _protect_subsup(rhs);
+	var work = prot.text;
+
 	names.sort(function (a, b) { return b.length - a.length; });
 	var escaped = names.map(function (n) { return n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); });
 	var re = new RegExp("(?<![A-Za-z0-9_])(?:" + escaped.join("|") + ")(?![A-Za-z0-9_])", "g");
 
-	rhs = rhs.replace(re, function (match, p1, offset) {
+	work = work.replace(re, function (match) {
 		var info = paramInfo[match];
 		var label = _format_param_label(info);
 		return "\\underbrace{" + match + "}_{" + label + "}";
 	});
 
-	return lhs + rhs;
+	return lhs + _restore_subsup(work, prot.parts);
 }
 
 function setup_formula_editor() {

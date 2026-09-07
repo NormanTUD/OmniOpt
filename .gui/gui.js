@@ -861,7 +861,7 @@ function is_base64_like(s) {
 	// characters.  This protects against the recursive re-decode
 	// path catching ``$(echo ...`` (the previous output of this
 	// function) and trying to decode it.
-	return typeof s === "string" && /^[A-Za-z0-9+/]+={0,2}$/.test(s);
+	return typeof s === "string" && s.length >= 4 && /^[A-Za-z0-9+/]+={0,2}$/.test(s);
 }
 
 function addBase64DecodedVersions(cmdString) {
@@ -1346,6 +1346,18 @@ function client_apply_suggestions(result) {
 		})(all[i], initialCount + i);
 	}
 
+	var suggestedNames = all.map(function (s) { return s.name; });
+	$(".parameterRow").each(function () {
+		var name = $(this).find(".parameterName").val().trim();
+		if (name && suggestedNames.indexOf(name) === -1) {
+			$(this).remove();
+		}
+	});
+	var remaining = $(".parameterRow").length;
+	if (remaining === 0) {
+		$("#main_add_row_button").click();
+	}
+
 	update_command();
 }
 
@@ -1443,7 +1455,7 @@ function _add_parameter_underbraces(latex, paramInfo) {
 
 	names.sort(function (a, b) { return b.length - a.length; });
 	var escaped = names.map(function (n) { return n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); });
-	var re = new RegExp("\\b(" + escaped.join("|") + ")\\b", "g");
+	var re = new RegExp("(?<![A-Za-z0-9_])(?:" + escaped.join("|") + ")(?![A-Za-z0-9_])", "g");
 
 	rhs = rhs.replace(re, function (match, p1, offset) {
 		var info = paramInfo[match];
@@ -1615,6 +1627,8 @@ function setup_formula_card_inner() {
 		if (mode === "infix") {
 			text = _convert_infix_to_latex(text);
 		}
+		text = text.replace(/\*/g, "\\cdot ");
+		text = text.replace(/([\d)])([a-zA-Z_])/g, "$1\\cdot $2");
 
 		var _pi = get_current_parameter_info();
 		var _hasUnderbraces = text.indexOf("\\underbrace") !== -1;

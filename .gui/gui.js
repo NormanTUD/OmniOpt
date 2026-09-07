@@ -2311,6 +2311,11 @@ function setup_formula_card_inner() {
 		if (depth !== 0) balanceErrors.push("unbalanced braces (depth=" + depth + ")");
 		// Reject control characters / null bytes that MathJax can't digest.
 		if (/[\x00-\x08\x0b\x0c\x0e-\x1f]/.test(text)) balanceErrors.push("control characters in formula");
+		if (/\{[ \t]*\}/.test(text)) balanceErrors.push("empty LaTeX group ``{}`` (no-op)");
+		var bareMacros = text.match(/\\(?:int|sum|prod|oint|iint)\b/g) || [];
+		var bareChainRe = /\\(?:int|sum|prod|oint|iint)\b(?:\s*_\s*(?:\{[^{}]*\}|[A-Za-z0-9]+))?\s*\\(?:int|sum|prod|oint|iint)\b(?:\s*_\s*(?:\{[^{}]*\}|[A-Za-z0-9]+))?\s*\\(?:int|sum|prod|oint|iint)\b/;
+		if (bareChainRe.test(text)) balanceErrors.push("three or more bare ``\\int``/``\\sum``/``\\prod`` in a row (no integrand/summand between them)");
+		if (bareMacros.length >= 6 && text.length < 120) balanceErrors.push("many ``\\int``/``\\sum``/``\\prod`` macros (" + bareMacros.length + ") for a formula of length " + text.length);
 
 		// HTML-escape the four characters that would otherwise let the
 		// user's text break out of the preview div; keep ``\\`` intact so

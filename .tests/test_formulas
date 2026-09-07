@@ -1081,6 +1081,58 @@ def test_executor_backend_exposes_is_sbatch_in_path() -> bool:
 
 
 # ---------------------------------------------------------------------------
+# Sanity checks: obviously broken / nonsensical formulas should raise so
+# the CLI can abort with a clear error message instead of running an
+# experiment that produces zero results.
+# ---------------------------------------------------------------------------
+
+def test_parse_broken_integral_subscript_raises() -> bool:
+    """``\\int_{\\int_\\sum\\int\\sum\\prod\\sum\\int}`` (the user's
+    example) is syntactically invalid: it has no integrand and its
+    lower-bound is itself a chain of bare macros.  Parsing must raise."""
+    text = r"f(a,b) = \int_{\int_\sum\int\sum\prod\sum\int}"
+    try:
+        formulas.parse_latex_or_infix(text, mode="latex")
+    except Exception:
+        return _check(True, "")  # expected
+    return _check(False, f"broken formula should have raised, but parsed fine: {text!r}")
+
+
+def test_parse_bare_integral_chain_raises() -> bool:
+    """``\\int\\int\\int`` has no body at all."""
+    text = r"\int\int\int"
+    try:
+        formulas.parse_latex_or_infix(text, mode="latex")
+    except Exception:
+        return _check(True, "")
+    return _check(False, f"bare-integral chain should have raised: {text!r}")
+
+
+def test_parse_unterminated_integral_raises() -> bool:
+    """``\\int_0^1`` with no integrand must not silently succeed."""
+    text = r"\int_0^1"
+    try:
+        formulas.parse_latex_or_infix(text, mode="latex")
+    except Exception:
+        return _check(True, "")
+    return _check(False, f"unterminated integral should have raised: {text!r}")
+
+
+def test_parse_valid_complete_integral_still_works() -> bool:
+    """Sanity-check that adding the strict path doesn't regress valid
+    formulas: a complete integral with a body must still parse."""
+    text = r"\int_0^1 \sin(x) \, dx"
+    try:
+        expr = formulas.parse_latex_or_infix(text, mode="latex")
+    except Exception as exc:
+        return _check(False, f"valid integral should parse, got {exc!r}")
+    return _check(
+        expr.free_symbols == set(),
+        f"valid integral should have no free symbols, got {expr.free_symbols}",
+    )
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
@@ -1173,6 +1225,10 @@ TESTS = [
     test_regression_echo_corruption_formfeed_repaired,
     test_regression_echo_corruption_full_eval,
     test_executor_backend_exposes_is_sbatch_in_path,
+    test_parse_broken_integral_subscript_raises,
+    test_parse_bare_integral_chain_raises,
+    test_parse_unterminated_integral_raises,
+    test_parse_valid_complete_integral_still_works,
 ]
 
 

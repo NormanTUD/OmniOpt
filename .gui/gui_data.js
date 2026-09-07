@@ -921,6 +921,13 @@ var hiddenTableData = [
 		help: "Enable flame-graphing. Makes everything slower, but creates a flame graph"
 	},
 	{
+		label: "CPU Monitor",
+		id: "local_cpu_monitor",
+		type: "checkbox",
+		value: 0,
+		help: "Show a live CPU/RAM monitor (via executor_backend.CPUMonitor) while local jobs run. Only active without SLURM and with --num_parallel_jobs > 1; replaces the tqdm bar while active."
+	},
+	{
 		label: "Automatically checkout to latest checked version",
 		id: "checkout_to_latest_tested_version",
 		type: "checkbox",

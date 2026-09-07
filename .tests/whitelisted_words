@@ -3854,3 +3854,5 @@ newW
 restoreFormula
 underbraces
 Subscripted
+bareMacros
+bareChainRe

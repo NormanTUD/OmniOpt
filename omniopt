@@ -5124,6 +5124,8 @@ def _init_formula() -> None:
         args_formula = decoded if decoded is not None else cleaned
         args_formula = args_formula.replace("\n", " ").replace("\t", " ").strip()
 
+        args.formula = args_formula
+
         formula_mode = args.formula_mode
         # Python mode is special: we don't parse the formula, just use the
         # raw text as the run-program.
@@ -5137,11 +5139,19 @@ def _init_formula() -> None:
             pretty = formula.ascii()
             latex = formula.latex()
             param_names = sorted(s.name for s in formula.suggestions)
-        # Update args.formula to the cleaned version so all downstream
-        # users see the same string.
-        args.formula = args_formula
     except Exception as exc:
         print_red(f"Could not parse --formula {args.formula!r}: {exc}")
+        print_red(
+            "The formula looks syntactically invalid (e.g. an unterminated "
+            "or empty \\int/\\sum/\\prod, a stray operator or an "
+            "incomplete LaTeX group).  Double-check it, or remove the "
+            "--formula flag if you only meant to use --run_program."
+        )
+        if not args.run_program:
+            _fatal_error(
+                "Formula parsing failed and no --run_program was provided as fallback. Aborting.",
+                19,
+            )
         return
 
     print_yellow(f"\n[Formula mode] {formula_mode}")

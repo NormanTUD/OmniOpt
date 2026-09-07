@@ -1558,6 +1558,16 @@ function setup_formula_card_inner() {
 		// keep the rendered (but un-typeset) HTML.
 		try {
 			var run = function () {
+				// Strip any previous MathJax output so the user always
+				// sees the current formula, not a stale render.
+				if (window.MathJax.typesetClear) {
+					try { window.MathJax.typesetClear([node]); } catch (_) {}
+				} else if (node) {
+					var old = node.querySelectorAll("mjx-container, .mjx-container, [data-mathjax]");
+					for (var oi = 0; oi < old.length; oi++) {
+						if (old[oi].parentNode) old[oi].parentNode.removeChild(old[oi]);
+					}
+				}
 				if (window.MathJax.typesetPromise) {
 					window.MathJax.typesetPromise([node])
 						.catch(function (err) {

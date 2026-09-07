@@ -216,7 +216,7 @@ class Backend:
         """Submit a callable to the underlying executor."""
         return self.executor.submit(fn, *args, **kwargs)
 
-    def submit_array(self, fn: Callable[..., Any], *args_list: Iterable[Sequence[Any]]) -> List[Any]:
+    def submit_array(self, fn: Callable[..., Any], args_list: Iterable[Sequence[Any]]) -> List[Any]:
         """Submit a list of argument-tuples (for SLURM job arrays or local batch)."""
         jobs = []
         for args in args_list:
@@ -224,7 +224,21 @@ class Backend:
         return jobs
 
     def wait(self, jobs: Any, *, timeout: Optional[float] = None) -> List[Any]:
-        return self.executor.wait(jobs, timeout=timeout)
+        """Wait for ``jobs`` to finish and return their results.
+
+        ``AutoExecutor`` exposes a ``wait`` method directly, but
+        ``LocalExecutor`` does not — its ``LocalJob`` instances carry a
+        ``result()`` method that blocks until the function returns.
+        """
+        if hasattr(self.executor, "wait"):
+            return self.executor.wait(jobs, timeout=timeout)
+        # LocalExecutor fallback: collect results from each job.
+        results: List[Any] = []
+        for job in jobs:
+            if hasattr(job, "wait") and timeout is not None:
+                job.wait(timeout=timeout)
+            results.append(job.result())
+        return results
 
     def map(self, fn: Callable[..., Any], iterable: Iterable[Sequence[Any]]) -> List[Any]:
         return [self.executor.submit(fn, *args) for args in iterable]

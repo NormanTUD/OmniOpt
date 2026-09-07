@@ -25,6 +25,16 @@
 		    outline: none;
 		}
 
+		/* Required-but-empty field highlight (red border).  Used for
+		   the run_program textarea and the formula editor when neither
+		   is filled in. */
+		.field_missing {
+			border-color: #d32f2f !important;
+			box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.25) !important;
+			background-color: #fff5f5 !important;
+			animation: shake 0.3s ease-in-out;
+		}
+
 		/* Error states with animation */
 		.error_element {
 		    animation: shake 0.3s ease-in-out;

@@ -1041,6 +1041,54 @@ console.log("\n--- Testing: underbrace annotation helpers ---");
 	expect("label: choice braces", cLabel, "\\substack{\\{\\text{yes},\\, \\text{no},\\, \\text{maybe}\\} \\\\ \\text{choice}}");
 }
 
+// --- Group: decoded-glyph normalization + numeric token boundaries ---
+console.log("\n--- Testing: glyph normalization + token boundaries ---");
+{
+	// _normalize_math_text maps the Mathematical Alphanumeric Symbols block
+	// (surrogate pairs in UTF-16, e.g. italic "a" = U+1D44E) back to ASCII,
+	// advancing two code units per consumed pair so a lone surrogate never
+	// leaks out.
+	function _normalize_math_text(str) {
+		var out = "";
+		var i = 0;
+		while (i < str.length) {
+			var cp = str.codePointAt(i);
+			if (cp >= 0x1D400 && cp <= 0x1D419) { out += String.fromCharCode(0x41 + (cp - 0x1D400)); }
+			else if (cp >= 0x1D41A && cp <= 0x1D433) { out += String.fromCharCode(0x61 + (cp - 0x1D41A)); }
+			else if (cp >= 0x1D434 && cp <= 0x1D44D) { out += String.fromCharCode(0x41 + (cp - 0x1D434)); }
+			else if (cp >= 0x1D44E && cp <= 0x1D467) { out += String.fromCharCode(0x61 + (cp - 0x1D44E)); }
+			else if (cp >= 0x1D468 && cp <= 0x1D481) { out += String.fromCharCode(0x41 + (cp - 0x1D468)); }
+			else if (cp >= 0x1D482 && cp <= 0x1D49B) { out += String.fromCharCode(0x61 + (cp - 0x1D482)); }
+			else { out += String.fromCodePoint(cp); }
+			i += (cp > 0xFFFF) ? 2 : 1;
+		}
+		return out;
+	}
+	function _is_number_boundary(text, start, len) {
+		var before = start > 0 ? text[start - 1] : "";
+		var after = text[start + len] || "";
+		return !/[0-9]/.test(before) && !/[0-9]/.test(after) && after !== ".";
+	}
+
+	// italic a (U+1D44E) + italic b (U+1D44F) -> "ab"
+	var norm = _normalize_math_text(String.fromCodePoint(0x1D44E) + String.fromCodePoint(0x1D44F));
+	expect("normalize: math italic a,b -> ab", norm, "ab");
+	// no stray low surrogate / high surrogate in output
+	expect_false("normalize: no lone surrogates", /[\uD800-\uDFFF]/.test(norm));
+
+	// mixed: italic a followed by ordinary minus + digits stays intact
+	var norm2 = _normalize_math_text(String.fromCodePoint(0x1D44E) + "=1-2");
+	expect("normalize: mixed string", norm2, "a=1-2");
+
+	// number boundaries protect "10" from matching inside "1000" or "−1"
+	expect_true("boundary: '10' at start of '10' ok", _is_number_boundary("10", 0, 2));
+	expect_false("boundary: '10' inside '1000' rejected", _is_number_boundary("1000", 0, 2));
+	expect_false("boundary: '1' inside '−1' rejected (preceded by 0)", _is_number_boundary("01", 1, 1));
+	expect_false("boundary: '1' inside '2.5' rejected (trailing dot)", _is_number_boundary("2.5", 0, 1));
+	expect_true("boundary: '2' in '2,3' ok", _is_number_boundary("2,3", 0, 1));
+	expect_true("boundary: '5' in '[−10,5]' ok", _is_number_boundary("−10,5", 4, 1));
+}
+
 // ============================================================
 // SUMMARY
 // ============================================================

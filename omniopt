@@ -5154,12 +5154,9 @@ def _init_formula() -> None:
             )
         return
 
-    print_yellow(f"\n[Formula mode] {formula_mode}")
     if formula is not None:
         print_yellow("\n[Formula]\n" + pretty + "\n")
         print_yellow(f"[Formula LaTeX] {latex}")
-    if param_names:
-        print_yellow(f"[Formula hyperparameters] {', '.join(param_names)}")
 
     # Stash on global_vars so _init_formula_persist() can pick it up later.
     global_vars["formula_raw"] = args.formula

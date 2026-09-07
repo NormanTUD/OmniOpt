@@ -49,16 +49,11 @@ When OmniOpt2 sees `--formula` (and no `--run_program`):
 
 That's it — there is no automatic detection of free symbols on the CLI. The example above explicitly passes `--parameter a range -1000 1000 float false` and `--parameter b range -1000 1000 float false`; without those, OmniOpt2 has nothing to sweep. The GUI is what suggests parameters for you; on the CLI you write them yourself.
 
-<div class="caveat warning">
-<b>You have to pass your own <code>--parameter …</code> flags.</b> OmniOpt2 <i>technically</i> auto-fills a parameter spec from the formula's free symbols when you don't, but the defaults are <code>[-1, 1]</code> for <code>float</code> and <code>[0, 10]</code> for <code>int</code>, with no log scale. Those ranges are almost never what you want for a real benchmark — set the ranges yourself.
-</div>
-
 You don't have to base64-encode by hand on the CLI — the GUI does it for you — but on the CLI it's the safest way to get backslashes, spaces and quotes through bash. Both `--formula 'f(a,b) = a - b'` (raw) and `--formula="$(… | base64 -w0)"` (encoded) are accepted.
 
 You will see something like this in the log (the last line is just informational — the free symbols are detected from the parsed formula, not from `--parameter`):
 
 ```
-[Formula mode] auto
 [Formula]
 a - b
 [Formula LaTeX] a - b

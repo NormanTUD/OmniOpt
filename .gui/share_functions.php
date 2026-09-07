@@ -3247,14 +3247,16 @@ $onclick_string
 			return [$overview_html, $warnings];
 		}
 
-		$safe_latex = my_htmlentities($latex);
 		$safe_raw = my_htmlentities($raw);
 		$safe_pretty = $pretty !== "" ? "<pre>" . my_htmlentities($pretty) . "</pre>" : "";
 
 		$overview_html .= "<h2>Formula</h2>\n";
 		$overview_html .= "<div class='formula_block'>";
-		// MathJax renders this inline because the page already loads tex-mml-chtml.js.
-		$overview_html .= "\\[" . $safe_latex . "\\]\n";
+		// MathJax renders this because the page already loads tex-mml-chtml.js.
+		// Do NOT html-escape the LaTeX — MathJax needs raw backslashes.
+		// Only escape HTML-special chars that would break the page structure.
+		$mathjax_latex = str_replace(["<", ">", "&"], ["&lt;", "&gt;", "&amp;"], $latex);
+		$overview_html .= "\\[" . $mathjax_latex . "\\]\n";
 		$overview_html .= "</div>";
 		$overview_html .= "<details><summary>Source</summary><pre>" . $safe_raw . "</pre></details>";
 		if($safe_pretty) {

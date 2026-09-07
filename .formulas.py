@@ -61,6 +61,7 @@ __all__ = [
     "suggest_formula_split",
     "render_ascii",
     "render_latex_with_underbraces",
+    "render_display_latex",
     "build_lambda",
     "render_latex",
     "choose_latex_or_infix",
@@ -1465,6 +1466,80 @@ def render_latex_with_underbraces(
             )
             seen[name] = True
     return wrapped
+
+
+def render_display_latex(
+    raw_formula: str,
+    parameter_names: Sequence[str],
+    suggestions: Optional[Sequence["SuggestedParameter"]] = None,
+) -> str:
+    """Render the original formula text with ``\\underbrace`` annotations.
+
+    Unlike :func:`render_latex_with_underbraces` (which works from the sympy
+    expression and loses the LHS / original bounds), this function operates
+    on the user's original LaTeX text so the share page shows exactly what
+    the user typed, plus parameter annotations.
+
+    The LHS (e.g. ``f(x, y) = ``) is preserved.  Each parameter name is
+    wrapped in ``\\underbrace{...}_{\\substack{...}}`` on its first occurrence
+    in the RHS.
+    """
+    # Split LHS / RHS.
+    stripped = strip_lhs_assignment(raw_formula)
+    if stripped != raw_formula:
+        lhs = raw_formula[: len(raw_formula) - len(stripped)].rstrip()
+        if lhs.endswith("="):
+            lhs = lhs[:-1].rstrip()
+        rhs = stripped
+    else:
+        lhs = ""
+        rhs = raw_formula
+
+    # Build the annotated RHS.
+    annotated = rhs
+    seen: set = set()
+    # Build a lookup for suggestion info.
+    info_by_name: Dict[str, "SuggestedParameter"] = {}
+    if suggestions:
+        for s in suggestions:
+            info_by_name[s.name] = s
+
+    for name in parameter_names:
+        if name in seen:
+            continue
+        pattern = re.compile(rf"(?<![A-Za-z0-9_\\]){re.escape(name)}(?![A-Za-z0-9_])")
+        if pattern.search(annotated):
+            # Build the label.
+            sug = info_by_name.get(name)
+            if sug is not None:
+                label = _format_suggestion_label(sug)
+            else:
+                label = "\\text{" + name + "}"
+            replacement = "\\underbrace{" + name + "}{" + label + "}"
+            annotated = pattern.sub(lambda m: replacement, annotated, count=1)
+            seen.add(name)
+
+    # Combine LHS + annotated RHS.
+    if lhs:
+        return f"{lhs} = {annotated}"
+    return annotated
+
+
+def _format_suggestion_label(s: "SuggestedParameter") -> str:
+    """Build the ``\\substack{...}`` label for a parameter's underbrace."""
+    if s.kind == "range":
+        number_set = "\\mathbb{Z}" if s.value_type == "int" else "\\mathbb{R}"
+        line1 = f"[{s.lower}, {s.upper}] \\in {number_set}"
+        line2 = "discrete" if s.value_type == "int" else "continuous"
+        if s.log_scale:
+            line2 += ", log"
+        return f"\\substack{{{line1} \\\\ \\text{{{line2}}}}}"
+    elif s.kind == "fixed":
+        return f"\\substack{{{s.lower} \\\\ \\text{{fixed}}}}"
+    elif s.kind == "choice":
+        vals = ", ".join("\\text{" + v.strip() + "}" for v in str(s.lower).split(",") if v.strip())
+        return "\\substack{\\{" + vals + "\\} \\\\ \\text{choice}}"
+    return f"\\text{{{s.name}}}"
 
 
 # ---------------------------------------------------------------------------

@@ -5130,7 +5130,9 @@ def _init_formula() -> None:
     global_vars["formula_pretty"] = pretty if formula is not None else ""
     global_vars["formula_latex"] = latex
     global_vars["formula_latex_underbraces"] = (
-        formula.latex_with_underbraces(param_names) if formula is not None else ""
+        _formulas_mod.render_display_latex(
+            args.formula, param_names, formula.suggestions
+        ) if formula is not None else ""
     )
     global_vars["formula_param_names"] = param_names
     global_vars["formula_suggestions"] = (

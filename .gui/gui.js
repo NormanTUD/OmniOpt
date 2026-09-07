@@ -900,15 +900,11 @@ function build_formula_card_html() {
 		"<div style='display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px;'>" +
 		"<div id='formula_card_left' style='flex: 1 1 380px; min-width: 320px;'>" +
 		"<div style='display: flex; gap: 6px; margin-bottom: 6px; align-items: center;'>" +
-		"<button type='button' id='formula_tab_text' class='formula_tab' data-mode='text'>LaTeX</button>" +
-		"<button type='button' id='formula_tab_infix' class='formula_tab' data-mode='infix'>Infix</button>" +
+		"<button type='button' id='formula_tab_text' class='formula_tab' data-mode='text'>Formula</button>" +
 		"<button type='button' id='formula_tab_python' class='formula_tab' data-mode='python'>Python</button>" +
 		"</div>" +
 		"<div id='formula_panel_text'>" +
-		"<textarea id='formula_pane_text' placeholder=\"LaTeX: \\sin(a*x) + \\sum_{i=0}^{b} i^2  or  f(x) = 2+x-y\" style='width: 100%; min-height: 80px; font-family: monospace;'></textarea>" +
-		"</div>" +
-		"<div id='formula_panel_infix' style='display: none;'>" +
-		"<textarea id='formula_pane_infix' placeholder=\"Infix: sin(a*x) + Sum(i**2, (i, 0, b))  or  f(x) = 2*x + y\" style='width: 100%; min-height: 80px; font-family: monospace;'></textarea>" +
+		"<textarea id='formula_pane_text' placeholder=\"f(x, y) = \\frac{x}{y} + \\sin(a)   or   f(x) = 2*x + y\" style='width: 100%; min-height: 80px; font-family: monospace;'></textarea>" +
 		"</div>" +
 		"<div id='formula_panel_python' style='display: none;'>" +
 		"<textarea id='formula_pane_python' placeholder=\"def evaluate(params):&#10;    return math.sin(params['a']*params['x']) + params['b']\" style='width: 100%; min-height: 110px; font-family: monospace;'></textarea>" +

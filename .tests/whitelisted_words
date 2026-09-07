@@ -3835,3 +3835,7 @@ handleFormula
 processTableData
 rac
 fbox
+textchoice
+textfixed
+mathbbR
+mathbbZ

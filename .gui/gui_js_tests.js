@@ -301,7 +301,7 @@ function _lhs_parameter_names(lhs) {
 
 function _strip_sumprod_bodies(text) {
 	var boundNames = {};
-	var re = /\\(?:sum|prod)\s*_\s*(?:\{([^{}]+)\}|([A-Za-z][A-Za-z0-9_]*))(?:\s*\^\s*\{[^{}]+\})?\s*(\{(?:[^{}]|\{[^{}]*\})*\}|[A-Za-z_][A-Za-z0-9_]*)/g;
+	var re = /\\(?:sum|prod|int)\s*_\s*(?:\{([^{}]+)\}|([A-Za-z][A-Za-z0-9_]*))(?:\s*\^\s*(?:\{[^{}]+\}|([A-Za-z][A-Za-z0-9_]*|\d+)))?\s*(\{(?:[^{}]|\{[^{}]*\})*\}|[A-Za-z_][A-Za-z0-9_]*)/g;
 	var m;
 	while ((m = re.exec(text)) !== null) {
 		var sub = m[1] || m[2] || "";
@@ -309,7 +309,7 @@ function _strip_sumprod_bodies(text) {
 		boundNames[name] = true;
 	}
 	text = text.replace(
-		/\\(?:sum|prod)\s*_\s*(?:\{[^{}]+\}|[A-Za-z][A-Za-z0-9_]*)(?:\s*\^\s*\{[^{}]+\})?\s*(\{(?:[^{}]|\{[^{}]*\})*\}|[A-Za-z_][A-Za-z0-9_]*)/g,
+		/\\(?:sum|prod|int)\s*_\s*(?:\{[^{}]+\}|[A-Za-z][A-Za-z0-9_]*)(?:\s*\^\s*(?:\{[^{}]+\}|([A-Za-z][A-Za-z0-9_]*|\d+)))?\s*(\{(?:[^{}]|\{[^{}]*\})*\}|[A-Za-z_][A-Za-z0-9_]*)/g,
 		" "
 	);
 	return { text: text, bound: boundNames };
@@ -703,6 +703,44 @@ expect_true("url: full round-trip via URLSearchParams (tabs)",
 expect_true("url: full round-trip via URLSearchParams (special chars)",
 	fullRoundtrip('a && b || c < d > e "f" \'g\'') ===
 		'a && b || c < d > e "f" \'g\'');
+
+// --- Group: real-world complex formula ---
+console.log("\n--- Testing: real-world complex formula ---");
+// The user's exact formula: ``f(x, y) = a + b + c + x -
+// \left(\int_{x = 5}^10 y\right) + z``.  LHS params are ``x, y``;
+// RHS symbols are ``a, b, c, z`` (the integral's ``x`` is bound).
+{
+	var r = client_extract_formula_params_simple(
+		"f(x, y) = a + b + c + x - \\left(\\int_{x = 5}^10 y\\right) + z",
+		"latex"
+	);
+	expect_true("real-world: integral's dummy variable is excluded",
+		JSON.stringify(sorted(r.parameters)) === JSON.stringify(["x", "y"]));
+	expect_true("real-world: constants list excludes the integral macro 'int'",
+		r.constants.indexOf("int") < 0 && r.constants.indexOf("int_") < 0);
+	expect_true("real-world: all RHS symbols appear as parameters or constants",
+		["a", "b", "c", "z", "x", "y"].every(function (n) {
+			return r.parameters.indexOf(n) >= 0 || r.constants.indexOf(n) >= 0 || r.bound.indexOf(n) >= 0;
+		}));
+}
+{
+	// A bare expression with no LHS — every free symbol is a parameter.
+	var r = client_extract_formula_params_simple("a + b + c + d", "infix");
+	expect_true("real-world: no-LHS -> 4 parameters, no constants",
+		r.parameters.length === 4 && r.constants.length === 0);
+}
+{
+	// Empty / whitespace input.
+	var r = client_extract_formula_params_simple("", "infix");
+	expect_true("real-world: empty input -> empty result",
+		r.parameters.length === 0 && r.constants.length === 0);
+}
+{
+	// Garbage / broken input must not crash.
+	var r = client_extract_formula_params_simple("\\frac{}{}{}{}{{{}{", "latex");
+	expect_true("real-world: broken LaTeX returns shape, not crash",
+		Array.isArray(r.parameters) && Array.isArray(r.constants));
+}
 
 // ============================================================
 // SUMMARY

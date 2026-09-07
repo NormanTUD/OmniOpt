@@ -10707,6 +10707,7 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
     print_debug(f"finish_job_core: trial-index: {trial_index}, job.result(): {result}, state: {state_from_job(job)}")
 
     this_jobs_finished += 1
+    _cpu_mon_tick(completed=1)
 
     if ax_client:
         _trial = get_ax_client_trial(trial_index)
@@ -10758,6 +10759,7 @@ def _finish_previous_jobs_helper_handle_failed_job(job: Any, trial_index: int) -
         orchestrate_job(job, trial_index)
 
     failed_jobs(1)
+    _cpu_mon_tick(completed=1, failed=1)
     print_debug(f"finish_previous_jobs: removing job {job}, trial_index: {trial_index}")
 
     with global_vars_jobs_lock:
@@ -11004,6 +11006,9 @@ def submit_new_job(parameters: Union[dict, str], trial_index: int) -> Any:
     start = time.time()
 
     new_job = submitit_executor.submit(evaluate, {"params": parameters, "trial_idx": trial_index, "submit_time": int(time.time())})
+
+    if new_job is not None:
+        _cpu_mon_tick(submitted=1)
 
     elapsed = time.time() - start
 
@@ -14164,15 +14169,46 @@ def save_experiment_parameters(filepath: str) -> None:
     with open(filepath, mode="w", encoding="utf-8") as outfile:
         json.dump(experiment_parameters, outfile, cls=NpEncoder)
 
+def _cpu_mon_tick(**kwargs: Any) -> None:
+    """Forward a tick to the active local CPU monitor (no-op when disabled)."""
+    mon = global_vars.get("cpu_monitor")
+    if mon is None:
+        return
+    try:
+        mon.tick(**kwargs)
+    except Exception:
+        pass
+
 def run_search_with_progress_bar() -> None:
     global progress_bar
+
+    from contextlib import nullcontext
 
     disable_tqdm = args.disable_tqdm or ci_env
 
     total_jobs = max_eval
 
-    with tqdm(total=total_jobs, disable=disable_tqdm, ascii="░▒█") as _progress_bar:
+    use_cpu_monitor = (
+        bool(getattr(args, "local_cpu_monitor", False))
+        and not SYSTEM_HAS_SBATCH
+        and num_parallel_jobs > 1
+        and getattr(executor_backend, "CPUMonitor", None) is not None
+    )
+
+    if use_cpu_monitor:
+        # The rich Live bar and the tqdm bar would fight over the same terminal,
+        # so while the CPU monitor is active we disable tqdm.
+        disable_tqdm = True
+
+    cpu_mon_ctx = (
+        executor_backend.CPUMonitor(total=total_jobs if total_jobs else num_parallel_jobs)
+        if use_cpu_monitor
+        else nullcontext()
+    )
+
+    with tqdm(total=total_jobs, disable=disable_tqdm, ascii="░▒█") as _progress_bar, cpu_mon_ctx as cpu_mon:
         progress_bar = _progress_bar
+        global_vars["cpu_monitor"] = cpu_mon if use_cpu_monitor else None
         write_process_info()
 
         progressbar_description("Started OmniOpt2 run...")
@@ -14181,6 +14217,7 @@ def run_search_with_progress_bar() -> None:
 
         run_search()
 
+    global_vars["cpu_monitor"] = None
     wait_for_jobs_to_complete()
 
 def complex_tests(_program_name: str, wanted_stderr: str, wanted_exit_code: int, wanted_signal: Union[int, None], res_is_none: bool = False) -> int:

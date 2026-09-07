@@ -1268,8 +1268,12 @@ function _attach_editable_overlay($prev, glyphs, startIdx, endIdx, target, token
 // ``target``; ``$handle`` is hidden while it is open and reappears when the
 // user cancels (a successful commit re-renders the preview anyway).
 function _open_inline_editor($handle, target) {
+	// Capture the anchor rect *before* hiding it, otherwise a hidden element
+	// reports a zero rect and the popover jumps to the top-left corner.
+	var anchorRect = $handle[0].getBoundingClientRect();
 	$handle.hide();
 	var $pop = $("<div class='omniopt_edit_pop'></div>");
+	document.body.appendChild($pop[0]);
 	_build_edit_pop($pop, target, function (didCommit) {
 		$pop.remove();
 		if (didCommit) {
@@ -1282,8 +1286,7 @@ function _open_inline_editor($handle, target) {
 			$handle.show();
 		}
 	});
-	_position_edit_pop($pop, $handle[0].getBoundingClientRect());
-	document.body.appendChild($pop[0]);
+	_position_edit_pop($pop, anchorRect);
 	var $inp = $pop.find("input").first();
 	if ($inp.length) {
 		$inp.focus();
@@ -1341,10 +1344,14 @@ function _position_edit_pop($pop, rect) {
 	var pad = 8;
 	var w = $pop.outerWidth() || 170;
 	var h = $pop.outerHeight() || 96;
+	// Anchor to the right side of the editable region, vertically centered
+	// on it, so the popover sits next to where the user clicked rather than
+	// jumping to a corner.  Flip to the left when it would overflow, and
+	// vertically clamp so it stays on screen.
 	var left = rect.right + pad;
 	if (left + w > window.innerWidth - pad) left = rect.left - pad - w;
 	if (left < pad) left = pad;
-	var top = rect.top + (rect.height / 2) - Math.min(h / 2, 24);
+	var top = rect.top + (rect.height / 2) - (h / 2);
 	if (top + h > window.innerHeight - pad) top = window.innerHeight - pad - h;
 	if (top < pad) top = pad;
 	$pop.css({ left: left + "px", top: top + "px" });

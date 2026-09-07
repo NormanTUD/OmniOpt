@@ -18,8 +18,8 @@ jobs:
     outputs:
       gui_only: ${{ steps.set_gui_only.outputs.gui_only }}
     steps:
-    - uses: actions/checkout@v4
-    - uses: dorny/paths-filter@v3
+    - uses: actions/checkout@v5
+    - uses: dorny/paths-filter@v4
       id: filter
       with:
         filters: |
@@ -53,10 +53,10 @@ jobs:
       run: mkdir -p ~/.omniax_venvs/Python_${{ runner.python_version }}/${{ runner.arch }}
 
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         fetch-depth: 0
-        tags: true
+        fetch-tags: true
 
     - name: Install dependencies
       run: |
@@ -97,7 +97,7 @@ jobs:
         os: [ubuntu-24.04, ubuntu-22.04]
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
     - name: Install dependencies
       run: |
         .tools/ci_dependency
@@ -115,10 +115,10 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         fetch-depth: 0
-        tags: true
+        fetch-tags: true
 
     - name: Install dependencies
       run: |
@@ -142,10 +142,10 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         fetch-depth: 0
-        tags: true
+        fetch-tags: true
 
     - name: Install dependencies
       run: |
@@ -204,7 +204,7 @@ jobs:
     runs-on: "ubuntu-latest"
     environment: Production
     steps:
-      - uses: "actions/checkout@v4"
+      - uses: "actions/checkout@v5"
       - name: "TODO to Issue"
         uses: "alstr/todo-to-issue-action@v5"
 
@@ -218,7 +218,7 @@ jobs:
     if: needs.detect_changes.outputs.gui_only != 'true' && github.event_name == 'push'
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - name: Set up Python
       uses: actions/setup-python@v3
       with:

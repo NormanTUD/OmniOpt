@@ -1509,14 +1509,26 @@ function setup_formula_card_inner() {
 
 		$err.empty();
 
-		var $renderDiv;
+		// Show a quick "Loading…" hint so the user sees feedback before
+		// MathJax has finished typesetting (it's async, so there can be
+		// a noticeable delay the first time around).
 		try {
-			$prev.empty();
-			$renderDiv = $("<div></div>").text("").appendTo($prev);
-			// Use MathJax's safe-HTML setter: this preserves LaTeX
-			// commands (``\\sin``, ``\\frac``) while still letting us
-			// emit the ``\\[…\\]`` display wrapper.
-			$renderDiv.html("\\[" + safe + "\\]");
+			$prev.empty().html("<span style='color:#777'>&#x2026;rendering preview&#x2026;</span>");
+		} catch (e) {
+			$err.text("Preview error: failed to clear preview area");
+			return;
+		}
+
+		// Insert the display-math wrapper directly into the preview div
+		// (a child wrapper would otherwise get lost when MathJax replaces
+		// the element after typesetting).
+		var renderNode;
+		try {
+			renderNode = document.getElementById("formula_preview");
+			if (!renderNode) {
+				throw new Error("preview node missing");
+			}
+			renderNode.innerHTML = "\\[" + safe + "\\]";
 		} catch (e) {
 			$err.text("Preview error: failed to insert formula into DOM");
 			return;
@@ -1528,7 +1540,7 @@ function setup_formula_card_inner() {
 
 		// Ask MathJax to typeset.  Wait for its startup promise first so we
 		// don't lose the first render when MathJax is still loading.
-		client_mathjax_typeset($renderDiv[0], $err);
+		client_mathjax_typeset(renderNode, $err);
 	}
 
 	function client_mathjax_typeset(node, $err) {
@@ -1561,7 +1573,20 @@ function setup_formula_card_inner() {
 				}
 			};
 			if (window.MathJax.startup && window.MathJax.startup.promise) {
-				window.MathJax.startup.promise.then(run, function (err) {
+				// Race the startup promise against a hard timeout so the
+				// preview never gets stuck in "Loading…" forever.
+				var startupTimeout = setTimeout(function () {
+					console.warn("[formula preview] MathJax startup timed out, rendering raw formula");
+					if ($err) {
+						$err.text(($err.text() ? $err.text() + "; " : "") +
+							"MathJax startup timed out");
+					}
+				}, 10000);
+				window.MathJax.startup.promise.then(function () {
+					clearTimeout(startupTimeout);
+					run();
+				}, function (err) {
+					clearTimeout(startupTimeout);
 					console.error("[formula preview] MathJax startup failed:", err);
 				});
 			} else {

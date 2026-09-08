@@ -34,7 +34,7 @@ def main(argv=None) -> int:
         start = time.time()
         print(f"Running {t} ...")
         cmd_variants = [
-            ["python3", str(THIS_DIR / f"{t}.py")],
+            ["python3", str(THIS_DIR / t)],
             ["bash", str(THIS_DIR / t)],
         ]
         ok = False

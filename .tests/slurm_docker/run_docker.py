@@ -247,7 +247,9 @@ def main(argv=None) -> int:
         if args.run_tests:
             print("Discarding almost all other options because you chose to --run_tests")
             cmd = [
-                "docker", "exec", "--workdir", "/oo_dir", "slurmfrontend",
+                "docker", "exec", "--workdir", "/oo_dir",
+                "-e", "OMNIOPT_TEST_PARTITION=slurmpar",
+                "slurmfrontend",
                 "python3", "/oo_dir/.tests/main",
                 "--max_eval=2",
                 "--num_random_steps=1",
@@ -259,14 +261,17 @@ def main(argv=None) -> int:
                 "--run_with_coverage",
                 "--skip_test_job_nr",
                 "--skip_worker_check",
+                "--partition=slurmpar",
             ]
         else:
             run_program = base64.b64encode(
                 b'echo "RESULT: %(int_param)%(int_param_two)%(float_param)"'
             ).decode().rstrip("=")
             cmd = [
-                "docker", "exec", "slurmfrontend", "python3", "/oo_dir/omniopt",
-                "--partition", "is_ignored_here",
+                "docker", "exec",
+                "-e", "OMNIOPT_TEST_PARTITION=slurmpar",
+                "slurmfrontend", "python3", "/oo_dir/omniopt",
+                "--partition", "slurmpar",
                 "--experiment_name", "slurm_in_docker_test",
                 f"--mem_gb={args.mem_gb}",
                 f"--time={args.time}",

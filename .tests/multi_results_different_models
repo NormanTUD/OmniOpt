@@ -112,7 +112,7 @@ def main(argv=None) -> int:  # pylint: disable=unused-argument
         cmd = [
             omniopt_call,
             "--live_share", "--send_anonymized_usage_stats",
-            "--partition", "alpha",
+            "--partition", os.environ.get("OMNIOPT_TEST_PARTITION", "alpha"),
             "--experiment_name", run_name,
             "--mem_gb=4", "--time", "60", "--worker_timeout=5", "--max_eval", "2",
             "--num_parallel_jobs", "1", "--gpus", str(num_gpus),

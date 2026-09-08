@@ -94,7 +94,7 @@ def main(argv=None) -> int:
     cmd = [
         omniopt_call,
         "--live_share", "--send_anonymized_usage_stats",
-        "--partition=alpha",
+        "--partition=" + os.environ.get("OMNIOPT_TEST_PARTITION", "alpha"),
         "--experiment_name=example_network",
         f"--mem_gb={args.mem_gb or 4}",
         f"--time={args.runtime or 60}",

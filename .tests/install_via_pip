@@ -55,7 +55,7 @@ def build_parser() -> argparse.ArgumentParser:
         help="Binaries that must exist in the virtualenv (default: omniopt_plot omniopt_docker omniopt_share omniopt_evaluate).",
     )
 
-    parser.add_argument("--partition", default="alpha")
+    parser.add_argument("--partition", default=os.environ.get("OMNIOPT_TEST_PARTITION", "alpha"))
     parser.add_argument("--live-share", action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--omniopt-debug", action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--omniopt-verbose", action=argparse.BooleanOptionalAction, default=True)

@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import base64
+import os
 import shutil
 import subprocess
 import sys
@@ -50,7 +51,7 @@ def main(argv=None) -> int:
 
     cmd = [
         "./omniopt",
-        "--partition=alpha",
+        "--partition=" + os.environ.get("OMNIOPT_TEST_PARTITION", "alpha"),
         "--experiment_name=EXTERNAL_GENERATOR_test",
         f"--mem_gb={args.mem_gb}",
         f"--time={args.time}",

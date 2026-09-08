@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import base64
+import os
 import shutil
 import subprocess
 import sys
@@ -25,7 +26,7 @@ def main(argv=None) -> int:  # pylint: disable=unused-argument
     num_gpus = 1 if shutil.which("nvidia-smi") else 0
     cmd = [
         "./omniopt",
-        "--partition=alpha",
+        "--partition=" + os.environ.get("OMNIOPT_TEST_PARTITION", "alpha"),
         "--experiment_name=EXTERNAL_GENERATOR_with_constraints_test",
         "--mem_gb=1",
         "--time=60",

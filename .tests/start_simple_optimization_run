@@ -119,7 +119,7 @@ def main(argv=None) -> int:
         return 1
 
     omniopt_call = os.environ.get("OMNIOPT_CALL", "./omniopt")
-    partition = "alpha"
+    partition = os.environ.get("OMNIOPT_TEST_PARTITION", "alpha")
     testname = f"__main__tests__{model}__"
     if args.force_local_execution:
         testname += "_local"

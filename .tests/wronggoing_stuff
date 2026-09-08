@@ -64,7 +64,7 @@ def main(argv=None) -> int:
         "--max_nr_of_zero_results", "3",
         "--live_share",
         "--send_anonymized_usage_stats",
-        "--partition=alpha",
+        "--partition=" + os.environ.get("OMNIOPT_TEST_PARTITION", "alpha"),
         f"--gpus={num_gpus}",
         f"--experiment_name={experiment_name}",
         "--mem_gb=1",

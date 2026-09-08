@@ -124,6 +124,8 @@ def build_base_parser(
                        help="Override the test name.")
     g_env.add_argument("--CONFIG_VARIANT", dest="CONFIG_VARIANT", default=None,
                        help="Override config variant (cpu/gpu).")
+    g_env.add_argument("--partition", dest="PARTITION", default=None,
+                       help="Override SLURM partition (default: alpha).")
 
     return parser
 

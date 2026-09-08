@@ -49,7 +49,7 @@ def main(argv=None) -> int:
 
     cmd = [
         omniopt_call,
-        "--partition=alpha",
+        "--partition=" + os.environ.get("OMNIOPT_TEST_PARTITION", "alpha"),
         f"--experiment_name={test_name}",
         "--mem_gb=1",
         "--time=60",

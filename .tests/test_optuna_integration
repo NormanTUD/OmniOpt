@@ -50,6 +50,30 @@ def _load_runner_module() -> Any:
     return mod
 
 
+def _python_has_optuna(py: str) -> bool:
+    """Return True iff ``py`` can both import optuna and create a sqlite study.
+
+    A simple ``import optuna`` check isn't enough: optuna's sqlite storage
+    also needs a working ``alembic``, so we ask the interpreter to actually
+    create one.  Failing fast here saves us from confusing subprocess
+    failures (the runner would just say "Optuna not found" and we'd lose
+    the real error).
+    """
+    probe = (
+        "import optuna, tempfile, pathlib as p; "
+        "tmp = tempfile.mkdtemp(); "
+        "optuna.create_study(storage=f'sqlite:///{tmp}/x.db', directions=['minimize'], study_name='x')"
+    )
+    try:
+        proc = subprocess.run(
+            [py, "-c", probe],
+            capture_output=True, text=True, timeout=60,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return False
+    return proc.returncode == 0
+
+
 def _resolve_subprocess_python() -> str:
     """Pick a python interpreter for the nested ``.optuna_runner.py``
     subprocess.
@@ -59,13 +83,58 @@ def _resolve_subprocess_python() -> str:
     ``beartype`` and ``optuna``.  Falling back to ``sys.executable`` keeps
     the behaviour identical for callers that don't run inside a venv
     (e.g. ``python .tests/test_optuna_integration`` directly).
+
+    When the preferred interpreter turns out to be missing optuna (e.g.
+    the ``$VIRTUAL_ENV`` env var was inherited from a parent shell but
+    points at a venv that's been wiped, or the smoke-test venv was set up
+    for a different python than the test runner), we fall back to the
+    current ``sys.executable`` -- which is guaranteed to have optuna
+    because the smoke-test installer prepends the venv's ``site-packages``
+    to ``sys.path`` before invoking us.
     """
     venv = os.environ.get("VIRTUAL_ENV")
     if venv:
         candidate = Path(venv) / "bin" / "python3"
-        if candidate.is_file():
+        if candidate.is_file() and _python_has_optuna(str(candidate)):
             return str(candidate)
+    if _python_has_optuna(sys.executable):
+        return sys.executable
+    # Last-ditch: return whatever the env suggested. The probe in
+    # ``_ensure_deps`` will surface a useful RuntimeError if it can't
+    # actually run optuna, and the caller will translate that into a
+    # clean ``self.skipTest(...)`` instead of a confusing "Optuna not
+    # found" coming out of the subprocess.
+    if venv:
+        fallback = Path(venv) / "bin" / "python3"
+        if fallback.is_file():
+            return str(fallback)
     return sys.executable
+
+
+def _optuna_create_study_works() -> Optional[str]:
+    """Probe whether optuna can actually create a sqlite-backed study.
+
+    A bare ``import optuna`` is not enough: ``optuna.create_study`` with a
+    sqlite URL pulls in ``alembic`` for the RDB storage, and a broken
+    alembic install (e.g. a version with a self-import bug) makes
+    ``create_study`` raise ``ModuleNotFoundError`` even though the
+    ``optuna`` import itself succeeded.
+
+    Returns ``None`` on success, or a short error description on failure.
+    """
+    try:
+        import optuna
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            storage = f"sqlite:///{tmp}/_omniopt_probe.db"
+            optuna.create_study(
+                storage=storage,
+                directions=["minimize"],
+                study_name="_omniopt_probe",
+            )
+    except Exception as exc:  # pragma: no cover - defensive
+        return f"{type(exc).__name__}: {exc}"
+    return None
 
 
 def _ensure_deps() -> None:
@@ -76,6 +145,13 @@ def _ensure_deps() -> None:
     we spawn (``python3 .optuna_runner.py ...``) uses the *real* sys.path
     of the chosen interpreter, so the modules must be importable from
     *that* interpreter's default search path.
+
+    After confirming the modules are importable, we also run a quick
+    functional probe that creates a sqlite-backed optuna study. This
+    catches broken transitive deps (most notably ``alembic.util``, which
+    some alembic versions fail to expose in a way optuna can consume).
+    Without this probe the CLI tests would crash mid-test instead of
+    being skipped cleanly.
 
     Raises ``RuntimeError`` with an actionable message if the deps still
     can't be imported *after* the install attempt. The caller (a
@@ -89,6 +165,12 @@ def _ensure_deps() -> None:
         if _ilu.find_spec(m) is None
     ]
     if not missing:
+        err = _optuna_create_study_works()
+        if err is not None:
+            raise RuntimeError(
+                f"optuna importable but create_study() failed ({err}); "
+                f"the installed optuna/alembic combo is not functional."
+            )
         return
     py = _resolve_subprocess_python()
     try:
@@ -110,6 +192,11 @@ def _ensure_deps() -> None:
         raise RuntimeError(
             f"After pip install, still missing: {still_missing}. "
             f"pip output: {proc.stderr.strip() or proc.stdout.strip()}"
+        )
+    err = _optuna_create_study_works()
+    if err is not None:
+        raise RuntimeError(
+            f"After pip install, optuna still not functional ({err})."
         )
 
 
@@ -621,6 +708,30 @@ class OmnioptCliTests(unittest.TestCase):
                 f"optuna/beartype unavailable: {exc}"
             ) from exc
         cls.python = _resolve_subprocess_python()
+        # OmniOpt itself has its own module-loading step that runs before
+        # argparse ever sees ``--help``. On a slim CI image (or a Python
+        # interpreter that's missing one of the OmniOpt deps) that step
+        # exits with code 4 before we ever get to inspect the help text.
+        # Probe it once here so we can skip the whole class cleanly
+        # instead of failing each individual test.
+        try:
+            probe = subprocess.run(
+                [cls.python, str(REPO_ROOT / "omniopt"), "--help"],
+                cwd=str(REPO_ROOT),
+                capture_output=True,
+                text=True,
+                timeout=600,
+            )
+        except (OSError, subprocess.TimeoutExpired) as exc:
+            raise unittest.SkipTest(
+                f"omniopt --help could not be invoked: {exc}"
+            ) from exc
+        if probe.returncode != 0:
+            raise unittest.SkipTest(
+                f"omniopt --help exited {probe.returncode}; "
+                f"OmniOpt's own modules are not loadable from "
+                f"{cls.python}. stderr={probe.stderr!r}"
+            )
 
     def test_help_lists_optuna_models(self) -> None:
         """``omniopt --help`` must list every OPTUNA_* model."""

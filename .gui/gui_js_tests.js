@@ -992,7 +992,20 @@ console.log("\n--- Testing: underbrace annotation helpers ---");
 			if (before === "^" || after === "^") return match;
 			return "\\underbrace{" + match + "}_{" + label + "}";
 		});
-		return lhs + _restore_subsup(work, prot.parts);
+		// Wrap parameters that survived in ``^{}`` / ``_{}`` placeholders so
+		// exponent/subscript members still get an editable label slot.
+		var newParts = prot.parts.slice();
+		for (var pi = 0; pi < newParts.length; pi++) {
+			var part = newParts[pi];
+			var sm = part.match(/^([\^_])(?:\{([^{}]*)\}|([A-Za-z_][A-Za-z0-9_]*))$/);
+			if (!sm) continue;
+			var content = sm[2] !== undefined ? sm[2] : sm[3];
+			if (!paramInfo.hasOwnProperty(content)) continue;
+			var info2 = paramInfo[content];
+			var label2 = _format_param_label(info2);
+			newParts[pi] = sm[1] + "{\\underbrace{" + content + "}_{" + label2 + "}}";
+		}
+		return lhs + _restore_subsup(work, newParts);
 	}
 
 	var rangePi = {
@@ -1010,11 +1023,12 @@ console.log("\n--- Testing: underbrace annotation helpers ---");
 	expect("protect: part keeps caret", JSON.stringify(protected.parts), JSON.stringify(["^b"]));
 	expect("protect: restore reproduces input", _restore_subsup(protected.text, protected.parts), "a^b");
 
-	// Exponent base keeps its underbrace; the exponent member (protected)
-	// does not get one — it is edited via a body badge instead.
+	// Exponent base keeps its underbrace; the exponent member is now also
+	// wrapped (inside the ``^{}`` so it stays editable in the preview).
 	var annotated = _add_parameter_underbraces("f(a,b) = a^b", rangePi);
 	expect_true("annotate: exponent base a still wrapped", annotated.indexOf("\\underbrace{a}_{") !== -1);
-	expect_false("annotate: exponent member b NOT wrapped", annotated.indexOf("\\underbrace{b}_{") !== -1);
+	expect_true("annotate: exponent member b wrapped inside ^{}",
+		annotated.indexOf("^{\\underbrace{b}_{") !== -1);
 
 	// Normal body occurrences of every param DO get animated.
 	var ann2 = _add_parameter_underbraces("f(a,b) = a + sin(b*2)", rangePi);
@@ -1025,9 +1039,28 @@ console.log("\n--- Testing: underbrace annotation helpers ---");
 	// Subscripted identifier must not be confused with the same-name param.
 	var p3 = _protect_subsup("x_{min}k");
 	expect("subsup: subscript hidden", p3.text, "x\x000\x00k");
+	// ``min`` inside ``_{min}`` is shielded so it doesn't get rewritten as
+	// ``x_\\underbrace{min}_...`` (which would corrupt the subscript base).
 	var ann3 = _add_parameter_underbraces("x_{min} + min", { min: { kind: "range", min: "0", max: "5", type: "float", log_scale: false } });
-	expect_true("annotate: subscript min NOT wrapped", ann3.indexOf("x_\\underbrace") === -1);
-	expect_true("annotate: body min wrapped", ann3.indexOf("\\underbrace{min}_{") !== -1);
+	expect_true("annotate: subscript min wrapped inside _{}",
+		ann3.indexOf("_{\\underbrace{min}_{") !== -1);
+	expect_true("annotate: body min wrapped", ann3.indexOf("+ \\underbrace{min}_{") !== -1);
+
+	// Real-world formula from the GUI: ``f(x, y, z) = a \frac{x}{y}^z``.
+	// Every parameter — including the exponent member ``z`` — gets an
+	// underbrace slot so the user can edit each value by clicking on it.
+	var userPi = {
+		a: { kind: "fixed", value: "12" },
+		x: { kind: "range", min: "-1", max: "10", type: "float", log_scale: false },
+		y: { kind: "range", min: "-1", max: "10", type: "float", log_scale: false },
+		z: { kind: "range", min: "-1", max: "1", type: "float", log_scale: false }
+	};
+	var userAnn = _add_parameter_underbraces("f(x, y, z) = a \\frac{x}{y}^z", userPi);
+	expect_true("annotate: a in user formula wrapped", userAnn.indexOf("\\underbrace{a}_{") !== -1);
+	expect_true("annotate: x in user formula wrapped", userAnn.indexOf("\\underbrace{x}_{") !== -1);
+	expect_true("annotate: y in user formula wrapped", userAnn.indexOf("\\underbrace{y}_{") !== -1);
+	expect_true("annotate: z in user formula wrapped (inside ^{})",
+		userAnn.indexOf("^{\\underbrace{z}_{") !== -1);
 
 	// Label formatting: visible spacing after the comma.
 	var rLabel = _format_param_label({ kind: "range", min: "10", max: "1000", type: "float", log_scale: false });

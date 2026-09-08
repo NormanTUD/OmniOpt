@@ -1110,12 +1110,39 @@ function _is_number_boundary(text, start, len) {
 	return !/[0-9]/.test(before) && !/[0-9]/.test(after) && after !== ".";
 }
 
+// Locate the MathJax operator element that renders the ``=`` separating
+// the function signature from the body, so we can keep LHS identifiers
+// (the bare parameter list ``f(x, y, z)``) out of the body-badge search.
+function _find_equals_operator(container) {
+	var candidates = container.querySelectorAll("mjx-mo, .mjx-mo");
+	for (var i = 0; i < candidates.length; i++) {
+		var mo = candidates[i];
+		var g = _decode_mjx_glyphs(mo);
+		if (!g.length) continue;
+		var t = "";
+		for (var gi = 0; gi < g.length; gi++) t += g[gi].ch;
+		if (t === "=") return mo;
+	}
+	return null;
+}
+
 // Find the first occurrence of ``name`` as a plain math identifier in the
-// formula *body* (skipping anything inside an underbrace label).
-function _find_body_identifier(container, name) {
+// formula *body* (skipping anything inside an underbrace label, and
+// optionally skipping anything before ``skipBefore`` so the LHS parameter
+// declaration doesn't shadow the body's identifier).
+function _find_body_identifier(container, name, skipBefore) {
 	var candidates = container.querySelectorAll("mjx-mi, .mjx-mi");
 	for (var i = 0; i < candidates.length; i++) {
 		var el = candidates[i];
+		if (skipBefore && el !== skipBefore) {
+			try {
+				var cmp = el.compareDocumentPosition(skipBefore);
+				// DOCUMENT_POSITION_FOLLOWING (4) means ``skipBefore`` comes
+				// after ``el`` in document order, i.e. ``el`` sits in the
+				// LHS we want to ignore.
+				if (cmp & 4) continue;
+			} catch (e) { /* non-fatal */ }
+		}
 		var par = el;
 		var inUnder = false;
 		while (par && par !== container) {
@@ -1202,9 +1229,10 @@ function _attach_editable_preview_overlays(node) {
 	}
 
 	// 2) Body badges for params without an annotated label slot.
+	var eqEl = _find_equals_operator(container);
 	for (var nm in pi) {
 		if (labeled[nm]) continue;
-		var mi = _find_body_identifier(container, nm);
+		var mi = _find_body_identifier(container, nm, eqEl);
 		if (!mi) continue;
 		var g = _decode_mjx_glyphs(mi);
 		if (!g.length) continue;
@@ -1784,19 +1812,60 @@ function client_render_suggestions(result) {
 		$out.html("<em>(no free symbols detected)</em>");
 		return;
 	}
+	// Pull the current values from the parameter table so the suggestions
+	// panel reflects what the user has actually configured, not just the
+	// defaults we'd suggest for a brand-new parameter row.
+	var current = {};
+	$(".parameterRow").each(function () {
+		var name = $(this).find(".parameterName").val().trim();
+		if (!name) return;
+		var kind = $(this).find(".optionSelect").val();
+		var entry = { kind: kind };
+		if (kind === "range") {
+			entry.lower = $(this).find(".minValue").val();
+			entry.upper = $(this).find(".maxValue").val();
+		} else if (kind === "fixed") {
+			entry.lower = $(this).find(".fixedValue").val();
+			entry.upper = entry.lower;
+		} else if (kind === "choice") {
+			entry.lower = $(this).find(".choiceValues").val();
+			entry.upper = entry.lower;
+		}
+		current[name] = entry;
+	});
+	function mergeWithCurrent(s) {
+		var c = current[s.name];
+		if (!c) return s;
+		// The user's chosen kind (range/fixed/choice) wins over the
+		// formula's suggested kind so the panel doesn't lie about what
+		// the parameter table actually contains.
+		s.kind = c.kind;
+		if (c.kind === "fixed") {
+			s.lower = c.lower != null ? c.lower : s.lower;
+			s.upper = s.lower;
+		} else if (c.kind === "range") {
+			if (c.lower !== "" && c.lower != null) s.lower = c.lower;
+			if (c.upper !== "" && c.upper != null) s.upper = c.upper;
+		} else if (c.kind === "choice") {
+			if (c.lower) s.lower = c.lower;
+			if (c.upper) s.upper = c.upper;
+		}
+		return s;
+	}
 	var html = "<table style='width:100%; border-collapse: collapse;'>";
 	html += "<tr><th align='left'>name</th><th align='left'>type</th><th align='left'>value</th><th align='left'>role</th></tr>";
 	function row(s, role) {
-		var val = s.kind === "fixed"
-			? s.lower
-			: ("[" + s.lower + ", " + s.upper + "]");
+		var val;
+		if (s.kind === "fixed") val = s.lower;
+		else if (s.kind === "choice") val = "{" + s.lower + "}";
+		else val = "[" + s.lower + ", " + s.upper + "]";
 		return "<tr><td><code>" + s.name + "</code></td><td>" + s.kind + "</td><td>" + val + "</td><td>" + role + "</td></tr>";
 	}
 	for (var i = 0; i < result.parameters.length; i++) {
-		html += row(result.parameters[i], "<span style='color:#1b6e1b'>parameter</span>");
+		html += row(mergeWithCurrent(result.parameters[i]), "<span style='color:#1b6e1b'>parameter</span>");
 	}
 	for (var j = 0; j < result.constants.length; j++) {
-		html += row(result.constants[j], "<span style='color:#7a3e9e'>constant</span>");
+		html += row(mergeWithCurrent(result.constants[j]), "<span style='color:#7a3e9e'>constant</span>");
 	}
 	if (result.bound && result.bound.length) {
 		html += "<tr><td colspan='4' style='padding-top: 6px; color:#777; font-style: italic;'>" +
@@ -2096,7 +2165,25 @@ function _add_parameter_underbraces(latex, paramInfo) {
 		return "\\underbrace{" + match + "}_{" + label + "}";
 	});
 
-	return lhs + _restore_subsup(work, prot.parts);
+	// Subscript/superscript members (e.g. ``^z`` in ``\frac{x}{y}^z``)
+	// were shielded by ``_protect_subsup`` so the regex above never sees
+	// them.  Walk each placeholder and, if its inner content is a single
+	// parameter name, wrap it in an underbrace INSIDE the ``^{}`` /
+	// ``_{}`` so the user still gets an editable label slot.
+	var newParts = prot.parts.slice();
+	for (var pi = 0; pi < newParts.length; pi++) {
+		var part = newParts[pi];
+		var sm = part.match(/^([\^_])(?:\{([^{}]*)\}|([A-Za-z_][A-Za-z0-9_]*))$/);
+		if (!sm) continue;
+		var marker = sm[1];
+		var content = sm[2] !== undefined ? sm[2] : sm[3];
+		if (!paramInfo.hasOwnProperty(content)) continue;
+		var info2 = paramInfo[content];
+		var label2 = _format_param_label(info2);
+		newParts[pi] = marker + "{\\underbrace{" + content + "}_{" + label2 + "}}";
+	}
+
+	return lhs + _restore_subsup(work, newParts);
 }
 
 // The "Run program" / "Formula" tab bar lives inside the run_program row of
@@ -2176,6 +2263,12 @@ function setup_formula_editor() {
 	$(document).on("change input", "#formula, #formula_mode", function () {
 		if (typeof update_command === "function") update_command();
 	});
+
+	// Parameter row edits already flow through ``update_command()`` (every
+	// input has ``onkeyup/onchange/onclick="update_command()"``) and that
+	// function ends with ``_schedule_formula_preview_refresh()``, so the
+	// suggestions panel re-renders automatically once the debounced timer
+	// fires — no extra listener needed here.
 
 	// Arrange the tab bar above the run_program textarea right away (on
 	// initial load neither the Formula tab nor restoreFormula will have run).
@@ -2505,6 +2598,7 @@ function setup_formula_card_inner() {
 	update_everything();
 
 	_formula_preview_callback = function () {
+		refresh_suggestions();
 		client_render_formula_preview($("#formula").val() || "");
 	};
 }

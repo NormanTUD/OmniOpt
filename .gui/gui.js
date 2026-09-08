@@ -1168,7 +1168,7 @@ function _attach_editable_preview_overlays(node) {
 	if ($(".omniopt_edit_pop").length) $(".omniopt_edit_pop").remove();
 
 	var $prev = $(node);
-	$prev.find(".omniopt_bound_overlay, .omniopt_edit_btn").remove();
+	$prev.find(".omniopt_bound_overlay").remove();
 	if (!node || !node.querySelector) return;
 
 	var pi = (typeof get_current_parameter_info === "function") ? get_current_parameter_info() : {};
@@ -1217,14 +1217,6 @@ function _attach_editable_preview_overlays(node) {
 			labeled[name] = true;
 			_attach_editable_overlay($prev, glyphs, found, found + token.value.length,
 				{ name: name, kind: pi[name].kind, side: token.side }, token.value);
-		}
-
-		if (labeled[name]) {
-			var badgeTarget =
-				(pi[name].kind === "range") ?
-					{ name: name, kind: pi[name].kind, side: "body" } :
-					{ name: name, kind: pi[name].kind, side: "value" };
-			_attach_edit_badge($prev, glyphs, badgeTarget);
 		}
 	}
 
@@ -1314,51 +1306,9 @@ function _open_inline_editor($handle, target) {
 	}
 }
 
-// A small, persistent pencil badge pinned to the right end of the first label
-// row, so it is obvious that the numbers under the brace are editable.  It is
-// deliberately subtle (thin, low opacity) so it fits into the rendered
-// formula, and lights up on hover.
-function _attach_edit_badge($prev, glyphs, target) {
-	var cRect = $prev[0].getBoundingClientRect();
-	// Rightmost glyph of the top label row (0.5px slack for rounding).
-	var topRow = null;
-	for (var i = 0; i < glyphs.length; i++) {
-		var r = glyphs[i].el.getBoundingClientRect();
-		if (!r || (r.width === 0 && r.height === 0)) continue;
-		if (topRow === null) {
-			topRow = { top: r.top, right: r.right, bottom: r.bottom, left: r.left };
-		} else {
-			if (r.top < topRow.top) topRow.top = r.top;
-			if (r.right > topRow.right) topRow.right = r.right;
-			if (r.bottom > topRow.bottom) topRow.bottom = r.bottom;
-		}
-	}
-	if (!topRow) return;
-
-	var size = 15;
-	var centerY = (topRow.top + topRow.bottom) / 2;
-	var left = (topRow.right - cRect.left) + 3;
-	var top = (centerY - cRect.top) - size / 2 + 1;
-
-	var hint = "Edit " + target.name;
-	var $btn = $("<button>", {
-		"class": "omniopt_edit_btn",
-		"data-name": target.name,
-		"data-kind": target.kind,
-		"data-side": target.side,
-		"aria-label": hint,
-		title: hint,
-		html: '<svg viewBox="0 0 16 16" width="9" height="9" aria-hidden="true">' +
-			'<path d="M11.2 2.2c.8-.8 2-.8 2.8 0s.8 2 0 2.8l-1.1 1.1-2.8-2.8z" fill="#3572a5"/>' +
-			'<path d="M9.9 3.5L12.5 6l-6.9 6.9-3.3.8.8-3.3z" fill="#3572a5"/></svg>'
-	}).css({ left: left + "px", top: top + "px" });
-	$prev.append($btn);
-
-	$btn.on("mousedown", function (ev) { ev.preventDefault(); });
-	$btn.on("click", function () {
-		_open_inline_editor($btn, target);
-	});
-}
+// The numbers under each underbrace are already wired up with hover
+// feedback (a blue tint + pencil ``::after`` indicator) by the CSS in
+// ``gui.php``, so no separate persistent pencil badge is needed here.
 
 function _position_edit_pop($pop, rect) {
 	var pad = 8;

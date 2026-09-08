@@ -364,4 +364,7 @@ def _textual_plot_menu(run_dir: str, script_dir: str) -> Optional[str]:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except KeyboardInterrupt:
+        sys.exit(0)

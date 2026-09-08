@@ -3214,6 +3214,7 @@ slurmmaster
 slurmconf
 frontend
 slurmnode
+slurmpar
 dockerfile
 Dockerfile
 PartitionNameslurmpar

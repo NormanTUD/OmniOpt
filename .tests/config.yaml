@@ -580,7 +580,7 @@ tests:
   - id: simple_gridsearch
     class: simple
     name: "Simple optimization run (grid search)"
-    cmd: "{REPO_ROOT}/.tests/start_simple_optimization_run --max_eval={max_eval} --num_parallel_jobs={num_parallel_jobs} --num_random_steps={num_random_steps} --gridsearch --mem_gb={mem_gb} --generate_all_jobs_at_once --follow"
+    cmd: "{REPO_ROOT}/.tests/start_simple_optimization_run --max_eval={max_eval} --num_parallel_jobs={num_parallel_jobs} --num_random_steps={num_random_steps} --gridsearch --mem_gb={mem_gb} --generate_all_jobs_at_once --follow --model FACTORIAL"
     wanted_exit_code: 0
     tags: [suite:full, quick:no]
 

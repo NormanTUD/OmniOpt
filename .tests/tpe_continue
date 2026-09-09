@@ -5,7 +5,8 @@ Workflow:
 
   1. Wipe ``runs/<testname>`` so any leftover state cannot confuse us.
   2. Start ``./omniopt --model=TPE --max_eval=K --num_random_steps=N`` with a
-     fixed seed and ``--run_mode=local`` so it does not need SLURM.
+      fixed seed and ``--force_local_execution`` so it runs in-process and
+      does not need SLURM.
   3. Run ``./omniopt --continue runs/<testname>/0 --max_eval=K2`` to continue
      the same run and verify it succeeds (exit code 0).
   4. Verify ``runs/<testname>/1/results.csv`` exists and contains new rows.
@@ -100,7 +101,7 @@ def _run_omniopt_initial(testname: str, max_eval: int, num_random_steps: int,
         f"--num_random_steps={num_random_steps}",
         "--mem_gb=4",
         "--generate_all_jobs_at_once",
-        f"--additional_parameter=--model=TPE --seed={seed} --run_mode=local",
+        f"--additional_parameter=--model=TPE --seed={seed} --force_local_execution",
         f"--testname={testname}",
         "--gpus=0",
     ]
@@ -128,7 +129,7 @@ def _run_omniopt_continue(testname: str, max_eval: int, seed: int,
         "--num_random_steps=1",
         "--mem_gb=4",
         "--generate_all_jobs_at_once",
-        f"--additional_parameter=--model=TPE --seed={seed} --run_mode=local --continue runs/{testname}/0",
+        f"--additional_parameter=--model=TPE --seed={seed} --force_local_execution --continue runs/{testname}/0",
         f"--testname={testname}",
         "--gpus=0",
     ]

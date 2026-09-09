@@ -6450,7 +6450,7 @@ def pareto_front_table_get_columns(first_row: Dict[str, str]) -> Tuple[List[str]
     return param_cols, result_cols
 
 def check_factorial_range() -> None:
-    if args.model and args.model == "FACTORIAL":
+    if args.model and args.model == "FACTORIAL" and not args.gridsearch:
         _fatal_error("\n⚠ --model FACTORIAL cannot be used with range parameter", 181)
 
 def check_if_range_types_are_invalid(value_type: str, valid_value_types: list) -> None:

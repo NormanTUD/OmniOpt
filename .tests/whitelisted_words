@@ -3863,3 +3863,8 @@ userAnn
 rLabel
 cLabel
 fLabel
+pty
+CompletedProcessstdout
+winsize
+HHHH
+analysed

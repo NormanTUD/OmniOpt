@@ -18,12 +18,14 @@ any are scheduled.
 from __future__ import annotations
 
 import os
+import re
 import sys
 import threading
 import time
 import traceback
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Callable, Dict, List, Optional
 
 from . import helpers
@@ -91,6 +93,74 @@ def _format_wanted(wanted: List[int]) -> str:
     return "/".join(str(c) for c in wanted)
 
 
+FAILED_TESTS_DIR_ENV = "OMNIOPT_FAILED_TESTS_DIR"
+
+
+def _failed_tests_dir() -> Path:
+    """Directory for the full output of failed tests.
+
+    Defaults to ``<repo root>/failed_tests`` (the repo root is three
+    levels above this file: ``.tests/_framework/runner.py``) and can be
+    overridden with the ``OMNIOPT_FAILED_TESTS_DIR`` environment variable.
+    """
+    env_dir = os.environ.get(FAILED_TESTS_DIR_ENV)
+    if env_dir:
+        return Path(env_dir).expanduser()
+    return Path(__file__).resolve().parents[2] / "failed_tests"
+
+
+def _safe_filename(name: str) -> str:
+    sanitized = re.sub(r"[^A-Za-z0-9._-]+", "_", name).strip("_")
+    return sanitized or "unnamed_test"
+
+
+def _save_failed_test_output(
+    *,
+    name: str,
+    test_id: Optional[str],
+    command: str,
+    exit_code: int,
+    wanted_exit_codes: List[int],
+    output: str,
+    runtime: float,
+) -> Optional[Path]:
+    """Write the complete output of a failed test to ``failed_tests/<name>.out``.
+
+    The file starts with a small header (which test failed, its id, the
+    exact command, the exit code and how to re-run it) followed by the
+    captured output, so a failure can be analysed without re-running the
+    whole test.  Any error while writing is reported but never fails the
+    test run itself.
+    """
+    try:
+        out_dir = _failed_tests_dir()
+        out_dir.mkdir(parents=True, exist_ok=True)
+        path = out_dir / f"{_safe_filename(name)}.out"
+        test_id_str = test_id or "(unknown id)"
+        wanted_str = "/".join(str(c) for c in wanted_exit_codes)
+        header = (
+            "FAILED TEST\n"
+            f"Name:      {name}\n"
+            f"Id:        {test_id_str}\n"
+            f"Exit code: {exit_code} (wanted {wanted_str})\n"
+            f"Command:   {command}\n"
+            f"Runtime:   {human_readable_time(runtime)}\n"
+            f"Time:      {timestamp()}\n"
+            f"Re-run this test:  python3 .tests/main --only={test_id_str}\n"
+            f"Full suite:        python3 .tests/main\n"
+            "--- full output ---\n"
+        )
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(header)
+            f.write(output)
+            if output and not output.endswith("\n"):
+                f.write("\n")
+        return path
+    except Exception as exc:
+        red_text(f"Could not save failed-test output: {exc}")
+        return None
+
+
 def run_command(
     name: str,
     command: str,
@@ -99,6 +169,7 @@ def run_command(
     cwd: Optional[str] = None,
     env: Optional[dict] = None,
     timeout: Optional[float] = None,
+    test_id: Optional[str] = None,
 ) -> TestResult:
     """Execute a single shell command and return the result.
 
@@ -155,6 +226,7 @@ def run_command(
     start = time.time()
     exit_code = 0
     interrupted = False
+    proc = None
     try:
         proc = run(command, cwd=cwd, env=env, timeout=timeout, live=True)
         exit_code = proc.returncode
@@ -195,15 +267,6 @@ def run_command(
     success_mark = "\u2717" if failed else "\u2713"
 
     if failed:
-        # capture output for failing test
-        try:
-            import subprocess
-            proc = subprocess.run(command, shell=True, capture_output=True, text=True)
-            stdout = proc.stdout
-            stderr = proc.stderr
-        except Exception as exc:
-            stdout = ""
-            stderr = f"Failed to capture output: {exc}"
         if alternative_exit_code is None:
             err = (
                 f"{name} exited with {exit_code} (wanted {wanted_exit_code}). "
@@ -215,12 +278,21 @@ def run_command(
                 f"{alternative_exit_code}). Command: {command}"
             )
         red_text(err + "\n")
-        if stdout:
-            print("--- stdout ---")
-            print(stdout)
-        if stderr:
-            print("--- stderr ---")
-            print(stderr)
+        # The complete output was already captured live while the test was
+        # running (see helpers.run), so it can be saved without re-running
+        # the command.
+        output = (proc.stdout or "") if proc is not None else ""
+        saved_path = _save_failed_test_output(
+            name=name,
+            test_id=test_id,
+            command=command,
+            exit_code=exit_code,
+            wanted_exit_codes=wanted,
+            output=output,
+            runtime=runtime,
+        )
+        if saved_path:
+            yellow_text(f"Full output saved to: {saved_path}")
         with state.lock:
             state.errors.append(err)
 
@@ -246,6 +318,7 @@ def run_python_function(
     func: Callable[[], int],
     wanted_exit_code: int,
     alternative_exit_code: Optional[int] = None,
+    test_id: Optional[str] = None,
 ) -> TestResult:
     """Execute a Python test function directly (no shell).
 
@@ -325,6 +398,15 @@ def run_python_function(
                 f"{alternative_exit_code})."
             )
         red_text(err + "\n")
+        _save_failed_test_output(
+            name=name,
+            test_id=test_id,
+            command=getattr(func, "__name__", repr(func)),
+            exit_code=exit_code,
+            wanted_exit_codes=wanted,
+            output="(python check - no subprocess output captured)\n",
+            runtime=runtime,
+        )
         with state.lock:
             state.errors.append(err)
 
@@ -566,10 +648,11 @@ def run_test_objects(
         if test.python_check and python_resolver is not None:
             func = python_resolver(test.python_check)
             result = run_python_function(test.name, func, test.wanted_exit_code,
-                                         test.alternative_exit_code)
+                                         test.alternative_exit_code,
+                                         test_id=test.id)
         else:
             result = run_command(test.name, cmd, test.wanted_exit_code,
-                                 test.alternative_exit_code)
+                                 test.alternative_exit_code, test_id=test.id)
         end = time.time()
         duration = end - start
         if duration > 10:
@@ -639,10 +722,12 @@ def _run_test_objects_parallel(
         def _runner():
             if func is not None:
                 return run_python_function(
-                    test.name, func, test.wanted_exit_code, test.alternative_exit_code
+                    test.name, func, test.wanted_exit_code, test.alternative_exit_code,
+                    test_id=test.id,
                 )
             return run_command(
-                test.name, cmd, test.wanted_exit_code, test.alternative_exit_code
+                test.name, cmd, test.wanted_exit_code, test.alternative_exit_code,
+                test_id=test.id,
             )
 
         return _runner

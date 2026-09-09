@@ -16,6 +16,20 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Iterable, List, Optional, Sequence
 
+try:
+    # Unix-only modules, used by the live-output tee (see ``run`` below).
+    # Kept optional so importing this module never breaks on platforms
+    # without them (e.g. Windows) -- live mode falls back to plain piping.
+    import fcntl
+    import pty
+    import select
+    import struct
+    import termios
+
+    _PTY_AVAILABLE = True
+except ImportError:  # pragma: no cover - platform dependent
+    _PTY_AVAILABLE = False
+
 
 class Colors:
     """ANSI color codes."""
@@ -258,6 +272,129 @@ def get_nvidia_smi_gpus() -> int:
     return 0
 
 
+def _pty_window_size() -> bytes:
+    """Return a ``winsize`` struct for the child's pseudo terminal.
+
+    Mirrors the real terminal of the test runner (stdout first, then
+    stderr) so rich tables, progress bars and so on are rendered with
+    exactly the same width as they would be without the tee.  Falls back
+    to the classic 80x24 when neither stream is a tty (e.g. in CI).
+    """
+    default = struct.pack("HHHH", 24, 80, 0, 0)
+    try:
+        for stream in (sys.stdout, sys.stderr):
+            try:
+                fileno = stream.fileno()
+            except (AttributeError, ValueError, OSError):
+                continue
+            if os.isatty(fileno):
+                return fcntl.ioctl(fileno, termios.TIOCGWINSZ, b"\x00" * 8)
+    except Exception:
+        pass
+    return default
+
+
+def _forward_to_terminal(chunk: bytes) -> None:
+    """Write a raw chunk to the runner's own terminal (never raises)."""
+    for fd in (1, 2):
+        try:
+            os.write(fd, chunk)
+            return
+        except OSError:
+            continue
+
+
+def _run_live_pty(
+    cmd: str,
+    cwd: Optional[str],
+    full_env: dict,
+    timeout: Optional[float],
+    check: bool,
+) -> subprocess.CompletedProcess:
+    """Run ``cmd`` attached to a pseudo terminal while teeing its output.
+
+    Both stdout and stderr of the child point at the pty slave, so the
+    child sees a real terminal: programs with terminal detection (rich,
+    tqdm, ...) render exactly as in an interactive shell.  Every chunk
+    read from the pty master is forwarded byte-for-byte to the runner's
+    own terminal (identical live view as before) and additionally kept in
+    a buffer, which is returned as the ``stdout`` of the completed
+    process.  Ctrl+C and timeouts kill the child like the plain-pipe
+    path does.
+    """
+    master, slave = pty.openpty()
+    try:
+        try:
+            fcntl.ioctl(master, termios.TIOCSWINSZ, _pty_window_size())
+        except Exception:
+            pass
+        proc = subprocess.Popen(
+            cmd, shell=True, cwd=cwd, env=full_env, stdout=slave, stderr=slave
+        )
+    finally:
+        try:
+            os.close(slave)
+        except OSError:
+            pass
+
+    captured = bytearray()
+    start = time.monotonic()
+    timed_out = False
+    try:
+        while True:
+            if timeout is not None and time.monotonic() - start >= timeout:
+                proc.kill()
+                timed_out = True
+                break
+            try:
+                ready, _, _ = select.select([master], [], [], 0.1)
+            except InterruptedError:
+                continue
+            if master not in ready:
+                continue
+            try:
+                chunk = os.read(master, 65536)
+            except OSError:
+                # EIO: every slave descriptor is closed -> child is done.
+                break
+            if not chunk:
+                break
+            captured.extend(chunk)
+            _forward_to_terminal(chunk)
+        proc.wait()
+        # Grab whatever is still buffered after the child exited.
+        while select.select([master], [], [], 0.1)[0]:
+            try:
+                chunk = os.read(master, 65536)
+            except OSError:
+                break
+            if not chunk:
+                break
+            captured.extend(chunk)
+            _forward_to_terminal(chunk)
+    except KeyboardInterrupt:
+        proc.kill()
+        proc.wait()
+        raise
+    finally:
+        try:
+            os.close(master)
+        except OSError:
+            pass
+
+    if timed_out:
+        raise subprocess.TimeoutExpired(cmd, timeout)
+
+    output = bytes(captured).decode("utf-8", errors="replace")
+    if check and proc.returncode != 0:
+        raise subprocess.CalledProcessError(
+            proc.returncode, proc.args, output=output, stderr=None
+        )
+    return subprocess.CompletedProcess(
+        proc.args, proc.returncode, stdout=output, stderr=""
+    )
+
+
 def run(
     cmd: str,
     cwd: Optional[str] = None,
@@ -271,10 +408,18 @@ def run(
     When ``live`` is True, the child's stdout/stderr stream straight to
     the terminal instead of being captured. The child is killed when the
     user presses Ctrl+C so no orphan process keeps running.
+
+    Live mode runs the child on a pseudo terminal and tees its output:
+    everything is still shown live (byte-for-byte, including all rich
+    rendering), and in addition the complete output is captured and
+    returned as ``CompletedProcess.stdout`` so failed tests can be
+    logged without re-running them.
     """
     full_env = os.environ.copy()
     if env:
         full_env.update(env)
+    if live and _PTY_AVAILABLE:
+        return _run_live_pty(cmd, cwd, full_env, timeout, check)
     if live:
         proc = subprocess.Popen(cmd, shell=True, cwd=cwd, env=full_env)
     else:

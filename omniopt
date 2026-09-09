@@ -2370,7 +2370,11 @@ if "--tests" in _sys.argv:
 # Without this, the venv gets built from the stale login-node system
 # python (e.g. 3.9.25) instead of the HPC module python.  _omniopt_reexec_with_modules
 # calls os.execve and never returns on success.
-_omniopt_reexec_with_modules()
+try:
+    _omniopt_reexec_with_modules()
+except KeyboardInterrupt:
+    pass
+    _sys.exit(0)
 
 if not _omniopt_in_venv():
     try:

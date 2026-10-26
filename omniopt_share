@@ -361,16 +361,39 @@ def write_bundle(
     manifest_path = out_dir / "manifest.json"
     zip_path = out_dir / "bundle.zip"
 
-    manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True))
-
     base = Path(source_dir) if source_dir is not None else None
+    # Hash and size are computed from the exact bytes that are written into
+    # the zip.  This keeps manifest and bundle consistent even if a file is
+    # modified (or truncated) between manifest creation and bundling, e.g.
+    # while the run is still live and ``worker_usage.csv`` is being updated.
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
         for f in manifest["files"]:
             arc = sanitize_archive_path(f["archive_path"])
             local = (base / arc) if base is not None else Path(arc)
             if not local.is_file():
                 raise FileNotFoundError(f"Bundle missing source file: {local}")
-            zf.write(local, arcname=arc)
+
+            digest = hashlib.sha256()
+            size = 0
+            with local.open("rb") as src, zf.open(arc, "w") as dst:
+                for chunk in iter(lambda: src.read(1 << 20), b""):
+                    size += len(chunk)
+                    if size > MAX_FILE_SIZE:
+                        raise ValueError(
+                            f"{local} is larger than max {MAX_FILE_SIZE}"
+                        )
+                    digest.update(chunk)
+                    dst.write(chunk)
+
+            f["size"] = size
+            f["sha256"] = digest.hexdigest()
+
+    # Re-validate after the authoritative size/hash values have been filled
+    # in, then persist exactly the manifest that describes the bundle.
+    err = verify_manifest(manifest)
+    if err:
+        raise ValueError(f"Refusing to write invalid manifest: {err}")
+    manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True))
 
     return manifest_path, zip_path
 

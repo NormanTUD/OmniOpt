@@ -188,10 +188,13 @@
 				$uuid_folder = find_matching_uuid_run_folder($update_uuid, $user_id, $experiment_name);
 			}
 		}
-		// When the client sends an update_uuid (or --update flag) but no
-		// matching folder was found, fall back to the most recently
-		// modified run folder for this (user_id, experiment_name).
-		if (empty($uuid_folder) && (!empty($manifest["update"]) || !empty($update_uuid))) {
+		// Only fall back to the latest run when the client asked for an
+		// update *without* providing a UUID (legacy behaviour).  If the
+		// client supplied a UUID that does not exist on the server, this is
+		// a new run (e.g. a fresh local run with a new run_uuid) and must be
+		// uploaded into a new folder.  Never merge it into an unrelated old
+		// share, and never overwrite the old run.
+		if (empty($uuid_folder) && !empty($manifest["update"]) && empty($update_uuid)) {
 			$uuid_folder = find_latest_run_folder($user_id, $experiment_name);
 		}
 		$_GET["password"] = $manifest["password"] ?? "";

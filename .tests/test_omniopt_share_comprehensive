@@ -410,6 +410,51 @@ def test_manifest_size_matches_file_actually_written() -> bool:
     return ok
 
 
+def test_write_bundle_hashes_bytes_that_change_after_manifest_build() -> bool:
+    """Manifest and ZIP must stay consistent for live files.
+
+    A run that is still writing (for example ``worker_usage.csv``) can
+    change between ``build_manifest`` and ``write_bundle``.  The bundle
+    hashes must then describe the bytes actually put into the ZIP, not the
+    stale values from ``build_manifest``.
+    """
+    with tempfile.TemporaryDirectory() as tmp:
+        run = _make_run_dir(Path(tmp))
+        m = os_.build_manifest(
+            run_dir=str(run),
+            user_id="alice",
+            experiment_name="exp",
+            update=False,
+            update_uuid=None,
+            password=None,
+            send_single_runs=False,
+        )
+        target = run / "results.csv"
+        new_content = b"a,b\n" + b"1,2\n" * 5000
+        target.write_bytes(new_content)
+
+        out_dir = Path(tmp) / "out"
+        out_dir.mkdir()
+        m_path, z_path = os_.write_bundle(m, out_dir, source_dir=str(run))
+        on_disk = json.loads(m_path.read_text())
+        entry = next(
+            f for f in on_disk["files"] if f["archive_path"] == "results.csv"
+        )
+        with zipfile.ZipFile(z_path) as zf:
+            zipped = zf.read("results.csv")
+
+    ok = _check(zipped == new_content, "zip did not contain current file bytes")
+    ok &= _check(
+        entry["size"] == len(new_content),
+        f"manifest size stale: {entry['size']} != {len(new_content)}",
+    )
+    ok &= _check(
+        entry["sha256"] == hashlib.sha256(new_content).hexdigest(),
+        "manifest sha256 does not describe the zipped bytes",
+    )
+    return ok
+
+
 def test_manifest_rejects_file_larger_than_max() -> bool:
     """Files bigger than MAX_FILE_SIZE must be rejected at build time."""
     from omniopt_share import MAX_FILE_SIZE
@@ -1338,6 +1383,7 @@ TESTS = [
     test_sha256_of_large_file,
     test_manifest_hash_matches_file_actually_written,
     test_manifest_size_matches_file_actually_written,
+    test_write_bundle_hashes_bytes_that_change_after_manifest_build,
     test_manifest_rejects_file_larger_than_max,
     # Bundle structure
     test_bundle_contains_exactly_manifest_files,

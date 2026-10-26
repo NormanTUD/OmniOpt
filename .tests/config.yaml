@@ -87,6 +87,28 @@ tests:
     wanted_exit_code: 0
     tags: [suite:full, quick:no]
 
+  # ---- evaluation working directory ---------------------------------------
+  - id: eval_workdir_relative
+    class: eval_workdir
+    name: "Relative run_program path uses the original working directory"
+    cmd: "{REPO_ROOT}/.tests/test_eval_working_directory --case=relative"
+    wanted_exit_code: 0
+    tags: [suite:full, quick:never]
+
+  - id: eval_workdir_absolute
+    class: eval_workdir
+    name: "Absolute run_program path still works with --workdir"
+    cmd: "{REPO_ROOT}/.tests/test_eval_working_directory --case=absolute"
+    wanted_exit_code: 0
+    tags: [suite:full, quick:never]
+
+  - id: eval_workdir_installer
+    class: eval_workdir
+    name: "Installer forwards the original working directory"
+    cmd: "{REPO_ROOT}/.tests/test_eval_working_directory --case=installer"
+    wanted_exit_code: 0
+    tags: [suite:full, quick:never]
+
   # ---- defective configs ----------------------------------------------------
   - id: defective_toml
     class: defective

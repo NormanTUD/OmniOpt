@@ -1,0 +1,264 @@
+#!/usr/bin/env python3
+"""Test that evaluations run in the directory chosen with ``--workdir``.
+
+Two use cases are covered:
+
+* a relative ``run_program`` (and scripts called from it) resolves against
+  the directory supplied by the installer / ``--workdir``;
+* an absolute ``run_program`` still works when the evaluation cwd differs.
+
+The installer part is checked separately: it must remember the directory the
+user invoked it from and pass it on to OmniOpt.
+"""
+
+from __future__ import annotations
+
+import argparse
+import base64
+import csv
+import os
+import shlex
+import shutil
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+from typing import Optional
+
+THIS_DIR = Path(__file__).resolve().parent
+if str(THIS_DIR) not in sys.path:
+    sys.path.insert(0, str(THIS_DIR))
+
+from _framework.helpers import green_text, red_text
+
+
+REPO_ROOT = THIS_DIR.parent
+
+
+def _b64(text: str) -> str:
+    return base64.b64encode(text.encode("utf-8")).decode("ascii")
+
+
+def _omniopt_cmd() -> list[str]:
+    return shlex.split(os.environ.get("OMNIOPT_CALL", str(REPO_ROOT / "omniopt")))
+
+
+def _write_script(path: Path, content: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(content, encoding="utf-8")
+    path.chmod(0o755)
+
+
+def _run_omniopt(workdir: Path, run_dir: Path, run_program: str, experiment_name: str) -> subprocess.CompletedProcess:
+    cmd = _omniopt_cmd() + [
+        f"--experiment_name={experiment_name}",
+        "--mem_gb=1",
+        "--time=10",
+        "--worker_timeout=10",
+        "--max_eval=1",
+        "--num_parallel_jobs=1",
+        "--gpus=0",
+        "--num_random_steps=1",
+        "--follow",
+        "--result_names", "RESULT=min",
+        f"--run_program={_b64(run_program)}",
+        "--cpus_per_task=1",
+        "--nodes_per_job=1",
+        "--model=BOTORCH_MODULAR",
+        "--occ_type=euclid",
+        "--run_mode=local",
+        "--parameter", "x", "range", "0", "10", "int", "false",
+        "--generate_all_jobs_at_once",
+        "--force_local_execution",
+        f"--run_dir={run_dir}",
+        f"--workdir={workdir}",
+        "--disable_tqdm",
+        "--no_sleep",
+    ]
+    return subprocess.run(
+        cmd,
+        cwd=str(REPO_ROOT),
+        capture_output=True,
+        text=True,
+        timeout=900,
+    )
+
+
+def _read_only_result(run_dir: Path, experiment_name: str) -> tuple[float, float]:
+    results_csv = run_dir / experiment_name / "0" / "results.csv"
+    if not results_csv.exists():
+        raise AssertionError(f"{results_csv} was not created")
+
+    with open(results_csv, newline="", encoding="utf-8") as f:
+        rows = list(csv.DictReader(f))
+
+    if len(rows) != 1:
+        raise AssertionError(f"Expected exactly one result row in {results_csv}, got {len(rows)}")
+
+    row = rows[0]
+    return float(row["x"]), float(row["RESULT"])
+
+
+def _check_result_matches_x(run_dir: Path, experiment_name: str) -> None:
+    x_value, result = _read_only_result(run_dir, experiment_name)
+    if result != x_value:
+        raise AssertionError(
+            f"RESULT ({result}) does not match the parameter x ({x_value}); "
+            "the run program probably did not execute in the intended directory"
+        )
+
+
+def test_relative_path() -> bool:
+    with tempfile.TemporaryDirectory(prefix="oo_eval_wd_relative_") as tmp:
+        base = Path(tmp)
+        workdir = base / "workdir"
+        run_dir = base / "runs"
+        experiment_name = "eval_workdir_relative"
+
+        _write_script(
+            workdir / "run.sh",
+            "#!/bin/bash\n"
+            "set -euo pipefail\n"
+            "./sub/compute.sh \"$1\"\n",
+        )
+        _write_script(
+            workdir / "sub" / "compute.sh",
+            "#!/bin/bash\n"
+            "set -euo pipefail\n"
+            "echo \"RESULT: $1\"\n",
+        )
+
+        proc = _run_omniopt(workdir, run_dir, "bash run.sh %(x)", experiment_name)
+        if proc.returncode != 0:
+            red_text("Relative-path run failed!")
+            sys.stderr.write(proc.stdout[-4000:])
+            sys.stderr.write(proc.stderr[-4000:])
+            return False
+
+        try:
+            _check_result_matches_x(run_dir, experiment_name)
+        except AssertionError as exc:
+            red_text(str(exc))
+            return False
+
+        green_text("Relative-path evaluation used the requested working directory")
+        return True
+
+
+def test_absolute_path() -> bool:
+    with tempfile.TemporaryDirectory(prefix="oo_eval_wd_absolute_") as tmp:
+        base = Path(tmp)
+        workdir = base / "workdir"
+        script_dir = base / "somewhere_else"
+        run_dir = base / "runs"
+        experiment_name = "eval_workdir_absolute"
+
+        workdir.mkdir(parents=True)
+
+        script = script_dir / "absolute_run.sh"
+        _write_script(
+            script,
+            "#!/bin/bash\n"
+            "set -euo pipefail\n"
+            "echo \"RESULT: $1\"\n",
+        )
+
+        proc = _run_omniopt(
+            workdir,
+            run_dir,
+            f"bash {shlex.quote(str(script))} %(x)",
+            experiment_name,
+        )
+        if proc.returncode != 0:
+            red_text("Absolute-path run failed!")
+            sys.stderr.write(proc.stdout[-4000:])
+            sys.stderr.write(proc.stderr[-4000:])
+            return False
+
+        try:
+            _check_result_matches_x(run_dir, experiment_name)
+        except AssertionError as exc:
+            red_text(str(exc))
+            return False
+
+        green_text("Absolute-path evaluation still works with a different working directory")
+        return True
+
+
+def test_installer_passes_original_cwd() -> bool:
+    php = shutil.which("php")
+    if php is None:
+        green_text("PHP not installed. Skipping installer check.")
+        return True
+
+    proc = subprocess.run(
+        [php, str(THIS_DIR / ".." / ".gui" / "install_omniax.php")],
+        cwd=str(REPO_ROOT / ".gui"),
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
+    if proc.returncode != 0:
+        red_text("Could not render install_omniax.php")
+        sys.stderr.write(proc.stderr[-4000:])
+        return False
+
+    missing = []
+    for expected in (
+        'original_working_dir="$(pwd -P)"',
+        'export OMNIAX_ORIGINAL_CWD="$original_working_dir"',
+        "--workdir=$original_working_dir",
+    ):
+        if expected not in proc.stdout:
+            missing.append(expected)
+
+    if missing:
+        red_text("The installer does not pass the original working directory:")
+        for item in missing:
+            red_text(f"  missing: {item}")
+        return False
+
+    green_text("Installer captures and forwards the original working directory")
+    return True
+
+
+CASES = {
+    "relative": test_relative_path,
+    "absolute": test_absolute_path,
+    "installer": test_installer_passes_original_cwd,
+}
+
+
+def main(argv: Optional[list[str]] = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--case",
+        choices=[*CASES, "all"],
+        default="all",
+        help="Which use case to test (default: all)",
+    )
+    args = parser.parse_args(argv)
+
+    cases = CASES if args.case == "all" else {args.case: CASES[args.case]}
+    failures = 0
+    for name, test in cases.items():
+        print(f"running {name} ... ", end="", flush=True)
+        try:
+            ok = test()
+        except Exception as exc:  # pylint: disable=broad-except
+            red_text(f"\n  EXCEPTION: {exc!r}")
+            ok = False
+        if ok:
+            print("ok")
+        else:
+            failures += 1
+            print("FAIL")
+
+    return 0 if failures == 0 else 1
+
+
+if __name__ == "__main__":
+    try:
+        sys.exit(main())
+    except KeyboardInterrupt:
+        sys.exit(0)

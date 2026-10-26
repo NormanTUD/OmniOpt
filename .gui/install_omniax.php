@@ -141,6 +141,7 @@ installation_method="clone"
 dryrun=0
 
 start_command_base64=""
+original_working_dir="$(pwd -P)"
 
 function help {
 	echo "OmniOpt2-Installer"
@@ -360,6 +361,14 @@ function install_and_run {
 
 	if [[ $dryrun -eq 1 ]]; then
 		start_command="$start_command --dryrun"
+	fi
+
+	if [[ -n "$original_working_dir" ]]; then
+		export OMNIAX_ORIGINAL_CWD="$original_working_dir"
+
+		if [[ "$start_command" != *"--workdir"* ]] && [[ "$original_working_dir" =~ ^[[:alnum:]_./:=@%+-]+$ ]]; then
+			start_command="$start_command --workdir=$original_working_dir"
+		fi
 	fi
 
 	if [[ $installation_method == "clone" ]]; then

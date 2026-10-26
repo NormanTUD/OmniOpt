@@ -3366,7 +3366,7 @@ class ConfigLoader:
         optional.add_argument('--disable_tqdm', help='Disables the TQDM progress bar', action='store_true', default=False)
         optional.add_argument('--local_cpu_monitor', help='Show a live CPU/RAM monitor (via executor_backend.CPUMonitor) while local jobs run. Only active without SLURM and with --num_parallel_jobs > 1; replaces the tqdm bar while active.', action='store_true', default=False)
         optional.add_argument('--disable_previous_job_constraint', help='For continued jobs: Disable getting the constraint of the previous job that is about to be continued', action='store_true', default=False)
-        optional.add_argument('--workdir', help='Working directory', default='', type=str)
+        optional.add_argument('--workdir', help='Working directory for evaluations. Relative paths in --run_program and --run_program_once are resolved from here, while absolute paths are unaffected.', default='', type=str)
         optional.add_argument('--occ_type', help=f'Optimization-with-combined-criteria-type (valid types are {joined_valid_occ_types})', type=str, default='euclid')
         optional.add_argument('--result_names', nargs='+', default=[], help='Name of hyperparameters. Example --result_names result1=max result2=min result3. Default: RESULT=min')
         optional.add_argument('--minkowski_p', help='Minkowski order of distance (default: 2), needs to be larger than 0', type=float, default=2)
@@ -4281,7 +4281,7 @@ class ExternalProgramGenerationNode(ax_backend.ExternalGenerationNodeBase):
 
             run_this_program = self.external_generator.replace('\n', '').split() + [temp_dir]
 
-            subprocess.run(run_this_program, check=True)
+            subprocess.run(run_this_program, check=True, cwd=get_eval_working_dir())
 
             print_debug(f"Executed external program: {' '.join(run_this_program)}")
 
@@ -6571,6 +6571,29 @@ class MonitorProcess:
         self.running = False
         self.thread.join()
 
+def get_eval_working_dir() -> Optional[str]:
+    """Return the directory in which user programs should be executed.
+
+    ``--workdir`` takes precedence. The installer also exports
+    ``OMNIAX_ORIGINAL_CWD`` so that installations which had to ``cd`` into a
+    checkout still evaluate programs from the directory where the user
+    started the run. An empty result means "inherit the current cwd".
+    """
+    _workdir = getattr(args, "workdir", "") or os.environ.get("OMNIAX_ORIGINAL_CWD", "")
+    if not _workdir:
+        return None
+
+    _workdir = os.path.abspath(os.path.expanduser(_workdir.strip("'\"")))
+
+    if not os.path.isdir(_workdir):
+        print_yellow(
+            f"--workdir '{_workdir}' does not exist or is not a directory. "
+            "Evaluations will run in the current working directory."
+        )
+        return None
+
+    return _workdir
+
 def execute_bash_code_log_time(code: str) -> list:
     # Decode and prepare the environment BEFORE spawning the process
     run_env = os.environ.copy()
@@ -6588,7 +6611,7 @@ def execute_bash_code_log_time(code: str) -> list:
         print_red(f"⚠  Warning: Unexpected error loading OMNIAX_ENV_BASE64: {e}")
 
     # Now spawn the process WITH the decoded environment
-    process_item = subprocess.Popen(code, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=run_env)
+    process_item = subprocess.Popen(code, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=run_env, cwd=get_eval_working_dir())
 
     with MonitorProcess(process_item.pid):
         try:
@@ -6613,7 +6636,8 @@ def execute_bash_code(code: str) -> list:
             shell=True,
             check=True,
             text=True,
-            capture_output=True
+            capture_output=True,
+            cwd=get_eval_working_dir()
         )
 
         if result.returncode != 0:
@@ -13778,7 +13802,7 @@ def run_program_once(params: Optional[dict] = None) -> None:
             command_str = command_str.replace(placeholder, str(v))
 
         original_print(f"Executing command: {command_str}")
-        result = subprocess.run(command_str, shell=True, check=True)
+        result = subprocess.run(command_str, shell=True, check=True, cwd=get_eval_working_dir())
         if result.returncode == 0:
             print("[bold green]Setup script completed successfully ✅[/bold green]")
         else:
@@ -13788,7 +13812,7 @@ def run_program_once(params: Optional[dict] = None) -> None:
 
     elif isinstance(args.run_program_once, (list, tuple)):
         with spinner("run_program_once: Executing command list: [cyan]{args.run_program_once}[/cyan]"):
-            result = subprocess.run(args.run_program_once, check=True)
+            result = subprocess.run(args.run_program_once, check=True, cwd=get_eval_working_dir())
             if result.returncode == 0:
                 print("[bold green]Setup script completed successfully ✅[/bold green]")
             else:

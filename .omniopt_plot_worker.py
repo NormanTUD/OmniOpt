@@ -47,6 +47,11 @@ else:
 @beartype
 def plot_worker_usage(pd_csv: str) -> None:
     try:
+        # Validate the encoding explicitly: newer pandas versions may turn
+        # invalid UTF-8 into a ParserError before raising UnicodeDecodeError.
+        with open(pd_csv, "rb") as csv_file:
+            csv_file.read().decode("utf-8")
+
         data = pd.read_csv(
             pd_csv,
             names=["time", "num_parallel_jobs", "nr_current_workers", "percentage"],

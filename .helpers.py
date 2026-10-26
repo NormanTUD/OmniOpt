@@ -380,7 +380,10 @@ def _unidiff_output(expected: str, actual: str) -> str:
     Helper function. Returns a string containing the unified diff of two multiline strings.
     """
 
-    diff = difflib.unified_diff(expected, actual)
+    diff = difflib.unified_diff(
+        expected.splitlines(keepends=True),
+        actual.splitlines(keepends=True),
+    )
 
     return ''.join(diff)
 

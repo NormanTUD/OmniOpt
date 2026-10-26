@@ -111,7 +111,7 @@ tests:
 
   - id: eval_error_diagnostics
     class: diagnostics
-    name: "Evaluation error diagnostics (scripts, results, signals)"
+    name: "Evaluation error diagnostics (scripts / results / signals)"
     cmd: "{REPO_ROOT}/.tests/eval_error_diagnostics"
     wanted_exit_code: 0
     tags: [suite:full, quick:never, runtime:long]

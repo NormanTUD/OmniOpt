@@ -57,6 +57,16 @@ def _diagnostic_block(output: str) -> Optional[str]:
         again = re.search(r"\[OmniOpt\] Evaluation failed again[^\n]*", output)
         return again.group(0).strip() if again else None
 
+    panel_start = output.rfind("╭", 0, marker_index)
+    if panel_start != -1:
+        start = output.rfind("\n", 0, panel_start) + 1
+        panel_end = output.find("╰", marker_index)
+        if panel_end != -1:
+            end = output.find("\n", panel_end)
+            if end == -1:
+                end = len(output)
+            return output[start:end].strip()
+
     separator = "=" * 78
     start = output.rfind(separator, 0, marker_index)
     if start == -1:

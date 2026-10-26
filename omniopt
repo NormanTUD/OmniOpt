@@ -7592,36 +7592,39 @@ def print_evaluation_diagnostics(
     cwd = get_eval_working_dir() or os.getcwd()
     signal_number = _signal_from_exit_code(exit_code, signal_code)
     lines = [
-        "",
-        "=" * 78,
-        " OmniOpt evaluation failed - quick diagnosis",
-        "=" * 78,
-        f" Command:       {program_string[:500]}",
-        f" Working dir:   {cwd}",
-        f" Exit code:     {exit_code}",
+        f"Command:       {program_string[:500]}",
+        f"Working dir:   {cwd}",
+        f"Exit code:     {exit_code}",
     ]
     if signal_number is not None:
-        lines.append(f" Signal:        {_signal_display_name(signal_number)} ({signal_number})")
-    lines.append(f" Parsed result: {result!r}")
+        lines.append(f"Signal:        {_signal_display_name(signal_number)} ({signal_number})")
+    lines.append(f"Parsed result: {result!r}")
     lines.append("")
-    lines.append(" Likely cause(s) and how to fix:")
+    lines.append("Likely cause(s) and how to fix:")
     for hint in hints:
-        lines.append(f"   - {hint}")
+        lines.append(f"  - {hint}")
 
     relevant_output = _diagnostic_tail_lines(stderr if stderr and stderr.strip() else stdout)
     if relevant_output:
         lines.append("")
-        lines.append(" Relevant output (last lines):")
+        lines.append("Relevant output (last lines):")
         for line in relevant_output:
-            lines.append(f"   {line}")
+            lines.append(f"  {line}")
 
-    lines.append("=" * 78)
     text = "\n".join(lines)
-    original_print(text)
+    separator = "=" * 78
+    plain_text = "\n".join([
+        separator,
+        " OmniOpt evaluation failed - quick diagnosis",
+        separator,
+        text,
+        separator,
+    ])
+    original_print(plain_text)
 
     try:
         with open(get_current_run_folder("evaluation_errors.log"), mode="a", encoding="utf-8") as error_file:
-            error_file.write(text + "\n\n")
+            error_file.write(plain_text + "\n\n")
     except Exception as e:
         print_debug(f"Could not write evaluation diagnostics to evaluation_errors.log: {e}")
 
@@ -11118,6 +11121,16 @@ def _extract_evaluation_diagnostic_block(text: str) -> Optional[str]:
         again = re.search(r"\[OmniOpt\] Evaluation failed again[^\n]*", text)
         return again.group(0).strip() if again else None
 
+    panel_start = text.rfind("╭", 0, marker_index)
+    if panel_start != -1:
+        start = text.rfind("\n", 0, panel_start) + 1
+        panel_end = text.find("╰", marker_index)
+        if panel_end != -1:
+            end = text.find("\n", panel_end)
+            if end == -1:
+                end = len(text)
+            return text[start:end].strip()
+
     separator = "=" * 78
     start = text.rfind(separator, 0, marker_index)
     if start == -1:
@@ -11138,6 +11151,29 @@ def _extract_evaluation_diagnostic_block(text: str) -> Optional[str]:
 
 
 _PRINTED_JOB_DIAGNOSTICS: set = set()
+
+
+def _print_diagnostic_panel(block: str) -> None:
+    body_lines = []
+    for line in block.splitlines():
+        stripped = line.strip()
+        if not stripped:
+            continue
+        if set(stripped) == {"="}:
+            continue
+        if "OmniOpt evaluation failed - quick diagnosis" in stripped:
+            continue
+        body_lines.append(line)
+    body = "\n".join(body_lines)
+    panel = Panel(
+        Text(body),
+        title="[bold red]OmniOpt evaluation failed - quick diagnosis[/bold red]",
+        border_style="bold red",
+        padding=(1, 2),
+    )
+    console.print("")
+    console.print(panel, soft_wrap=False)
+    console.print("")
 
 
 def _print_job_failure_diagnostics(job: Any, result: Any = None) -> None:
@@ -11169,7 +11205,7 @@ def _print_job_failure_diagnostics(job: Any, result: Any = None) -> None:
             block = _extract_evaluation_diagnostic_block(stderr_text)
 
         if block is not None:
-            original_print("\n" + block + "\n")
+            _print_diagnostic_panel(block)
             return
 
         print_evaluation_diagnostics(

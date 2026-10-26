@@ -1,0 +1,343 @@
+#!/usr/bin/env python3
+"""End-to-end tests for OmniOpt's evaluation error diagnostics.
+
+Each case starts a real local OmniOpt run with a deliberately broken
+``--run_program`` and checks that the console output contains actionable
+guidance.  Run it directly:
+
+    ./.tests/eval_error_diagnostics
+    ./.tests/eval_error_diagnostics --case=permission
+    ./.tests/eval_error_diagnostics --list
+
+The script always prints the OmniOpt diagnosis block for each case, so it can
+also be used to inspect the wording by hand.
+"""
+
+from __future__ import annotations
+
+import argparse
+import base64
+import os
+import re
+import shlex
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+from typing import Callable, List, Optional, Tuple
+
+THIS_DIR = Path(__file__).resolve().parent
+if str(THIS_DIR) not in sys.path:
+    sys.path.insert(0, str(THIS_DIR))
+
+from _framework.helpers import green_text, red_text, yellow_text
+
+
+REPO_ROOT = THIS_DIR.parent
+EXPECTED_MARKER = "OmniOpt evaluation failed - quick diagnosis"
+
+
+def _b64(text: str) -> str:
+    return base64.b64encode(text.encode("utf-8")).decode("ascii")
+
+
+def _omniopt_cmd() -> list[str]:
+    return shlex.split(os.environ.get("OMNIOPT_CALL", str(REPO_ROOT / "omniopt")))
+
+
+def _write_script(path: Path, content: str, executable: bool = True) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(content, encoding="utf-8")
+    path.chmod(0o755 if executable else 0o644)
+
+
+def _diagnostic_block(output: str) -> Optional[str]:
+    marker_index = output.find(EXPECTED_MARKER)
+    if marker_index == -1:
+        again = re.search(r"\[OmniOpt\] Evaluation failed again[^\n]*", output)
+        return again.group(0).strip() if again else None
+
+    separator = "=" * 78
+    start = output.rfind(separator, 0, marker_index)
+    if start == -1:
+        start = output.rfind("\n", 0, marker_index) + 1
+
+    title_separator = output.find(separator, marker_index)
+    end = (
+        output.find(separator, title_separator + len(separator))
+        if title_separator != -1
+        else -1
+    )
+    if end != -1:
+        end = output.find("\n", end)
+        if end == -1:
+            end = len(output)
+
+    return output[start:end].strip() if end != -1 else output[start:].strip()
+
+
+def _run_omniopt(
+    workdir: Path,
+    run_dir: Path,
+    run_program: str,
+    experiment_name: str,
+) -> subprocess.CompletedProcess:
+    cmd = _omniopt_cmd() + [
+        f"--experiment_name={experiment_name}",
+        "--mem_gb=1",
+        "--time=10",
+        "--worker_timeout=10",
+        "--max_eval=1",
+        "--num_parallel_jobs=1",
+        "--gpus=0",
+        "--num_random_steps=1",
+        "--result_names", "RESULT=min",
+        f"--run_program={_b64(run_program)}",
+        "--cpus_per_task=1",
+        "--nodes_per_job=1",
+        "--model=BOTORCH_MODULAR",
+        "--occ_type=euclid",
+        "--run_mode=local",
+        "--parameter", "x", "range", "0", "1", "int", "false",
+        "--generate_all_jobs_at_once",
+        "--force_local_execution",
+        f"--run_dir={run_dir}",
+        f"--workdir={workdir}",
+        "--disable_tqdm",
+        "--no_sleep",
+    ]
+    env = os.environ.copy()
+    env.setdefault("DONT_SHOW_DONT_INSTALL_MESSAGE", "1")
+    env.setdefault("DISABLE_SIXEL_GRAPHICS", "1")
+    return subprocess.run(
+        cmd,
+        cwd=str(REPO_ROOT),
+        capture_output=True,
+        text=True,
+        timeout=600,
+        env=env,
+    )
+
+
+# ---------------------------------------------------------------------------
+# Cases.  Each function prepares files and returns (run_program, expected).
+# ---------------------------------------------------------------------------
+
+def case_missing_relative_script(workdir: Path) -> Tuple[str, List[str]]:
+    return (
+        "bash run_missing.sh %(x)",
+        ["could not be found", "run_missing.sh", "--workdir"],
+    )
+
+
+def case_missing_command(workdir: Path) -> Tuple[str, List[str]]:
+    return (
+        "definitely_no_such_command_xyz --value %(x)",
+        ["was not found", "definitely_no_such_command_xyz", "PATH"],
+    )
+
+
+def case_permission_denied(workdir: Path) -> Tuple[str, List[str]]:
+    _write_script(
+        workdir / "blocked.sh",
+        "#!/bin/bash\necho \"RESULT: $1\"\n",
+        executable=False,
+    )
+    return (
+        "./blocked.sh %(x)",
+        ["chmod +x", "not executable"],
+    )
+
+
+def case_bad_shebang(workdir: Path) -> Tuple[str, List[str]]:
+    _write_script(
+        workdir / "bad_shebang.sh",
+        "#!/definitely/not/an/interpreter\necho \"RESULT: $1\"\n",
+    )
+    return (
+        "./bad_shebang.sh %(x)",
+        ["shebang", "interpreter"],
+    )
+
+
+def case_python_traceback(workdir: Path) -> Tuple[str, List[str]]:
+    _write_script(
+        workdir / "raise_error.py",
+        "print('about to fail', flush=True)\n"
+        "raise ValueError('boom from the test script')\n",
+    )
+    return (
+        "python3 raise_error.py %(x)",
+        ["ValueError: boom from the test script", "Python exception"],
+    )
+
+
+def case_python_missing_module(workdir: Path) -> Tuple[str, List[str]]:
+    _write_script(
+        workdir / "missing_module.py",
+        "import totally_missing_module_for_omniopt_test  # noqa: F401\n",
+    )
+    return (
+        "python3 missing_module.py %(x)",
+        [
+            "ModuleNotFoundError",
+            "pip install totally_missing_module_for_omniopt_test",
+        ],
+    )
+
+
+def case_python_missing_input_file(workdir: Path) -> Tuple[str, List[str]]:
+    _write_script(
+        workdir / "missing_input.py",
+        "with open('input_data.csv', encoding='utf-8') as f:\n"
+        "    print(f.read())\n",
+    )
+    return (
+        "python3 missing_input.py %(x)",
+        ["FileNotFoundError", "input_data.csv", "--workdir"],
+    )
+
+
+def case_no_result(workdir: Path) -> Tuple[str, List[str]]:
+    _write_script(
+        workdir / "no_result.sh",
+        "#!/bin/bash\necho \"I ran, but I did not print a result\"\n",
+    )
+    return (
+        "./no_result.sh %(x)",
+        ["found no result", "RESULT", "stdout"],
+    )
+
+
+def case_malformed_result(workdir: Path) -> Tuple[str, List[str]]:
+    _write_script(
+        workdir / "bad_result.sh",
+        "#!/bin/bash\necho \"RESULT: not_a_number\"\n",
+    )
+    return (
+        "./bad_result.sh %(x)",
+        ["result marker", "could not parse a number", "RESULT"],
+    )
+
+
+def case_nonzero_exit_with_result(workdir: Path) -> Tuple[str, List[str]]:
+    _write_script(
+        workdir / "exit_two.sh",
+        "#!/bin/bash\necho \"RESULT: 42\"\nexit 2\n",
+    )
+    return (
+        "./exit_two.sh %(x)",
+        ["valid result", "exited with code 2"],
+    )
+
+
+def case_segfault(workdir: Path) -> Tuple[str, List[str]]:
+    _write_script(
+        workdir / "crash.sh",
+        "#!/bin/bash\nkill -SEGV $$\n",
+    )
+    return (
+        "bash crash.sh %(x)",
+        ["SIGSEGV", "segmentation"],
+    )
+
+
+CASES: dict[str, Callable[[Path], Tuple[str, List[str]]]] = {
+    "missing_relative_script": case_missing_relative_script,
+    "missing_command": case_missing_command,
+    "permission": case_permission_denied,
+    "bad_shebang": case_bad_shebang,
+    "python_traceback": case_python_traceback,
+    "missing_module": case_python_missing_module,
+    "missing_input_file": case_python_missing_input_file,
+    "no_result": case_no_result,
+    "malformed_result": case_malformed_result,
+    "nonzero_exit_with_result": case_nonzero_exit_with_result,
+    "segfault": case_segfault,
+}
+
+
+def _run_case(name: str, show_full: bool = False) -> bool:
+    with tempfile.TemporaryDirectory(prefix=f"oo_diag_{name}_") as tmp:
+        base = Path(tmp)
+        workdir = base / "workdir"
+        run_dir = base / "runs"
+        workdir.mkdir()
+
+        run_program, expected = CASES[name](workdir)
+        print(f"\n[{name}]")
+        print(f"  run_program: {run_program}")
+        print(f"  workdir:     {workdir}")
+
+        proc = _run_omniopt(workdir, run_dir, run_program, f"diag_{name}")
+        output = (proc.stdout or "") + "\n" + (proc.stderr or "")
+        block = _diagnostic_block(output)
+
+        print(f"  OmniOpt exit code: {proc.returncode}")
+        if block:
+            print("  --- OmniOpt diagnosis ---")
+            for line in block.splitlines():
+                print(f"  {line}")
+        else:
+            red_text("  No OmniOpt diagnosis block was found.")
+
+        missing = [token for token in expected if token.lower() not in output.lower()]
+        if block and not missing:
+            sys.stdout.flush()
+            green_text("  PASS")
+            return True
+
+        if missing:
+            sys.stdout.flush()
+            red_text(f"  Missing expected hint(s): {missing}")
+        if show_full or not block:
+            yellow_text("  --- full OmniOpt output ---")
+            print(output)
+        return False
+
+
+def main(argv: Optional[list[str]] = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--case",
+        choices=[*CASES, "all"],
+        default="all",
+        help="Only run one scenario (default: all)",
+    )
+    parser.add_argument("--list", action="store_true", help="List scenarios and exit")
+    parser.add_argument("--show-full-output", action="store_true", help="Always print full OmniOpt output")
+    args = parser.parse_args(argv)
+
+    if args.list:
+        for name in CASES:
+            print(name)
+        return 0
+
+    names = list(CASES) if args.case == "all" else [args.case]
+    failures: List[str] = []
+    for name in names:
+        try:
+            ok = _run_case(name, show_full=args.show_full_output)
+        except subprocess.TimeoutExpired:
+            red_text(f"\n[{name}] FAIL: OmniOpt run timed out")
+            ok = False
+        except Exception as exc:  # pylint: disable=broad-except
+            red_text(f"\n[{name}] FAIL: {exc!r}")
+            ok = False
+        if not ok:
+            failures.append(name)
+
+    print()
+    sys.stdout.flush()
+    if failures:
+        red_text(f"{len(failures)}/{len(names)} diagnostic case(s) failed: {', '.join(failures)}")
+        return 1
+    green_text(f"All {len(names)} diagnostic case(s) passed")
+    return 0
+
+
+if __name__ == "__main__":
+    try:
+        sys.exit(main())
+    except KeyboardInterrupt:
+        sys.exit(0)

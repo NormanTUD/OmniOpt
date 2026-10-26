@@ -7258,6 +7258,374 @@ def print_stdout_and_stderr(stdout: Optional[str], stderr: Optional[str]) -> Non
         else:
             original_print("stderr was empty")
 
+_EVAL_DIAGNOSTIC_COUNTS: Dict[str, int] = {}
+_MAX_FULL_EVAL_DIAGNOSTICS_PER_KIND = 3
+
+
+def _diagnostic_tail_lines(text: Optional[str], max_lines: int = 8, max_len: int = 240) -> List[str]:
+    if not text:
+        return []
+    lines = [line.rstrip() for line in text.splitlines() if line.strip()]
+    lines = [line if len(line) <= max_len else line[:max_len - 3] + "..." for line in lines]
+    return lines[-max_lines:]
+
+
+def _signal_from_exit_code(exit_code: Optional[int], signal_code: Optional[int]) -> Optional[int]:
+    if signal_code is not None:
+        try:
+            return abs(int(signal_code))
+        except (TypeError, ValueError):
+            pass
+    if exit_code is None:
+        return None
+    try:
+        code = int(exit_code)
+    except (TypeError, ValueError):
+        return None
+    if code < 0:
+        return abs(code)
+    if code >= 129:
+        return code - 128
+    return None
+
+
+def _signal_display_name(signal_number: int) -> str:
+    try:
+        return signal.Signals(signal_number).name
+    except (ValueError, AttributeError):
+        return f"signal {signal_number}"
+
+
+def _last_python_exception(text: str) -> Optional[str]:
+    matches = re.findall(
+        r"^([A-Za-z_][\w.]*(?:Error|Exception|Interrupt|Exit)):\s*(.*)$",
+        text,
+        re.MULTILINE,
+    )
+    if not matches:
+        return None
+    name, message = matches[-1]
+    return f"{name}: {message}".strip()
+
+
+def _collect_evaluation_hints(
+    stdout: Optional[str],
+    stderr: Optional[str],
+    exit_code: Optional[int],
+    signal_code: Optional[int],
+    result: Any,
+) -> Tuple[List[str], List[str]]:
+    stdout = stdout or ""
+    stderr = stderr or ""
+    combined = stdout + "\n" + stderr
+    lower = combined.lower()
+    cwd = get_eval_working_dir() or os.getcwd()
+    hints: List[str] = []
+    kinds: List[str] = []
+
+    def add(kind: str, hint: str) -> None:
+        if hint not in hints:
+            hints.append(hint)
+            kinds.append(kind)
+
+    signal_number = _signal_from_exit_code(exit_code, signal_code)
+    if signal_number is not None:
+        signal_name = _signal_display_name(signal_number)
+        if signal_number == getattr(signal, "SIGKILL", 9):
+            add(
+                "killed",
+                f"The process was killed by {signal_name}. This is often the OOM killer. "
+                f"Try more memory (--mem_gb, currently {args.mem_gb} GB) or reduce the memory usage of your program.",
+            )
+        elif signal_number == getattr(signal, "SIGSEGV", 11):
+            add(
+                "segfault",
+                f"The process crashed with {signal_name} (segmentation fault). This usually comes "
+                "from native code, a broken C extension, CUDA/driver issues or invalid memory access.",
+            )
+        elif signal_number == getattr(signal, "SIGTERM", 15):
+            add(
+                "sigterm",
+                f"The process was terminated by {signal_name}. This can be a timeout, a cancelled "
+                "SLURM job or an external kill.",
+            )
+        else:
+            add("signal", f"The process was terminated by {signal_name} ({signal_number}).")
+
+    bad_interpreter = re.search(r"bad interpreter:\s*([^\n]+)", combined, re.IGNORECASE)
+    if bad_interpreter:
+        interpreter = bad_interpreter.group(1).strip().strip("'\"")
+        add(
+            "bad_interpreter",
+            f"The script's shebang/interpreter '{interpreter}' could not be started. Fix the first "
+            "line of the script (for example '#!/usr/bin/env python3') or call it explicitly with "
+            "'bash script.sh' or 'python3 script.py'.",
+        )
+
+    if "permission denied" in lower or "keine berechtigung" in lower or "zugriff verweigert" in lower:
+        add(
+            "permission",
+            "A file or command was not executable. Run 'chmod +x <script>' or invoke the script "
+            "explicitly with 'bash <script>' / 'python3 <script>'.",
+        )
+
+    command_not_found = re.search(
+        r"(?:^|\n)[^\n:]*:\s*(?:(?:line\s+)?\d+:\s*)?([^:\n]+):\s*"
+        r"(?:command not found|befehl nicht gefunden|kommando nicht gefunden|not found)",
+        combined,
+        re.IGNORECASE,
+    )
+    if command_not_found:
+        command = command_not_found.group(1).strip().strip("'\"")
+        resolved_command = command if os.path.isabs(command) else os.path.join(cwd, command)
+        shebang_interpreter = None
+        if os.path.isfile(resolved_command) and os.access(resolved_command, os.X_OK):
+            try:
+                with open(resolved_command, "rb") as script_file:
+                    first_line = script_file.readline(512).decode("utf-8", errors="replace").strip()
+                if first_line.startswith("#!"):
+                    shebang_parts = first_line[2:].strip().split()
+                    if shebang_parts:
+                        shebang_interpreter = shebang_parts[0]
+            except OSError:
+                pass
+
+        if shebang_interpreter and not os.path.exists(shebang_interpreter) and shutil.which(shebang_interpreter) is None:
+            add(
+                "bad_interpreter",
+                f"The script '{command}' exists, but its shebang interpreter '{shebang_interpreter}' "
+                "could not be found. Fix the first line of the script (for example "
+                "'#!/usr/bin/env python3') or call it explicitly with 'bash script.sh' or "
+                "'python3 script.py'.",
+            )
+        else:
+            add(
+                "command_not_found",
+                f"The command '{command}' was not found. Check the spelling, your PATH and whether "
+                "the program is installed in the environment used by OmniOpt.",
+            )
+
+    missing_file = re.search(
+        r"(?:^|\n)[^\n:]*:\s*(?:(?:line\s+)?\d+:\s*)?([^:\n]+):\s*"
+        r"(?:No such file or directory|Datei oder Verzeichnis nicht gefunden|"
+        r"Datei nicht gefunden|nicht gefunden)",
+        combined,
+        re.IGNORECASE,
+    )
+    if missing_file and not bad_interpreter:
+        missing_path = missing_file.group(1).strip().strip("'\"")
+        if missing_path and missing_path not in ("bash", "sh"):
+            resolved = missing_path if os.path.isabs(missing_path) else os.path.join(cwd, missing_path)
+            if os.path.exists(resolved):
+                add(
+                    "missing_file_exists",
+                    f"The path '{missing_path}' was reported as missing, but it exists. Check whether "
+                    "the program runs on another host or in a different container.",
+                )
+            elif os.path.isabs(missing_path):
+                add(
+                    "missing_absolute",
+                    f"The absolute path '{missing_path}' does not exist. Check the path and whether "
+                    "the file is available on the machine that runs the evaluation.",
+                )
+            else:
+                add(
+                    "missing_relative",
+                    f"The file '{missing_path}' could not be found. The program ran with working "
+                    f"directory '{cwd}'. If the file is somewhere else, pass '--workdir=<directory>' "
+                    "or use an absolute path in --run_program.",
+                )
+
+    module_not_found = re.search(
+        r"ModuleNotFoundError:\s*No module named ['\"]([^'\"]+)['\"]",
+        combined,
+    )
+    if module_not_found:
+        module = module_not_found.group(1).strip()
+        add(
+            "module_not_found",
+            f"The Python module '{module}' is missing. Install it in the environment used by your "
+            f"program, for example with 'pip install {module}'.",
+        )
+
+    file_not_found_python = re.search(
+        r"FileNotFoundError:.*?['\"]([^'\"]+)['\"]",
+        combined,
+    )
+    if file_not_found_python:
+        missing_path = file_not_found_python.group(1).strip()
+        add(
+            "python_file_not_found",
+            f"Your program tried to open '{missing_path}' but the file does not exist. The "
+            f"evaluation ran in '{cwd}'. Use an absolute path or start OmniOpt with "
+            "'--workdir=<directory>' so relative paths resolve correctly.",
+        )
+
+    if "traceback (most recent call last)" in lower:
+        exception = _last_python_exception(combined)
+        if exception:
+            add(
+                "python_traceback",
+                f"Your program raised a Python exception: {exception}. Fix the traceback shown above.",
+            )
+        else:
+            add("python_traceback", "Your program printed a Python traceback. Fix the error shown above.")
+
+    if not is_valid_result(result):
+        expected = ", ".join(f"{name}: <number>" for name in arg_result_names) or "RESULT: <number>"
+        if not stdout.strip():
+            add(
+                "no_stdout",
+                f"Your program produced no stdout. OmniOpt reads results from stdout, so print "
+                f"something like '{arg_result_names[0] if arg_result_names else 'RESULT'}: 1.23'.",
+            )
+        else:
+            has_result_marker = any(
+                re.search(rf"(?im)(^|\s){re.escape(name)}\s*:", stdout)
+                for name in arg_result_names
+            )
+            if has_result_marker:
+                add(
+                    "malformed_result",
+                    f"OmniOpt found a result marker but could not parse a number. Expected output "
+                    f"like '{arg_result_names[0] if arg_result_names else 'RESULT'}: 1.23' (plain "
+                    "numbers or scientific notation such as 1.23e-4).",
+                )
+            else:
+                add(
+                    "no_result",
+                    f"OmniOpt found no result in stdout. Expected {expected}. Make sure your "
+                    "program prints the result to stdout.",
+                )
+        if isinstance(result, dict):
+            missing_results = [name for name in arg_result_names if result.get(name) is None]
+            if missing_results:
+                add(
+                    "missing_result_names",
+                    f"Missing numeric result(s) for: {', '.join(missing_results)}.",
+                )
+
+    if exit_code is not None:
+        try:
+            code = int(exit_code)
+        except (TypeError, ValueError):
+            code = 0
+        if code != 0:
+            normalized_code = code if code > 0 else 128 + abs(code)
+            if code == 127 and not any(
+                kind in kinds
+                for kind in (
+                    "command_not_found",
+                    "missing_relative",
+                    "missing_absolute",
+                    "missing_file_exists",
+                    "bad_interpreter",
+                )
+            ):
+                add(
+                    "exit_127",
+                    f"The command or script could not be found (exit code 127). OmniOpt ran the "
+                    f"program with working directory '{cwd}'. Check the command name, the file "
+                    "path and whether a relative script lives in another directory (then use "
+                    "'--workdir=<directory>' or an absolute path).",
+                )
+            exit_code_hint = ""
+            try:
+                exit_code_hint = get_exit_codes().get(str(normalized_code), "")
+            except NameError:
+                pass
+            result_only_kinds = {
+                "no_stdout",
+                "no_result",
+                "malformed_result",
+                "missing_result_names",
+            }
+            if is_valid_result(result):
+                add(
+                    "nonzero_exit_valid_result",
+                    f"Your program produced a valid result but still exited with code {code}. "
+                    "OmniOpt may count this evaluation as successful; fix the exit code if that is "
+                    "not intended.",
+                )
+            elif not any(kind not in result_only_kinds for kind in kinds):
+                suffix = f" ({exit_code_hint})" if exit_code_hint else ""
+                add(
+                    "nonzero_exit",
+                    f"Your program exited with code {code}{suffix}. Check the stderr/traceback above.",
+                )
+
+    if not hints:
+        tail = _diagnostic_tail_lines(stderr) or _diagnostic_tail_lines(stdout)
+        if tail:
+            add("unknown", f"Your program failed. The last output line was: {tail[-1]}")
+        else:
+            add("unknown", "Your program failed without any output. Check the command and the working directory.")
+
+    return hints, kinds
+
+
+def print_evaluation_diagnostics(
+    program_string: str,
+    stdout: Optional[str],
+    stderr: Optional[str],
+    exit_code: Optional[int],
+    signal_code: Optional[int],
+    result: Any,
+) -> None:
+    if args.tests:
+        return
+    if is_valid_result(result) and (exit_code is None or int(exit_code) == 0) and _signal_from_exit_code(exit_code, signal_code) is None:
+        return
+
+    hints, kinds = _collect_evaluation_hints(stdout, stderr, exit_code, signal_code, result)
+    diagnostic_kind = ",".join(sorted(set(kinds))) or "unknown"
+    count = _EVAL_DIAGNOSTIC_COUNTS.get(diagnostic_kind, 0) + 1
+    _EVAL_DIAGNOSTIC_COUNTS[diagnostic_kind] = count
+
+    if count > _MAX_FULL_EVAL_DIAGNOSTICS_PER_KIND:
+        original_print(
+            f"\n[OmniOpt] Evaluation failed again with the same kind of error ({diagnostic_kind}). "
+            "See the first diagnostic above.\n"
+        )
+        return
+
+    cwd = get_eval_working_dir() or os.getcwd()
+    signal_number = _signal_from_exit_code(exit_code, signal_code)
+    lines = [
+        "",
+        "=" * 78,
+        " OmniOpt evaluation failed - quick diagnosis",
+        "=" * 78,
+        f" Command:       {program_string[:500]}",
+        f" Working dir:   {cwd}",
+        f" Exit code:     {exit_code}",
+    ]
+    if signal_number is not None:
+        lines.append(f" Signal:        {_signal_display_name(signal_number)} ({signal_number})")
+    lines.append(f" Parsed result: {result!r}")
+    lines.append("")
+    lines.append(" Likely cause(s) and how to fix:")
+    for hint in hints:
+        lines.append(f"   - {hint}")
+
+    relevant_output = _diagnostic_tail_lines(stderr if stderr and stderr.strip() else stdout)
+    if relevant_output:
+        lines.append("")
+        lines.append(" Relevant output (last lines):")
+        for line in relevant_output:
+            lines.append(f"   {line}")
+
+    lines.append("=" * 78)
+    text = "\n".join(lines)
+    original_print(text)
+
+    try:
+        with open(get_current_run_folder("evaluation_errors.log"), mode="a", encoding="utf-8") as error_file:
+            error_file.write(text + "\n\n")
+    except Exception as e:
+        print_debug(f"Could not write evaluation diagnostics to evaluation_errors.log: {e}")
+
+
 def _evaluate_print_stuff(parameters: dict, program_string_with_params: str, stdout: Optional[str], stderr: Optional[str], exit_code: Optional[int], _signal: Optional[int], result: Optional[Union[Dict[str, Optional[float]], List[float], int, float]], start_time: Union[float, int], end_time: Union[float, int], run_time: Union[float, int], final_result: dict, trial_index: int, submit_time: Union[float, int], queue_time: Union[float, int]) -> None:
     if not args.tests:
         original_print(f"Parameters: {json.dumps(parameters)}")
@@ -7277,6 +7645,8 @@ def _evaluate_print_stuff(parameters: dict, program_string_with_params: str, std
 
     if not args.tests:
         original_print(f"EXIT_CODE: {exit_code}")
+
+    print_evaluation_diagnostics(program_string_with_params, stdout, stderr, exit_code, _signal, result)
 
 def get_results_with_occ(stdout: str) -> Union[int, float, Optional[Union[Dict[str, Optional[float]], List[float]]]]:
     result = get_results(stdout)
@@ -7534,6 +7904,7 @@ def _run_multi_evaluation(parameters: dict[str, Any], program_string: str, nr_ev
         _save_sub_eval_outputs(sub_folder, stdout, stderr, exit_code)
 
         raw_result = get_results(stdout)
+        print_evaluation_diagnostics(program_string, stdout, stderr, exit_code, None, raw_result)
         original_print(f"  Sub-eval {sub_nr + 1}/{nr_evals} for trial {trial_index}: {raw_result}\n{stdout}")
 
         if isinstance(raw_result, dict) and all(v is not None and isinstance(v, (int, float)) for v in raw_result.values()):
@@ -10740,10 +11111,84 @@ def _finish_job_core_helper_mark_failure(job: Any, trial_index: int, _trial: Any
 
     return None
 
+def _extract_evaluation_diagnostic_block(text: str) -> Optional[str]:
+    marker = "OmniOpt evaluation failed - quick diagnosis"
+    marker_index = text.find(marker)
+    if marker_index == -1:
+        again = re.search(r"\[OmniOpt\] Evaluation failed again[^\n]*", text)
+        return again.group(0).strip() if again else None
+
+    separator = "=" * 78
+    start = text.rfind(separator, 0, marker_index)
+    if start == -1:
+        start = text.rfind("\n", 0, marker_index) + 1
+
+    title_separator = text.find(separator, marker_index)
+    end = (
+        text.find(separator, title_separator + len(separator))
+        if title_separator != -1
+        else -1
+    )
+    if end != -1:
+        end = text.find("\n", end)
+        if end == -1:
+            end = len(text)
+
+    return text[start:end].strip() if end != -1 else text[start:].strip()
+
+
+_PRINTED_JOB_DIAGNOSTICS: set = set()
+
+
+def _print_job_failure_diagnostics(job: Any, result: Any = None) -> None:
+    """Show the child's failure diagnosis on the main console.
+
+    Submitit redirects the evaluation's stdout/stderr into job log files, so
+    diagnostics printed inside ``evaluate`` never reach the user's terminal by
+    default. Read the log here and re-print the concise diagnosis block.
+    """
+    if args.tests or args.prettyprint or job is None:
+        return
+
+    try:
+        stdout_path = get_stderr_or_stdout_from_job(job, "stdout")
+        stderr_path = get_stderr_or_stdout_from_job(job, "stderr")
+        diagnostic_key = stdout_path
+        if diagnostic_key in _PRINTED_JOB_DIAGNOSTICS:
+            return
+        stdout_text = get_file_as_string(stdout_path)
+        stderr_text = get_file_as_string(stderr_path)
+        exit_code = get_exit_code_from_stderr_or_stdout_path(stderr_path, stdout_path)
+
+        if is_valid_result(result) and (exit_code is None or int(exit_code) == 0):
+            return
+
+        _PRINTED_JOB_DIAGNOSTICS.add(diagnostic_key)
+        block = _extract_evaluation_diagnostic_block(stdout_text)
+        if block is None:
+            block = _extract_evaluation_diagnostic_block(stderr_text)
+
+        if block is not None:
+            original_print("\n" + block + "\n")
+            return
+
+        print_evaluation_diagnostics(
+            global_vars.get("joined_run_program", "<unknown program>"),
+            stdout_text,
+            stderr_text,
+            exit_code,
+            None,
+            result,
+        )
+    except Exception as e:
+        print_debug(f"Could not print job failure diagnostics: {e}")
+
+
 def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
     die_for_debug_reasons()
 
     result = job.result()
+    _print_job_failure_diagnostics(job, result)
     print_debug(f"finish_job_core: trial-index: {trial_index}, job.result(): {result}, state: {state_from_job(job)}")
 
     this_jobs_finished += 1
@@ -10819,6 +11264,7 @@ def _finish_previous_jobs_helper_handle_exception(job: Any, trial_index: int, er
     else:
         print_red(f"\n⚠ {error}")
 
+    _print_job_failure_diagnostics(job)
     _finish_previous_jobs_helper_handle_failed_job(job, trial_index)
     return 1
 

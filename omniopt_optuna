@@ -233,7 +233,7 @@ def _add_run_args(p: argparse.ArgumentParser) -> None:
                    help="How many SOBOL steps to run before Optuna (default: 0)")
     p.add_argument("--run-program", default=None,
                    help="Shell program OmniOpt runs per trial. "
-                        "Use %(name)s placeholders for parameters.")
+                         "Use %%(name)s placeholders for parameters.")
     p.add_argument("--parameter", dest="parameters", action="append", default=[],
                    help='OmniOpt-style --parameter, e.g. "x range -10 10 int". '
                         "Can be passed multiple times.")

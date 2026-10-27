@@ -27,10 +27,13 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [],
 		container.style.borderRadius = "16px";
 		container.style.overflow = "hidden";
 		container.style.boxShadow = "0 8px 32px rgba(0,0,0,0.12)";
+		container.style.width = "100%";
+		container.style.maxWidth = "100%";
 
 		const dpr = window.devicePixelRatio || 1;
-		const displayW = container.clientWidth || 1200;
 		const displayH = 560;
+		let displayW = container.clientWidth || window.innerWidth || 1200;
+		container.style.height = displayH + "px";
 
 		// Line canvas (offscreen-style, handles all the heavy drawing)
 		const lineCanvas = document.createElement("canvas");
@@ -67,9 +70,6 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [],
 		interactCanvas.style.cursor = "crosshair";
 		container.appendChild(interactCanvas);
 
-		container.style.width = displayW + "px";
-		container.style.height = displayH + "px";
-
 		const brushes = {};
 
 		let _rafId = null;
@@ -85,7 +85,7 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [],
 			});
 		}
 
-		setupCanvasBrushing(interactCanvas, dpr, brushes, updatePlot, numericalCols, categoricalCols, columnVisibility, displayW, displayH);
+		setupCanvasBrushing(interactCanvas, dpr, brushes, updatePlot, numericalCols, categoricalCols, columnVisibility, () => ({ width: displayW, height: displayH }));
 
 		parallel_bind_min_max_and_checkbox_events(headers, dataArray, numericalCols, columnVisibility, minMaxLimits, updatePlot);
 
@@ -101,7 +101,9 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [],
 		$("#parallel-plot").data("loaded", "true");
 
 		const ro = new ResizeObserver(() => {
-			const newW = container.clientWidth || 1200;
+			const newW = container.clientWidth;
+			if (!newW || newW === displayW) return;
+			displayW = newW;
 			lineCanvas.width = newW * dpr;
 			lineCanvas.style.width = newW + "px";
 			uiCanvas.width = newW * dpr;
@@ -514,7 +516,7 @@ function drawColorLegend(ctx, colorScale, min, max, displayW, padTop, plotH, isD
 // ============================================================
 // BRUSH INTERACTION
 // ============================================================
-function setupCanvasBrushing(canvas, dpr, brushes, updatePlot, numericalCols, categoricalCols, columnVisibility, displayW, displayH) {
+function setupCanvasBrushing(canvas, dpr, brushes, updatePlot, numericalCols, categoricalCols, columnVisibility, getDimensions) {
 	let dragging = false;
 	let dragAxisIdx = null;
 	let dragStartY = null;
@@ -523,8 +525,14 @@ function setupCanvasBrushing(canvas, dpr, brushes, updatePlot, numericalCols, ca
 	const PAD_BOTTOM = 50;
 	const PAD_LEFT = 70;
 	const PAD_RIGHT = 70;
-	const plotH = displayH - PAD_TOP - PAD_BOTTOM;
-	const plotW = displayW - PAD_LEFT - PAD_RIGHT;
+
+	function getPlotW() {
+		return getDimensions().width - PAD_LEFT - PAD_RIGHT;
+	}
+
+	function getPlotH() {
+		return getDimensions().height - PAD_TOP - PAD_BOTTOM;
+	}
 
 	function getAxesCount() {
 		let count = 0;
@@ -536,7 +544,7 @@ function setupCanvasBrushing(canvas, dpr, brushes, updatePlot, numericalCols, ca
 	function getAxisAtX(mouseX) {
 		const axesCount = getAxesCount();
 		if (axesCount < 2) return -1;
-		const spacing = plotW / (axesCount - 1);
+		const spacing = getPlotW() / (axesCount - 1);
 		for (let i = 0; i < axesCount; i++) {
 			const axisX = PAD_LEFT + i * spacing;
 			if (Math.abs(mouseX - axisX) < 25) return i;
@@ -545,7 +553,7 @@ function setupCanvasBrushing(canvas, dpr, brushes, updatePlot, numericalCols, ca
 	}
 
 	function yToNorm(y) {
-		return Math.max(0, Math.min(1, 1 - (y - PAD_TOP) / plotH));
+		return Math.max(0, Math.min(1, 1 - (y - PAD_TOP) / getPlotH()));
 	}
 
 	function getMousePos(e) {

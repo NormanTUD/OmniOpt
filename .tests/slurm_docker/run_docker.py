@@ -192,11 +192,11 @@ def build_argparser() -> argparse.ArgumentParser:
 
 
 def main(argv=None) -> int:
-    _install_if_missing("docker", install_via_apt=True, exit_code=2)
+    _install_if_missing("curl", install_via_apt=True, exit_code=2)
+    _install_if_missing("docker", install_via_apt=False, install_via_curl=True, exit_code=2)
     _install_if_missing("docker-compose", install_via_apt=True, exit_code=2)
     _install_if_missing("wget", install_via_apt=True, exit_code=2)
     _install_if_missing("git", install_via_apt=True, exit_code=2)
-    _install_if_missing("docker", install_via_apt=True, exit_code=2)
 
     parser = build_argparser()
     args = parser.parse_args(argv)

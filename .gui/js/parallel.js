@@ -189,27 +189,10 @@ function canvasParallelRender(ctx) {
 
 	const axisSpacing = plotW / (axes.length - 1);
 
-	// Compute ranges
+	// Position axes (numeric ranges are computed after filtering)
 	axes.forEach((axis, i) => {
 		axis.x = PAD_LEFT + i * axisSpacing;
-		if (axis.type === "num") {
-			let min = Infinity, max = -Infinity;
-			for (let r = 0; r < dataArray.length; r++) {
-				const v = parseFloat(dataArray[r][axis.index]);
-				if (!isNaN(v)) {
-					if (v < min) min = v;
-					if (v > max) max = v;
-				}
-			}
-			if (!isFinite(min)) { min = 0; max = 100; }
-			// Add 5% padding to range
-			const pad = (max - min) * 0.02;
-			axis.min = min - pad;
-			axis.max = max + pad;
-			axis.realMin = min;
-			axis.realMax = max;
-			axis.range = (axis.max - axis.min) || 1;
-		} else {
+		if (axis.type === "cat") {
 			const mapping = precomputedMappings[axis.name];
 			const keys = Object.keys(mapping);
 			axis.mapping = mapping;
@@ -252,6 +235,38 @@ function canvasParallelRender(ctx) {
 		}
 		if (pass) filteredIndices.push(i);
 	}
+
+	// Compute numeric ranges from the filtered data so that user-entered
+	// min/max limits also rescale the axes, not just the visible lines.
+	axes.forEach(axis => {
+		if (axis.type !== "num") return;
+		let min = Infinity, max = -Infinity;
+		for (let k = 0; k < filteredIndices.length; k++) {
+			const v = parseFloat(dataArray[filteredIndices[k]][axis.index]);
+			if (!isNaN(v)) {
+				if (v < min) min = v;
+				if (v > max) max = v;
+			}
+		}
+		if (!isFinite(min)) {
+			// No data left after filtering - fall back to the full data range
+			for (let r = 0; r < dataArray.length; r++) {
+				const v = parseFloat(dataArray[r][axis.index]);
+				if (!isNaN(v)) {
+					if (v < min) min = v;
+					if (v > max) max = v;
+				}
+			}
+		}
+		if (!isFinite(min)) { min = 0; max = 100; }
+		// Add 2% padding to range
+		const pad = (max - min) * 0.02;
+		axis.min = min - pad;
+		axis.max = max + pad;
+		axis.realMin = min;
+		axis.realMax = max;
+		axis.range = (axis.max - axis.min) || 1;
+	});
 
 	// Color setup
 	let colorCol = null;

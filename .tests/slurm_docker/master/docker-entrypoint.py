@@ -32,9 +32,7 @@ def _patch_slurm_conf(replacement: str) -> None:
     if not SLURM_CONF.exists():
         print(f"WARNING: {SLURM_CONF} does not exist, skipping sed", flush=True)
         return
-    text = SLURM_CONF.read_text()
-    text = text.replace("REPLACE_IT", replacement)
-    SLURM_CONF.write_text(text)
+    _run(["sudo", "sed", "-i", f"s/REPLACE_IT/{replacement}/g", str(SLURM_CONF)])
 
 
 def main() -> int:

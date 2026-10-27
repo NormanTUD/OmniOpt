@@ -154,7 +154,41 @@ function filterNonEmptyRows(data) {
 	return new_data;
 }
 
-function render_log_payload(preEl, payload, ansi_mode) {
+function removeDuplicateLogLines(content) {
+	var lines = content.split(/\r\n|\n|\r/);
+	var result = [];
+	var lastNonEmpty = null;
+	var pendingBlank = 0;
+
+	for (var i = 0; i < lines.length; i++) {
+		var line = lines[i];
+		var trimmed = line.trim();
+
+		if (trimmed === "") {
+			if (result.length > 0 && pendingBlank < 1) {
+				pendingBlank++;
+			}
+			continue;
+		}
+
+		if (lastNonEmpty !== null && trimmed === lastNonEmpty) {
+			pendingBlank = 0;
+			continue;
+		}
+
+		while (pendingBlank > 0) {
+			result.push("");
+			pendingBlank--;
+		}
+
+		result.push(line);
+		lastNonEmpty = trimmed;
+	}
+
+	return result.join("\n");
+}
+
+function render_log_payload(preEl, payload, ansi_mode, deduplicate) {
 	if (typeof payload === "string") {
 		// Backwards compatibility with older responses.
 		preEl.innerHTML = payload;
@@ -163,6 +197,9 @@ function render_log_payload(preEl, payload, ansi_mode) {
 	if (!payload || typeof payload.content !== "string") {
 		preEl.textContent = "No log content returned.";
 		return;
+	}
+	if (deduplicate) {
+		payload.content = removeDuplicateLogLines(payload.content);
 	}
 	if (payload.mode === "html") {
 		preEl.innerHTML = payload.content;
@@ -213,7 +250,7 @@ function load_log_file(log_nr, filename) {
 	}
 }
 
-function load_pre_file(pre_id, filename, ansi_mode) {
+function load_pre_file(pre_id, filename, ansi_mode, deduplicate) {
 	var preEl = document.getElementById(pre_id);
 	if (!preEl || preEl.dataset.loaded || preEl.dataset.loading) {
 		return;
@@ -229,7 +266,7 @@ function load_pre_file(pre_id, filename, ansi_mode) {
 		.then(response => response.json())
 		.then(data => {
 			if (data.data) {
-				render_log_payload(preEl, data.data, ansi_mode);
+				render_log_payload(preEl, data.data, ansi_mode, deduplicate);
 				preEl.dataset.loaded = "true";
 			} else {
 				log(`No 'data' key found in response.`);
@@ -293,7 +330,7 @@ function load_lazy_panel(panel) {
 			return;
 		}
 	}
-	load_pre_file(preEl.id, filename, preEl.dataset.ansiMode || "ansi");
+	load_pre_file(preEl.id, filename, preEl.dataset.ansiMode || "ansi", preEl.dataset.deduplicate === "true");
 }
 
 function load_debug_log() {

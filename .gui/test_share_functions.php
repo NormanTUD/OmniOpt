@@ -114,6 +114,31 @@
 		is_equal('remove_extra_slashes_from_url test', $result, $expected);
 	}
 
+	$remove_duplicate_log_lines_test_cases = [
+		[
+			"warning\n\n\nwarning\n\n\nwarning\n",
+			"warning"
+		],
+		[
+			"first\n\n\nfirst\n\n\nsecond\n\nfirst\n\n\n\nthird\n",
+			"first\n\nsecond\n\nfirst\n\nthird"
+		],
+		[
+			"\n\nfirst\n\nsecond\n\n\nsecond\n\n\n",
+			"first\n\nsecond"
+		],
+		[
+			"first\nfirst\nfirst\n",
+			"first"
+		],
+	];
+
+	foreach ($remove_duplicate_log_lines_test_cases as $test_case) {
+		list($input, $expected) = $test_case;
+		$result = remove_duplicate_log_lines($input);
+		is_equal('remove_duplicate_log_lines test', $expected, $result);
+	}
+
 	$final_errors = min(255, $nr_of_errors);
 
 	if ($final_errors > 0) {

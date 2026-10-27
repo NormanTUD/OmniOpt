@@ -842,7 +842,40 @@
 		return $html;
 	}
 
-	function add_simple_pre_tab_from_file ($tabs, $warnings, $filename, $name, $id, $remove_ansi_colors = false) {
+	function remove_duplicate_log_lines($contents) {
+		$lines = preg_split("/\r\n|\n|\r/", $contents);
+		$result = [];
+		$last_non_empty = null;
+		$pending_blank = 0;
+
+		foreach ($lines as $line) {
+			$trimmed = trim($line);
+
+			if ($trimmed === '') {
+				if (count($result) > 0 && $pending_blank < 1) {
+					$pending_blank++;
+				}
+				continue;
+			}
+
+			if ($last_non_empty !== null && $trimmed === $last_non_empty) {
+				$pending_blank = 0;
+				continue;
+			}
+
+			while ($pending_blank > 0) {
+				$result[] = '';
+				$pending_blank--;
+			}
+
+			$result[] = $line;
+			$last_non_empty = $trimmed;
+		}
+
+		return implode("\n", $result);
+	}
+
+	function add_simple_pre_tab_from_file ($tabs, $warnings, $filename, $name, $id, $remove_ansi_colors = false, $deduplicate = false) {
 		if(is_file($filename) && filesize($filename) > 0 && is_ascii_or_utf8($filename)) {
 			// Huge text files are loaded by the browser on demand.  Running
 			// the ANSI converter over them here can exhaust PHP's memory
@@ -855,6 +888,7 @@
 				$html .= "<pre id='simple_pre_tab_$id' data-log-file='"
 					. htmlspecialchars($relative, ENT_QUOTES)
 					. "' data-ansi-mode='" . ($remove_ansi_colors ? "ansi" : "strip")
+					. "' data-deduplicate='" . ($deduplicate ? "true" : "false")
 					. "'></pre>";
 				$html .= copy_id_to_clipboard_string("simple_pre_tab_$id", $filename);
 				$svg_icon = get_icon_html("main_log.svg");
@@ -866,6 +900,10 @@
 			}
 
 			$contents = file_get_contents($filename);
+
+			if($deduplicate) {
+				$contents = remove_duplicate_log_lines($contents);
+			}
 
 			if(!$remove_ansi_colors) {
 				$contents = remove_ansi_colors($contents);

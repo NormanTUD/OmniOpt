@@ -41,6 +41,7 @@ import csv
 import json
 import os
 import shutil
+import signal
 import subprocess
 import sys
 from pathlib import Path
@@ -83,7 +84,8 @@ def _resolve_python3_with_hyperopt() -> str:
     The system ``/usr/bin/python3`` often lacks hyperopt, so we try, in order:
 
       1. Any directory on ``$VIRTUAL_ENV/bin`` (the framework venv).
-      2. ``$HOME/.omniax_venvs/Python_<ver>/<arch>/bin/python3``.
+      2. Any ``$HOME/.omniax_venvs/Python_<ver>/<arch>/bin/python3`` or
+         ``$HOME/.omniax_<arch>_Python_<ver>/bin/python3`` venv.
       3. ``sys.executable`` (if it has hyperopt).
 
     The returned path is prepended to ``PATH`` for the omniopt subprocess so
@@ -94,11 +96,13 @@ def _resolve_python3_with_hyperopt() -> str:
     if venv:
         candidates.append(Path(venv) / "bin" / "python3")
     home = Path.home()
-    for pyver in ("Python_3.13.5", "Python_3.12.10", "Python_3.11.9"):
-        for arch in ("x86_64", "aarch64"):
-            candidates.append(
-                home / ".omniax_venvs" / pyver / arch / "bin" / "python3"
-            )
+    # Discover whatever Python versions the framework venv builder has
+    # created instead of hard-coding a short list (CI runs e.g. Python 3.10).
+    for pattern in (
+        ".omniax_venvs/Python_*/*/bin/python3",
+        ".omniax_*_Python_*/bin/python3",
+    ):
+        candidates.extend(sorted(home.glob(pattern), reverse=True))
     candidates.append(Path(sys.executable).resolve())
 
     for cand in candidates:
@@ -127,12 +131,40 @@ def _wipe_runs(testname: str) -> None:
         print(f"  wiped {rundir}")
 
 
+def _kill_process_group(proc: subprocess.Popen[Any], sig: int = signal.SIGTERM) -> None:
+    """Best-effort kill of ``proc`` and any children it spawned."""
+    if os.name != "posix":
+        proc.kill()
+        return
+    try:
+        os.killpg(os.getpgid(proc.pid), sig)
+    except (ProcessLookupError, PermissionError):
+        pass
+
+
 def _run_omniopt(testname: str, max_eval: int, num_random_steps: int,
                  seed: int, timeout_s: int) -> None:
     """Invoke ``./omniopt --model=TPE`` for a tiny TPE run."""
     py3 = _resolve_python3_with_hyperopt()
     env = os.environ.copy()
     env["PATH"] = f"{Path(py3).parent}{os.pathsep}{env.get('PATH', '')}"
+
+    # OmniOpt's ExternalProgramGenerationNode invokes the external generator
+    # as bare ``python3 .tpe.py``.  Verify that the ``python3`` it will find on
+    # PATH is the one we just checked, otherwise the generator fails and
+    # OmniOpt retries it in a tight loop until the test times out with no
+    # useful error message.
+    probe = subprocess.run(
+        ["python3", "-c", "import hyperopt"],
+        capture_output=True, text=True, env=env, timeout=30,
+    )
+    if probe.returncode != 0:
+        raise RuntimeError(
+            "The python3 that OmniOpt will use for .tpe.py cannot import "
+            f"hyperopt (resolved to {py3}).\n"
+            f"stdout:\n{probe.stdout}\nstderr:\n{probe.stderr}"
+        )
+
     cmd = [
         sys.executable, str(START_RUN),
         f"--max_eval={max_eval}",
@@ -145,13 +177,33 @@ def _run_omniopt(testname: str, max_eval: int, num_random_steps: int,
         "--gpus=0",
     ]
     print(f"  command: {' '.join(cmd)}")
-    proc = subprocess.run(
+    popen_kwargs: dict[str, Any] = {}
+    if os.name == "posix":
+        popen_kwargs["start_new_session"] = True
+    proc = subprocess.Popen(
         cmd, cwd=str(REPO_ROOT), env=env,
-        capture_output=True, text=True, timeout=timeout_s,
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+        **popen_kwargs,
     )
+    try:
+        stdout, stderr = proc.communicate(timeout=timeout_s)
+    except subprocess.TimeoutExpired:
+        _kill_process_group(proc)
+        try:
+            stdout, stderr = proc.communicate(timeout=15)
+        except subprocess.TimeoutExpired:
+            _kill_process_group(proc, signal.SIGKILL)
+            stdout, stderr = proc.communicate()
+        sys.stdout.write(stdout or "")
+        sys.stderr.write(stderr or "")
+        raise RuntimeError(
+            f"omniopt timed out after {timeout_s}s (output shown above). "
+            "If the TPE generator failed, OmniOpt retries it until the "
+            "timeout instead of reporting the underlying error."
+        ) from None
     if proc.returncode != 0:
-        sys.stdout.write(proc.stdout)
-        sys.stderr.write(proc.stderr)
+        sys.stdout.write(stdout or "")
+        sys.stderr.write(stderr or "")
         raise RuntimeError(f"omniopt exited with code {proc.returncode}")
 
 
@@ -298,8 +350,10 @@ def main(argv=None) -> int:  # noqa: C901
                         help="TPE iterations per call inside .tpe.py (default 50)")
     parser.add_argument("--testname", type=str,
                         default="__main__tests__TPE_HYPEROPT_REAL_RUN__")
-    parser.add_argument("--timeout", type=int, default=180,
-                        help="Seconds to wait for the omniopt subprocess")
+    parser.add_argument("--timeout", type=int, default=600,
+                        help="Seconds to wait for the omniopt subprocess "
+                             "(default: 600; CI runners can take well over "
+                             "the historical 180s for the full run)")
     parser.add_argument("--keep", action="store_true",
                         help="Don't wipe runs/<testname> at start (use to inspect a previous run)")
     args = parser.parse_args(argv if argv is not None else sys.argv[1:])

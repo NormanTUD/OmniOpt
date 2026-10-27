@@ -40,7 +40,6 @@ import json
 import os
 import re
 import shlex
-import shutil
 import sys
 import tempfile
 import time
@@ -776,28 +775,24 @@ def _update_cache(
 # ---------------------------------------------------------------------------
 
 
-def write_bundle(
+def write_bundle_zip(
     manifest: Dict[str, Any],
-    out_dir: str | os.PathLike,
+    zip_path: str | os.PathLike,
     *,
     source_dir: Optional[str | os.PathLike] = None,
-) -> Tuple[Path, Path]:
-    """Write ``manifest.json`` and ``bundle.zip`` to ``out_dir``.
+) -> Path:
+    """Write only the bundle ZIP to ``zip_path``.
 
-    Returns ``(manifest_path, zip_path)``.
-
-    If ``source_dir`` is provided, every file's local path is resolved
-    as ``source_dir / archive_path``.  Otherwise, ``archive_path`` is
-    treated as the local path (relative or absolute).
+    This is used by the CLI so it can keep the bundle in a single temporary
+    file instead of creating an ``oo_share_*`` directory with
+    ``manifest.json`` and ``bundle.zip`` inside it.
     """
     err = verify_manifest(manifest)
     if err:
         raise ValueError(f"Refusing to write invalid manifest: {err}")
 
-    out_dir = Path(out_dir)
-    out_dir.mkdir(parents=True, exist_ok=True)
-    manifest_path = out_dir / "manifest.json"
-    zip_path = out_dir / "bundle.zip"
+    zip_path = Path(zip_path)
+    zip_path.parent.mkdir(parents=True, exist_ok=True)
 
     base = Path(source_dir) if source_dir is not None else None
     # Hash and size are computed from the exact bytes that are written into
@@ -835,10 +830,32 @@ def write_bundle(
             f["sha256"] = digest.hexdigest()
 
     # Re-validate after the authoritative size/hash values have been filled
-    # in, then persist exactly the manifest that describes the bundle.
+    # in, so callers can rely on the manifest matching the written bundle.
     err = verify_manifest(manifest)
     if err:
         raise ValueError(f"Refusing to write invalid manifest: {err}")
+
+    return zip_path
+
+
+def write_bundle(
+    manifest: Dict[str, Any],
+    out_dir: str | os.PathLike,
+    *,
+    source_dir: Optional[str | os.PathLike] = None,
+) -> Tuple[Path, Path]:
+    """Write ``manifest.json`` and ``bundle.zip`` to ``out_dir``.
+
+    Returns ``(manifest_path, zip_path)``.  Kept for callers/tests that
+    expect a directory layout; the CLI itself uses :func:`write_bundle_zip`
+    and a single temporary file.
+    """
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    manifest_path = out_dir / "manifest.json"
+    zip_path = out_dir / "bundle.zip"
+
+    write_bundle_zip(manifest, zip_path, source_dir=source_dir)
     manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True))
 
     return manifest_path, zip_path
@@ -1174,10 +1191,15 @@ def _share_one_with(
         print(f"Could not find any files in {run_dir}", file=sys.stderr)
         return 1
 
-    out_dir = Path(tempfile.mkdtemp(prefix="oo_share_"))
+    # Use a single temporary ZIP file instead of a temporary directory.  The
+    # old ``mkdtemp(prefix="oo_share_")`` created an ``oo_share_*`` folder on
+    # every share (and left it behind if the process was interrupted).
+    zip_fd, zip_name = tempfile.mkstemp(prefix="omniopt_share_", suffix=".zip")
+    os.close(zip_fd)
+    zip_path = Path(zip_name)
     try:
         try:
-            _, zip_path = write_bundle(manifest, out_dir, source_dir=run_dir)
+            write_bundle_zip(manifest, zip_path, source_dir=run_dir)
         except ValueError as e:
             print(f"Refusing to share: {e}", file=sys.stderr)
             return 1
@@ -1215,7 +1237,10 @@ def _share_one_with(
         print(body)
         return 0
     finally:
-        shutil.rmtree(out_dir, ignore_errors=True)
+        try:
+            zip_path.unlink()
+        except FileNotFoundError:
+            pass
 
 
 def _share_one(

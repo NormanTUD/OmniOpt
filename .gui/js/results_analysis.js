@@ -964,6 +964,372 @@
 		};
 	}
 
+	function regressionStats(indices, values) {
+		var sum = 0;
+		var squares = 0;
+		for (var i = 0; i < indices.length; i++) {
+			var value = values[indices[i]];
+			sum += value;
+			squares += value * value;
+		}
+		var samples = indices.length;
+		var mean = samples ? sum / samples : 0;
+		var sse = samples ? Math.max(0, squares - (sum * sum) / samples) : 0;
+		return { samples: samples, sum: sum, squares: squares, mean: mean, sse: sse };
+	}
+
+	function buildRegressionTreeFromIndices(features, values, indices, options) {
+		options = options || {};
+		var maxDepth = options.maxDepth === undefined ? 3 : options.maxDepth;
+		var minLeaf = options.minLeaf === undefined
+			? Math.max(5, Math.ceil(indices.length * 0.02))
+			: options.minLeaf;
+		var maxThresholds = options.maxThresholds === undefined ? 8 : options.maxThresholds;
+		var maxCategoricalValues = options.maxCategoricalValues === undefined ? 10 : options.maxCategoricalValues;
+		var minGainRatio = options.minGainRatio === undefined ? 0.01 : options.minGainRatio;
+		var importance = {};
+
+		if (!indices.length) {
+			return { empty: true, reason: "No completed trials with numeric result values" };
+		}
+
+		for (var f = 0; f < features.length; f++) {
+			var feature = features[f];
+			if (feature.numeric) {
+				feature.thresholds = numericThresholds(feature, maxThresholds);
+			} else {
+				feature.candidates = categoricalCandidates(feature, minLeaf, maxCategoricalValues);
+			}
+		}
+
+		function splitCandidates(feature) {
+			if (feature.numeric) {
+				return feature.thresholds.map(function (threshold) {
+					return { operator: "<=", value: threshold };
+				});
+			}
+			return feature.candidates.map(function (value) {
+				return { operator: "==", value: value };
+			});
+		}
+
+		function valueMatchesSplit(feature, value, candidate) {
+			if (candidate.operator === "<=") {
+				return value <= candidate.value;
+			}
+			return value === candidate.value;
+		}
+
+		function medianOf(subset) {
+			var list = [];
+			for (var i = 0; i < subset.length; i++) {
+				list.push(values[subset[i]]);
+			}
+			return median(list);
+		}
+
+		function build(subset, depth) {
+			var stats = regressionStats(subset, values);
+			var node = {
+				leaf: true,
+				samples: stats.samples,
+				mean: stats.mean,
+				sse: stats.sse
+			};
+
+			if (depth >= maxDepth || subset.length < 2 * minLeaf || stats.sse <= 0) {
+				node.median = medianOf(subset);
+				return node;
+			}
+
+			var best = null;
+
+			for (var featureIndex = 0; featureIndex < features.length; featureIndex++) {
+				var currentFeature = features[featureIndex];
+				var candidates = splitCandidates(currentFeature);
+
+				for (var candidateIndex = 0; candidateIndex < candidates.length; candidateIndex++) {
+					var candidate = candidates[candidateIndex];
+					var left = [];
+					var right = [];
+					var leftStats = { sum: 0, squares: 0 };
+					var rightStats = { sum: 0, squares: 0 };
+
+					for (var rowIndex = 0; rowIndex < subset.length; rowIndex++) {
+						var sourceIndex = subset[rowIndex];
+						var value = currentFeature.values[sourceIndex];
+						var target = values[sourceIndex];
+						if (valueMatchesSplit(currentFeature, value, candidate)) {
+							left.push(sourceIndex);
+							leftStats.sum += target;
+							leftStats.squares += target * target;
+						} else {
+							right.push(sourceIndex);
+							rightStats.sum += target;
+							rightStats.squares += target * target;
+						}
+					}
+
+					if (left.length < minLeaf || right.length < minLeaf) {
+						continue;
+					}
+
+					var leftSse = Math.max(0, leftStats.squares - (leftStats.sum * leftStats.sum) / left.length);
+					var rightSse = Math.max(0, rightStats.squares - (rightStats.sum * rightStats.sum) / right.length);
+					var gain = stats.sse - leftSse - rightSse;
+
+					if (gain <= 0) {
+						continue;
+					}
+
+					if (best === null || gain > best.gain) {
+						best = {
+							feature: currentFeature,
+							candidate: candidate,
+							left: left,
+							right: right,
+							gain: gain
+						};
+					}
+				}
+			}
+
+			if (best === null || best.gain / stats.sse < minGainRatio) {
+				node.median = medianOf(subset);
+				return node;
+			}
+
+			var condition = {
+				column: best.feature.name,
+				index: best.feature.index,
+				operator: best.candidate.operator,
+				value: best.candidate.value
+			};
+
+			importance[best.feature.name] = (importance[best.feature.name] || 0) + best.gain * subset.length;
+
+			node.leaf = false;
+			node.condition = condition;
+			node.gain = best.gain;
+			node.gainRatio = best.gain / stats.sse;
+			node.left = build(best.left, depth + 1);
+			node.right = build(best.right, depth + 1);
+			return node;
+		}
+
+		var tree = build(indices, 0);
+		tree.samples = indices.length;
+		tree.baselineMedian = medianOf(indices);
+
+		var importanceTotal = 0;
+		var importanceList = Object.keys(importance).map(function (name) {
+			importanceTotal += importance[name];
+			return { name: name, value: importance[name] };
+		});
+		if (importanceTotal > 0) {
+			importanceList.forEach(function (entry) {
+				entry.value /= importanceTotal;
+			});
+		}
+		importanceList.sort(function (a, b) { return b.value - a.value; });
+		tree.featureImportance = importanceList;
+		return tree;
+	}
+
+	function buildRegressionTree(data, headers, options) {
+		options = options || {};
+		var resultName = options.resultName;
+		var resultIndex = options.resultIndex;
+		if (resultIndex === undefined) {
+			resultIndex = resultName === undefined ? -1 : headers.indexOf(resultName);
+		}
+		if (resultIndex === -1 || resultIndex === undefined) {
+			return { empty: true, reason: "Result column not found" };
+		}
+		if (!resultName) {
+			resultName = headers[resultIndex];
+		}
+
+		var resultNames = options.resultNames || [resultName];
+		var features = prepareFeatures(data, headers, selectFeatureColumns(headers, {
+			resultNames: resultNames,
+			specialColumns: options.specialColumns || DEFAULT_SPECIAL_COLUMNS,
+			extraColumns: options.extraColumns || []
+		}));
+
+		var statusIndex = headers.indexOf("trial_status");
+		var includeStatuses = options.includeStatuses;
+		if (includeStatuses === undefined && statusIndex !== -1) {
+			includeStatuses = ["COMPLETED"];
+		}
+		if (includeStatuses) {
+			includeStatuses = includeStatuses.map(function (status) {
+				return String(status).toUpperCase();
+			});
+		}
+
+		var values = new Array(data.length);
+		var indices = [];
+		for (var i = 0; i < data.length; i++) {
+			if (includeStatuses && statusIndex !== -1) {
+				var status = String(data[i][statusIndex] === null || data[i][statusIndex] === undefined ? "" : data[i][statusIndex]).toUpperCase();
+				if (includeStatuses.indexOf(status) === -1) {
+					continue;
+				}
+			}
+			var number = toNumber(data[i][resultIndex]);
+			values[i] = number === null ? NaN : number;
+			if (number !== null) {
+				indices.push(i);
+			}
+		}
+
+		if (indices.length < 2) {
+			return { empty: true, reason: "Not enough completed trials with numeric result values" };
+		}
+
+		var tree = buildRegressionTreeFromIndices(features, values, indices, options);
+		tree.resultName = resultName;
+		tree.goal = goalForResult(resultName, resultNames, options.resultMinMax || []);
+		tree.total = indices.length;
+		return tree;
+	}
+
+	function collectRegressionLeaves(tree) {
+		var leaves = [];
+
+		function walk(node, conditions) {
+			if (node.leaf) {
+				leaves.push({
+					conditions: conditions,
+					mean: node.mean,
+					median: node.median,
+					samples: node.samples
+				});
+				return;
+			}
+			walk(node.left, conditions.concat([node.condition]));
+			walk(node.right, conditions.concat([inverseCondition(node.condition)]));
+		}
+
+		walk(tree, []);
+		return leaves;
+	}
+
+	function conditionsToSentence(conditions) {
+		if (!conditions.length) {
+			return "the whole run";
+		}
+		return conditions.map(formatCondition).join(" and ");
+	}
+
+	function relativeDelta(value, baseline) {
+		if (baseline === 0) {
+			return value === 0 ? 0 : value;
+		}
+		return (value - baseline) / Math.abs(baseline);
+	}
+
+	function regressionTreeSummary(tree, resultName, goal, options) {
+		options = options || {};
+		var minEffect = options.minEffect === undefined ? 0.05 : options.minEffect;
+		var bullets = [];
+
+		var consideredLabel = options.consideredLabel || "completed trials";
+		bullets.push(
+			"Across " + tree.samples + " " + consideredLabel + ", " + resultName +
+			" has a median of " + formatNumber(tree.baselineMedian) +
+			" (mean " + formatNumber(tree.mean) + ")."
+		);
+
+		var splits = [];
+		function walk(node, conditions, depth) {
+			if (node.leaf) {
+				return;
+			}
+			splits.push({
+				node: node,
+				conditions: conditions,
+				depth: depth,
+				leftDelta: relativeDelta(node.left.mean, node.mean),
+				rightDelta: relativeDelta(node.right.mean, node.mean)
+			});
+			walk(node.left, conditions.concat([node.condition]), depth + 1);
+			walk(node.right, conditions.concat([inverseCondition(node.condition)]), depth + 1);
+		}
+		walk(tree, [], 0);
+
+		splits.sort(function (a, b) { return b.node.gain - a.node.gain; });
+		var usedSplits = 0;
+
+		splits.forEach(function (split) {
+			if (usedSplits >= 3) {
+				return;
+			}
+			var useLeft = Math.abs(split.leftDelta) >= Math.abs(split.rightDelta);
+			var condition = useLeft ? split.node.condition : inverseCondition(split.node.condition);
+			var delta = useLeft ? split.leftDelta : split.rightDelta;
+			var group = useLeft ? split.node.left : split.node.right;
+			if (Math.abs(delta) < minEffect) {
+				return;
+			}
+			var direction = delta < 0 ? "lower" : "higher";
+			var comparison = split.conditions.length ? "than the parent group" : "than the overall average";
+			var prefix = split.conditions.length
+				? "Within the group where " + conditionsToSentence(split.conditions) + ", "
+				: "";
+			bullets.push(
+				prefix + (split.conditions.length ? "trials with " : "Trials with ") + formatCondition(condition) +
+				" have a mean " + resultName + " that is " +
+				Math.abs(delta * 100).toFixed(1) + "% " + direction +
+				" " + comparison + " (n=" + group.samples + ")."
+			);
+			usedSplits++;
+		});
+
+		var leaves = collectRegressionLeaves(tree).filter(function (leaf) {
+			return leaf.samples >= Math.max(5, Math.ceil(tree.samples * 0.02));
+		});
+
+		if (leaves.length) {
+			var best = leaves[0];
+			var worst = leaves[0];
+			leaves.forEach(function (leaf) {
+				if (goal === "max") {
+					if (leaf.mean > best.mean) best = leaf;
+					if (leaf.mean < worst.mean) worst = leaf;
+				} else {
+					if (leaf.mean < best.mean) best = leaf;
+					if (leaf.mean > worst.mean) worst = leaf;
+				}
+			});
+
+			var bestDelta = relativeDelta(best.mean, tree.mean);
+			var worstDelta = relativeDelta(worst.mean, tree.mean);
+			var bestImprovement = goal === "max" ? bestDelta : -bestDelta;
+			var worstImprovement = goal === "max" ? -worstDelta : worstDelta;
+
+			if (Math.abs(bestDelta) >= minEffect) {
+				bullets.push(
+					"The best region is " + conditionsToSentence(best.conditions) +
+					" with a mean " + resultName + " of " + formatNumber(best.mean) +
+					" (n=" + best.samples + "), " +
+					Math.abs(bestImprovement * 100).toFixed(1) + "% better than the overall average."
+				);
+			}
+			if (Math.abs(worstDelta) >= minEffect && worst !== best) {
+				bullets.push(
+					"The worst region is " + conditionsToSentence(worst.conditions) +
+					" with a mean " + resultName + " of " + formatNumber(worst.mean) +
+					" (n=" + worst.samples + "), " +
+					Math.abs(worstImprovement * 100).toFixed(1) + "% worse than the overall average."
+				);
+			}
+		}
+
+		return bullets;
+	}
+
 	function sampleData(data, maxRows) {
 		if (!maxRows || data.length <= maxRows) {
 			return { rows: data, sampled: false, originalSize: data.length };
@@ -1069,7 +1435,7 @@
 			.map(formatCondition)
 			.join(" and ");
 		var direction = candidate.stats.deltaPct < 0 ? "lower" : "higher";
-		return "Among completed trials, when " + conditions + ", " + resultGroup.result +
+		return "Among " + (resultGroup.consideredLabel || "completed trials") + ", when " + conditions + ", " + resultGroup.result +
 			" is on average " + Math.abs(candidate.stats.deltaPct * 100).toFixed(1) + "% " +
 			direction + " (n=" + candidate.stats.n + ").";
 	}
@@ -1362,6 +1728,9 @@
 				return String(status).toUpperCase();
 			});
 		}
+		var consideredLabel = includeStatuses && includeStatuses.length
+			? includeStatuses.map(function (status) { return status.toLowerCase(); }).join(" / ") + " trials"
+			: "trials with numeric results";
 
 		names.forEach(function (resultName) {
 			var resultIndex = headers.indexOf(resultName);
@@ -1480,10 +1849,27 @@
 				}
 			});
 
+			var regressionTree = buildRegressionTreeFromIndices(features, values, validIndices, {
+				maxDepth: options.treeDepth === undefined ? 3 : options.treeDepth,
+				minLeaf: Math.max(minSupport, Math.ceil(validIndices.length * 0.02)),
+				maxThresholds: options.treeMaxThresholds,
+				maxCategoricalValues: options.treeMaxCategoricalValues,
+				minGainRatio: options.treeMinGainRatio
+			});
+			var summary = regressionTree.empty
+				? []
+				: regressionTreeSummary(regressionTree, resultName, goal, {
+					minEffect: minEffect,
+					consideredLabel: consideredLabel
+				});
+
 			results.push({
 				result: resultName,
 				goal: goal,
 				considered: validIndices.length,
+				consideredLabel: consideredLabel,
+				tree: regressionTree.empty ? null : regressionTree,
+				summary: summary,
 				good: good,
 				bad: bad
 			});
@@ -1558,21 +1944,56 @@
 		return card;
 	}
 
-	function renderTree(node) {
-		var wrapper = createElement("div", "analysis-tree-node");
-		if (node.leaf) {
-			wrapper.textContent = "→ " + formatPercent(node.rate) + " failed (n=" + node.samples + ")";
-			wrapper.classList.add(node.positives > 0 ? "analysis-tree-leaf" : "analysis-tree-leaf-empty");
-			return wrapper;
+	function renderTreeCode(node, options) {
+		options = options || {};
+		var container = createElement("div", "analysis-tree-code");
+
+		function appendLine(indent, className) {
+			var line = createElement("div", "analysis-tree-line" + (className ? " " + className : ""));
+			line.style.marginLeft = (indent * 16) + "px";
+			if (indent > 0) {
+				line.style.borderLeft = "1px dotted #bbb";
+			}
+			line.style.paddingLeft = "8px";
+			container.appendChild(line);
+			return line;
 		}
-		var split = createElement("div", "analysis-tree-split", "if " + formatCondition(node.condition));
-		wrapper.appendChild(split);
-		var children = createElement("div", "analysis-tree-children");
-		children.appendChild(renderTree(node.left));
-		children.appendChild(createElement("div", "analysis-tree-else", "else"));
-		children.appendChild(renderTree(node.right));
-		wrapper.appendChild(children);
-		return wrapper;
+
+		function leafText(node) {
+			if (options.leafText) {
+				return options.leafText(node);
+			}
+			return formatPercent(node.rate) + " failed (n=" + node.samples + ")";
+		}
+
+		function walk(current, indent) {
+			if (current.leaf) {
+				var line = appendLine(indent, "analysis-tree-leaf-line");
+				line.appendChild(createElement("span", "analysis-tree-arrow", "→ "));
+				var text = createElement("span", "analysis-tree-leaf-text", leafText(current));
+				if (options.leafClass) {
+					var className = options.leafClass(current);
+					if (className) {
+						text.classList.add(className);
+					}
+				}
+				line.appendChild(text);
+				return;
+			}
+
+			var ifLine = appendLine(indent, "analysis-tree-if-line");
+			ifLine.appendChild(createElement("span", "analysis-tree-keyword", "if "));
+			ifLine.appendChild(createElement("span", "analysis-tree-condition", formatCondition(current.condition)));
+			ifLine.appendChild(document.createTextNode(":"));
+			walk(current.left, indent + 1);
+
+			var elseLine = appendLine(indent, "analysis-tree-else-line");
+			elseLine.appendChild(createElement("span", "analysis-tree-keyword", "else:"));
+			walk(current.right, indent + 1);
+		}
+
+		walk(node, 0);
+		return container;
 	}
 
 	function initializeResultsAnalysis(containerId, data, headers, controller, options) {
@@ -1598,7 +2019,13 @@
 		var queryRow = createElement("div", "results-analysis-query");
 		var queryInput = createElement("input", "results-analysis-input");
 		queryInput.type = "search";
-		queryInput.placeholder = "e.g. RESULT1 < 1.5 AND int_param > 5";
+		var exampleFeatures = selectFeatureColumns(headers, {
+			resultNames: resultNames,
+			specialColumns: specialColumns
+		});
+		var exampleResult = resultNames.length ? resultNames[0] : (headers[0] || "value");
+		var exampleParam = exampleFeatures.length ? exampleFeatures[0].name : (headers[0] || "parameter");
+		queryInput.placeholder = "e.g. " + exampleResult + " < 1.5 AND " + exampleParam + " > 5";
 		queryInput.setAttribute("aria-label", "Result filter query");
 		queryRow.appendChild(queryInput);
 
@@ -1694,7 +2121,10 @@
 			var details = createElement("details", "results-analysis-section");
 			details.id = id;
 			details.open = true;
-			details.appendChild(createElement("summary", "results-analysis-section-summary", title));
+			var summary = createElement("summary", "results-analysis-section-summary");
+			summary.appendChild(document.createTextNode(title));
+			summary.appendChild(createElement("span", "results-analysis-section-hint"));
+			details.appendChild(summary);
 			var body = createElement("div", "results-analysis-section-body");
 			details.appendChild(body);
 			output.appendChild(details);
@@ -1930,8 +2360,16 @@
 			}
 
 			var treeDetails = createElement("details", "analysis-tree-details");
-			treeDetails.appendChild(createElement("summary", null, "Show decision tree"));
-			treeDetails.appendChild(renderTree(result.tree));
+			treeDetails.open = true;
+			treeDetails.appendChild(createElement("summary", null, "Decision tree (red leaves = failures)"));
+			treeDetails.appendChild(renderTreeCode(result.tree, {
+				leafText: function (node) {
+					return formatPercent(node.rate) + " failed (n=" + node.samples + ")";
+				},
+				leafClass: function (node) {
+					return node.positives > 0 ? "analysis-tree-leaf-failure" : "analysis-tree-leaf-empty";
+				}
+			}));
 			treeDetails.appendChild(createElement(
 				"p",
 				"results-analysis-note",
@@ -1960,17 +2398,47 @@
 					"h5",
 					"results-analysis-subheading",
 					resultGroup.result + " (" + (resultGroup.goal === "max" ? "maximize" : "minimize") + ")" +
-					(resultGroup.considered ? " · " + resultGroup.considered + " completed trials" : "")
+					(resultGroup.considered ? " · " + resultGroup.considered + " " + (resultGroup.consideredLabel || "trials") : "")
 				);
 				body.appendChild(groupTitle);
 
-				var columns = createElement("div", "analysis-pattern-columns");
+				if (resultGroup.summary && resultGroup.summary.length) {
+					var summaryBox = createElement("div", "analysis-pattern-summary");
+					summaryBox.appendChild(createElement("div", "analysis-pattern-summary-title", "What stands out"));
+					var summaryList = createElement("ul", "analysis-pattern-summary-list");
+					resultGroup.summary.forEach(function (text) {
+						summaryList.appendChild(createElement("li", null, text));
+					});
+					summaryBox.appendChild(summaryList);
+					body.appendChild(summaryBox);
+				}
 
+				if (resultGroup.tree && !resultGroup.tree.empty) {
+					var treeDetails = createElement("details", "analysis-tree-details analysis-pattern-tree");
+					treeDetails.open = true;
+					treeDetails.appendChild(createElement("summary", null, "Pattern tree (" + (resultGroup.consideredLabel || "analyzed trials") + ")"));
+					treeDetails.appendChild(renderTreeCode(resultGroup.tree, {
+						leafText: function (node) {
+							return "mean " + formatNumber(node.mean) +
+								" · median " + formatNumber(node.median) +
+								" · n=" + node.samples;
+						},
+						leafClass: function (node) {
+							var better = resultGroup.goal === "max"
+								? node.mean > resultGroup.tree.mean
+								: node.mean < resultGroup.tree.mean;
+							return better ? "analysis-tree-leaf-better" : "analysis-tree-leaf-worse";
+						}
+					}));
+					body.appendChild(treeDetails);
+				}
+
+				var columns = createElement("div", "analysis-pattern-columns");
 				[["Better than the rest", resultGroup.good, "good"], ["Worse than the rest", resultGroup.bad, "bad"]].forEach(function (part) {
 					var column = createElement("div", "analysis-pattern-column");
 					column.appendChild(createElement("div", "analysis-pattern-column-title", part[0]));
 					if (!part[1].length) {
-						column.appendChild(createElement("p", "results-analysis-message", "No pattern found."));
+						column.appendChild(createElement("p", "results-analysis-message", "No specific subgroup found."));
 					} else {
 						part[1].forEach(function (candidate) {
 							column.appendChild(renderRuleCard(
@@ -1984,13 +2452,16 @@
 					columns.appendChild(column);
 				});
 
-				body.appendChild(columns);
+				var specific = createElement("details", "analysis-pattern-specific");
+				specific.appendChild(createElement("summary", null, "More specific subgroups"));
+				specific.appendChild(columns);
+				body.appendChild(specific);
 			});
 
 			body.appendChild(createElement(
 				"p",
 				"results-analysis-note",
-				"Patterns compare a subgroup with the remaining trials. Use the support (n) and the effect size to judge how trustworthy a pattern is."
+				"Patterns and the regression tree use trials with numeric result values. The tree shows how parameter regions split the result; the specific subgroups below list single and combined rules with their support."
 			));
 		}
 
@@ -2032,6 +2503,8 @@
 		treeToRules: treeToRules,
 		evaluateTree: evaluateTree,
 		analyzeFailures: analyzeFailures,
+		buildRegressionTree: buildRegressionTree,
+		regressionTreeSummary: regressionTreeSummary,
 		findResultPatterns: findResultPatterns,
 		formatCondition: formatCondition,
 		formatNumber: formatNumber,

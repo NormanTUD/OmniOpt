@@ -270,6 +270,54 @@ console.log("\n--- Testing: subgroup / result patterns ---");
 	expectFalse("patterns: missing result is rejected", invalid.ok);
 }
 
+console.log("\n--- Testing: regression tree and pattern summary ---");
+{
+	var fixture = buildFailureData();
+	var tree = analysis.buildRegressionTree(fixture.data, fixture.headers, {
+		resultName: "RESULT1",
+		resultMinMax: ["min"],
+		maxDepth: 3,
+		minLeaf: 5
+	});
+	expectTrue("regression tree: builds", !tree.empty);
+	expect("regression tree: uses completed trials", tree.samples, 91);
+	expectTrue("regression tree: finds a split", !tree.leaf);
+
+	var bullets = analysis.regressionTreeSummary(tree, "RESULT1", "min", { minEffect: 0.05 });
+	expectTrue("regression tree: summary is not empty", bullets.length > 0);
+	expectTrue("regression tree: summary mentions the result column", bullets.join(" ").indexOf("RESULT1") !== -1);
+	expectTrue("regression tree: summary contains a best region", bullets.some(function (text) { return /best region/i.test(text); }));
+
+	var sumLeaves = function (node) {
+		if (node.leaf) {
+			return node.samples;
+		}
+		return sumLeaves(node.left) + sumLeaves(node.right);
+	};
+	expect("regression tree: leaves partition the data", sumLeaves(tree), tree.samples);
+}
+
+console.log("\n--- Testing: dynamic result and parameter names ---");
+{
+	var headers = ["trial_index", "metric", "alpha", "beta", "trial_status"];
+	var data = [];
+	for (var i = 0; i < 200; i++) {
+		var alpha = i % 10;
+		var beta = Math.floor(i / 10) % 10;
+		var failed = alpha >= 8 && beta <= 1;
+		var score = failed ? 1 : 10 - (alpha >= 5 ? 2 : 0) - (beta <= 5 ? 2 : 0);
+		data.push([i, score, alpha, beta, failed ? "FAILED" : "COMPLETED"]);
+	}
+
+	var result = analysis.findResultPatterns(data, headers, ["metric"], ["min"], { minSupport: 5 });
+	expectTrue("dynamic names: patterns succeed", result.ok);
+	var summaryText = result.results[0].summary.join(" ");
+	expectTrue("dynamic names: summary uses the custom result name", summaryText.indexOf("metric") !== -1);
+	expectFalse("dynamic names: summary does not hardcode RESULT", /RESULT/.test(summaryText));
+	expectTrue("dynamic names: pattern tree uses custom parameters", result.results[0].tree !== null);
+	expectTrue("dynamic names: tree mentions alpha or beta", /alpha|beta/.test(JSON.stringify(result.results[0].tree)));
+}
+
 console.log("\n--- Testing: formatting and condition helpers ---");
 {
 	var condition = { column: "name", operator: "==", value: "a\"b" };

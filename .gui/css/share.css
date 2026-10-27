@@ -438,25 +438,6 @@ body.dark-mode .analysis-importance-bar-wrapper {
 	background: #555;
 }
 
-.analysis-tree-node {
-	margin-left: 12px;
-	padding-left: 8px;
-	border-left: 1px dashed #999;
-	font-size: 12px;
-}
-
-.analysis-tree-split {
-	font-family: monospace;
-}
-
-.analysis-tree-leaf {
-	color: #b00020;
-}
-
-.analysis-tree-children {
-	margin-top: 4px;
-}
-
 .results-analysis-section {
 	border: 1px solid #c5c5c5;
 	background: #fff;
@@ -497,12 +478,6 @@ body.dark-mode .analysis-rule-expression {
 	color: #aaa;
 }
 
-.analysis-tree-else {
-	font-style: italic;
-	color: #777;
-	margin-left: 12px;
-}
-
 .analysis-tree-leaf-empty {
 	color: #999;
 }
@@ -511,4 +486,108 @@ body.dark-mode .analysis-rule-expression {
 	font-size: 12px;
 	color: #2a6b2a;
 	margin-top: 6px;
+}
+
+.analysis-pattern-summary {
+	border-left: 4px solid #2a7ae2;
+	background: #eef4fc;
+	padding: 8px 10px;
+	margin: 8px 0;
+}
+
+body.dark-mode .analysis-pattern-summary {
+	background: #243447;
+	border-left-color: #6ea8ff;
+}
+
+.analysis-pattern-summary-title {
+	font-weight: bold;
+	font-size: 14px;
+	margin-bottom: 4px;
+}
+
+.analysis-pattern-summary-list {
+	margin: 4px 0 0 18px;
+	padding: 0;
+}
+
+.analysis-pattern-summary-list li {
+	margin: 4px 0;
+	font-size: 13px;
+	overflow-wrap: anywhere;
+}
+
+.analysis-pattern-tree,
+.analysis-pattern-specific {
+	margin-top: 8px;
+}
+
+.analysis-tree-code {
+	background: #f6f8fa;
+	border: 1px solid #d0d7de;
+	border-radius: 4px;
+	padding: 8px;
+	font-family: monospace;
+	font-size: 12px;
+	overflow-x: auto;
+}
+
+body.dark-mode .analysis-tree-code {
+	background: #1f1f1f;
+	border-color: #555;
+}
+
+.analysis-tree-line {
+	white-space: pre-wrap;
+	line-height: 1.55;
+	padding-top: 1px;
+	padding-bottom: 1px;
+	overflow-wrap: anywhere;
+}
+
+.analysis-tree-keyword {
+	color: #005cc5;
+	font-weight: bold;
+}
+
+.analysis-tree-condition {
+	color: #24292e;
+}
+
+body.dark-mode .analysis-tree-condition {
+	color: #ddd;
+}
+
+.analysis-tree-arrow {
+	color: #888;
+}
+
+.analysis-tree-leaf-better {
+	color: #1b7f3a;
+	font-weight: bold;
+}
+
+.analysis-tree-leaf-worse {
+	color: #b00020;
+	font-weight: bold;
+}
+
+.analysis-tree-leaf-failure {
+	color: #b00020;
+	font-weight: bold;
+}
+
+.results-analysis-section-hint {
+	float: right;
+	font-weight: normal;
+	font-size: 11px;
+	color: #777;
+}
+
+.results-analysis-section[open] .results-analysis-section-hint::after {
+	content: "click to collapse";
+}
+
+.results-analysis-section:not([open]) .results-analysis-section-hint::after {
+	content: "click to expand";
 }

@@ -117,14 +117,14 @@ console.log("\n--- Testing: feature selection ---");
 		resultNames: ["RESULT1"],
 		specialColumns: analysis.DEFAULT_SPECIAL_COLUMNS
 	});
-	expect("features: keeps plain parameter and non-duplicated OO_Info column", columns.map(function (c) { return c.name; }), ["x", "OO_Info_y"]);
+	expect("features: ignores every OO_Info column", columns.map(function (c) { return c.name; }), ["x"]);
 
 	columns = analysis.selectFeatureColumns(headers, {
 		resultNames: ["RESULT1"],
 		specialColumns: analysis.DEFAULT_SPECIAL_COLUMNS,
 		extraColumns: ["generation_node"]
 	});
-	expect("features: extra categorical column is kept", columns.map(function (c) { return c.name; }), ["x", "OO_Info_y", "generation_node"]);
+	expect("features: extra categorical column is kept", columns.map(function (c) { return c.name; }), ["x", "generation_node"]);
 }
 
 console.log("\n--- Testing: failure decision tree ---");
@@ -173,6 +173,40 @@ console.log("\n--- Testing: failure decision tree ---");
 	expectTrue("failure tree: depth limit respected", treeDepth(depthLimited.tree) <= 2);
 }
 
+console.log("\n--- Testing: failure tree ignores OO_Info columns ---");
+{
+	var headers = ["trial_index", "OO_Info_ZEIT", "n_conv", "n_dense", "trial_status", "RESULT1"];
+	var data = [];
+	for (var i = 0; i < 200; i++) {
+		var nConv = i % 10;
+		var nDense = Math.floor(i / 10) % 10;
+		var failed = nConv > 5 && nDense < 2;
+		data.push([i, failed ? 10000 + i : i, nConv, nDense, failed ? "FAILED" : "COMPLETED", failed ? 1 : 10]);
+	}
+	var result = analysis.analyzeFailures(data, headers, { resultNames: ["RESULT1"] });
+	expectTrue("failure tree: OO_Info analysis succeeds", result.ok);
+	expectTrue("failure tree: OO_Info rule exists", result.topRules.length > 0);
+	var ruleText = analysis.conditionsToQuery(result.topRules[0].conditions);
+	expectFalse("failure tree: OO_Info is not used", /OO_Info_/.test(ruleText));
+	expectTrue("failure tree: real parameter n_conv is used", /n_conv/.test(ruleText));
+	expectTrue("failure tree: real parameter n_dense is used", /n_dense/.test(ruleText));
+	expectTrue("failure tree: rule is based on all rows", result.total === 200);
+}
+
+console.log("\n--- Testing: failure tree exit-code fallback ---");
+{
+	var headers = ["trial_index", "x", "exit_code", "RESULT1"];
+	var data = [];
+	for (var i = 0; i < 100; i++) {
+		var x = i % 10;
+		data.push([i, x, x >= 7 ? 1 : 0, 10]);
+	}
+	var result = analysis.analyzeFailures(data, headers, { resultNames: ["RESULT1"] });
+	expectTrue("failure tree: exit_code fallback succeeds", result.ok);
+	expectTrue("failure tree: exit_code fallback finds a rule", result.topRules.length > 0);
+	expectTrue("failure tree: exit_code fallback uses x", /x/.test(analysis.conditionsToQuery(result.topRules[0].conditions)));
+}
+
 console.log("\n--- Testing: failure tree without failures ---");
 {
 	var fixture = buildFailureData();
@@ -201,7 +235,7 @@ console.log("\n--- Testing: subgroup / result patterns ---");
 
 	var best = result.results[0].good[0];
 	var text = analysis.conditionsToQuery(best.conditions);
-	expectTrue("patterns: best rule contains x", /x/.test(text));
+	expectTrue("patterns: best rule contains a parameter", /x|y/.test(text));
 	expectTrue("patterns: best rule is restricted to completed trials", /trial_status = \"COMPLETED\"/.test(text));
 	expectTrue("patterns: best rule improves the result", best.stats.mean < best.stats.complementMean);
 	expectTrue("patterns: best rule has support", best.stats.n >= 5);

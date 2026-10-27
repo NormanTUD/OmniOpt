@@ -449,3 +449,57 @@ body.dark-mode .analysis-importance-bar-wrapper {
 .analysis-tree-children {
 	margin-top: 4px;
 }
+
+.results-analysis-section {
+	border: 1px solid #c5c5c5;
+	background: #fff;
+	padding: 8px;
+	margin-top: 10px;
+}
+
+body.dark-mode .results-analysis-section {
+	background: #333;
+	border-color: #666;
+}
+
+.results-analysis-section summary {
+	cursor: pointer;
+	font-weight: bold;
+}
+
+.results-analysis-section-body {
+	margin-top: 8px;
+}
+
+.analysis-rule-sentence {
+	font-size: 14px;
+	font-weight: bold;
+	margin-bottom: 4px;
+}
+
+.analysis-rule-expression {
+	font-family: monospace;
+	font-size: 11px;
+	color: #666;
+	margin-bottom: 4px;
+}
+
+body.dark-mode .analysis-rule-expression {
+	color: #aaa;
+}
+
+.analysis-tree-else {
+	font-style: italic;
+	color: #777;
+	margin-left: 12px;
+}
+
+.analysis-tree-leaf-empty {
+	color: #999;
+}
+
+.results-analysis-action-status {
+	font-size: 12px;
+	color: #2a6b2a;
+	margin-top: 6px;
+}

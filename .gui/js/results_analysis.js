@@ -99,6 +99,20 @@
 		}
 	}
 
+	function conditionsMatchRow(conditions, row, headerMap) {
+		for (var i = 0; i < conditions.length; i++) {
+			var condition = conditions[i];
+			var index = condition.index;
+			if (index === undefined) {
+				index = headerMap ? headerMap[condition.column] : undefined;
+			}
+			if (index === undefined || !conditionMatchesValue(condition, row[index])) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	function invertOperator(operator) {
 		switch (operator) {
 			case "<":
@@ -150,37 +164,6 @@
 		return sum / values.length;
 	}
 
-	function standardDeviation(values, average) {
-		if (values.length < 2) {
-			return 0;
-		}
-		var sum = 0;
-		for (var i = 0; i < values.length; i++) {
-			var difference = values[i] - average;
-			sum += difference * difference;
-		}
-		return Math.sqrt(sum / values.length);
-	}
-
-	function quantileSorted(sorted, q) {
-		if (!sorted.length) {
-			return null;
-		}
-		var position = (sorted.length - 1) * q;
-		var base = Math.floor(position);
-		var rest = position - base;
-		var next = sorted[Math.min(base + 1, sorted.length - 1)];
-		return sorted[base] + (next - sorted[base]) * rest;
-	}
-
-	function quantile(values, q) {
-		if (!values.length) {
-			return null;
-		}
-		var sorted = values.slice().sort(function (a, b) { return a - b; });
-		return quantileSorted(sorted, q);
-	}
-
 	function uniqueNumbers(values) {
 		var unique = [];
 		for (var i = 0; i < values.length; i++) {
@@ -192,6 +175,30 @@
 			}
 		}
 		return unique;
+	}
+
+	function pickNumericThresholds(values, maxThresholds) {
+		var sorted = values.slice().sort(function (a, b) { return a - b; });
+		var unique = [];
+
+		for (var i = 0; i < sorted.length; i++) {
+			if (!unique.length || unique[unique.length - 1] !== sorted[i]) {
+				unique.push(sorted[i]);
+			}
+		}
+
+		if (unique.length < 2) {
+			return [];
+		}
+
+		var count = Math.min(maxThresholds, unique.length - 1);
+		var thresholds = [];
+		for (var t = 1; t <= count; t++) {
+			var index = Math.round((t / (count + 1)) * (unique.length - 1));
+			index = Math.max(0, Math.min(unique.length - 2, index));
+			thresholds.push(unique[index]);
+		}
+		return uniqueNumbers(thresholds);
 	}
 
 	function formatNumber(value) {
@@ -567,12 +574,7 @@
 		var resultNames = options.resultNames || [];
 		var specialColumns = options.specialColumns || DEFAULT_SPECIAL_COLUMNS;
 		var extraColumns = options.extraColumns || [];
-		var headerSet = {};
 		var excluded = {};
-
-		for (var h = 0; h < headers.length; h++) {
-			headerSet[headers[h]] = true;
-		}
 
 		resultNames.concat(specialColumns).forEach(function (name) {
 			excluded[name] = true;
@@ -584,7 +586,7 @@
 			if (!name) {
 				continue;
 			}
-			if (name.indexOf("OO_Info_") === 0 && headerSet[name.slice("OO_Info_".length)]) {
+			if (name.indexOf("OO_Info_") === 0) {
 				continue;
 			}
 			if (excluded[name] && extraColumns.indexOf(name) === -1) {
@@ -647,14 +649,7 @@
 		if (!values.length) {
 			return [];
 		}
-		values.sort(function (a, b) { return a - b; });
-
-		var thresholds = [];
-		var count = Math.max(1, Math.min(maxThresholds, values.length - 1));
-		for (var t = 1; t <= count; t++) {
-			thresholds.push(quantileSorted(values, t / (count + 1)));
-		}
-		return uniqueNumbers(thresholds);
+		return pickNumericThresholds(values, maxThresholds);
 	}
 
 	function categoricalCandidates(feature, minLeaf, maxValues) {
@@ -981,33 +976,113 @@
 		return { rows: rows, sampled: true, originalSize: data.length };
 	}
 
-	function analyzeFailures(data, headers, options) {
-		options = options || {};
-		var sampled = sampleData(data, options.maxRows === undefined ? 50000 : options.maxRows);
-		var rows = sampled.rows;
+	function buildFailureLabelFn(headers, options) {
 		var statusIndex = headers.indexOf("trial_status");
 
-		if (statusIndex === -1) {
-			return { ok: false, reason: "Column 'trial_status' is missing" };
+		if (statusIndex !== -1) {
+			var positiveStatuses = (options.positiveStatuses || ["FAILED"]).map(function (value) {
+				return String(value).toUpperCase();
+			});
+			var negativeStatuses = (options.negativeStatuses || ["COMPLETED"]).map(function (value) {
+				return String(value).toUpperCase();
+			});
+
+			return function (row) {
+				var status = String(row[statusIndex] === null || row[statusIndex] === undefined ? "" : row[statusIndex]).toUpperCase();
+				if (positiveStatuses.indexOf(status) !== -1) {
+					return true;
+				}
+				if (negativeStatuses.indexOf(status) !== -1) {
+					return false;
+				}
+				return null;
+			};
 		}
 
-		var positiveStatuses = (options.positiveStatuses || ["FAILED"]).map(function (value) {
-			return String(value).toUpperCase();
-		});
-		var negativeStatuses = (options.negativeStatuses || ["COMPLETED"]).map(function (value) {
-			return String(value).toUpperCase();
-		});
+		var exitCodeIndex = headers.indexOf("exit_code");
+		if (exitCodeIndex !== -1) {
+			return function (row) {
+				var raw = row[exitCodeIndex];
+				if (isBlank(raw)) {
+					return null;
+				}
+				var number = toNumber(raw);
+				if (number !== null) {
+					return number !== 0;
+				}
+				var text = String(raw).trim().toLowerCase();
+				return text !== "0" && text !== "none" && text !== "success" && text !== "ok";
+			};
+		}
 
-		var labelFn = function (row) {
-			var status = String(row[statusIndex] === null || row[statusIndex] === undefined ? "" : row[statusIndex]).toUpperCase();
-			if (positiveStatuses.indexOf(status) !== -1) {
-				return true;
+		var signalIndex = headers.indexOf("signal");
+		if (signalIndex !== -1) {
+			return function (row) {
+				var raw = row[signalIndex];
+				if (isBlank(raw)) {
+					return false;
+				}
+				var text = String(raw).trim().toLowerCase();
+				return text !== "0" && text !== "none";
+			};
+		}
+
+		return null;
+	}
+
+	function countRuleMatches(data, headers, conditions, labelFn) {
+		var headerMap = headerIndexMap(headers);
+		var total = 0;
+		var positives = 0;
+
+		for (var i = 0; i < data.length; i++) {
+			var label = labelFn(data[i]);
+			if (label === null || label === undefined) {
+				continue;
 			}
-			if (negativeStatuses.indexOf(status) !== -1) {
-				return false;
+			if (!conditionsMatchRow(conditions, data[i], headerMap)) {
+				continue;
 			}
-			return null;
+			total++;
+			if (label) {
+				positives++;
+			}
+		}
+
+		return {
+			samples: total,
+			positives: positives,
+			negatives: total - positives,
+			rate: total ? positives / total : 0
 		};
+	}
+
+	function failureRuleSentence(rule) {
+		var conditions = rule.conditions.map(formatCondition).join(" and ");
+		return "Whenever " + conditions + ", the job fails in " +
+			rule.positives + " of " + rule.samples + " cases (" + formatPercent(rule.rate) + ").";
+	}
+
+	function patternRuleSentence(candidate, resultGroup) {
+		var conditions = candidate.conditions
+			.filter(function (condition) { return condition.column !== "trial_status"; })
+			.map(formatCondition)
+			.join(" and ");
+		var direction = candidate.stats.deltaPct < 0 ? "lower" : "higher";
+		return "Among completed trials, when " + conditions + ", " + resultGroup.result +
+			" is on average " + Math.abs(candidate.stats.deltaPct * 100).toFixed(1) + "% " +
+			direction + " (n=" + candidate.stats.n + ").";
+	}
+
+	function analyzeFailures(data, headers, options) {
+		options = options || {};
+		var sampled = sampleData(data, options.maxRows === undefined ? 100000 : options.maxRows);
+		var rows = sampled.rows;
+		var labelFn = buildFailureLabelFn(headers, options);
+
+		if (!labelFn) {
+			return { ok: false, reason: "No failure column was found (trial_status, exit_code or signal)" };
+		}
 
 		var featureColumns = options.featureColumns || selectFeatureColumns(headers, {
 			resultNames: options.resultNames || [],
@@ -1018,10 +1093,10 @@
 		var tree = buildDecisionTree(rows, headers, {
 			labelFn: labelFn,
 			featureColumns: featureColumns,
-			maxDepth: options.maxDepth === undefined ? 4 : options.maxDepth,
-			minLeaf: options.minLeaf === undefined ? 5 : options.minLeaf,
+			maxDepth: options.maxDepth === undefined ? 5 : options.maxDepth,
+			minLeaf: options.minLeaf === undefined ? 3 : options.minLeaf,
 			minGain: options.minGain,
-			maxThresholds: options.maxThresholds,
+			maxThresholds: options.maxThresholds === undefined ? 12 : options.maxThresholds,
 			maxCategoricalValues: options.maxCategoricalValues,
 			balanceClasses: options.balanceClasses
 		});
@@ -1036,23 +1111,51 @@
 			};
 		}
 
-		var rules = treeToRules(tree);
-		var baseline = tree.baselineRate;
-		rules.forEach(function (rule) {
-			rule.baselineRate = baseline;
-			rule.lift = baseline > 0 ? rule.rate / baseline : 0;
-			rule.support = tree.samples > 0 ? rule.samples / tree.samples : 0;
-			rule.score = (rule.rate - baseline) * Math.sqrt(rule.samples);
-		});
+		var fullTotal = 0;
+		var fullPositives = 0;
+		var fullNegatives = 0;
+		for (var i = 0; i < data.length; i++) {
+			var label = labelFn(data[i]);
+			if (label === null || label === undefined) {
+				continue;
+			}
+			fullTotal++;
+			if (label) {
+				fullPositives++;
+			} else {
+				fullNegatives++;
+			}
+		}
 
+		var baseline = fullTotal ? fullPositives / fullTotal : 0;
+		var rules = treeToRules(tree).map(function (rule) {
+			var stats = countRuleMatches(data, headers, rule.conditions, labelFn);
+			if (!stats.samples) {
+				return null;
+			}
+			return {
+				conditions: rule.conditions,
+				samples: stats.samples,
+				positives: stats.positives,
+				negatives: stats.negatives,
+				rate: stats.rate,
+				baselineRate: baseline,
+				lift: baseline > 0 ? stats.rate / baseline : 0,
+				support: fullTotal ? stats.samples / fullTotal : 0,
+				score: (stats.rate - baseline) * Math.sqrt(stats.samples)
+			};
+		}).filter(function (rule) { return rule !== null; });
+
+		var minRuleSamples = options.minRuleSamples === undefined ? 3 : options.minRuleSamples;
+		var minRulePositives = options.minRulePositives === undefined ? 2 : options.minRulePositives;
 		var topRules = rules
 			.filter(function (rule) {
-				return rule.positives > 0 && rule.rate > baseline && rule.samples >= (options.minRuleSamples || 1);
+				return rule.positives >= minRulePositives && rule.rate > baseline && rule.samples >= minRuleSamples;
 			})
 			.sort(function (a, b) {
-				return b.score - a.score || b.samples - a.samples;
+				return b.rate - a.rate || b.samples - a.samples || b.score - a.score;
 			})
-			.slice(0, options.maxRules === undefined ? 8 : options.maxRules);
+			.slice(0, options.maxRules === undefined ? 10 : options.maxRules);
 
 		return {
 			ok: true,
@@ -1060,11 +1163,11 @@
 			rules: rules,
 			topRules: topRules,
 			baselineRate: baseline,
-			total: tree.samples,
-			positives: tree.positives,
-			negatives: tree.negatives,
+			total: fullTotal,
+			positives: fullPositives,
+			negatives: fullNegatives,
 			featureImportance: tree.featureImportance || [],
-			confusion: evaluateTree(tree, rows, headers, labelFn),
+			confusion: evaluateTree(tree, data, headers, labelFn),
 			sampled: sampled.sampled,
 			originalSize: sampled.originalSize
 		};
@@ -1084,10 +1187,7 @@
 				if (values.length < minSupport) {
 					return;
 				}
-				values.sort(function (a, b) { return a - b; });
-				var thresholds = uniqueNumbers([0.2, 0.35, 0.5, 0.65, 0.8].map(function (q) {
-					return quantileSorted(values, q);
-				}));
+				var thresholds = pickNumericThresholds(values, 5);
 
 				thresholds.forEach(function (threshold) {
 					conditions.push({
@@ -1420,17 +1520,21 @@
 		return sign + (value * 100).toFixed(1) + "%";
 	}
 
-	function renderRuleCard(rule, kind, onApply) {
+	function renderRuleCard(rule, kind, onApply, sentence) {
 		var card = createElement("div", "analysis-rule analysis-rule-" + kind);
 		var query = conditionsToQuery(rule.conditions);
-		var title = createElement("div", "analysis-rule-query", query);
-		card.appendChild(title);
+
+		if (sentence) {
+			card.appendChild(createElement("div", "analysis-rule-sentence", sentence));
+			card.appendChild(createElement("div", "analysis-rule-expression", query));
+		} else {
+			card.appendChild(createElement("div", "analysis-rule-query", query));
+		}
 
 		var meta = createElement("div", "analysis-rule-meta");
 		if (kind === "failure") {
 			meta.textContent =
-				"n=" + rule.samples +
-				" · failed " + formatPercent(rule.rate) +
+				rule.positives + " of " + rule.samples + " failed (" + formatPercent(rule.rate) + ")" +
 				" · baseline " + formatPercent(rule.baselineRate) +
 				" · lift " + formatNumber(rule.lift) + "×";
 		} else {
@@ -1458,13 +1562,14 @@
 		var wrapper = createElement("div", "analysis-tree-node");
 		if (node.leaf) {
 			wrapper.textContent = "→ " + formatPercent(node.rate) + " failed (n=" + node.samples + ")";
-			wrapper.classList.add("analysis-tree-leaf");
+			wrapper.classList.add(node.positives > 0 ? "analysis-tree-leaf" : "analysis-tree-leaf-empty");
 			return wrapper;
 		}
 		var split = createElement("div", "analysis-tree-split", "if " + formatCondition(node.condition));
 		wrapper.appendChild(split);
 		var children = createElement("div", "analysis-tree-children");
 		children.appendChild(renderTree(node.left));
+		children.appendChild(createElement("div", "analysis-tree-else", "else"));
 		children.appendChild(renderTree(node.right));
 		wrapper.appendChild(children);
 		return wrapper;
@@ -1557,24 +1662,49 @@
 		actions.appendChild(patternButton);
 		panel.appendChild(actions);
 
+		var actionStatus = createElement("div", "results-analysis-action-status");
+		panel.appendChild(actionStatus);
+
 		var output = createElement("div", "results-analysis-output");
 		panel.appendChild(output);
 
 		container.parentNode.insertBefore(panel, container);
 
 		var statusIndex = headers.indexOf("trial_status");
-		if (statusIndex === -1) {
+		var hasFailureColumn = statusIndex !== -1 || headers.indexOf("exit_code") !== -1 || headers.indexOf("signal") !== -1;
+		if (!hasFailureColumn) {
 			failureButton.disabled = true;
-			failureButton.title = "No trial_status column";
+			failureButton.title = "No failure column (trial_status, exit_code or signal)";
 		}
 		if (!resultNames.length) {
 			patternButton.disabled = true;
 			patternButton.title = "No result columns";
 		}
 
-		function setOutputMessage(text) {
-			output.innerHTML = "";
-			output.appendChild(createElement("p", "results-analysis-message", text));
+		function getOrCreateAnalysisSection(kind, title) {
+			var id = "results_analysis_section_" + kind;
+			var existing = document.getElementById(id);
+			if (existing) {
+				existing.open = true;
+				var existingBody = existing.querySelector(".results-analysis-section-body");
+				existingBody.innerHTML = "";
+				return existingBody;
+			}
+
+			var details = createElement("details", "results-analysis-section");
+			details.id = id;
+			details.open = true;
+			details.appendChild(createElement("summary", "results-analysis-section-summary", title));
+			var body = createElement("div", "results-analysis-section-body");
+			details.appendChild(body);
+			output.appendChild(details);
+			return body;
+		}
+
+		function setSectionMessage(kind, title, text) {
+			var body = getOrCreateAnalysisSection(kind, title);
+			body.appendChild(createElement("p", "results-analysis-message", text));
+			return body;
 		}
 
 		function updateUrl(query) {
@@ -1598,6 +1728,7 @@
 		function applyQuery() {
 			var query = queryInput.value.trim();
 			queryError.textContent = "";
+			actionStatus.textContent = "";
 
 			if (!query) {
 				controller.clearExternalFilter();
@@ -1638,9 +1769,13 @@
 
 		function applyRuleQuery(query) {
 			queryInput.value = query;
-			applyQuery();
-			output.innerHTML = "";
-			output.appendChild(createElement("p", "results-analysis-message", "Filter applied. The results table below now shows only the matching trials."));
+			if (!applyQuery()) {
+				return;
+			}
+			actionStatus.textContent = "Filter applied. The results table below now shows only the matching trials.";
+			if (typeof controller.getVisibleCount === "function" && controller.getVisibleCount() === 0) {
+				actionStatus.textContent = "This rule matched 0 rows. Please run the analysis again or clear the filter.";
+			}
 		}
 
 		var queryTimer = null;
@@ -1702,13 +1837,14 @@
 			} else if (root.navigator && root.navigator.clipboard) {
 				root.navigator.clipboard.writeText(text);
 			}
-			queryError.textContent = "Link copied.";
+			actionStatus.textContent = "Link copied.";
 		});
 
 		function runAnalysis(kind) {
+			var title = kind === "failure" ? "Why do trials fail?" : "Find patterns";
 			failureButton.disabled = true;
 			patternButton.disabled = true;
-			setOutputMessage("Analyzing...");
+			setSectionMessage(kind, title, "Analyzing...");
 
 			setTimeout(function () {
 				try {
@@ -1727,9 +1863,9 @@
 					}
 				} catch (error) {
 					console.error(error);
-					setOutputMessage("Analysis failed: " + error.message);
+					setSectionMessage(kind, title, "Analysis failed: " + error.message);
 				} finally {
-					if (statusIndex !== -1) {
+					if (hasFailureColumn) {
 						failureButton.disabled = false;
 					}
 					if (resultNames.length) {
@@ -1740,15 +1876,12 @@
 		}
 
 		function renderFailures(result) {
-			output.innerHTML = "";
+			var body = getOrCreateAnalysisSection("failure", "Why do trials fail?");
 
 			if (!result.ok) {
-				setOutputMessage(result.reason);
+				body.appendChild(createElement("p", "results-analysis-message", result.reason));
 				return;
 			}
-
-			var heading = createElement("h4", "results-analysis-heading", "Failure patterns");
-			output.appendChild(heading);
 
 			var summary = createElement(
 				"p",
@@ -1757,16 +1890,17 @@
 				result.positives + " failed, " + result.negatives + " completed. Baseline failure rate: " +
 				formatPercent(result.baselineRate) + "."
 			);
-			output.appendChild(summary);
+			body.appendChild(summary);
 
 			if (result.sampled) {
-				output.appendChild(createElement("p", "results-analysis-warning",
-					"Large run: analyzed a deterministic sample of " + result.total + " of " + result.originalSize + " trials."));
+				body.appendChild(createElement("p", "results-analysis-warning",
+					"Large run: the tree was built from a deterministic sample of " +
+					result.tree.samples + " of " + result.originalSize + " trials; rule statistics below use all trials."));
 			}
 
 			if (result.featureImportance.length) {
 				var importanceTitle = createElement("h5", "results-analysis-subheading", "Most important signals");
-				output.appendChild(importanceTitle);
+				body.appendChild(importanceTitle);
 				var importanceList = createElement("div", "analysis-importance-list");
 				result.featureImportance.slice(0, 6).forEach(function (entry) {
 					var row = createElement("div", "analysis-importance-row");
@@ -1781,17 +1915,17 @@
 					row.appendChild(value);
 					importanceList.appendChild(row);
 				});
-				output.appendChild(importanceList);
+				body.appendChild(importanceList);
 			}
 
 			if (!result.topRules.length) {
-				output.appendChild(createElement("p", "results-analysis-message",
+				body.appendChild(createElement("p", "results-analysis-message",
 					"No failure pattern with enough support was found. Try more trials or lower the minimum leaf size."));
 			} else {
 				var rulesTitle = createElement("h5", "results-analysis-subheading", "Rules with the strongest failure signal");
-				output.appendChild(rulesTitle);
+				body.appendChild(rulesTitle);
 				result.topRules.forEach(function (rule) {
-					output.appendChild(renderRuleCard(rule, "failure", applyRuleQuery));
+					body.appendChild(renderRuleCard(rule, "failure", applyRuleQuery, failureRuleSentence(rule)));
 				});
 			}
 
@@ -1805,22 +1939,19 @@
 				" (majority baseline: " + formatPercent(result.confusion.baselineAccuracy) + "). " +
 				"Rules describe correlations in this run, not proven causes."
 			));
-			output.appendChild(treeDetails);
+			body.appendChild(treeDetails);
 		}
 
 		function renderPatterns(result) {
-			output.innerHTML = "";
+			var body = getOrCreateAnalysisSection("patterns", "Find patterns");
 
 			if (!result.ok) {
-				setOutputMessage(result.reason);
+				body.appendChild(createElement("p", "results-analysis-message", result.reason));
 				return;
 			}
 
-			var heading = createElement("h4", "results-analysis-heading", "Result patterns");
-			output.appendChild(heading);
-
 			if (result.sampled) {
-				output.appendChild(createElement("p", "results-analysis-warning",
+				body.appendChild(createElement("p", "results-analysis-warning",
 					"Large run: analyzed a deterministic sample of " + result.total + " of " + result.originalSize + " trials."));
 			}
 
@@ -1831,7 +1962,7 @@
 					resultGroup.result + " (" + (resultGroup.goal === "max" ? "maximize" : "minimize") + ")" +
 					(resultGroup.considered ? " · " + resultGroup.considered + " completed trials" : "")
 				);
-				output.appendChild(groupTitle);
+				body.appendChild(groupTitle);
 
 				var columns = createElement("div", "analysis-pattern-columns");
 
@@ -1842,16 +1973,21 @@
 						column.appendChild(createElement("p", "results-analysis-message", "No pattern found."));
 					} else {
 						part[1].forEach(function (candidate) {
-							column.appendChild(renderRuleCard(candidate, part[2], applyRuleQuery));
+							column.appendChild(renderRuleCard(
+								candidate,
+								part[2],
+								applyRuleQuery,
+								patternRuleSentence(candidate, resultGroup)
+							));
 						});
 					}
 					columns.appendChild(column);
 				});
 
-				output.appendChild(columns);
+				body.appendChild(columns);
 			});
 
-			output.appendChild(createElement(
+			body.appendChild(createElement(
 				"p",
 				"results-analysis-note",
 				"Patterns compare a subgroup with the remaining trials. Use the support (n) and the effect size to judge how trustworthy a pattern is."
@@ -1888,19 +2024,7 @@
 	return {
 		compileResultQuery: compileResultQuery,
 		conditionMatchesValue: conditionMatchesValue,
-		conditionsMatchRow: function (conditions, row, headerMap) {
-			for (var i = 0; i < conditions.length; i++) {
-				var condition = conditions[i];
-				var index = condition.index;
-				if (index === undefined) {
-					index = headerMap[condition.column];
-				}
-				if (index === undefined || !conditionMatchesValue(condition, row[index])) {
-					return false;
-				}
-			}
-			return true;
-		},
+		conditionsMatchRow: conditionsMatchRow,
 		conditionsToQuery: conditionsToQuery,
 		computeAggregate: computeAggregate,
 		selectFeatureColumns: selectFeatureColumns,

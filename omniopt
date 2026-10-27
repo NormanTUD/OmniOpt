@@ -2558,6 +2558,11 @@ try:
             "ignore",
             message="Ax currently requires a sqlalchemy version below 2.0.*",
         )
+        warnings.filterwarnings(
+            "ignore",
+            category=FutureWarning,
+            module=r"torch\.jit\._script",
+        )
 
         import argparse
         import datetime
@@ -3782,6 +3787,9 @@ def set_global_gs_to_HUMAN_INTERVENTION_MINIMUM() -> None:
 with spinner("Parsing arguments...") as parsing_arguments_loader:
     loader = ConfigLoader(parsing_arguments_loader)
     args = loader.parse_arguments()
+
+if not args.verbose:
+    logging.disable(logging.CRITICAL)
 
 def is_skip_search() -> bool:
     if args.skip_search:

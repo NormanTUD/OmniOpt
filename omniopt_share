@@ -39,6 +39,7 @@ import hashlib
 import json
 import os
 import re
+import shlex
 import shutil
 import sys
 import tempfile
@@ -220,6 +221,285 @@ def collect_shareable_files(
                         )
 
     return out
+
+
+# ---------------------------------------------------------------------------
+# Single-run log filtering and large-upload diagnostics
+# ---------------------------------------------------------------------------
+
+LARGE_SHARE_WARNING_BYTES = 50 * 1024 * 1024
+MAX_FAILED_LOG_BYTES = 50 * 1024 * 1024
+LOG_INSPECT_BYTES = 256 * 1024
+OMITTED_LOGS_FILENAME = "omitted_logs.json"
+
+
+def _read_text_excerpt(path: Path, max_bytes: int = LOG_INSPECT_BYTES) -> str:
+    """Read a bounded head+tail excerpt without loading a huge log fully."""
+    try:
+        size = path.stat().st_size
+        with path.open("rb") as fh:
+            if size <= 2 * max_bytes:
+                data = fh.read()
+            else:
+                head = fh.read(max_bytes)
+                fh.seek(-max_bytes, os.SEEK_END)
+                tail = fh.read(max_bytes)
+                data = head + b"\n... [middle omitted] ...\n" + tail
+    except OSError:
+        return ""
+    return data.decode("utf-8", errors="replace")
+
+
+def _single_run_log_indicates_failure(path: Path) -> bool:
+    """Best-effort: should this single-run log be shared by default?
+
+    Successful submitit logs contain an explicit completion marker.  Logs
+    with a non-zero EXIT_CODE, OOM/time-limit markers or a traceback are
+    kept.  Logs without any marker are kept too: they are usually still
+    running or were interrupted, which is exactly when users need them.
+    """
+    try:
+        if path.stat().st_size == 0:
+            return False
+    except OSError:
+        return False
+
+    text = _read_text_excerpt(path)
+    match = re.search(r"EXIT_CODE:\s*(-?\d+)", text)
+    if match:
+        return int(match.group(1)) != 0
+    if (
+        "Job completed successfully" in text
+        or "Exiting after successful completion" in text
+    ):
+        return False
+    if re.search(
+        r"(oom_kill event|CUDA out of memory|Traceback \(most recent call last\)|"
+        r"DUE TO TIME LIMIT|Time limit exceeded|CANCELLED)",
+        text,
+        re.IGNORECASE,
+    ):
+        return True
+    return True
+
+
+def _split_single_run_logs(
+    files: List[Dict[str, Any]],
+) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]], List[Dict[str, Any]]]:
+    """Split files into (non-single-run, failed single-run, successful single-run)."""
+    regular: List[Dict[str, Any]] = []
+    by_folder: Dict[str, List[Dict[str, Any]]] = {}
+    for f in files:
+        archive_path = str(f["archive_path"])
+        if not archive_path.startswith("single_runs/"):
+            regular.append(f)
+            continue
+        parts = archive_path.split("/")
+        folder = parts[1] if len(parts) > 1 else ""
+        by_folder.setdefault(folder, []).append(f)
+
+    failed: List[Dict[str, Any]] = []
+    successful: List[Dict[str, Any]] = []
+    for entries in by_folder.values():
+        out_entries = [
+            e for e in entries
+            if Path(e["local_path"]).suffix.lower() == ".out"
+        ]
+        check_entries = out_entries or entries
+        if any(
+            _single_run_log_indicates_failure(Path(e["local_path"]))
+            for e in check_entries
+        ):
+            failed.extend(entries)
+        else:
+            successful.extend(entries)
+    return regular, failed, successful
+
+
+def _limit_failed_logs(
+    failed_logs: List[Dict[str, Any]],
+    max_bytes: int,
+    seed: str,
+) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]], int]:
+    """Deterministically sample failed-log groups until ``max_bytes`` is reached.
+
+    Returns ``(selected, omitted, selected_size)``.  Grouping by run folder
+    keeps a job's ``.out``/``.err`` together.  The order is pseudo-random but
+    stable for the same run, so repeated live updates do not churn through a
+    different subset each time.
+    """
+    groups: Dict[str, List[Dict[str, Any]]] = {}
+    for f in failed_logs:
+        archive_path = str(f["archive_path"])
+        parts = archive_path.split("/")
+        folder = "/".join(parts[:2])
+        groups.setdefault(folder, []).append(f)
+
+    ordered = sorted(
+        groups.items(),
+        key=lambda item: hashlib.sha256(
+            f"{seed}\0{item[0]}".encode("utf-8")
+        ).hexdigest(),
+    )
+    selected: List[Dict[str, Any]] = []
+    omitted: List[Dict[str, Any]] = []
+    selected_size = 0
+    for _, entries in ordered:
+        group_size = sum(_file_size(e) for e in entries)
+        if group_size > max_bytes or selected_size + group_size > max_bytes:
+            omitted.extend(entries)
+            continue
+        selected.extend(entries)
+        selected_size += group_size
+    return selected, omitted, selected_size
+
+
+def _write_omitted_logs_metadata(
+    run_dir: str,
+    user_id: str,
+    omitted_folders: Dict[str, str],
+    single_run_logs_skipped: bool,
+) -> Optional[Dict[str, Any]]:
+    """Write a small GUI-readable notice about logs that were not shared."""
+    run_abs = str(Path(run_dir).resolve())
+    base_cmd = f"omniopt_share {shlex.quote(run_abs)} --update"
+    if user_id:
+        base_cmd += f" --username={shlex.quote(user_id)}"
+    data = {
+        "single_run_logs_skipped": bool(single_run_logs_skipped),
+        "omitted": [
+            {"folder": folder, "reason": reason}
+            for folder, reason in sorted(omitted_folders.items())
+        ],
+        "commands": {
+            "send_all_failed_logs": base_cmd + " --send_all_failed_logs",
+            "send_all_single_runs": base_cmd + " --send_all_single_runs",
+        },
+    }
+
+    path = Path(run_dir) / OMITTED_LOGS_FILENAME
+    serialized = json.dumps(data, indent=2, sort_keys=True) + "\n"
+    try:
+        if path.is_file() and path.read_text(encoding="utf-8") == serialized:
+            # Avoid touching mtime on every live-share tick.
+            pass
+        else:
+            tmp = path.with_name(path.name + ".tmp")
+            tmp.write_text(serialized, encoding="utf-8")
+            os.replace(tmp, path)
+    except OSError as e:
+        print(f"Warning: could not write {path}: {e}", file=sys.stderr)
+        return None
+    return {
+        "name": "omitted_logs",
+        "archive_path": OMITTED_LOGS_FILENAME,
+        "local_path": path,
+    }
+
+
+def _format_size(num_bytes: int) -> str:
+    if num_bytes >= 1024 ** 3:
+        return f"{num_bytes / (1024 ** 3):.2f} GiB"
+    if num_bytes >= 1024 ** 2:
+        return f"{num_bytes / (1024 ** 2):.1f} MiB"
+    if num_bytes >= 1024:
+        return f"{num_bytes / 1024:.1f} KiB"
+    return f"{num_bytes} B"
+
+
+def _file_size(entry: Dict[str, Any]) -> int:
+    try:
+        return Path(entry["local_path"]).stat().st_size
+    except OSError:
+        return 0
+
+
+def _share_category(archive_path: str) -> str:
+    if archive_path.startswith("single_runs/"):
+        return "single-run logs"
+    if archive_path.startswith("state_files/"):
+        return "state files"
+    name = Path(archive_path).name
+    if archive_path.endswith(".log") or name in {
+        "outfile", "log", "progressbar", "verbose_log.txt",
+        "oo_errors.txt", "evaluation_errors.log",
+    }:
+        return "logs"
+    if archive_path.endswith((".csv", ".txt")):
+        return "results/tables"
+    return "other"
+
+
+def _print_size_breakdown(
+    all_files: List[Dict[str, Any]],
+    selected_files: List[Dict[str, Any]],
+    successful_logs: List[Dict[str, Any]],
+    send_all_single_runs: bool,
+    omitted_failed_logs: Optional[List[Dict[str, Any]]] = None,
+) -> None:
+    all_size = sum(_file_size(f) for f in all_files)
+    selected_size = sum(_file_size(f) for f in selected_files)
+    if all_size < LARGE_SHARE_WARNING_BYTES and selected_size < LARGE_SHARE_WARNING_BYTES:
+        return
+
+    print(
+        f"Share size check: {_format_size(all_size)} in {len(all_files)} file(s); "
+        f"selected: {_format_size(selected_size)} in {len(selected_files)} file(s).",
+        file=sys.stderr,
+    )
+
+    categories: Dict[str, List[int]] = {}
+    for f in all_files:
+        cat = _share_category(str(f["archive_path"]))
+        categories.setdefault(cat, [0, 0])
+        categories[cat][0] += _file_size(f)
+        categories[cat][1] += 1
+    for cat, (size, count) in sorted(
+        categories.items(), key=lambda item: item[1][0], reverse=True
+    ):
+        extra = ""
+        omitted_here = 0
+        if cat == "single-run logs":
+            if successful_logs and not send_all_single_runs:
+                omitted_here += len(successful_logs)
+            if omitted_failed_logs:
+                omitted_here += len(omitted_failed_logs)
+        if omitted_here:
+            extra = f", {omitted_here} log file(s) omitted"
+        print(
+            f"  {_format_size(size):>10}  {cat} ({count} file(s){extra})",
+            file=sys.stderr,
+        )
+
+    largest = sorted(all_files, key=_file_size, reverse=True)[:10]
+    if largest:
+        print("  Largest files:", file=sys.stderr)
+        omitted_paths = {str(f["archive_path"]): "successful"
+                         for f in successful_logs}
+        for f in omitted_failed_logs or []:
+            omitted_paths[str(f["archive_path"])] = "log cap"
+        for f in largest:
+            reason = omitted_paths.get(str(f["archive_path"]))
+            marker = f" [omitted: {reason}]" if reason else ""
+            print(
+                f"    {_format_size(_file_size(f)):>10}  {f['archive_path']}{marker}",
+                file=sys.stderr,
+            )
+
+    if successful_logs and not send_all_single_runs:
+        print(
+            "Only failed/interrupted single-run logs are sent by default. "
+            "Use --send_all_single_runs to include successful logs, or "
+            "--dont_send_singleruns to skip logs entirely.",
+            file=sys.stderr,
+        )
+    if omitted_failed_logs:
+        print(
+            "Failed/interrupted logs were randomly sampled to stay under "
+            f"{_format_size(MAX_FAILED_LOG_BYTES)}. Use --send_all_failed_logs "
+            "to send all of them.",
+            file=sys.stderr,
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -463,7 +743,7 @@ def _update_cache(
     source_dir: str,
     *,
     replace: bool,
-) -> None:
+) -> Dict[str, Dict[str, Any]]:
     new_cache: Dict[str, Dict[str, Any]] = {} if replace else dict(old_cache)
     for entry in manifest["files"]:
         archive_path = entry["archive_path"]
@@ -488,6 +768,7 @@ def _update_cache(
             "sha256": entry["sha256"],
         }
     _save_cache(cache_path, new_cache)
+    return new_cache
 
 
 # ---------------------------------------------------------------------------
@@ -588,7 +869,17 @@ def _build_parser() -> argparse.ArgumentParser:
                    help=f"HTTP timeout in seconds (default: {DEFAULT_POST_TIMEOUT}).")
     p.add_argument("--username", default=None)
     p.add_argument("--password", default=None)
-    p.add_argument("--dont_send_singleruns", action="store_true")
+    p.add_argument(
+        "--dont_send_singleruns", "--no_single_run_logs",
+        dest="dont_send_singleruns", action="store_true",
+        help="Do not share any single-run logs (alias: --no_single_run_logs).",
+    )
+    p.add_argument("--send_all_single_runs", action="store_true",
+                   help="Share all single-run logs, including successful ones "
+                        "(default: only failed/interrupted logs).")
+    p.add_argument("--send_all_failed_logs", action="store_true",
+                   help="Do not randomly sample failed logs when they exceed "
+                        f"{_format_size(MAX_FAILED_LOG_BYTES)}.")
     p.add_argument("--outfile", default=None)
     p.add_argument("run_dirs", nargs="*", default=[],
                    help="One or more run directories to share.")
@@ -622,7 +913,12 @@ def _print_help() -> None:
         f"{DEFAULT_POST_TIMEOUT:g})\n"
         "  --username=NAME           Override username\n"
         "  --password=PWD            Set password\n"
-        "  --dont_send_singleruns    Skip single-run outputs\n"
+        "  --dont_send_singleruns    Skip single-run outputs completely\n"
+        "                            (alias: --no_single_run_logs)\n"
+        "  --send_all_single_runs    Include successful logs too\n"
+        "                            (default: only failed logs)\n"
+        "  --send_all_failed_logs    Do not sample failed logs down to the\n"
+        f"                            {_format_size(MAX_FAILED_LOG_BYTES)} cap\n"
         "  --outfile=PATH            Path to the SLURM .out file\n"
         "  --help                    This help\n"
     )
@@ -748,6 +1044,8 @@ def _share_one_with(
         os.path.dirname(os.path.abspath(run_dir))
     )
     send_single_runs = not getattr(args, "dont_send_singleruns", False)
+    send_all_single_runs = bool(getattr(args, "send_all_single_runs", False))
+    send_all_failed_logs = bool(getattr(args, "send_all_failed_logs", False))
     include_state_files = bool(getattr(args, "include_state_files", False))
 
     run_uuid: Optional[str] = None
@@ -767,6 +1065,57 @@ def _share_one_with(
         print(f"Could not find any files in {run_dir}", file=sys.stderr)
         return 1
 
+    successful_logs: List[Dict[str, Any]] = []
+    omitted_failed_logs: List[Dict[str, Any]] = []
+    files_for_selection = all_files
+    if send_single_runs and not send_all_single_runs:
+        regular_files, failed_logs, successful_logs = _split_single_run_logs(all_files)
+        if not send_all_failed_logs:
+            failed_size = sum(_file_size(f) for f in failed_logs)
+            if failed_size > MAX_FAILED_LOG_BYTES:
+                failed_logs, omitted_failed_logs, kept_size = _limit_failed_logs(
+                    failed_logs,
+                    MAX_FAILED_LOG_BYTES,
+                    run_uuid or str(Path(run_dir).resolve()),
+                )
+                print(
+                    f"Failed logs total {_format_size(failed_size)}; selected "
+                    f"{_format_size(kept_size)} (cap "
+                    f"{_format_size(MAX_FAILED_LOG_BYTES)}). "
+                    "Use --send_all_failed_logs to send all of them.",
+                    file=sys.stderr,
+                )
+        files_for_selection = regular_files + failed_logs
+
+    omitted_folders: Dict[str, str] = {}
+    for f in successful_logs:
+        parts = str(f["archive_path"]).split("/")
+        omitted_folders["/".join(parts[:2])] = "successful"
+    for f in omitted_failed_logs:
+        parts = str(f["archive_path"]).split("/")
+        omitted_folders["/".join(parts[:2])] = "log cap"
+
+    metadata_entry = _write_omitted_logs_metadata(
+        run_dir,
+        user_id,
+        omitted_folders,
+        single_run_logs_skipped=not send_single_runs,
+    )
+    all_files = [
+        f for f in all_files if f["archive_path"] != OMITTED_LOGS_FILENAME
+    ]
+    files_for_selection = [
+        f for f in files_for_selection
+        if f["archive_path"] != OMITTED_LOGS_FILENAME
+    ]
+    if metadata_entry is not None:
+        all_files.append(metadata_entry)
+        files_for_selection.append(metadata_entry)
+
+    if not files_for_selection:
+        print(f"Could not find any files in {run_dir}", file=sys.stderr)
+        return 1
+
     cache_path = _cache_file_path(
         run_dir, user_id, experiment_name, base_url, run_uuid
     )
@@ -778,21 +1127,36 @@ def _share_one_with(
     )
 
     if incremental:
-        files_to_send, pre_states = _split_changed_files(all_files, cache)
+        files_to_send, pre_states = _split_changed_files(files_for_selection, cache)
         if not files_to_send:
+            _print_size_breakdown(
+                all_files,
+                files_to_send,
+                successful_logs,
+                send_all_single_runs,
+                omitted_failed_logs,
+            )
             print(
                 f"Nothing changed in {run_dir}; skipping upload.",
                 file=sys.stderr,
             )
             return 0
     else:
-        files_to_send = all_files
+        files_to_send = files_for_selection
         pre_states = {}
-        for f in all_files:
+        for f in files_for_selection:
             try:
                 pre_states[f["archive_path"]] = _file_state(Path(f["local_path"]))
             except OSError:
                 continue
+
+    _print_size_breakdown(
+        all_files,
+        files_to_send,
+        successful_logs,
+        send_all_single_runs,
+        omitted_failed_logs,
+    )
 
     manifest = build_manifest(
         run_dir=run_dir,

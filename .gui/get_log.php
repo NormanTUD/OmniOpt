@@ -21,12 +21,51 @@
 			ensure_share_bundle_extracted($run_folder);
 		}
 
-		$path = "$run_folder/$filename";;
+		$path = "$run_folder/$filename";
 
 		if(file_exists($path)) {
-			$out_file = ansi_to_html(htmlentities(file_get_contents($path)));
-			$out_file = highlight_debug_info($out_file);
-			respond_with_json($out_file);
+			// Large logs must never be ANSI-tokenized server-side: the
+			// converter builds several full-size arrays and exhausts PHP's
+			// memory limit on multi-megabyte logs.  Always return at most a
+			// bounded tail, and let the browser convert ANSI to HTML.
+			$max_bytes = 2 * 1024 * 1024;
+			$size = filesize($path);
+			$raw = isset($_GET["raw"]) && $_GET["raw"] !== "0";
+
+			if($raw || $size > $max_bytes) {
+				$fh = @fopen($path, "rb");
+				if(!$fh) {
+					respond_with_error("Cannot read $path");
+				}
+				$truncated = $size > $max_bytes;
+				if($truncated) {
+					fseek($fh, -$max_bytes, SEEK_END);
+				}
+				$content = stream_get_contents($fh);
+				fclose($fh);
+				if($content === false) {
+					respond_with_error("Cannot read $path");
+				}
+				if($truncated) {
+					$content = "... [log truncated: showing the last "
+						. round($max_bytes / (1024 * 1024), 1)
+						. " MiB of " . round($size / (1024 * 1024), 1)
+						. " MiB] ...\n\n" . $content;
+				}
+				respond_with_json([
+					"content" => $content,
+					"mode" => "ansi",
+					"truncated" => $truncated,
+				]);
+			} else {
+				$out_file = ansi_to_html(htmlentities(file_get_contents($path)));
+				$out_file = highlight_debug_info($out_file);
+				respond_with_json([
+					"content" => $out_file,
+					"mode" => "html",
+					"truncated" => false,
+				]);
+			}
 		} else {
 			respond_with_error("Invalid path $path found");
 		}

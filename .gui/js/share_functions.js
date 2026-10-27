@@ -136,6 +136,29 @@ function filterNonEmptyRows(data) {
 	return new_data;
 }
 
+function render_log_payload(preEl, payload, ansi_mode) {
+	if (typeof payload === "string") {
+		// Backwards compatibility with older responses.
+		preEl.innerHTML = payload;
+		return;
+	}
+	if (!payload || typeof payload.content !== "string") {
+		preEl.textContent = "No log content returned.";
+		return;
+	}
+	if (payload.mode === "html") {
+		preEl.innerHTML = payload.content;
+		return;
+	}
+	if (ansi_mode === "strip") {
+		preEl.textContent = removeAnsiCodes(payload.content);
+		return;
+	}
+	const ansi_up = new AnsiUp();
+	ansi_up.escape_html = true;
+	preEl.innerHTML = ansi_up.ansi_to_html(payload.content);
+}
+
 function load_log_file(log_nr, filename) {
 	var pre_id = `single_run_${log_nr}_pre`;
 	var preEl = document.getElementById(pre_id);
@@ -152,7 +175,7 @@ function load_log_file(log_nr, filename) {
 			.then(response => response.json())
 			.then(data => {
 				if (data.data) {
-					preEl.innerHTML = data.data;
+					render_log_payload(preEl, data.data, "ansi");
 					preEl.dataset.loaded = "true";
 				} else {
 					log(`No 'data' key found in response.`);
@@ -166,6 +189,55 @@ function load_log_file(log_nr, filename) {
 				if (spinner) spinner.remove();
 			});
 	}
+}
+
+function load_pre_file(pre_id, filename, ansi_mode) {
+	var preEl = document.getElementById(pre_id);
+	if (!preEl || preEl.dataset.loaded) {
+		return;
+	}
+	var params = new URLSearchParams(window.location.search);
+	var user_id = params.get('user_id');
+	var experiment_name = params.get('experiment_name');
+	var run_nr = params.get('run_nr');
+	var url = `get_log?user_id=${user_id}&experiment_name=${experiment_name}&run_nr=${run_nr}&filename=${filename}&raw=1`;
+
+	fetch(url)
+		.then(response => response.json())
+		.then(data => {
+			if (data.data) {
+				render_log_payload(preEl, data.data, ansi_mode);
+				preEl.dataset.loaded = "true";
+			} else {
+				log(`No 'data' key found in response.`);
+			}
+			var spinner = document.getElementById("spinner_" + pre_id);
+			if (spinner) spinner.remove();
+		})
+		.catch(error => {
+			log(`Error loading log: ${error}`);
+			var spinner = document.getElementById("spinner_" + pre_id);
+			if (spinner) spinner.remove();
+		});
+}
+
+function load_lazy_panel(panel) {
+	if (!panel) {
+		return;
+	}
+	var preEl = panel.querySelector("pre[data-log-file]:not([data-loaded='true'])");
+	if (!preEl) {
+		return;
+	}
+	var filename = preEl.dataset.logFile;
+	if (preEl.id && preEl.id.startsWith("single_run_")) {
+		var match = preEl.id.match(/^single_run_(\d+)_pre$/);
+		if (match) {
+			load_log_file(match[1], filename);
+			return;
+		}
+	}
+	load_pre_file(preEl.id, filename, preEl.dataset.ansiMode || "ansi");
 }
 
 function load_debug_log() {

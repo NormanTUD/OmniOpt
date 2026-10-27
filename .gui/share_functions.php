@@ -844,6 +844,27 @@
 
 	function add_simple_pre_tab_from_file ($tabs, $warnings, $filename, $name, $id, $remove_ansi_colors = false) {
 		if(is_file($filename) && filesize($filename) > 0 && is_ascii_or_utf8($filename)) {
+			// Huge text files are loaded by the browser on demand.  Running
+			// the ANSI converter over them here can exhaust PHP's memory
+			// limit before the page is even sent.
+			$lazy_threshold = 1024 * 1024;
+			if(!empty($GLOBALS["lazy_share_logs"]) && filesize($filename) > $lazy_threshold) {
+				$relative = basename($filename);
+				$html = copy_id_to_clipboard_string("simple_pre_tab_$id", $filename);
+				$html .= "<div id='spinner_simple_pre_tab_$id' class='spinner'></div>";
+				$html .= "<pre id='simple_pre_tab_$id' data-log-file='"
+					. htmlspecialchars($relative, ENT_QUOTES)
+					. "' data-ansi-mode='" . ($remove_ansi_colors ? "ansi" : "strip")
+					. "'></pre>";
+				$html .= copy_id_to_clipboard_string("simple_pre_tab_$id", $filename);
+				$svg_icon = get_icon_html("main_log.svg");
+				$tabs["$svg_icon$name"] = [
+					'id' => $id,
+					'content' => $html
+				];
+				return [$tabs, $warnings];
+			}
+
 			$contents = file_get_contents($filename);
 
 			if(!$remove_ansi_colors) {
@@ -1698,6 +1719,35 @@
 		return $nr;
 	}
 
+	function read_log_excerpt($file_path, $max_bytes = 512 * 1024) {
+		$size = @filesize($file_path);
+		if ($size === false || $size <= 2 * $max_bytes) {
+			return file_get_contents($file_path);
+		}
+		$fh = @fopen($file_path, "rb");
+		if (!$fh) {
+			return "";
+		}
+		$head = fread($fh, $max_bytes);
+		fseek($fh, -$max_bytes, SEEK_END);
+		$tail = fread($fh, $max_bytes);
+		fclose($fh);
+		return $head . "\n... [middle omitted while inspecting the log] ...\n" . $tail;
+	}
+
+	function get_omitted_logs_metadata($run_dir) {
+		$path = "$run_dir/omitted_logs.json";
+		if(!is_file($path)) {
+			return null;
+		}
+		$raw = @file_get_contents($path);
+		if($raw === false) {
+			return null;
+		}
+		$data = json_decode($raw, true);
+		return is_array($data) ? $data : null;
+	}
+
 	function generate_log_tabs($run_dir, $log_files, $result_names) {
 		$red_cross = "<span><img style='height: 1em' src='emojis/red_cross.svg' /></span>";
 		$green_checkmark = "<span><img style='height: 1em' src='emojis/green_checkmark.svg' /></span>";
@@ -1713,7 +1763,7 @@
 			$file_path = "$run_dir/$file";
 			$checkmark = $red_cross;
 			if(is_file($file_path) && is_readable($file_path) && is_ascii_or_utf8($file_path)) {
-				$file_as_string = file_get_contents($file_path);
+				$file_as_string = read_log_excerpt($file_path);
 
 				$status = "";
 
@@ -1796,27 +1846,81 @@
 			}
 		}
 
+		$omitted_meta = get_omitted_logs_metadata($run_dir);
+		$omitted_entries = $omitted_meta["omitted"] ?? [];
+		$logs_skipped = !empty($omitted_meta["single_run_logs_skipped"]);
+		$has_missing_logs = count($omitted_entries) > 0 || $logs_skipped;
+		if($has_missing_logs) {
+			$missing_label = "Missing logs";
+			if(count($omitted_entries)) {
+				$missing_label .= " (" . count($omitted_entries) . ")";
+			}
+			$output .= '<button role="tab" aria-controls="single_run_missing">'
+				. htmlspecialchars($missing_label, ENT_QUOTES) . "</button>\n";
+			$i++;
+		}
+
 		$output .= '</menu>';
 
 		$j = 0;
 		foreach ($log_files as $nr => $file) {
 			$file_path = $run_dir . '/' . $file;
 			$output .= '<article role="tabpanel" id="single_run_' . $j . '">';
-			if($j != 0) {
-				$output .= "<div id='spinner_log_$j' class='spinner'></div>";
-			}
+			// Load every log on demand.  Converting all logs (or even just
+			// the first one) server-side exhausts PHP's memory limit for
+			// large runs; the browser handles ANSI -> HTML instead.
+			$output .= "<div id='spinner_log_$j' class='spinner'></div>";
 
 			$output .= copy_id_to_clipboard_string("single_run_{$j}_pre", $file_path);
-
-			if ($j == 0) {
-				$content = file_get_contents($file_path);
-				$output .= '<pre id="single_run_'.$j.'_pre" data-loaded="true">' . highlight_debug_info(ansi_to_html(htmlspecialchars($content))) . '</pre>';
-			} else {
-				$output .= '<pre id="single_run_'.$j.'_pre"></pre>';
-			}
+			$output .= '<pre id="single_run_'.$j.'_pre" data-log-file="'
+				. htmlspecialchars($file, ENT_QUOTES) . '"></pre>';
 			$output .= copy_id_to_clipboard_string("single_run_{$j}_pre", $file_path);
 			$output .= '</article>';
 			$j++;
+		}
+
+		if($has_missing_logs) {
+			$output .= '<article role="tabpanel" id="single_run_missing">';
+			$output .= "<h3>Some single-run logs were not shared</h3>";
+			if($logs_skipped) {
+				$output .= "<p>Single-run logs were omitted completely when this run was shared.</p>";
+			} else {
+				$output .= "<p>By default only logs from failed or interrupted jobs are shared. "
+					. "Successful logs and logs above the upload cap were left out.</p>";
+			}
+
+			if(count($omitted_entries)) {
+				$output .= "<ul>";
+				$reasons = [
+					"successful" => "successful job (logs are skipped by default)",
+					"log cap" => "omitted by the failed-log size cap",
+				];
+				foreach($omitted_entries as $entry) {
+					if(!is_array($entry)) {
+						continue;
+					}
+					$folder = isset($entry["folder"]) ? strval($entry["folder"]) : "unknown";
+					$reason = isset($entry["reason"]) ? strval($entry["reason"]) : "";
+					$reason_text = $reasons[$reason] ?? $reason;
+					$output .= "<li><tt>" . htmlspecialchars($folder, ENT_QUOTES) . "</tt>"
+						. ($reason_text !== "" ? " &mdash; " . htmlspecialchars($reason_text, ENT_QUOTES) : "")
+						. "</li>";
+				}
+				$output .= "</ul>";
+			}
+
+			$commands = $omitted_meta["commands"] ?? [];
+			if(is_array($commands) && count($commands)) {
+				$output .= "<p>To see these logs here as well, run one of these commands on the machine that has the run folder:</p>";
+				foreach($commands as $label => $command) {
+					if(!is_string($command)) {
+						continue;
+					}
+					$output .= "<p><b>" . htmlspecialchars(strval($label), ENT_QUOTES) . "</b></p>";
+					$output .= "<pre>" . htmlspecialchars($command, ENT_QUOTES) . "</pre>";
+				}
+			}
+			$output .= '</article>';
 		}
 
 		$output .= '</section>';
@@ -1916,7 +2020,7 @@
 	}
 
 	function get_exit_code_from_outfile(string $input): ?int {
-		// Pattern sucht nach "EXIT_CODE: " gefolgt von einer oder mehreren Ziffern am Ende des Strings
+		// Pattern looks for "EXIT_CODE: " followed by one or more digits at the end of the string
 		$pattern = '/EXIT_CODE:\s*(\d+)\s*/';
 
 		if (preg_match($pattern, $input, $matches) === 1) {

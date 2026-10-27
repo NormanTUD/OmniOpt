@@ -372,6 +372,16 @@ such as `pd.json` and `checkpoint.json` are skipped by default because the GUI
 does not need them; use `--include_state_files` to send them anyway. Use
 `--force` only when you really want to re-send everything.
 
+Only single-run logs from failed or interrupted evaluations are shared by
+default. Use `--send_all_single_runs` to include successful logs too, or
+`--dont_send_singleruns` / `--no_single_run_logs` to skip them entirely. If even the failed logs exceed
+50 MiB, a stable random subset is selected so the upload stays under the cap;
+`--send_all_failed_logs` disables that sampling. If a share is larger than
+50 MiB, `omniopt_share` prints a size breakdown by category and the largest
+files so it is clear what is taking up the space. The share GUI also shows
+which jobs had their logs omitted and prints the exact `omniopt_share`
+command(s) needed to include them later.
+
 ## Exit Codes and Diagnostics
 
 OmniOpt2 uses distinct exit codes so scripts can react precisely. The complete

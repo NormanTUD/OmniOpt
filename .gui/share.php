@@ -4,6 +4,9 @@
 	ini_set('memory_limit', '512M');
 
 	$GLOBALS["json_data"] = [];
+	// Render large log/pre tabs lazily in the browser instead of converting
+	// ANSI to HTML (and holding the whole file) in PHP.
+	$GLOBALS["lazy_share_logs"] = true;
 
 	$GLOBALS["SPECIAL_COL_NAMES"] = [
 		"trial_index",

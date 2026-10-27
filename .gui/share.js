@@ -23,6 +23,9 @@ function initialize_tabs () {
 		if (firstTab && firstPanel) {
 			firstTab.setAttribute("aria-selected", "true");
 			firstPanel.hidden = false;
+			if (typeof load_lazy_panel === "function") {
+				load_lazy_panel(firstPanel);
+			}
 		}
 
 		tabs.forEach(tab => {
@@ -39,6 +42,9 @@ function initialize_tabs () {
 				const targetPanel = document.getElementById(this.getAttribute("aria-controls"));
 				if (targetPanel) {
 					targetPanel.hidden = false;
+					if (typeof load_lazy_panel === "function") {
+						load_lazy_panel(targetPanel);
+					}
 
 					const nestedTabs = targetPanel.querySelector(".tabs");
 					if (nestedTabs) {

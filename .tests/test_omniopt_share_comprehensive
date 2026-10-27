@@ -1447,6 +1447,113 @@ def test_share_one_skips_large_state_snapshots_by_default() -> bool:
     return ok
 
 
+def test_share_one_failed_log_filtering_cap_and_disable() -> bool:
+    """Default: failed logs only, capped at MAX_FAILED_LOG_BYTES.
+
+    --send_all_failed_logs disables the cap and --no_single_run_logs (alias
+    for --dont_send_singleruns) removes all single-run logs.
+    """
+    old_cap = os_.MAX_FAILED_LOG_BYTES
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp_path = Path(tmp)
+        old_cache_dir = os.environ.get("OO_SHARE_CACHE_DIR")
+        os.environ["OO_SHARE_CACHE_DIR"] = str(tmp_path / "cache")
+        try:
+            run = _make_run_dir(tmp_path, with_singleruns=False)
+            sr = run / "single_runs"
+            success = sr / "1"
+            success.mkdir(parents=True)
+            (success / "1_0_log.out").write_text(
+                "Job completed successfully\nEXIT_CODE: 0\n"
+            )
+            for i in range(2, 7):
+                failed_dir = sr / str(i)
+                failed_dir.mkdir()
+                (failed_dir / f"{i}_0_log.out").write_text(
+                    "Traceback (most recent call last)\nEXIT_CODE: 1\n"
+                    + ("x" * 100)
+                )
+
+            os_.MAX_FAILED_LOG_BYTES = 250
+            calls: list[list[str]] = []
+
+            def fake_post(base_url, manifest, zip_path, args):  # pylint: disable=unused-argument
+                with zipfile.ZipFile(zip_path) as zf:
+                    calls.append(sorted(zf.namelist()))
+                return 200, "ok"
+
+            args = os_.parse_args([str(run), "--update", "--force", "--username=alice"])
+            rc_default = os_._share_one_with(
+                args, "alice", str(run), "http://example", post_manifest=fake_post
+            )
+            default_names = calls[0]
+
+            args_none = os_.parse_args(
+                [str(run), "--update", "--force", "--no_single_run_logs",
+                 "--username=alice"]
+            )
+            rc_none = os_._share_one_with(
+                args_none, "alice", str(run), "http://example",
+                post_manifest=fake_post,
+            )
+            none_names = calls[1]
+
+            args_all = os_.parse_args(
+                [str(run), "--update", "--force", "--send_all_failed_logs",
+                 "--username=alice"]
+            )
+            rc_all = os_._share_one_with(
+                args_all, "alice", str(run), "http://example",
+                post_manifest=fake_post,
+            )
+            all_names = calls[2]
+
+            alias_args = os_.parse_args(["/nonexistent", "--no_single_run_logs"])
+            failed_selected = [
+                n for n in default_names if n.startswith("single_runs/")
+            ]
+            selected_size = sum((run / n).stat().st_size for n in failed_selected)
+            meta = json.loads((run / "omitted_logs.json").read_text())
+            meta_ok = (
+                any(e.get("folder") == "single_runs/1"
+                    for e in meta.get("omitted", []))
+                and "send_all_failed_logs" in json.dumps(meta)
+                and "omitted_logs.json" in default_names
+            )
+        finally:
+            os_.MAX_FAILED_LOG_BYTES = old_cap
+            if old_cache_dir is None:
+                os.environ.pop("OO_SHARE_CACHE_DIR", None)
+            else:
+                os.environ["OO_SHARE_CACHE_DIR"] = old_cache_dir
+
+    def _single_run_names(names: list[str]) -> list[str]:
+        return [n for n in names if n.startswith("single_runs/")]
+
+    ok = _check(rc_default == 0 and rc_none == 0 and rc_all == 0,
+                f"unexpected exit codes: {rc_default}, {rc_none}, {rc_all}")
+    ok &= _check(alias_args.dont_send_singleruns is True,
+                 f"alias not parsed: {alias_args}")
+    ok &= _check(not any(n.startswith("single_runs/1/") for n in default_names),
+                 f"successful log sent by default: {default_names}")
+    ok &= _check(1 <= len(failed_selected) < 5,
+                 f"expected a capped subset of failed logs: {failed_selected}")
+    ok &= _check(selected_size <= 250,
+                 f"failed logs exceed cap: {selected_size}")
+    ok &= _check(not _single_run_names(none_names),
+                 f"--no_single_run_logs still sent logs: {none_names}")
+    ok &= _check(
+        all(any(n.startswith(f"single_runs/{i}/") for n in all_names)
+            for i in range(2, 7)),
+        f"--send_all_failed_logs missed failed logs: {all_names}",
+    )
+    ok &= _check(not any(n.startswith("single_runs/1/") for n in all_names),
+                 f"--send_all_failed_logs included successful log: {all_names}")
+    ok &= _check(meta_ok,
+                 "omitted_logs.json missing or does not describe skipped logs")
+    return ok
+
+
 # ---------------------------------------------------------------------------
 # Discoverable tests
 # ---------------------------------------------------------------------------
@@ -1533,6 +1640,7 @@ TESTS = [
     # Incremental update / large-run handling
     test_share_one_incremental_update_sends_only_changed_files,
     test_share_one_skips_large_state_snapshots_by_default,
+    test_share_one_failed_log_filtering_cap_and_disable,
     # CLI flags
     test_main_with_update_flag,
     test_main_with_no_color_flag,

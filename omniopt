@@ -4602,8 +4602,16 @@ def run_live_share_command(force: bool = False) -> Tuple[str, str]:
     return "", ""
 
 def force_live_share() -> bool:
+    """Push live-share updates.
+
+    This used to pass ``--force`` to omniopt_share, which re-zipped and
+    re-uploaded every file on every periodic update.  Large runs spent
+    minutes uploading unchanged checkpoints/logs.  The initial share still
+    uses ``--force`` (see ``init_live_share``); subsequent updates are
+    incremental and only send files that changed.
+    """
     if args.live_share:
-        return live_share(True)
+        return live_share(False)
 
     return False
 
@@ -4632,7 +4640,9 @@ def live_share(force: bool = False, text_and_qr: bool = False) -> bool:
     return True
 
 def init_live_share() -> bool:
-    ret = live_share(True, True)
+    # No cache yet -> full initial upload.  If this run was already shared
+    # (e.g. after restarting OmniOpt), the cache makes this incremental.
+    ret = live_share(False, True)
 
     return ret
 

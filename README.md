@@ -366,6 +366,12 @@ Use `--live_share` to upload results while the run is active. Both live sharing
 and `--send_anonymized_usage_stats` are opt-in. See the
 [OmniOpt2-Share tutorial](https://imageseg.scads.de/omniax/tutorials?tutorial=oo_share).
 
+Updates are incremental: `omniopt_share --update` only zips and uploads files
+that changed since the last successful share. Large `state_files/` snapshots
+such as `pd.json` and `checkpoint.json` are skipped by default because the GUI
+does not need them; use `--include_state_files` to send them anyway. Use
+`--force` only when you really want to re-send everything.
+
 ## Exit Codes and Diagnostics
 
 OmniOpt2 uses distinct exit codes so scripts can react precisely. The complete

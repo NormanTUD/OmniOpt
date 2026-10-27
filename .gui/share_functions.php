@@ -2406,9 +2406,8 @@
 		return false;
 	}
 
-	function move_files_if_not_already_there($new_upload_md5_string, $update_uuid, $BASEURL, $user_id, $experiment_name, $run_id, $offered_files, $userFolder, $uuid_folder) {
+	function move_files_if_not_already_there($project_md5, $update_uuid, $BASEURL, $user_id, $experiment_name, $run_id, $offered_files, $userFolder, $uuid_folder) {
 		$added_files = 0;
-		$project_md5 = hash('md5', $new_upload_md5_string);
 
 		$found_hash_file_data = search_for_hash_file($GLOBALS["sharesPath"]."/$user_id/$experiment_name/*/hash.md5", $project_md5);
 

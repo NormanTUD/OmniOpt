@@ -1355,6 +1355,98 @@ def test_main_help_prints_usage() -> bool:
     return ok
 
 
+def test_share_one_incremental_update_sends_only_changed_files() -> bool:
+    """On --update, only files whose size/mtime changed are zipped/uploaded."""
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp_path = Path(tmp)
+        old_cache_dir = os.environ.get("OO_SHARE_CACHE_DIR")
+        os.environ["OO_SHARE_CACHE_DIR"] = str(tmp_path / "cache")
+        try:
+            run = _make_run_dir(tmp_path, with_singleruns=False)
+            calls: list[list[str]] = []
+
+            def fake_post(base_url, manifest, zip_path, args):  # pylint: disable=unused-argument
+                with zipfile.ZipFile(zip_path) as zf:
+                    calls.append(sorted(zf.namelist()))
+                return 200, "ok"
+
+            args = os_.parse_args([str(run), "--update", "--username=alice"])
+            rc1 = os_._share_one_with(
+                args, "alice", str(run), "http://example", post_manifest=fake_post
+            )
+            rc2 = os_._share_one_with(
+                args, "alice", str(run), "http://example", post_manifest=fake_post
+            )
+            unchanged_skipped = len(calls) == 1
+
+            (run / "results.csv").write_text("a,b\n1,2\n3,4\n")
+            os.utime(run / "results.csv", None)
+            rc3 = os_._share_one_with(
+                args, "alice", str(run), "http://example", post_manifest=fake_post
+            )
+            only_changed = len(calls) == 2 and calls[1] == ["results.csv"]
+        finally:
+            if old_cache_dir is None:
+                os.environ.pop("OO_SHARE_CACHE_DIR", None)
+            else:
+                os.environ["OO_SHARE_CACHE_DIR"] = old_cache_dir
+
+    ok = _check(rc1 == 0 and rc2 == 0 and rc3 == 0,
+                f"unexpected exit codes: {rc1}, {rc2}, {rc3}")
+    ok &= _check(unchanged_skipped,
+                 f"unchanged run uploaded again: {calls}")
+    ok &= _check(only_changed,
+                 f"incremental upload not limited to changed file: {calls}")
+    return ok
+
+
+def test_share_one_skips_large_state_snapshots_by_default() -> bool:
+    """pd.json/checkpoint noise is omitted unless --include_state_files is set."""
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp_path = Path(tmp)
+        old_cache_dir = os.environ.get("OO_SHARE_CACHE_DIR")
+        os.environ["OO_SHARE_CACHE_DIR"] = str(tmp_path / "cache")
+        try:
+            run = _make_run_dir(tmp_path, with_singleruns=False)
+            (run / "state_files" / "pd.json").write_text('{"big": true}\n')
+            calls: list[list[str]] = []
+
+            def fake_post(base_url, manifest, zip_path, args):  # pylint: disable=unused-argument
+                with zipfile.ZipFile(zip_path) as zf:
+                    calls.append(sorted(zf.namelist()))
+                return 200, "ok"
+
+            args = os_.parse_args([str(run), "--update", "--username=alice"])
+            rc1 = os_._share_one_with(
+                args, "alice", str(run), "http://example", post_manifest=fake_post
+            )
+            default_names = calls[0]
+
+            args_state = os_.parse_args(
+                [str(run), "--update", "--force", "--include_state_files",
+                 "--username=alice"]
+            )
+            rc2 = os_._share_one_with(
+                args_state, "alice", str(run), "http://example",
+                post_manifest=fake_post,
+            )
+            opt_in_names = calls[1]
+        finally:
+            if old_cache_dir is None:
+                os.environ.pop("OO_SHARE_CACHE_DIR", None)
+            else:
+                os.environ["OO_SHARE_CACHE_DIR"] = old_cache_dir
+
+    ok = _check(rc1 == 0 and rc2 == 0, f"unexpected exit codes: {rc1}, {rc2}")
+    ok &= _check("state_files/pd.json" not in default_names,
+                 f"pd.json sent by default: {default_names}")
+    ok &= _check("state_files/run_uuid" in default_names,
+                 f"run_uuid missing: {default_names}")
+    ok &= _check("state_files/pd.json" in opt_in_names,
+                 f"--include_state_files did not include pd.json: {opt_in_names}")
+    return ok
+
+
 # ---------------------------------------------------------------------------
 # Discoverable tests
 # ---------------------------------------------------------------------------
@@ -1438,6 +1530,9 @@ TESTS = [
     test_main_help_flag_exits_zero,
     # Determinism
     test_build_manifest_is_deterministic_for_same_run,
+    # Incremental update / large-run handling
+    test_share_one_incremental_update_sends_only_changed_files,
+    test_share_one_skips_large_state_snapshots_by_default,
     # CLI flags
     test_main_with_update_flag,
     test_main_with_no_color_flag,

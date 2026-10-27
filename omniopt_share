@@ -20,7 +20,11 @@ every file is enumerated in the manifest, the server can:
 CLI flags are 100 % backwards-compatible with the bash version.
 
 Behavioural compatibility:
-  * ``--update`` / ``--force`` / ``--debug`` / ``--no_color``
+  * ``--update`` sends only files changed since the last successful share
+    (cache in ``~/.oo_share_cache``); ``--force`` re-sends everything
+  * large ``state_files/`` snapshots are skipped unless
+    ``--include_state_files`` is given
+  * ``--debug`` / ``--no_color`` / ``--timeout``
   * ``--username`` / ``--password`` / ``--outfile`` / ``--dont_send_singleruns``
   * Run dirs must contain ``results.csv`` (validated server-side)
   * Default ``BASEURL`` is the same as before, overridable via
@@ -38,6 +42,7 @@ import re
 import shutil
 import sys
 import tempfile
+import time
 import urllib.error
 import urllib.request
 import zipfile
@@ -63,6 +68,20 @@ STATE_FILE_EXTENSIONS = (".csv", ".txt", ".json")
 
 # Sub-extension patterns used for single_run files (e.g. 0.out, 0.err).
 SINGLE_RUN_SUFFIXES = (".out", ".err")
+
+# Files above this size are stored uncompressed in the bundle.  They are
+# usually snapshots (json/csv) where deflate costs a lot of CPU but saves
+# comparatively little.  Small text files are still compressed.
+COMPRESS_MAX_SIZE = 4 * 1024 * 1024
+
+# How long a single HTTP operation may block (seconds).  Large uploads can
+# take a while, but should never hang forever.
+DEFAULT_POST_TIMEOUT = 300
+
+# Local cache of hashes from the last successful share.  Used to upload only
+# changed files on ``--update`` instead of re-zipping/re-sending everything.
+CACHE_VERSION = 1
+CACHE_MAX_AGE_SECONDS = 30 * 24 * 60 * 60
 
 USERNAME_FILE = Path.home() / ".oo_share_username"
 DONT_ASK_FILE = Path.home() / ".oo_share_dont_ask"
@@ -103,7 +122,9 @@ def sanitize_archive_path(path: str) -> str:
 
 
 def collect_shareable_files(
-    run_dir: str, send_single_runs: bool = True
+    run_dir: str,
+    send_single_runs: bool = True,
+    include_state_files: bool = True,
 ) -> List[Dict[str, Any]]:
     """Walk ``run_dir`` and return the list of shareable files.
 
@@ -116,6 +137,9 @@ def collect_shareable_files(
                            matching the legacy ``-F key=@file`` mapping)
 
     Extension / directory rules match the legacy bash version.
+    ``include_state_files=False`` keeps only ``state_files/run_uuid`` (which
+    the server needs to match updates) and skips large snapshots such as
+    ``pd.json``/``checkpoint.json`` that the GUI does not read.
     """
     root = Path(run_dir)
     if not root.is_dir():
@@ -146,9 +170,10 @@ def collect_shareable_files(
             }
         )
 
-    # state_files/ - only csv/txt/json
+    # state_files/ - only csv/txt/json.  Large checkpoint/model snapshots are
+    # skipped by default; the GUI only needs run_uuid (added separately).
     sf = root / "state_files"
-    if sf.is_dir():
+    if sf.is_dir() and include_state_files:
         for entry in sorted(sf.iterdir()):
             if entry.is_file() and entry.suffix.lower() in STATE_FILE_EXTENSIONS:
                 out.append(
@@ -219,12 +244,22 @@ def build_manifest(
     update_uuid: Optional[str],
     password: Optional[str],
     send_single_runs: bool = True,
+    include_state_files: bool = True,
+    files: Optional[List[Dict[str, Any]]] = None,
 ) -> Dict[str, Any]:
-    """Build a complete share manifest for ``run_dir``."""
+    """Build a complete share manifest for ``run_dir``.
+
+    ``files`` may be a pre-filtered subset (used for incremental updates).
+    """
     if not is_valid_username(user_id):
         raise ValueError(f"Invalid username: {user_id!r}")
 
-    files = collect_shareable_files(run_dir, send_single_runs=send_single_runs)
+    if files is None:
+        files = collect_shareable_files(
+            run_dir,
+            send_single_runs=send_single_runs,
+            include_state_files=include_state_files,
+        )
     entries: List[Dict[str, Any]] = []
     for f in files:
         local_path: Path = f["local_path"]
@@ -334,6 +369,128 @@ def verify_manifest(manifest: Dict[str, Any]) -> str:
 
 
 # ---------------------------------------------------------------------------
+# Incremental-update cache
+# ---------------------------------------------------------------------------
+
+
+def _cache_dir() -> Path:
+    return Path(
+        os.environ.get("OO_SHARE_CACHE_DIR", str(Path.home() / ".oo_share_cache"))
+    )
+
+
+def _cache_file_path(
+    run_dir: str,
+    user_id: str,
+    experiment_name: str,
+    base_url: str,
+    update_uuid: Optional[str],
+) -> Path:
+    identity = update_uuid or str(Path(run_dir).resolve())
+    raw = "\0".join([base_url, user_id, experiment_name, identity])
+    key = hashlib.sha256(raw.encode("utf-8")).hexdigest()
+    return _cache_dir() / f"{key}.json"
+
+
+def _load_cache(path: Path) -> Dict[str, Dict[str, Any]]:
+    if not path.is_file():
+        return {}
+    try:
+        if time.time() - path.stat().st_mtime > CACHE_MAX_AGE_SECONDS:
+            # Server-side shares expire; an old cache must not suppress the
+            # re-upload of an otherwise unchanged run.
+            return {}
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    if not isinstance(data, dict) or data.get("version") != CACHE_VERSION:
+        return {}
+    files = data.get("files")
+    return files if isinstance(files, dict) else {}
+
+
+def _save_cache(path: Path, files: Dict[str, Dict[str, Any]]) -> None:
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        tmp = path.with_name(path.name + ".tmp")
+        tmp.write_text(
+            json.dumps({"version": CACHE_VERSION, "files": files}, sort_keys=True),
+            encoding="utf-8",
+        )
+        os.replace(tmp, path)
+    except OSError as e:
+        print(f"Warning: could not write share cache {path}: {e}", file=sys.stderr)
+
+
+def _file_state(path: Path) -> Dict[str, int]:
+    st = path.stat()
+    return {
+        "size": st.st_size,
+        "mtime_ns": getattr(st, "st_mtime_ns", int(st.st_mtime * 1_000_000_000)),
+    }
+
+
+def _split_changed_files(
+    files: List[Dict[str, Any]],
+    cache: Dict[str, Dict[str, Any]],
+) -> Tuple[List[Dict[str, Any]], Dict[str, Dict[str, int]]]:
+    """Return (files to upload, pre-upload state of every selected file)."""
+    selected: List[Dict[str, Any]] = []
+    pre_states: Dict[str, Dict[str, int]] = {}
+    for f in files:
+        local = Path(f["local_path"])
+        try:
+            state = _file_state(local)
+        except OSError:
+            continue
+        old = cache.get(f["archive_path"])
+        if (
+            isinstance(old, dict)
+            and old.get("size") == state["size"]
+            and old.get("mtime_ns") == state["mtime_ns"]
+        ):
+            continue
+        selected.append(f)
+        pre_states[f["archive_path"]] = state
+    return selected, pre_states
+
+
+def _update_cache(
+    cache_path: Path,
+    old_cache: Dict[str, Dict[str, Any]],
+    manifest: Dict[str, Any],
+    pre_states: Dict[str, Dict[str, int]],
+    source_dir: str,
+    *,
+    replace: bool,
+) -> None:
+    new_cache: Dict[str, Dict[str, Any]] = {} if replace else dict(old_cache)
+    for entry in manifest["files"]:
+        archive_path = entry["archive_path"]
+        local = Path(source_dir) / archive_path
+        try:
+            state = _file_state(local)
+        except OSError:
+            new_cache.pop(archive_path, None)
+            continue
+        before = pre_states.get(archive_path)
+        if before and (
+            before["size"] != state["size"]
+            or before["mtime_ns"] != state["mtime_ns"]
+        ):
+            # The file changed while it was being zipped.  Do not remember it
+            # as uploaded, so the next update sends the newer version.
+            new_cache.pop(archive_path, None)
+            continue
+        new_cache[archive_path] = {
+            "size": entry["size"],
+            "mtime_ns": state["mtime_ns"],
+            "sha256": entry["sha256"],
+        }
+    _save_cache(cache_path, new_cache)
+
+
+# ---------------------------------------------------------------------------
 # Bundle writing
 # ---------------------------------------------------------------------------
 
@@ -366,16 +523,24 @@ def write_bundle(
     # the zip.  This keeps manifest and bundle consistent even if a file is
     # modified (or truncated) between manifest creation and bundling, e.g.
     # while the run is still live and ``worker_usage.csv`` is being updated.
-    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
+    with zipfile.ZipFile(zip_path, "w") as zf:
         for f in manifest["files"]:
             arc = sanitize_archive_path(f["archive_path"])
             local = (base / arc) if base is not None else Path(arc)
             if not local.is_file():
                 raise FileNotFoundError(f"Bundle missing source file: {local}")
 
+            info = zipfile.ZipInfo(arc)
+            info.external_attr = 0o600 << 16
+            info.compress_type = (
+                zipfile.ZIP_DEFLATED
+                if local.stat().st_size <= COMPRESS_MAX_SIZE
+                else zipfile.ZIP_STORED
+            )
+
             digest = hashlib.sha256()
             size = 0
-            with local.open("rb") as src, zf.open(arc, "w") as dst:
+            with local.open("rb") as src, zf.open(info, "w") as dst:
                 for chunk in iter(lambda: src.read(1 << 20), b""):
                     size += len(chunk)
                     if size > MAX_FILE_SIZE:
@@ -415,7 +580,12 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("--debug", action="store_true")
     p.add_argument("--no_color", action="store_true")
     p.add_argument("--force", action="store_true",
-                   help="Ignore cache and re-send everything.")
+                   help="Ignore the incremental cache and re-send everything.")
+    p.add_argument("--include_state_files", action="store_true",
+                   help="Also share state_files/*.json/csv/txt (large "
+                        "checkpoints/model snapshots; normally skipped).")
+    p.add_argument("--timeout", type=float, default=DEFAULT_POST_TIMEOUT,
+                   help=f"HTTP timeout in seconds (default: {DEFAULT_POST_TIMEOUT}).")
     p.add_argument("--username", default=None)
     p.add_argument("--password", default=None)
     p.add_argument("--dont_send_singleruns", action="store_true")
@@ -442,10 +612,14 @@ def _print_help() -> None:
         "  omniopt_share runs/my_experiment/0\n"
         "\n"
         "Options:\n"
-        "  --update                  Update a job that had this run-UUID\n"
+        "  --update                  Update a job that had this run-UUID.\n"
+        "                            Only changed files are uploaded.\n"
         "  --debug                   Enable debug output\n"
         "  --no_color                Disable colored output\n"
-        "  --force                   Ignore cache\n"
+        "  --force                   Ignore cache and re-send all files\n"
+        "  --include_state_files     Also send state_files snapshots\n"
+        "  --timeout=SECONDS         HTTP timeout (default: "
+        f"{DEFAULT_POST_TIMEOUT:g})\n"
         "  --username=NAME           Override username\n"
         "  --password=PWD            Set password\n"
         "  --dont_send_singleruns    Skip single-run outputs\n"
@@ -491,49 +665,65 @@ def _post_manifest(base_url: str, manifest: Dict[str, Any],
         url += f"&password={manifest['password']}"
 
     boundary = "----omniopt-share-" + os.urandom(8).hex()
-    body = _build_multipart(boundary, manifest, bundle_zip)
+    content_length, body = _build_multipart_stream(boundary, manifest, bundle_zip)
     req = urllib.request.Request(
         url,
         data=body,
-        headers={"Content-Type": f"multipart/form-data; boundary={boundary}"},
+        headers={
+            "Content-Type": f"multipart/form-data; boundary={boundary}",
+            "Content-Length": str(content_length),
+        },
         method="POST",
     )
+    timeout = float(getattr(args, "timeout", DEFAULT_POST_TIMEOUT) or DEFAULT_POST_TIMEOUT)
     try:
-        with urllib.request.urlopen(req, timeout=60) as resp:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
             return resp.status, resp.read().decode("utf-8", errors="replace")
     except urllib.error.HTTPError as e:
         return e.code, e.read().decode("utf-8", errors="replace")
-    except urllib.error.URLError as e:
+    except (urllib.error.URLError, TimeoutError, OSError) as e:
         return 7, f"Connection error: {e}"
 
 
-def _build_multipart(
+def _build_multipart_stream(
     boundary: str, manifest: Dict[str, Any], bundle_zip: Path
-) -> bytes:
-    """Build a ``multipart/form-data`` body with two parts: manifest + bundle."""
-    lines: List[bytes] = []
-    crlf = b"\r\n"
+) -> Tuple[int, Iterable[bytes]]:
+    """Return ``(content_length, chunks)`` for a streaming multipart body.
 
-    # Part 1: manifest
-    lines.append(f"--{boundary}".encode())
-    lines.append(b'Content-Disposition: form-data; name="manifest"')
-    lines.append(b"Content-Type: application/json")
-    lines.append(b"")
-    lines.append(json.dumps(manifest).encode())
-
-    # Part 2: bundle
-    lines.append(f"--{boundary}".encode())
-    lines.append(
-        f'Content-Disposition: form-data; name="bundle"; filename="bundle.zip"'.encode()
+    The zip is streamed from disk in 1 MiB chunks.  This keeps memory usage
+    constant even for very large run directories (the old implementation read
+    the whole ``bundle.zip`` into a single ``bytes`` object, then copied it
+    again while building the request body).
+    """
+    prefix = (
+        f"--{boundary}\r\n"
+        'Content-Disposition: form-data; name="manifest"\r\n'
+        "Content-Type: application/json\r\n"
+        "\r\n"
+    ).encode()
+    manifest_bytes = json.dumps(manifest).encode()
+    middle = (
+        f"\r\n--{boundary}\r\n"
+        'Content-Disposition: form-data; name="bundle"; filename="bundle.zip"\r\n'
+        "Content-Type: application/zip\r\n"
+        "\r\n"
+    ).encode()
+    suffix = f"\r\n--{boundary}--\r\n".encode()
+    zip_size = bundle_zip.stat().st_size
+    content_length = (
+        len(prefix) + len(manifest_bytes) + len(middle) + zip_size + len(suffix)
     )
-    lines.append(b"Content-Type: application/zip")
-    lines.append(b"")
-    lines.append(bundle_zip.read_bytes())
 
-    # Close
-    lines.append(f"--{boundary}--".encode())
-    lines.append(b"")
-    return crlf.join(lines)
+    def chunks() -> Iterable[bytes]:
+        yield prefix
+        yield manifest_bytes
+        yield middle
+        with bundle_zip.open("rb") as fh:
+            for chunk in iter(lambda: fh.read(1 << 20), b""):
+                yield chunk
+        yield suffix
+
+    return content_length, chunks()
 
 
 def _resolve_base_url() -> str:
@@ -557,16 +747,63 @@ def _share_one_with(
     experiment_name = os.path.basename(
         os.path.dirname(os.path.abspath(run_dir))
     )
-    send_single_runs = not args.dont_send_singleruns
+    send_single_runs = not getattr(args, "dont_send_singleruns", False)
+    include_state_files = bool(getattr(args, "include_state_files", False))
+
+    run_uuid: Optional[str] = None
+    run_uuid_path = Path(run_dir) / "state_files" / "run_uuid"
+    if run_uuid_path.is_file():
+        try:
+            run_uuid = run_uuid_path.read_text(encoding="utf-8").strip() or None
+        except OSError:
+            run_uuid = None
+
+    all_files = collect_shareable_files(
+        run_dir,
+        send_single_runs=send_single_runs,
+        include_state_files=include_state_files,
+    )
+    if not all_files:
+        print(f"Could not find any files in {run_dir}", file=sys.stderr)
+        return 1
+
+    cache_path = _cache_file_path(
+        run_dir, user_id, experiment_name, base_url, run_uuid
+    )
+    cache = _load_cache(cache_path)
+    incremental = (
+        bool(getattr(args, "update", False))
+        and not bool(getattr(args, "force", False))
+        and bool(cache)
+    )
+
+    if incremental:
+        files_to_send, pre_states = _split_changed_files(all_files, cache)
+        if not files_to_send:
+            print(
+                f"Nothing changed in {run_dir}; skipping upload.",
+                file=sys.stderr,
+            )
+            return 0
+    else:
+        files_to_send = all_files
+        pre_states = {}
+        for f in all_files:
+            try:
+                pre_states[f["archive_path"]] = _file_state(Path(f["local_path"]))
+            except OSError:
+                continue
 
     manifest = build_manifest(
         run_dir=run_dir,
         user_id=user_id,
         experiment_name=experiment_name,
-        update=args.update,
-        update_uuid=None,
-        password=args.password,
+        update=bool(getattr(args, "update", False)),
+        update_uuid=run_uuid,
+        password=getattr(args, "password", None),
         send_single_runs=send_single_runs,
+        include_state_files=include_state_files,
+        files=files_to_send,
     )
 
     if not manifest["files"]:
@@ -575,25 +812,46 @@ def _share_one_with(
 
     out_dir = Path(tempfile.mkdtemp(prefix="oo_share_"))
     try:
-        _, zip_path = write_bundle(manifest, out_dir, source_dir=run_dir)
-    except ValueError as e:
-        print(f"Refusing to share: {e}", file=sys.stderr)
-        return 1
+        try:
+            _, zip_path = write_bundle(manifest, out_dir, source_dir=run_dir)
+        except ValueError as e:
+            print(f"Refusing to share: {e}", file=sys.stderr)
+            return 1
 
-    status, body = post_manifest(base_url, manifest, zip_path, args)
-
-    if status != 200 or "Error" in body:
-        print(body, file=sys.stderr)
-        if status == 7:
+        total_size = sum(int(f["size"]) for f in manifest["files"])
+        if getattr(args, "debug", False) or total_size >= (1 << 20):
             print(
-                "Exit code 7 means the server was not reachable. "
-                "Are you online? Is the server properly started?",
+                f"Uploading {len(manifest['files'])} file(s), "
+                f"{total_size / (1 << 20):.1f} MiB"
+                + (" (incremental update)" if incremental else "")
+                + "...",
                 file=sys.stderr,
             )
-        return status if status != 200 else 1
 
-    print(body)
-    return 0
+        status, body = post_manifest(base_url, manifest, zip_path, args)
+
+        if status != 200 or "Error" in body:
+            print(body, file=sys.stderr)
+            if status == 7:
+                print(
+                    "Exit code 7 means the server was not reachable. "
+                    "Are you online? Is the server properly started?",
+                    file=sys.stderr,
+                )
+            return status if status != 200 else 1
+
+        _update_cache(
+            cache_path,
+            cache,
+            manifest,
+            pre_states,
+            run_dir,
+            replace=not incremental,
+        )
+        print(body)
+        return 0
+    finally:
+        shutil.rmtree(out_dir, ignore_errors=True)
 
 
 def _share_one(

@@ -314,17 +314,31 @@
 			$run_nr = get_or_env("run_nr");
 		}
 
-		$new_upload_md5_string = "";
+		// Hash incrementally: concatenating all uploaded contents into one
+		// string blows the PHP memory limit for large shares (many single-run
+		// logs or snapshots).
+		$md5_ctx = hash_init("md5");
 
 		foreach ($offered_files as $offered_file) {
 			$filename = $offered_file["filename"];
 			$file = $offered_file["file"];
 			if ($file) {
-				$content = file_get_contents($file);
-				$new_upload_md5_string = $new_upload_md5_string . "$filename=$content";
+				hash_update($md5_ctx, "$filename=");
+				$fh = @fopen($file, "rb");
+				if ($fh) {
+					while (!feof($fh)) {
+						$chunk = fread($fh, 1 << 20);
+						if ($chunk === false) {
+							break;
+						}
+						hash_update($md5_ctx, $chunk);
+					}
+					fclose($fh);
+				}
 				$num_offered_files++;
 			}
 		}
+		$project_md5 = hash_final($md5_ctx);
 
 		if ($num_offered_files == 0 && !isset($_GET["update"])) {
 			print("Error sharing job. No offered files could be found.");
@@ -336,7 +350,7 @@
 				echo "Warning: The disk space is almost full. This may lead to error messages and you not being able to push jobs. If you want to see results anyway, check https://imageseg.scads.de/omniax/tutorials?tutorial=oo_share#run-locally-in-docker on how to install it locally (with docker). If you run on HPC, you may want to install this into a Research Cloud at the TU Dresden.\n";
 			}
 
-			move_files_if_not_already_there($new_upload_md5_string, $update_uuid, $BASEURL, $user_id, $experiment_name, $run_nr, $offered_files, $userFolder, $uuid_folder);
+			move_files_if_not_already_there($project_md5, $update_uuid, $BASEURL, $user_id, $experiment_name, $run_nr, $offered_files, $userFolder, $uuid_folder);
 
 			// Clean up extracted bundle directory if we used the new protocol.
 			if (isset($tmp_extract) && is_dir($tmp_extract)) {

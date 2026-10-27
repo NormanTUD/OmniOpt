@@ -116,8 +116,6 @@ def create_docker_compose_yml(nr_nodes: int) -> str:
         volumes:
                 - shared-vol:/home/admin
                 - ../../:/oo_dir
-        ports:
-                - 8888:8888
   slurmmaster:
         build:
           context: ./master

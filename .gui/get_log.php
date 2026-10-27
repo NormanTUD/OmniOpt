@@ -24,11 +24,13 @@
 		$path = "$run_folder/$filename";
 
 		if(file_exists($path)) {
-			// Large logs must never be ANSI-tokenized server-side: the
-			// converter builds several full-size arrays and exhausts PHP's
-			// memory limit on multi-megabyte logs.  Always return at most a
-			// bounded tail, and let the browser convert ANSI to HTML.
+			// Large or ANSI/backspace-heavy logs must never be converted
+			// server-side: the converter builds several full-size arrays and
+			// can exhaust PHP's memory limit.  Return at most a bounded tail
+			// and let the browser convert ANSI to HTML.
 			$max_bytes = 2 * 1024 * 1024;
+			$server_convert_max_bytes = 256 * 1024;
+			$max_control_chars = 2000;
 			$size = filesize($path);
 			$raw = isset($_GET["raw"]) && $_GET["raw"] !== "0";
 
@@ -58,7 +60,24 @@
 					"truncated" => $truncated,
 				]);
 			} else {
-				$out_file = ansi_to_html(htmlentities(file_get_contents($path)));
+				$content = file_get_contents($path);
+				if($content === false) {
+					respond_with_error("Cannot read $path");
+				}
+
+				// Logs with many escape/backspace sequences make the server
+				// converter allocate huge token arrays.  Let the browser
+				// handle those as well.
+				$control_chars = substr_count($content, "\x1b") + substr_count($content, "\x08");
+				if($size > $server_convert_max_bytes || $control_chars > $max_control_chars) {
+					respond_with_json([
+						"content" => $content,
+						"mode" => "ansi",
+						"truncated" => false,
+					]);
+				}
+
+				$out_file = ansi_to_html(htmlentities($content));
 				$out_file = highlight_debug_info($out_file);
 				respond_with_json([
 					"content" => $out_file,
@@ -67,7 +86,11 @@
 				]);
 			}
 		} else {
-			respond_with_error("Invalid path $path found");
+			respond_with_json([
+				"content" => build_missing_log_help_html($run_folder, $filename),
+				"mode" => "html",
+				"truncated" => false,
+			]);
 		}
 	} catch (Exception $e) {
 		respond_with_error($e->getMessage());

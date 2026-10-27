@@ -1748,6 +1748,67 @@
 		return is_array($data) ? $data : null;
 	}
 
+	function get_omitted_log_commands($run_dir) {
+		$meta = get_omitted_logs_metadata($run_dir);
+		$commands = $meta["commands"] ?? [];
+		return is_array($commands) ? $commands : [];
+	}
+
+	function get_run_folder_hint_from_commands($commands) {
+		foreach($commands as $command) {
+			if(is_string($command) && preg_match('/^omniopt_share\s+(.+?)\s+--update(?:\s|$)/', $command, $match)) {
+				return $match[1];
+			}
+		}
+		return "<run-folder>";
+	}
+
+	function format_local_log_command($run_folder_hint, $local_file) {
+		$hint = trim($run_folder_hint);
+		if($hint === "" || $hint === "<run-folder>") {
+			return "less <run-folder>/$local_file";
+		}
+
+		// shlex.quote() on the Python side may have wrapped the run folder.
+		if(strlen($hint) >= 2) {
+			$first = $hint[0];
+			$last = substr($hint, -1);
+			if(($first === "'" && $last === "'") || ($first === '"' && $last === '"')) {
+				$hint = substr($hint, 1, -1);
+			}
+		}
+
+		return "less " . escapeshellarg(rtrim($hint, "/") . "/" . $local_file);
+	}
+
+	function build_missing_log_help_html($run_dir, $specific_filename = null) {
+		$commands = get_omitted_log_commands($run_dir);
+		$run_folder_hint = get_run_folder_hint_from_commands($commands);
+		$html = "<p>This log file was not uploaded to this share.</p>";
+
+		if(count($commands)) {
+			$html .= "<p>To upload it, run one of these commands on the machine that has the run folder:</p>";
+			foreach($commands as $label => $command) {
+				if(!is_string($command)) {
+					continue;
+				}
+				$html .= "<p><b>" . htmlspecialchars(strval($label), ENT_QUOTES) . "</b></p>";
+				$html .= "<pre>" . htmlspecialchars($command, ENT_QUOTES) . "</pre>";
+			}
+		} else {
+			$html .= "<p>To upload it, run "
+				. "<tt>omniopt_share &lt;run-folder&gt; --update --send_all_single_runs</tt> "
+				. "on the machine that has the run folder.</p>";
+		}
+
+		$local_file = $specific_filename !== null
+			? $specific_filename
+			: "single_runs/<job-id>/<job-id>_0_log.out";
+		$html .= "<p>To view it locally instead, open it on that machine:</p>";
+		$html .= "<pre>" . htmlspecialchars(format_local_log_command($run_folder_hint, $local_file), ENT_QUOTES) . "</pre>";
+		return $html;
+	}
+
 	function generate_log_tabs($run_dir, $log_files, $result_names) {
 		$red_cross = "<span><img style='height: 1em' src='emojis/red_cross.svg' /></span>";
 		$green_checkmark = "<span><img style='height: 1em' src='emojis/green_checkmark.svg' /></span>";
@@ -1920,6 +1981,10 @@
 					$output .= "<pre>" . htmlspecialchars($command, ENT_QUOTES) . "</pre>";
 				}
 			}
+
+			$run_folder_hint = get_run_folder_hint_from_commands(is_array($commands) ? $commands : []);
+			$output .= "<p>To view an omitted log locally instead, open it on the machine that has the run folder, e.g.:</p>";
+			$output .= "<pre>" . htmlspecialchars(format_local_log_command($run_folder_hint, "single_runs/<job-id>/<job-id>_0_log.out"), ENT_QUOTES) . "</pre>";
 			$output .= '</article>';
 		}
 

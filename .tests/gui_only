@@ -26,6 +26,25 @@ TESTS = [
 ]
 
 
+def _interpreter_for(script: Path) -> str:
+    """Pick the interpreter from the shebang, defaulting to Python.
+
+    The GUI tests are Python scripts (some without a shebang). Running a
+    failed Python test through bash as a fallback only hides the real
+    traceback behind confusing shell errors, so we only fall back to
+    bash for scripts that explicitly ask for a shell.
+    """
+    try:
+        with script.open(encoding="utf-8", errors="replace") as fh:
+            first_line = fh.readline().strip()
+    except OSError:
+        return "python3"
+    if first_line.startswith("#!") and "python" not in first_line:
+        if "bash" in first_line or first_line.endswith("/sh") or first_line.endswith(" sh"):
+            return "bash"
+    return "python3"
+
+
 def main(argv=None) -> int:
     runtimes: dict[str, int] = {}
     total_start = time.time()
@@ -33,18 +52,13 @@ def main(argv=None) -> int:
     for t in TESTS:
         start = time.time()
         print(f"Running {t} ...")
-        cmd_variants = [
-            ["python3", str(THIS_DIR / t)],
-            ["bash", str(THIS_DIR / t)],
-        ]
-        ok = False
-        for cmd in cmd_variants:
-            if not Path(cmd[1]).exists():
-                continue
-            proc = subprocess.run(cmd, cwd=str(REPO_ROOT))
-            if proc.returncode == 0:
-                ok = True
-                break
+        script = THIS_DIR / t
+        if not script.exists():
+            print(f"FAIL {t} (missing)")
+            return next_exit
+        interpreter = _interpreter_for(script)
+        proc = subprocess.run([interpreter, str(script)], cwd=str(REPO_ROOT))
+        ok = proc.returncode == 0
         end = time.time()
         runtime = int(end - start)
         runtimes[t] = runtime

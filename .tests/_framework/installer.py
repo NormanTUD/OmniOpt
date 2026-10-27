@@ -859,7 +859,7 @@ def _pip(venv_dir: Path, *args: str, quiet: bool = True) -> int:
     #                    probing the VENV pip, not the parent's pip).
     cmd = [str(pip), "--disable-pip-version-check", "-q"]
     if "--progress-bar" not in args and _venv_pip_supports_progress_bar_off(venv_dir):
-        cmd.append("--progress-bar off")
+        cmd.extend(["--progress-bar", "off"])
     cmd.extend(args)
     _install_debug(f"_pip: running pip command in venv {venv_dir}")
     _install_debug(f"  full cmd: {' '.join(cmd)}")

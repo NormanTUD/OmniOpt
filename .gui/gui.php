@@ -97,8 +97,14 @@
 			color: #fff;
 			border-color: #4a90d9;
 		}
-		.formula_tab:hover:not(.active) {
+		.formula_tab:hover:not(.active):not(.rp_tab_active) {
 			background: #eef3fa;
+		}
+		.formula_tab.active:hover,
+		.rp_tab_active:hover {
+			background: #4a90d9;
+			color: #fff;
+			border-color: #4a90d9;
 		}
 		#formula_card textarea {
 			font-size: 0.95em;

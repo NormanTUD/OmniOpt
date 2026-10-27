@@ -184,6 +184,8 @@ These files store some states used mainly to continue jobs. Not all of these fil
 - `live_share`: If this file exists, the job has been run with live share enabled. This is useful for continued jobs, so they also have live-share enabled
 - `username`: Username file containing the username for OmniOpt2-live-share
 - `loaded_modules.json`: A list of all loaded modules with module information where available
+- `modules`: Lmod modules/commands that are loaded before each evaluation (used by continued jobs)
+- `venv`: Virtualenv path that is activated inside each evaluation (used by continued jobs)
 - `main_process_gb`: Saves the amount of memory in the main process (if applicable). Only used for continued jobs
 - `max_eval`: The max evals of this run
 - `maximize`: If it exists, it means, the job was about to maximize

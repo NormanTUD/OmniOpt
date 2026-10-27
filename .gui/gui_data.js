@@ -325,6 +325,26 @@ var tableData = [
 			"</div>" +
 			"<div style='margin-top: 6px; font-size: 0.85em; color: #555;'>The <i>Run program</i> tab optimizes a script; the <i>Formula</i> tab describes the objective as a math formula (LaTeX or infix).</div>" +
 			"<div id='formula_card' style='display: none; margin-top: 10px;'></div>"
+	},
+	{
+		label: "Modules",
+		id: "modules",
+		type: "textarea",
+		value: "",
+		placeholder: "ml release/24.10 GCCcore/13.3.0 Python/3.12.3",
+		required: false,
+		info: "Optional Lmod modules that are loaded before every evaluation. TU Dresden examples: <code style=\"white-space: pre\" class=\"highlight_me dark_code_bg invert_in_dark_mode\">release/24.10 GCCcore/13.3.0 Python/3.12.3</code>, <code style=\"white-space: pre\" class=\"highlight_me dark_code_bg invert_in_dark_mode\">module load release/24.10 GCCcore/13.3.0 Python/3.12.3</code> or <code style=\"white-space: pre\" class=\"highlight_me dark_code_bg invert_in_dark_mode\">ml release/24.10 GCCcore/13.3.0 Python/3.12.3</code> — all three load the same modules. Use <code>module spider &lt;name&gt;</code> or <code>module avail</code> to find available modules. See the <a target=\"_blank\" href=\"https://compendium.hpc.tu-dresden.de/software/modules/\">TU Dresden HPC Environment Modules documentation</a>. Multiple lines are allowed.",
+		help: "Loads these Lmod modules in each worker before the virtualenv and your run program start. This replaces a run.sh that only does 'module load ...; python3 ...'. On systems without Lmod (for example a local workstation), the setting is ignored."
+	},
+	{
+		label: "Virtualenv",
+		id: "venv",
+		type: "text",
+		value: "",
+		placeholder: "/absolute/path/to/venv",
+		required: false,
+		info: "Path to a Python virtualenv (the directory containing <code>bin/activate</code>) or directly to its <code>activate</code> script. It is sourced <b>inside each evaluation</b>, after loading the modules and before your run program starts.",
+		help: "Loads this virtualenv in each worker independently. The order is: modules → virtualenv → run program. The main OmniOpt2 process is not affected."
 	}
 ];
 

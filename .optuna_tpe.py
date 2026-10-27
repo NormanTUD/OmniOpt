@@ -2,7 +2,7 @@ import sys
 import os
 import json
 import logging
-from typing import Optional, Any
+from typing import Optional, Any, Literal
 
 try:
     import optuna
@@ -26,7 +26,7 @@ except ModuleNotFoundError:
 logging.getLogger("optuna").setLevel(logging.WARNING)
 
 # Fix for optuna study attribute access issue
-def create_study_with_seed(seed: Optional[int], direction: str) -> Any:
+def create_study_with_seed(seed: Optional[int], direction: Literal["minimize", "maximize"]) -> Any:
     try:
         # Try newer optuna API
         return optuna.create_study(
@@ -115,17 +115,17 @@ def generate_tpe_point(data: dict, max_trials: int = 100) -> dict:
     return get_best_or_new_point(study, parameters, direction)
 
 @beartype
-def parse_objectives(objectives: dict) -> tuple[str, str]:
+def parse_objectives(objectives: dict) -> tuple[Literal["minimize", "maximize"], str]:
     if len(objectives) != 1:
         raise ValueError("Only single-objective optimization is supported.")
     result_key, result_goal = next(iter(objectives.items()))
     if result_goal.lower() not in ("min", "max"):
         raise ValueError(f"Unsupported objective direction: {result_goal}")
-    direction = "maximize" if result_goal.lower() == "max" else "minimize"
+    direction: Literal["minimize", "maximize"] = "maximize" if result_goal.lower() == "max" else "minimize"
     return direction, result_key
 
 @beartype
-def wrapped_objective(trial: optuna.Trial, parameters: dict, constraints: list, direction: str) -> float:
+def wrapped_objective(trial: optuna.Trial, parameters: dict, constraints: list, direction: Literal["minimize", "maximize"]) -> float:
     point = tpe_suggest_point(trial, parameters)
     if not constraints_not_ok(constraints, point):
         return 1e6 if direction == "minimize" else -1e6
@@ -181,7 +181,7 @@ def add_existing_trial_to_study(study: optuna.study.study.Study, trial_entry: li
     )
 
 @beartype
-def get_best_or_new_point(study: Any, parameters: dict, direction: str) -> dict:
+def get_best_or_new_point(study: Any, parameters: dict, direction: Literal["minimize", "maximize"]) -> dict:
     best_trial_value = get_best_trial_value(study)
     if best_trial_value is not None:
         if (direction == "minimize" and best_trial_value < 1e6) or \

@@ -1,0 +1,597 @@
+#!/usr/bin/env python3
+"""Unit tests for the ``--modules`` / ``--venv`` evaluation helpers.
+
+The helpers live inside the ``omniopt`` script (which is not importable as a
+module because it starts its own bootstrap), so they are extracted with
+``ast`` and exercised directly.  The generated bash snippets are executed for
+real to verify:
+
+* ``xyz`` / ``module xyz`` / ``ml xyz`` all load module ``xyz``;
+* module failures produce exit code 4 and an actionable message;
+* a virtualenv directory or activate script is sourced correctly;
+* the order is modules -> virtualenv -> run program;
+* ``run_program_once`` never activates the evaluation virtualenv.
+"""
+
+from __future__ import annotations
+
+import ast
+import base64
+import os
+import re
+import shlex
+import shutil
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+from types import SimpleNamespace
+
+THIS_DIR = Path(__file__).resolve().parent
+REPO_ROOT = THIS_DIR.parent
+OMNIOPT = REPO_ROOT / "omniopt"
+
+if str(THIS_DIR) not in sys.path:
+    sys.path.insert(0, str(THIS_DIR))
+
+from _framework.helpers import green_text, red_text  # noqa: E402
+
+
+_WANTED_FUNCTIONS = {
+    "_omniopt_lmod_bash_prelude",
+    "_omniopt_parse_module_commands",
+    "_omniopt_module_setup_script",
+    "_omniopt_venv_setup_script",
+    "_omniopt_user_module_commands",
+    "_omniopt_user_venv_spec",
+    "_omniopt_wrap_command_with_environment",
+    "validate_user_modules",
+}
+_WANTED_ASSIGNMENTS = {"_OMNIOPT_MODULE_SUBCOMMANDS"}
+
+
+def _load_helpers() -> dict:
+    source = OMNIOPT.read_text(encoding="utf-8")
+    tree = ast.parse(source)
+    parts = ["from __future__ import annotations", "import re as _re", "import os as _os"]
+    for node in tree.body:
+        if isinstance(node, ast.FunctionDef) and node.name in _WANTED_FUNCTIONS:
+            segment = ast.get_source_segment(source, node)
+            if segment:
+                parts.append(segment)
+        elif isinstance(node, ast.Assign):
+            names = {target.id for target in node.targets if isinstance(target, ast.Name)}
+            if names & _WANTED_ASSIGNMENTS:
+                segment = ast.get_source_segment(source, node)
+                if segment:
+                    parts.append(segment)
+    namespace: dict = {}
+    exec("\n\n".join(parts), namespace)  # noqa: S102 - controlled source file
+    namespace["_shutil"] = shutil
+
+    def _fatal_error(message: str, code: int) -> None:
+        raise RuntimeError(f"{code}: {message}")
+
+    namespace["_fatal_error"] = _fatal_error
+    namespace["args"] = SimpleNamespace(modules="", venv="")
+    namespace["_omniopt_has_lmod"] = lambda: True
+    return namespace
+
+
+def _check(condition: bool, message: str) -> bool:
+    if not condition:
+        red_text(f"FAIL: {message}")
+        return False
+    return True
+
+
+def _run_bash(script: str, env: dict | None = None) -> subprocess.CompletedProcess:
+    run_env = os.environ.copy()
+    if env:
+        run_env.update(env)
+    return subprocess.run(
+        ["bash", "-c", script],
+        capture_output=True,
+        text=True,
+        env=run_env,
+        timeout=30,
+    )
+
+
+def test_module_forms(namespace: dict) -> bool:
+    parse = namespace["_omniopt_parse_module_commands"]
+    cases = {
+        "xyz": ["module load xyz"],
+        "module xyz": ["module load xyz"],
+        "ml xyz": ["ml load xyz"],
+        "module load xyz": ["module load xyz"],
+        "ml load xyz": ["ml load xyz"],
+        "release/2026 hyperOpt": ["module load release/2026 hyperOpt"],
+        "module purge": ["module purge"],
+        "ml spider Python": ["ml spider Python"],
+        "module use /tmp/modules": ["module use /tmp/modules"],
+        "release/24.10 GCCcore/13.3.0 Python/3.12.3": [
+            "module load release/24.10 GCCcore/13.3.0 Python/3.12.3"
+        ],
+        "module load release/24.10 GCCcore/13.3.0 Python/3.12.3": [
+            "module load release/24.10 GCCcore/13.3.0 Python/3.12.3"
+        ],
+        "ml release/24.10 GCCcore/13.3.0 Python/3.12.3": [
+            "ml load release/24.10 GCCcore/13.3.0 Python/3.12.3"
+        ],
+    }
+    ok = True
+    for spec, expected in cases.items():
+        actual = parse(spec)
+        ok &= _check(actual == expected, f"{spec!r} should parse to {expected!r}, got {actual!r}")
+
+    multiline = parse("xyz\n# comment\n\nmodule purge\nml spider Python")
+    ok &= _check(
+        multiline == ["module load xyz", "module purge", "ml spider Python"],
+        f"multiline parsing failed: {multiline!r}",
+    )
+    return ok
+
+
+def test_module_rejects_shell_operators(namespace: dict) -> bool:
+    parse = namespace["_omniopt_parse_module_commands"]
+    ok = True
+    for bad in ("xyz; rm -rf /", "xyz && echo nope", "$(touch /tmp/nope)", "xyz | cat"):
+        try:
+            parse(bad)
+        except ValueError:
+            pass
+        else:
+            ok &= _check(False, f"shell operator in {bad!r} was not rejected")
+    return ok
+
+
+def test_module_setup_success(namespace: dict) -> bool:
+    with tempfile.TemporaryDirectory(prefix="oo_modules_ok_") as tmp:
+        log = Path(tmp) / "calls.log"
+        commands = namespace["_omniopt_parse_module_commands"]("xyz\nmodule purge")
+        setup = namespace["_omniopt_module_setup_script"](commands)
+        script = (
+            'ml() { printf "%s\\n" "$*" >> "$ORDER_LOG"; }\n'
+            + setup
+        )
+        result = _run_bash(script, {"ORDER_LOG": str(log)})
+        ok = _check(result.returncode == 0, f"module setup failed: {result.stderr}")
+        calls = log.read_text(encoding="utf-8").splitlines() if log.exists() else []
+        ok &= _check(calls == ["load xyz", "purge"], f"unexpected module calls: {calls!r}")
+        return ok
+
+
+def test_module_setup_failure(namespace: dict) -> bool:
+    commands = namespace["_omniopt_parse_module_commands"]("BAD/1.0")
+    setup = namespace["_omniopt_module_setup_script"](commands)
+    script = 'ml() { echo "fake lmod error" >&2; return 1; }\n' + setup
+    result = _run_bash(script)
+    ok = _check(result.returncode == 4, f"expected exit code 4, got {result.returncode}")
+    ok &= _check("module command failed" in result.stderr, "missing 'module command failed' hint")
+    ok &= _check("module avail" in result.stderr, "missing 'module avail' hint")
+    return ok
+
+
+def _make_venv(root: Path, body: str = 'export OMNIOPT_TEST_VENV=1\n') -> Path:
+    activate = root / "bin" / "activate"
+    activate.parent.mkdir(parents=True, exist_ok=True)
+    activate.write_text(body, encoding="utf-8")
+    return activate
+
+
+def test_venv_activation(namespace: dict) -> bool:
+    setup_venv = namespace["_omniopt_venv_setup_script"]
+    ok = True
+    with tempfile.TemporaryDirectory(prefix="oo_venv_") as tmp:
+        root = Path(tmp) / "venv"
+        activate = _make_venv(root)
+        script = setup_venv(str(root)) + '\necho "VENV=$OMNIOPT_TEST_VENV"\n'
+        result = _run_bash(script)
+        ok &= _check(result.returncode == 0, f"venv directory activation failed: {result.stderr}")
+        ok &= _check("VENV=1" in result.stdout, f"venv marker missing: {result.stdout!r}")
+
+        script = setup_venv(str(activate)) + '\necho "VENV=$OMNIOPT_TEST_VENV"\n'
+        result = _run_bash(script)
+        ok &= _check(result.returncode == 0, f"activate-script activation failed: {result.stderr}")
+        ok &= _check("VENV=1" in result.stdout, f"activate-script marker missing: {result.stdout!r}")
+
+        result = _run_bash(setup_venv(str(Path(tmp) / "does-not-exist")))
+        ok &= _check(result.returncode == 23, f"missing venv should exit 23, got {result.returncode}")
+        ok &= _check("could not find the virtualenv" in result.stderr, "missing missing-venv hint")
+    return ok
+
+
+def test_environment_order(namespace: dict) -> bool:
+    wrapper = namespace["_omniopt_wrap_command_with_environment"]
+    ok = True
+    with tempfile.TemporaryDirectory(prefix="oo_env_order_") as tmp:
+        root = Path(tmp)
+        log = root / "order.log"
+        venv = root / "venv"
+        _make_venv(venv, 'printf "venv\\n" >> "$ORDER_LOG"\n')
+        namespace["args"] = SimpleNamespace(modules="xyz", venv=str(venv))
+        script, executable = wrapper('printf "run\\n" >> "$ORDER_LOG"')
+        ok &= _check(executable is not None, "wrapper should use bash when setup is needed")
+        runner = 'ml() { printf "module\\n" >> "$ORDER_LOG"; }\n' + script
+        result = _run_bash(runner, {"ORDER_LOG": str(log)})
+        ok &= _check(result.returncode == 0, f"ordered environment failed: {result.stderr}")
+        lines = log.read_text(encoding="utf-8").splitlines() if log.exists() else []
+        ok &= _check(lines == ["module", "venv", "run"], f"wrong order: {lines!r}")
+
+        log.unlink(missing_ok=True)
+        script, executable = wrapper('printf "run\\n" >> "$ORDER_LOG"', include_venv=False)
+        ok &= _check(executable is not None, "wrapper should still use bash for modules")
+        ok &= _check("activate" not in script, "run_program_once wrapper must not activate the venv")
+        runner = 'ml() { printf "module\\n" >> "$ORDER_LOG"; }\n' + script
+        result = _run_bash(runner, {"ORDER_LOG": str(log)})
+        ok &= _check(result.returncode == 0, f"module-only environment failed: {result.stderr}")
+        lines = log.read_text(encoding="utf-8").splitlines() if log.exists() else []
+        ok &= _check(lines == ["module", "run"], f"run_program_once order should skip venv: {lines!r}")
+    return ok
+
+
+def _restore_namespace(namespace: dict, saved: dict) -> None:
+    namespace.update(saved)
+
+
+def test_no_lmod_warning(namespace: dict) -> bool:
+    saved = {
+        "_omniopt_has_lmod": namespace["_omniopt_has_lmod"],
+        "args": namespace["args"],
+        "print_yellow": namespace.get("print_yellow"),
+        "print_debug": namespace.get("print_debug"),
+    }
+    warnings: list[str] = []
+    try:
+        namespace["_omniopt_has_lmod"] = lambda: False
+        namespace["args"] = SimpleNamespace(modules="xyz", venv="")
+        namespace["print_yellow"] = warnings.append
+        namespace["print_debug"] = lambda *_args, **_kwargs: None
+        namespace["validate_user_modules"]()
+        ok = _check(len(warnings) == 1, f"expected one no-Lmod warning, got {warnings!r}")
+        ok &= _check(
+            "no Lmod/ml" in warnings[0] and "cannot load module" in warnings[0],
+            f"warning is not actionable: {warnings!r}",
+        )
+        wrapper = namespace["_omniopt_wrap_command_with_environment"]
+        script, executable = wrapper("echo run")
+        ok &= _check(
+            script == "echo run" and executable is None,
+            "without Lmod the wrapper must not add a module prelude",
+        )
+        return ok
+    finally:
+        _restore_namespace(namespace, saved)
+
+
+def test_fake_ml_without_lmod(namespace: dict) -> bool:
+    """A fake ml function returning 0 must not fake a working Lmod."""
+    saved = {
+        "_omniopt_has_lmod": namespace["_omniopt_has_lmod"],
+        "args": namespace["args"],
+    }
+    try:
+        namespace["_omniopt_has_lmod"] = lambda: False
+        namespace["args"] = SimpleNamespace(modules="xyz", venv="")
+        wrapper = namespace["_omniopt_wrap_command_with_environment"]
+        script, executable = wrapper('printf "run\\n" >> "$ORDER_LOG"')
+        ok = _check(executable is None, "fake ml must not make the wrapper use bash")
+        with tempfile.TemporaryDirectory(prefix="oo_fake_ml_") as tmp:
+            log = Path(tmp) / "calls.log"
+            runner = 'ml() { printf "module\\n" >> "$ORDER_LOG"; return 0; }\n' + script
+            result = _run_bash(runner, {"ORDER_LOG": str(log)})
+            ok &= _check(result.returncode == 0, f"runner failed: {result.stderr}")
+            calls = log.read_text(encoding="utf-8").splitlines() if log.exists() else []
+            ok &= _check(calls == ["run"], f"fake ml must not be called, got {calls!r}")
+        return ok
+    finally:
+        _restore_namespace(namespace, saved)
+
+
+def _real_lmod_command(namespace: dict) -> str:
+    prelude = namespace["_omniopt_lmod_bash_prelude"]()
+    script = prelude + (
+        '\nif command -v ml >/dev/null 2>&1; then echo ml; '
+        'elif command -v module >/dev/null 2>&1; then echo module; fi\n'
+    )
+    result = _run_bash(script)
+    return result.stdout.strip().splitlines()[-1] if result.stdout.strip() else ""
+
+
+def _pick_modules(output: str) -> list[str]:
+    names: list[str] = []
+    for line in output.splitlines():
+        line = line.strip()
+        if not line or line.endswith(":") or line.startswith("-"):
+            continue
+        line = re.sub(r"^\d+\)\s*", "", line)
+        for part in line.split():
+            if re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.+@-]*(?:/[A-Za-z0-9_.+@-]+)*", part):
+                if part.lower() not in {"default", "none", "modules"} and part not in names:
+                    names.append(part)
+    return names
+
+
+def test_real_lmod_if_available(namespace: dict) -> bool:
+    lmod_cmd = _real_lmod_command(namespace)
+    if not lmod_cmd:
+        green_text("No real Lmod found; testing the no-Lmod and fake-Lmod paths only.")
+        return True
+
+    prelude = namespace["_omniopt_lmod_bash_prelude"]()
+    list_script = prelude + (
+        f"\n{lmod_cmd} --terse list 2>/dev/null || {lmod_cmd} list -t 2>/dev/null || {lmod_cmd} list 2>/dev/null\n"
+    )
+    modules = _pick_modules(_run_bash(list_script).stdout)
+    if not modules:
+        avail_script = prelude + (
+            f"\n{lmod_cmd} --terse avail 2>/dev/null || {lmod_cmd} avail -t 2>/dev/null || {lmod_cmd} avail 2>/dev/null\n"
+        )
+        modules = _pick_modules(_run_bash(avail_script).stdout)
+    if not modules:
+        green_text("Lmod is available but no module was listed; checking the module command itself.")
+        result = _run_bash(prelude + f"\n{lmod_cmd} list >/dev/null\n")
+        return _check(result.returncode == 0, f"real {lmod_cmd} list failed: {result.stderr}")
+
+    setup = namespace["_omniopt_module_setup_script"]
+    for module in modules[:5]:
+        result = _run_bash(prelude + setup([f"module load {module}"]))
+        if result.returncode == 0:
+            green_text(f"Real Lmod check passed by loading {module}.")
+            return True
+    return _check(False, f"could not load any of the available modules: {modules[:5]!r}")
+
+
+def _omniopt_call() -> list[str]:
+    return shlex.split(os.environ.get("OMNIOPT_CALL", str(REPO_ROOT / "omniopt")))
+
+
+def _b64(text: str) -> str:
+    return base64.b64encode(text.encode("utf-8")).decode("ascii")
+
+
+def _write_script(path: Path, text: str) -> None:
+    path.write_text(text, encoding="utf-8")
+    path.chmod(0o755)
+
+
+def _create_venv(root: Path) -> bool:
+    result = subprocess.run(
+        [sys.executable, "-m", "venv", str(root)],
+        capture_output=True,
+        text=True,
+        timeout=180,
+    )
+    if result.returncode != 0:
+        red_text(f"Could not create test virtualenv: {result.stderr.strip()}")
+        return False
+    return True
+
+
+def _run_real_omniopt(
+    run_dir: Path,
+    run_program: str,
+    *,
+    modules: str = "",
+    venv: str = "",
+    fake_ml_log: Path | None = None,
+) -> subprocess.CompletedProcess:
+    cmd = _omniopt_call() + [
+        "--experiment_name=lmod_venv_test",
+        "--mem_gb=1",
+        "--time=5",
+        "--worker_timeout=10",
+        "--max_eval=1",
+        "--num_parallel_jobs=1",
+        "--gpus=0",
+        "--num_random_steps=1",
+        "--model=BOTORCH_MODULAR",
+        "--result_names", "RESULT=min",
+        f"--run_program={_b64(run_program)}",
+        "--parameter", "x", "range", "0", "10", "int",
+        "--generate_all_jobs_at_once",
+        "--force_local_execution",
+        f"--run_dir={run_dir}",
+        "--disable_tqdm",
+        "--no_sleep",
+    ]
+    if modules:
+        cmd.append(f"--modules={modules}")
+    if venv:
+        cmd.append(f"--venv={venv}")
+    env = os.environ.copy()
+    env["LOAD_MODULES"] = "0"
+    if fake_ml_log is not None:
+        env["OO_FAKE_ML_LOG"] = str(fake_ml_log)
+        wrapper = (
+            'ml() { printf "%s\\n" "$*" >> "$OO_FAKE_ML_LOG"; return 0; }; '
+            'export -f ml; exec "$@"'
+        )
+        cmd = ["bash", "-c", wrapper, "_"] + cmd
+    return subprocess.run(
+        cmd,
+        cwd=str(REPO_ROOT),
+        capture_output=True,
+        text=True,
+        timeout=240,
+        env=env,
+    )
+
+
+def _venv_run_program(tmp: Path) -> str:
+    script = tmp / "run_program.sh"
+    _write_script(
+        script,
+        "#!/bin/bash\n"
+        "if [ -z \"$VIRTUAL_ENV\" ]; then\n"
+        "    echo 'ERROR: VIRTUAL_ENV is not set' >&2\n"
+        "    exit 7\n"
+        "fi\n"
+        "echo 'RESULT: 1.0'\n",
+    )
+    return f"bash {script}"
+
+
+def _summarize_real_run(label: str, result: subprocess.CompletedProcess) -> None:
+    combined = (result.stdout or "") + "\n" + (result.stderr or "")
+    interesting = [
+        line.strip()
+        for line in combined.splitlines()
+        if "no Lmod/ml" in line
+        or "cannot load module" in line
+        or "Optimization complete" in line
+        or "Could not load the modules" in line
+        or "ERROR:" in line
+    ]
+    print(f"[{label}] exit={result.returncode}", flush=True)
+    for line in interesting[:8]:
+        print(f"[{label}] {line}", flush=True)
+
+
+def test_real_omniopt_no_lmod(namespace: dict) -> bool:
+    if _real_lmod_command(namespace):
+        green_text("Real Lmod detected; skipping the real no-Lmod run.")
+        return True
+    with tempfile.TemporaryDirectory(prefix="oo_real_no_lmod_") as tmp:
+        root = Path(tmp)
+        venv = root / "venv"
+        if not _create_venv(venv):
+            return False
+        result = _run_real_omniopt(
+            root / "runs",
+            _venv_run_program(root),
+            modules="xyz",
+            venv=str(venv),
+        )
+        _summarize_real_run("real no-lmod", result)
+        combined = (result.stdout or "") + "\n" + (result.stderr or "")
+        ok = _check(result.returncode == 0, f"real no-lmod run failed: {result.stderr[-2000:]}")
+        ok &= _check("no Lmod/ml" in combined, "real run did not print the no-Lmod warning")
+        ok &= _check("cannot load module" in combined, "real run warning misses the module name")
+        ok &= _check("Optimization complete" in combined, "real no-lmod run did not complete")
+        return ok
+
+
+def test_real_omniopt_fake_ml_without_lmod(namespace: dict) -> bool:
+    if _real_lmod_command(namespace):
+        green_text("Real Lmod detected; skipping the real fake-Lmod run.")
+        return True
+    with tempfile.TemporaryDirectory(prefix="oo_real_fake_ml_") as tmp:
+        root = Path(tmp)
+        venv = root / "venv"
+        if not _create_venv(venv):
+            return False
+        fake_ml_log = root / "fake_ml.log"
+        result = _run_real_omniopt(
+            root / "runs",
+            _venv_run_program(root),
+            modules="xyz",
+            venv=str(venv),
+            fake_ml_log=fake_ml_log,
+        )
+        _summarize_real_run("real fake-ml", result)
+        combined = (result.stdout or "") + "\n" + (result.stderr or "")
+        ok = _check(result.returncode == 0, f"real fake-ml run failed: {result.stderr[-2000:]}")
+        ok &= _check("no Lmod/ml" in combined, "fake ml function suppressed the no-Lmod warning")
+        ok &= _check(not fake_ml_log.exists(), "fake ml function was called even though no Lmod was detected")
+        ok &= _check("Optimization complete" in combined, "real fake-ml run did not complete")
+        return ok
+
+
+def test_real_omniopt_with_real_lmod(namespace: dict) -> bool:
+    lmod_cmd = _real_lmod_command(namespace)
+    if not lmod_cmd:
+        green_text("No real Lmod found; skipping the real module-load run.")
+        return True
+    prelude = namespace["_omniopt_lmod_bash_prelude"]()
+    list_script = prelude + (
+        f"\n{lmod_cmd} --terse list 2>/dev/null || {lmod_cmd} list -t 2>/dev/null || {lmod_cmd} list 2>/dev/null\n"
+    )
+    modules = _pick_modules(_run_bash(list_script).stdout)
+    if not modules:
+        avail_script = prelude + (
+            f"\n{lmod_cmd} --terse avail 2>/dev/null || {lmod_cmd} avail -t 2>/dev/null || {lmod_cmd} avail 2>/dev/null\n"
+        )
+        modules = _pick_modules(_run_bash(avail_script).stdout)
+    if not modules:
+        green_text("Real Lmod found, but no module name was listed; skipping the real module-load run.")
+        return True
+
+    setup = namespace["_omniopt_module_setup_script"]
+    chosen = ""
+    for module in modules[:5]:
+        if _run_bash(prelude + setup([f"module load {module}"])).returncode == 0:
+            chosen = module
+            break
+    if not chosen:
+        return _check(False, f"could not load any available module: {modules[:5]!r}")
+
+    with tempfile.TemporaryDirectory(prefix="oo_real_lmod_") as tmp:
+        root = Path(tmp)
+        venv = root / "venv"
+        have_venv = _create_venv(venv)
+        result = _run_real_omniopt(
+            root / "runs",
+            _venv_run_program(root),
+            modules=chosen,
+            venv=str(venv) if have_venv else "",
+        )
+        _summarize_real_run(f"real lmod ({chosen})", result)
+        combined = (result.stdout or "") + "\n" + (result.stderr or "")
+        ok = _check(result.returncode == 0, f"real lmod run failed: {result.stderr[-3000:]}")
+        ok &= _check("Optimization complete" in combined, "real lmod run did not complete")
+        if have_venv:
+            ok &= _check("VIRTUAL_ENV is not set" not in combined, "real lmod run did not activate the venv")
+        else:
+            green_text("Could not create a test venv; real module load was still tested without it.")
+        return ok
+
+
+def test_validation_runs_before_sbatch() -> bool:
+    source = OMNIOPT.read_text(encoding="utf-8")
+    call = source.rfind("validate_user_modules()")
+    submit = source.find("_should_sbatch_submit =")
+    return _check(call != -1, "validate_user_modules() call not found") and _check(
+        submit != -1 and call < submit,
+        "validate_user_modules() must run before the SLURM submission",
+    )
+
+
+def main() -> int:
+    namespace = _load_helpers()
+    tests = [
+        ("module forms", lambda: test_module_forms(namespace)),
+        ("module shell-operator rejection", lambda: test_module_rejects_shell_operators(namespace)),
+        ("module setup success", lambda: test_module_setup_success(namespace)),
+        ("module setup failure", lambda: test_module_setup_failure(namespace)),
+        ("no-lmod warning", lambda: test_no_lmod_warning(namespace)),
+        ("fake ml without lmod", lambda: test_fake_ml_without_lmod(namespace)),
+        ("real lmod if available", lambda: test_real_lmod_if_available(namespace)),
+        ("real omniopt without lmod", lambda: test_real_omniopt_no_lmod(namespace)),
+        ("real omniopt with fake ml", lambda: test_real_omniopt_fake_ml_without_lmod(namespace)),
+        ("real omniopt with real lmod", lambda: test_real_omniopt_with_real_lmod(namespace)),
+        ("venv activation", lambda: test_venv_activation(namespace)),
+        ("environment order", lambda: test_environment_order(namespace)),
+        ("validation before sbatch", test_validation_runs_before_sbatch),
+    ]
+    failures = 0
+    for name, test in tests:
+        try:
+            if not test():
+                failures += 1
+        except Exception as error:  # pragma: no cover - defensive
+            red_text(f"FAIL: {name} raised {error!r}")
+            failures += 1
+    if failures:
+        red_text(f"{failures} module/venv test(s) failed")
+        return 1
+    green_text("Module/venv tests OK")
+    return 0
+
+
+if __name__ == "__main__":
+    try:
+        sys.exit(main())
+    except KeyboardInterrupt:
+        sys.exit(0)

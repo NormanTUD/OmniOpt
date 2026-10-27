@@ -70,7 +70,7 @@ import logging
 import os
 import sys
 from pathlib import Path
-from typing import Any, Iterable, Optional, cast
+from typing import Any, Iterable, Literal, Optional, cast
 
 try:
     import optuna
@@ -145,10 +145,10 @@ def _int_distribution(lo: int, hi: int) -> BaseDistribution:
 
 
 @beartype
-def parse_objectives(objectives: dict) -> tuple[list[str], list[str]]:
+def parse_objectives(objectives: dict) -> tuple[list[Literal["minimize", "maximize"]], list[str]]:
     if not objectives:
         raise ValueError("objectives must not be empty")
-    directions: list[str] = []
+    directions: list[Literal["minimize", "maximize"]] = []
     keys: list[str] = []
     for k, v in objectives.items():
         goal = str(v).lower()
@@ -420,7 +420,7 @@ def _default_storage(workdir: Path) -> str:
 @beartype
 def build_study(
     sampler: optuna.samplers.BaseSampler,
-    directions: list[str],
+    directions: list[Literal["minimize", "maximize"]],
     storage: Optional[str],
     study_name: str,
     load_if_exists: bool,
@@ -812,7 +812,14 @@ def _cmd_study_create(args: argparse.Namespace) -> int:
     storage = _resolve_storage(args.storage, workdir)
     objectives = [k for k in args.objectives.split(",") if k]
     if args.directions:
-        directions = [d.strip() for d in args.directions.split(",") if d.strip()]
+        directions: list[Literal["minimize", "maximize"]] = []
+        for raw_direction in args.directions.split(","):
+            direction = raw_direction.strip()
+            if not direction:
+                continue
+            if direction not in ("minimize", "maximize"):
+                raise ValueError(f"Unsupported direction: {direction!r}")
+            directions.append(cast(Literal["minimize", "maximize"], direction))
         if len(directions) != len(objectives):
             raise ValueError(
                 f"--directions has {len(directions)} entries but "

@@ -220,6 +220,133 @@ def _omniopt_lmod_bash_prelude() -> str:
     )
 
 
+_OMNIOPT_MODULE_SUBCOMMANDS = {
+    "avail", "category", "clear", "clearLmod", "describe", "disable", "help",
+    "is-avail", "is-loaded", "keyword", "list", "load", "overview", "purge",
+    "refresh", "reset", "restore", "save", "savelist", "show", "spider",
+    "swap", "try-load", "unload", "unuse", "use", "whatis",
+}
+
+
+def _omniopt_parse_module_commands(spec: str) -> list:
+    """Normalise the ``--modules`` text into a list of module commands.
+
+    ``xyz``, ``module xyz``, ``ml xyz`` and the explicit ``module load xyz`` /
+    ``ml load xyz`` forms all mean "load module xyz".  Known Lmod subcommands
+    such as ``purge``, ``use`` or ``spider`` are passed through unchanged.
+    Empty lines and ``#`` comments are ignored.  Shell operators are rejected
+    so a typo cannot accidentally run arbitrary shell code inside every worker.
+    """
+    if not spec:
+        return []
+    commands: list = []
+    for raw_line in str(spec).replace("\r\n", "\n").replace("\r", "\n").split("\n"):
+        line = raw_line.strip()
+        if not line or line.startswith("#"):
+            continue
+        parts = line.split()
+        first = parts[0]
+        if first in ("module", "ml") and len(parts) >= 2:
+            second = parts[1]
+            if second.startswith("-") or second in _OMNIOPT_MODULE_SUBCOMMANDS:
+                command = line
+            else:
+                command = f"{first} load " + " ".join(parts[1:])
+        elif first in ("module", "ml"):
+            command = line
+        else:
+            command = f"module load {line}"
+        if _re.search(r"[;&|`$<>'\"\\]", command):
+            raise ValueError(
+                f"Invalid module command {command!r}. Use module names or a "
+                "plain 'module load ...' / 'ml ...' command without shell "
+                "operators or quotes."
+            )
+        commands.append(command)
+    return commands
+
+
+def _omniopt_module_setup_script(commands: list) -> str:
+    """Return a bash snippet that loads ``commands`` via Lmod.
+
+    The snippet sources Lmod first (so it also works in non-interactive
+    shells), picks ``ml`` or ``module`` automatically, and exits with code 4
+    and an actionable message as soon as one module command fails.  That exit
+    code is the same one OmniOpt already uses for "Failed loading modules".
+    """
+    if not commands:
+        return ""
+    _quote = __import__("shlex").quote
+    lines = [_omniopt_lmod_bash_prelude()]
+    lines.append(
+        'if command -v ml >/dev/null 2>&1; then\n'
+        '    _omniopt_module() { ml "$@"; }\n'
+        'elif command -v module >/dev/null 2>&1; then\n'
+        '    _omniopt_module() { module "$@"; }\n'
+        'else\n'
+        '    echo "[omniopt] ERROR: --modules was set, but no Lmod command (ml/module) was found." >&2\n'
+        '    echo "[omniopt] Load an Lmod environment or clear the Modules field. On a host without Lmod (for example a local workstation), leave it empty." >&2\n'
+        '    exit 4\n'
+        'fi\n'
+    )
+    for command in commands:
+        parts = command.split()
+        if parts and parts[0] in ("module", "ml"):
+            parts = parts[1:]
+        args = " ".join(_quote(part) for part in parts)
+        lines.append(
+            f'if ! _omniopt_module {args} >&2; then\n'
+            f'    echo "[omniopt] ERROR: module command failed: {command}" >&2\n'
+            '    echo "[omniopt] Check the module name/version with '\
+            '\'module avail <name>\' or \'module spider <name>\', and make sure '\
+            'it exists on this host." >&2\n'
+            '    echo "[omniopt] If this host has no Lmod, clear the Modules field." >&2\n'
+            '    exit 4\n'
+            'fi\n'
+        )
+    lines.append("unset -f _omniopt_module 2>/dev/null || true\n")
+    return "".join(lines)
+
+
+def _omniopt_venv_setup_script(spec: str) -> str:
+    """Return a bash snippet that activates a virtualenv in the evaluation shell.
+
+    ``spec`` may point at the virtualenv directory (containing ``bin/activate``
+    or ``Scripts/activate``) or directly at an ``activate`` script.  Failures
+    are reported with an actionable message and exit code 23 ("Loading of
+    Environment failed").
+    """
+    if not spec:
+        return ""
+    _quote = __import__("shlex").quote
+    path = _quote(str(spec).strip())
+    return (
+        f'_omniopt_venv_path={path}\n'
+        '_omniopt_activate=""\n'
+        'if [ -d "$_omniopt_venv_path" ]; then\n'
+        '    if [ -f "$_omniopt_venv_path/bin/activate" ]; then\n'
+        '        _omniopt_activate="$_omniopt_venv_path/bin/activate"\n'
+        '    elif [ -f "$_omniopt_venv_path/Scripts/activate" ]; then\n'
+        '        _omniopt_activate="$_omniopt_venv_path/Scripts/activate"\n'
+        '    fi\n'
+        'elif [ -f "$_omniopt_venv_path" ]; then\n'
+        '    _omniopt_activate="$_omniopt_venv_path"\n'
+        'fi\n'
+        'if [ -z "$_omniopt_activate" ]; then\n'
+        '    echo "[omniopt] ERROR: could not find the virtualenv requested with --venv." >&2\n'
+        '    echo "[omniopt] Looked for: $_omniopt_venv_path/bin/activate (or Scripts/activate)." >&2\n'
+        '    echo "[omniopt] Pass the virtualenv directory or its activate script, or clear the Virtualenv field." >&2\n'
+        '    exit 23\n'
+        'fi\n'
+        'if ! . "$_omniopt_activate"; then\n'
+        '    echo "[omniopt] ERROR: failed to activate virtualenv: $_omniopt_activate" >&2\n'
+        '    echo "[omniopt] Check that the virtualenv is complete and usable on this host (recreate it with: python3 -m venv <path>)." >&2\n'
+        '    exit 23\n'
+        'fi\n'
+        'unset _omniopt_venv_path _omniopt_activate\n'
+    )
+
+
 # Bash script body for ``_omniopt_ml_module_load_python``.  Same design as
 # the test-framework installer (see ``_BASH_ML_PYTHON_SCRIPT_TEMPLATE`` in
 # .tests/_framework/installer.py):
@@ -3220,6 +3347,8 @@ class ConfigLoader:
     tests: bool
     max_eval: int
     run_program: Optional[List[str]]
+    modules: str
+    venv: str
     orchestrator_file: Optional[str]
     run_dir: str
     ui_url: Optional[str]
@@ -3348,6 +3477,8 @@ class ConfigLoader:
 
         optional.add_argument('--experiment_constraints', action='append', nargs='+', help='Constraints for parameters. Example: x + y <= 2.0. Convert them to base64', type=str)
         optional.add_argument('--run_dir', help='Directory, in which runs should be saved. Default: runs', default='runs', type=str)
+        optional.add_argument('--modules', help='Lmod modules to load before every evaluation (e.g. ml release/24.10 GCCcore/13.3.0 Python/3.12.3). Accepts xyz, module xyz, ml xyz and module load xyz. Ignored on hosts without Lmod.', default='', type=str)
+        optional.add_argument('--venv', help='Path to a Python virtualenv (directory or its activate script) that is sourced inside every evaluation after the modules and before the run program.', default='', type=str)
         optional.add_argument('--seed', help='Seed for random number generator', type=int)
         optional.add_argument('--verbose_tqdm', help='Show verbose TQDM messages', action='store_true', default=False)
         optional.add_argument('--model', help=f'Use special models for nonrandom steps. Valid models are: {joined_supported_models}', type=str, default=None)
@@ -5548,6 +5679,32 @@ def load_max_eval_or_exit(_args: Any) -> None:
         if len(args.calculate_pareto_front_of_job) == 0:
             print_yellow("--max_eval needs to be set")
 
+def load_modules_from_previous_job(_args: Any) -> None:
+    """Restore ``--modules`` from a continued run when not given explicitly."""
+    if getattr(_args, "modules", ""):
+        return
+    if not _args.continue_previous_job:
+        return
+    modules_file = f"{_args.continue_previous_job}/state_files/modules"
+    if not os.path.exists(modules_file):
+        return
+    _args.modules = get_file_as_string(modules_file).strip()
+    if _args.modules:
+        old_run_values.append(("--modules", _args.modules))
+
+def load_venv_from_previous_job(_args: Any) -> None:
+    """Restore ``--venv`` from a continued run when not given explicitly."""
+    if getattr(_args, "venv", ""):
+        return
+    if not _args.continue_previous_job:
+        return
+    venv_file = f"{_args.continue_previous_job}/state_files/venv"
+    if not os.path.exists(venv_file):
+        return
+    _args.venv = get_file_as_string(venv_file).strip()
+    if _args.venv:
+        old_run_values.append(("--venv", _args.venv))
+
 try:
     if not args.tests:
         global_vars = check_continue_previous_job(args.continue_previous_job)
@@ -5567,6 +5724,8 @@ try:
             global_vars["gpus"] = args.gpus
 
         load_max_eval_or_exit(args)
+        load_modules_from_previous_job(args)
+        load_venv_from_previous_job(args)
         print_old_run_values_table()
 except KeyboardInterrupt:
     print("\n⚠ You pressed CTRL+C. Program execution halted while loading modules.")
@@ -6602,6 +6761,87 @@ def get_eval_working_dir() -> Optional[str]:
 
     return _workdir
 
+def _omniopt_user_module_commands() -> list:
+    return _omniopt_parse_module_commands(getattr(args, "modules", "") or "")
+
+def _omniopt_user_venv_spec() -> str:
+    return str(getattr(args, "venv", "") or "").strip()
+
+def _omniopt_wrap_command_with_environment(code: str, include_venv: bool = True) -> tuple[str, Optional[str]]:
+    """Prefix ``code`` with the user's Lmod modules and virtualenv.
+
+    The order is deliberately ``modules -> virtualenv -> run program`` so a
+    virtualenv built for a module Python is activated after that module is
+    loaded.  Returns ``(shell_command, executable)``.  ``executable`` is
+    ``None`` when no setup is needed, so the caller keeps the previous
+    ``/bin/sh`` behaviour.  With setup we explicitly use bash because Lmod's
+    ``ml`` and ``activate`` both modify the current shell's environment.
+    """
+    try:
+        commands = _omniopt_user_module_commands()
+    except ValueError as error:
+        _fatal_error(str(error), 4)
+        return code, None
+    has_lmod = bool(commands) and _omniopt_has_lmod()
+    venv_spec = _omniopt_user_venv_spec() if include_venv else ""
+    if not has_lmod and not venv_spec:
+        return code, None
+    preludes = []
+    if has_lmod:
+        preludes.append(_omniopt_module_setup_script(commands))
+    if venv_spec:
+        preludes.append(_omniopt_venv_setup_script(venv_spec))
+    preludes = [prelude for prelude in preludes if prelude]
+    if not preludes:
+        return code, None
+    return "\n".join(preludes) + "\n" + code, (_shutil.which("bash") or "/bin/bash")
+
+def validate_user_modules() -> None:
+    """Check the ``--modules`` setting before the main job is submitted.
+
+    Running this up front means a typo in a module name is reported as a
+    clear, actionable error before any SLURM worker is submitted.  If no Lmod
+    is installed (for example on a local machine), the setting is silently
+    ignored.  Success is silent apart from a transient progress indicator.
+    """
+    try:
+        commands = _omniopt_user_module_commands()
+    except ValueError as error:
+        _fatal_error(str(error), 4)
+        return
+    if not commands:
+        return
+    if not _omniopt_has_lmod():
+        requested = str(getattr(args, "modules", "") or "").strip().replace("\n", "; ")
+        print_yellow(
+            f"This system has no Lmod/ml: cannot load module(s) '{requested}'. "
+            "Continuing without loading them."
+        )
+        return
+    script = _omniopt_module_setup_script(commands) + "\necho OMNIOPT_USER_MODULES_OK\n"
+    try:
+        with spinner("Checking Lmod modules..."):
+            result = subprocess.run(
+                ["bash", "-lc", script], capture_output=True, text=True, timeout=180
+            )
+    except (OSError, subprocess.TimeoutExpired) as error:
+        _fatal_error(f"Could not check the modules requested with --modules: {error}", 4)
+        return
+    if result.returncode != 0 or "OMNIOPT_USER_MODULES_OK" not in (result.stdout or ""):
+        output = (result.stderr or "").strip() or (result.stdout or "").strip() or "(no output)"
+        requested = "\n".join(f"  {command}" for command in commands)
+        _fatal_error(
+            "Could not load the modules requested with --modules.\n"
+            f"Requested commands:\n{requested}\n"
+            f"Module system output:\n{output}\n"
+            "Fix the module name/version (check 'module avail <name>' or "
+            "'module spider <name>') or clear the Modules field if this host "
+            "has no Lmod.",
+            4,
+        )
+        return
+    print_debug(f"Loaded user modules for all evaluations: {commands}")
+
 def execute_bash_code_log_time(code: str) -> list:
     # Decode and prepare the environment BEFORE spawning the process
     run_env = os.environ.copy()
@@ -6618,8 +6858,21 @@ def execute_bash_code_log_time(code: str) -> list:
     except Exception as e:
         print_red(f"⚠  Warning: Unexpected error loading OMNIAX_ENV_BASE64: {e}")
 
-    # Now spawn the process WITH the decoded environment
-    process_item = subprocess.Popen(code, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=run_env, cwd=get_eval_working_dir())
+    # Now spawn the process WITH the decoded environment.  If the user
+    # requested Lmod modules, run them in the same bash shell first.
+    shell_command, shell_executable = _omniopt_wrap_command_with_environment(code)
+    if shell_executable is not None:
+        process_item = subprocess.Popen(
+            shell_command, shell=True, executable=shell_executable,
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+            env=run_env, cwd=get_eval_working_dir()
+        )
+    else:
+        process_item = subprocess.Popen(
+            shell_command, shell=True,
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+            env=run_env, cwd=get_eval_working_dir()
+        )
 
     with MonitorProcess(process_item.pid):
         try:
@@ -11676,6 +11929,10 @@ def save_state_files() -> None:
             write_state_file("time", str(global_vars["_time"]))
             write_state_file("run.sh", "omniopt '" + " ".join(sys.argv[1:]) + "'")
             write_state_file("run_uuid", str(run_uuid))
+            if getattr(args, "modules", ""):
+                write_state_file("modules", str(args.modules))
+            if getattr(args, "venv", ""):
+                write_state_file("venv", str(args.venv))
             if args.external_generator:
                 write_state_file("external_generator", str(args.external_generator))
 
@@ -14292,7 +14549,14 @@ def run_program_once(params: Optional[dict] = None) -> None:
             command_str = command_str.replace(placeholder, str(v))
 
         original_print(f"Executing command: {command_str}")
-        result = subprocess.run(command_str, shell=True, check=True, cwd=get_eval_working_dir())
+        shell_command, shell_executable = _omniopt_wrap_command_with_environment(command_str, include_venv=False)
+        if shell_executable is not None:
+            result = subprocess.run(
+                shell_command, shell=True, check=True,
+                cwd=get_eval_working_dir(), executable=shell_executable
+            )
+        else:
+            result = subprocess.run(shell_command, shell=True, check=True, cwd=get_eval_working_dir())
         if result.returncode == 0:
             print("[bold green]Setup script completed successfully ✅[/bold green]")
         else:
@@ -15471,6 +15735,13 @@ if __name__ == "__main__":
     # HPC system.  The bash version submitted to sbatch whenever sbatch
     # was available; ``--follow`` only controls whether we tail the log
     # afterwards, NOT whether we submit in the first place.
+    #
+    # Check the requested Lmod modules BEFORE submitting the main job.  On a
+    # SLURM login node this gives immediate, actionable feedback instead of
+    # making the user wait in the queue just to learn that a module name was
+    # misspelled.  The check is silent on success (only a transient spinner)
+    # and a no-op on hosts without Lmod.
+    validate_user_modules()
     try:
         _should_sbatch_submit = (
             _os.environ.get("SLURM_JOB_ID") is None

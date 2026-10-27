@@ -796,6 +796,7 @@ smoke_tests:
   - test_omniopt_share_comprehensive
   - test_omniopt_install
   - test_optuna_integration
+  - test_lmod_modules_and_venv
   - state_files
   - php_unit_tests
   - js_gui_unit_tests

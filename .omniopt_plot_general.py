@@ -92,9 +92,9 @@ def plot_graph(dataframe: pd.DataFrame, save_to_file: Union[str, None] = None) -
             "trial_status",
             "generation_method",
         ]
-        numeric_columns = dataframe.select_dtypes(include=["float64", "int64"]).columns
+        numeric_column_index = dataframe.select_dtypes(include=["float64", "int64"]).columns
         numeric_columns = [
-            col for col in numeric_columns if col not in exclude_columns
+            col for col in numeric_column_index if col not in exclude_columns
         ]
         correlation_matrix = dataframe[numeric_columns].corr()
         sns.heatmap(

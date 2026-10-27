@@ -396,6 +396,12 @@ function update_table_row (item, errors, warnings, command) {
 				}
 			}
 		}
+	} else if (item.id == "modules" || item.id == "venv") {
+		value = (value || "").trim();
+		if (value !== "") {
+			command += " --" + item.id + "='" + value.replace(/'/g, "'\\''") + "'";
+		}
+		$("#" + item.id + "_error").html("").hide();
 	} else if (item.id == "external_generator") {
 		command += " --" + item.id + "='" + encode_base64(value) + "'";
 	} else if (item.id == "run_program_once") {

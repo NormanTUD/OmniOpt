@@ -407,6 +407,7 @@ def _run_real_omniopt(
     cmd = omniopt_cmd
     if fake_ml_log is not None:
         env["OO_FAKE_ML_LOG"] = str(fake_ml_log)
+    if fake_ml_log is not None and fake_lmod_cmd is None:
         wrapper = (
             'ml() { printf "%s\\n" "$*" >> "$OO_FAKE_ML_LOG"; return 0; }; '
             'export -f ml; exec "$@"'
@@ -470,6 +471,8 @@ def test_real_omniopt_no_lmod(namespace: dict) -> bool:
         ok &= _check("no Lmod/ml" in combined, "real run did not print the no-Lmod warning")
         ok &= _check("cannot load module" in combined, "real run warning misses the module name")
         ok &= _check("Optimization complete" in combined, "real no-lmod run did not complete")
+        if ok:
+            green_text("PASS: no Lmod -> warning printed, run continues without modules")
         return ok
 
 
@@ -496,7 +499,29 @@ def test_real_omniopt_fake_ml_without_lmod(namespace: dict) -> bool:
         ok &= _check("no Lmod/ml" in combined, "fake ml function suppressed the no-Lmod warning")
         ok &= _check(not fake_ml_log.exists(), "fake ml function was called even though no Lmod was detected")
         ok &= _check("Optimization complete" in combined, "real fake-ml run did not complete")
+        if ok:
+            green_text("PASS: no real Lmod + fake ml function returning 0 -> warning, fake ml ignored, run completes")
         return ok
+
+
+def _make_working_fake_lmod(root: Path) -> Path:
+    fake_lmod = root / "fake_lmod_ok"
+    _write_script(
+        fake_lmod,
+        "#!/bin/bash\n"
+        "if [ \"$1\" = \"bash\" ]; then\n"
+        "    cat <<'INNER'\n"
+        "ml() {\n"
+        "    if [ \"$1\" = \"spider\" ]; then\n"
+        "        return 0\n"
+        "    fi\n"
+        "    echo \"$*\" >> \"${OO_FAKE_ML_LOG:-/dev/null}\"\n"
+        "    return 0\n"
+        "}\n"
+        "INNER\n"
+        "fi\n",
+    )
+    return fake_lmod
 
 
 def _make_failing_fake_lmod(root: Path) -> Path:
@@ -517,6 +542,39 @@ def _make_failing_fake_lmod(root: Path) -> Path:
         "fi\n",
     )
     return fake_lmod
+
+
+def test_real_omniopt_with_working_fake_lmod(namespace: dict) -> bool:
+    """Locally simulate a working Lmod so the success path is exercised."""
+    if _real_lmod_command(namespace):
+        green_text("Real Lmod detected; the real-Lmod run covers the module-success path.")
+        return True
+    with tempfile.TemporaryDirectory(prefix="oo_real_fake_lmod_ok_") as tmp:
+        root = Path(tmp)
+        venv = root / "venv"
+        if not _create_venv(venv):
+            return False
+        fake_lmod_cmd = _make_working_fake_lmod(root)
+        fake_ml_log = root / "fake_ml.log"
+        result = _run_real_omniopt(
+            "real working fake-ml",
+            root / "runs",
+            _venv_run_program(root),
+            modules="xyz",
+            venv=str(venv),
+            fake_ml_log=fake_ml_log,
+            fake_lmod_cmd=fake_lmod_cmd,
+        )
+        combined = result.stdout or ""
+        calls = fake_ml_log.read_text(encoding="utf-8").splitlines() if fake_ml_log.exists() else []
+        ok = _check(result.returncode == 0, f"real working fake-lmod run failed: {combined[-2000:]}")
+        ok &= _check("no Lmod/ml" not in combined, "working fake Lmod was wrongly reported as missing")
+        ok &= _check(any("load xyz" in call for call in calls), f"fake ml was not called for module load: {calls!r}")
+        ok &= _check("Optimization complete" in combined, "real working fake-lmod run did not complete")
+        ok &= _check("VIRTUAL_ENV is not set" not in combined, "working fake-lmod run did not activate the venv")
+        if ok:
+            green_text("PASS: working fake Lmod -> module load succeeds, venv activates, run completes")
+        return ok
 
 
 def test_real_omniopt_fake_ml_failure(namespace: dict) -> bool:
@@ -552,6 +610,8 @@ def test_real_omniopt_fake_ml_failure(namespace: dict) -> bool:
                 "\x1b[91m" in combined or "\x1b[31m" in combined,
                 "module failure was not printed as a red error",
             )
+        if ok:
+            green_text("PASS: failing module load -> expected exit 4, red actionable error, no optimization run")
         return ok
 
 
@@ -601,6 +661,8 @@ def test_real_omniopt_with_real_lmod(namespace: dict) -> bool:
             ok &= _check("VIRTUAL_ENV is not set" not in combined, "real lmod run did not activate the venv")
         else:
             green_text("Could not create a test venv; real module load was still tested without it.")
+        if ok:
+            green_text(f"PASS: real Lmod -> loaded {chosen}, venv activated, run completes")
         return ok
 
 
@@ -626,6 +688,7 @@ def main() -> int:
         ("real lmod if available", lambda: test_real_lmod_if_available(namespace)),
         ("real omniopt without lmod", lambda: test_real_omniopt_no_lmod(namespace)),
         ("real omniopt with fake ml", lambda: test_real_omniopt_fake_ml_without_lmod(namespace)),
+        ("real omniopt with working fake lmod", lambda: test_real_omniopt_with_working_fake_lmod(namespace)),
         ("real omniopt fake ml failure", lambda: test_real_omniopt_fake_ml_failure(namespace)),
         ("real omniopt with real lmod", lambda: test_real_omniopt_with_real_lmod(namespace)),
         ("venv activation", lambda: test_venv_activation(namespace)),

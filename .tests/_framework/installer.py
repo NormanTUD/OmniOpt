@@ -835,6 +835,23 @@ def _venv_pip_supports_progress_bar_off(venv_dir: Path) -> bool:
     return False
 
 
+def _with_progress_bar_off(args, *, supported: bool):
+    """Insert ``--progress-bar off`` AFTER the pip subcommand.
+
+    ``--progress-bar`` is an option of the ``install`` (and similar)
+    subcommands, NOT a global pip option.  Invoking
+    ``pip --progress-bar off install ...`` makes pip exit with
+    ``no such option: --progress-bar`` -- even on modern pip versions.
+    """
+    args = list(args)
+    if not supported or not args or "--progress-bar" in args:
+        return args
+    subcommand = args[0]
+    if subcommand.startswith("-"):
+        return args
+    return [subcommand, "--progress-bar", "off", *args[1:]]
+
+
 def _pip(venv_dir: Path, *args: str, quiet: bool = True) -> int:
     pip = _ensure_pip_in_venv(venv_dir)
     if pip is None:
@@ -858,9 +875,11 @@ def _pip(venv_dir: Path, *args: str, quiet: bool = True) -> int:
     #                    with "no such option" -- we swallow that by
     #                    probing the VENV pip, not the parent's pip).
     cmd = [str(pip), "--disable-pip-version-check", "-q"]
-    if "--progress-bar" not in args and _venv_pip_supports_progress_bar_off(venv_dir):
-        cmd.extend(["--progress-bar", "off"])
-    cmd.extend(args)
+    cmd.extend(
+        _with_progress_bar_off(
+            args, supported=_venv_pip_supports_progress_bar_off(venv_dir)
+        )
+    )
     _install_debug(f"_pip: running pip command in venv {venv_dir}")
     _install_debug(f"  full cmd: {' '.join(cmd)}")
     _pip._cancelled = False  # type: ignore[attr-defined]
@@ -938,7 +957,7 @@ def _install_requirements_rich(
             "_install_requirements_rich: pre-installing rich quietly so the "
             "child has something to render with"
         )
-        _try_quiet_pip(venv_dir, "install", "--progress-bar", "off", "-q", "rich")
+        _try_quiet_pip(venv_dir, "install", "-q", "rich")
 
     child = r'''
 import subprocess, sys, time, re, signal, os
@@ -1354,7 +1373,10 @@ def _try_quiet_pip(venv_dir: Path, *args: str) -> int:
     try:
         return subprocess.run(
             [str(pip), "--disable-pip-version-check",
-             *_PROGRESS_BAR_OFF, *args],
+             *_with_progress_bar_off(
+                 args,
+                 supported=_venv_pip_supports_progress_bar_off(venv_dir),
+             )],
             stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
         ).returncode
     except KeyboardInterrupt:

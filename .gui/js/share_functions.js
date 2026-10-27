@@ -229,10 +229,39 @@ function load_pre_file(pre_id, filename, ansi_mode) {
 		});
 }
 
+function initialize_lazy_grid_tables(root) {
+	var scope = root || document;
+	var tableContainers = scope.querySelectorAll("[data-lazy-grid-id]");
+	for (var i = 0; i < tableContainers.length; i++) {
+		var el = tableContainers[i];
+		if (el.dataset.gridInitialized === "true") {
+			continue;
+		}
+		// Only initialize tables that belong directly to the panel that is
+		// being shown; nested tab groups initialize their own tables later.
+		if (scope !== document && el.closest('[role="tabpanel"]') !== scope) {
+			continue;
+		}
+
+		var id = el.dataset.lazyGridId;
+		var data = window[id + "_csv_json"];
+		var headers = window[id + "_headers_json"];
+		if (!Array.isArray(data) || !Array.isArray(headers)) {
+			continue;
+		}
+
+		// Mark first: createTable() is synchronous and may trigger a
+		// resize observer callback before it returns.
+		el.dataset.gridInitialized = "true";
+		createTable(data, headers, id + "_csv_table");
+	}
+}
+
 function load_lazy_panel(panel) {
 	if (!panel) {
 		return;
 	}
+	initialize_lazy_grid_tables(panel);
 	// Ignore pre elements that belong to nested tab panels; those are
 	// loaded when their own tab group becomes active.
 	var preEl = Array.from(panel.querySelectorAll("pre[data-log-file]:not([data-loaded='true'])"))
@@ -455,14 +484,6 @@ function add_colorize_to_gridjs_table() {
 			if (debounceTimer) clearTimeout(debounceTimer);
 			debounceTimer = setTimeout(colorize_table_entries, 200);
 		});
-	}
-}
-
-function updatePreWidths() {
-	var width = (window.innerWidth * 0.95) + 'px';
-	var pres = document.getElementsByTagName('pre');
-	for (var i = 0; i < pres.length; i++) {
-		pres[i].style.width = width;
 	}
 }
 
@@ -847,13 +868,5 @@ function insertSortableSelectForSingleLogsTabs() {
 		$menu.empty().append($btnsArray);
 	});
 }
-
-window.addEventListener('load', updatePreWidths);
-window.addEventListener('resize', updatePreWidths);
-
-$(document).ready(function() {
-	colorize_table_entries();
-	add_colorize_to_gridjs_table();
-});
 
 window.addEventListener('resize', resizePlotlyCharts);

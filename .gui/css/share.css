@@ -46,6 +46,10 @@ pre {
 	background-color: black !important;
 	font-family: monospace !important;
 	line-break: anywhere;
+	width: 95vw;
+	max-width: 100%;
+	box-sizing: border-box;
+	overflow-x: auto;
 }
 
 menu[role="tablist"] {

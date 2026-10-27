@@ -2587,6 +2587,7 @@ MIN_REFRESH_INTERVAL = 1.0
 
 _last_count_time = 0
 _last_count_result: tuple[int, str] = (0, "")
+_last_queue_debug_time = 0
 
 _total_time = 0.0
 _func_times: defaultdict = defaultdict(float)
@@ -10357,7 +10358,156 @@ def count_jobs_in_squeue() -> tuple[int, str]:
     _last_count_time = now
     return _last_count_result
 
+def _collect_queue_state_snapshot() -> dict:
+    """Return a compact breakdown of this run's SLURM jobs by state/reason."""
+    snapshot = {
+        "total": 0,
+        "running": 0,
+        "pending": 0,
+        "other": 0,
+        "pending_reasons": "",
+        "pending_job_samples": "",
+        "error": "",
+    }
+
+    if shutil.which("squeue") is None:
+        snapshot["error"] = "squeue not found"
+        return snapshot
+
+    experiment_name = global_vars.get("experiment_name", "")
+    if not experiment_name:
+        snapshot["error"] = "experiment_name not set"
+        return snapshot
+
+    job_pattern = re.compile(
+        rf"{re.escape(str(experiment_name))}_{re.escape(str(run_uuid))}_[a-f0-9-]+"
+    )
+
+    squeue_cmd = ["squeue", "-h", "-o", "%j|%T|%r|%i"]
+    user = os.environ.get("USER", "")
+    if user:
+        squeue_cmd[2:2] = ["-u", user]
+
+    try:
+        result = subprocess.run(
+            squeue_cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=True,
+            text=True,
+        )
+    except FileNotFoundError:
+        snapshot["error"] = "squeue not available"
+        return snapshot
+    except subprocess.CalledProcessError as e:
+        snapshot["error"] = f"squeue failed: {(e.stderr or '').strip()}"
+        return snapshot
+    except Exception as e:
+        snapshot["error"] = f"squeue error: {e}"
+        return snapshot
+
+    if "slurm_load_jobs error" in result.stderr:
+        snapshot["error"] = "slurm_load_jobs error"
+        return snapshot
+
+    reasons: Counter = Counter()
+    sample_jobs: list = []
+
+    for line in result.stdout.splitlines():
+        parts = line.split("|")
+        if len(parts) < 4:
+            continue
+
+        job_name, state, reason, job_id = (
+            parts[0].strip(),
+            parts[1].strip(),
+            parts[2].strip(),
+            parts[3].strip(),
+        )
+
+        if not job_pattern.match(job_name):
+            continue
+
+        snapshot["total"] += 1
+
+        if state == "RUNNING":
+            snapshot["running"] += 1
+        elif state == "PENDING":
+            snapshot["pending"] += 1
+            reasons[reason or "unknown"] += 1
+            if len(sample_jobs) < 10:
+                sample_jobs.append(f"{job_id}:{reason or 'unknown'}")
+        else:
+            snapshot["other"] += 1
+
+    snapshot["pending_reasons"] = ";".join(
+        f"{reason}={count}" for reason, count in reasons.most_common()
+    )
+    snapshot["pending_job_samples"] = ";".join(sample_jobs)
+
+    return snapshot
+
+def _log_queue_state_debug(
+    nr_of_items: Optional[int],
+    next_nr_steps: Optional[int],
+    *,
+    verbose: bool = False,
+) -> None:
+    """Append one queue snapshot to ``queue_state_debug.csv`` in the run folder.
+
+    This makes it possible to distinguish OmniOpt under-generation from SLURM
+    scheduling limits (QOS, GPUs, free nodes, dependencies, ...) after the
+    fact.
+    """
+    try:
+        import csv as _csv
+
+        snapshot = _collect_queue_state_snapshot()
+        path = get_current_run_folder("queue_state_debug.csv")
+        write_header = not os.path.exists(path)
+
+        with open(path, mode="a", encoding="utf-8", newline="") as f:
+            writer = _csv.writer(f)
+            if write_header:
+                writer.writerow([
+                    "time", "experiment_name", "run_uuid", "num_parallel_jobs",
+                    "max_num_of_parallel_sruns", "generate_all_jobs_at_once",
+                    "gpus", "nodes_per_job", "cpus_per_task", "mem_gb",
+                    "generated", "requested_next_steps", "tracked_jobs",
+                    "queue_total", "queue_running", "queue_pending", "queue_other",
+                    "pending_reasons", "pending_job_samples", "error",
+                ])
+            writer.writerow([
+                int(time.time()), global_vars.get("experiment_name", ""), run_uuid,
+                num_parallel_jobs, getattr(args, "max_num_of_parallel_sruns", ""),
+                int(bool(getattr(args, "generate_all_jobs_at_once", False))),
+                getattr(args, "gpus", ""), getattr(args, "nodes_per_job", ""),
+                getattr(args, "cpus_per_task", ""), getattr(args, "mem_gb", ""),
+                "" if nr_of_items is None else nr_of_items,
+                "" if next_nr_steps is None else next_nr_steps,
+                len(global_vars.get("jobs", [])),
+                snapshot["total"], snapshot["running"], snapshot["pending"],
+                snapshot["other"], snapshot["pending_reasons"],
+                snapshot["pending_job_samples"], snapshot["error"],
+            ])
+
+        if (
+            verbose
+            and snapshot["pending"] > 0
+            and snapshot["running"] < num_parallel_jobs
+        ):
+            print_yellow(
+                f"[omniopt] Slurm queue: {snapshot['running']} running, "
+                f"{snapshot['pending']} pending (requested {num_parallel_jobs}). "
+                f"Pending reasons: {snapshot['pending_reasons'] or 'unknown'}. "
+                f"Details: {path}"
+            )
+    except Exception as e:
+        print_debug(f"_log_queue_state_debug failed: {e}")
+
 def log_worker_numbers() -> None:
+    global _last_queue_debug_time
+
     if is_slurm_job():
         nr_current_workers, nr_current_workers_errmsg = count_jobs_in_squeue()
         if nr_current_workers_errmsg:
@@ -10378,6 +10528,11 @@ def log_worker_numbers() -> None:
             WORKER_PERCENTAGE_USAGE.append(this_values)
 
         write_worker_usage()
+
+        now = int(time.time())
+        if now - _last_queue_debug_time >= 10:
+            _log_queue_state_debug(None, None, verbose=False)
+            _last_queue_debug_time = now
 
 def get_slurm_in_brackets(in_brackets: list) -> list:
     if is_slurm_job():
@@ -12316,7 +12471,7 @@ def deduplicated_arm(arm: Any) -> bool:
 
     return False
 
-def get_batched_arms(nr_of_jobs_to_get: int) -> list:
+def get_batched_arms(nr_of_jobs_to_get: int, reload_state: bool = True) -> list:
     batched_arms: list = []
     attempts = 0
 
@@ -12328,10 +12483,24 @@ def get_batched_arms(nr_of_jobs_to_get: int) -> list:
         print_red("get_batched_arms: ax_client was None")
         return []
 
-    load_experiment_state()
+    # ``generation_strategy_gen`` is called with ``n=1`` below, so every
+    # attempt yields at most one arm.  A fixed attempt limit would therefore
+    # silently cap the batch size (e.g. 20 arms even if 50 were requested).
+    # Keep the configured limit as a lower bound, but always allow enough
+    # attempts to fill the requested batch.
+    _configured_max_attempts = int(args.max_attempts_for_generation or 20)
+    if nr_of_jobs_to_get <= 1:
+        # ``generate_trials`` already retries around this call.  Retrying a
+        # single-arm request many times here would multiply the retry budget.
+        max_attempts = 1
+    else:
+        max_attempts = max(_configured_max_attempts, nr_of_jobs_to_get + _configured_max_attempts)
+
+    if reload_state:
+        load_experiment_state()
 
     while len(batched_arms) < nr_of_jobs_to_get:
-        if attempts > args.max_attempts_for_generation:
+        if attempts >= max_attempts:
             print_debug(f"get_batched_arms: Stopped after {attempts} attempts: could not generate enough arms "
                         f"(got {len(batched_arms)} out of {nr_of_jobs_to_get}).")
             break
@@ -12402,6 +12571,57 @@ def fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Tuple[
 
     return generate_trials(nr_of_jobs_to_get, recursion)
 
+def _log_generation_diagnostics(n: int, cnt: int, retries: int, max_retries: int, stats: Counter) -> None:
+    """Append one row per generation round to ``generation_debug.csv``.
+
+    This is intentionally not gated behind ``--debug``: if a batch stays
+    smaller than requested, this file is the quickest way to see whether the
+    generator (duplicates/constraints/empty space) or Slurm is responsible.
+    """
+    try:
+        import csv as _csv
+        path = get_current_run_folder("generation_debug.csv")
+        write_header = not os.path.exists(path)
+        node_name = "unknown"
+        try:
+            if global_gs is not None:
+                node_name = ax_backend.generation_strategy_current_node_name(global_gs)
+        except Exception:
+            pass
+
+        with open(path, mode="a", encoding="utf-8", newline="") as f:
+            writer = _csv.writer(f)
+            if write_header:
+                writer.writerow([
+                    "time", "generation_node", "requested", "generated", "retries",
+                    "max_retries", "max_attempts_for_generation", "max_abandoned_retrial",
+                    "generate_all_jobs_at_once", "num_parallel_jobs", "arms_seen",
+                    "empty_batches", "empty_parameters", "arm_errors",
+                    "rejected_duplicates", "rejected_constraints", "rejected_other",
+                ])
+            writer.writerow([
+                int(time.time()), node_name, n, cnt, retries, max_retries,
+                args.max_attempts_for_generation,
+                args.max_abandoned_retrial,
+                int(bool(getattr(args, "generate_all_jobs_at_once", False))),
+                num_parallel_jobs, stats.get("arms_seen", 0),
+                stats.get("empty_batches", 0), stats.get("empty_parameters", 0),
+                stats.get("arm_errors", 0), stats.get("rejected_duplicates", 0),
+                stats.get("rejected_constraints", 0), stats.get("rejected_other", 0),
+            ])
+
+        if cnt < n:
+            print_yellow(
+                f"[omniopt] Only {cnt}/{n} unique points could be generated "
+                f"(retries={retries}/{max_retries}, node={node_name}, "
+                f"duplicates={stats.get('rejected_duplicates', 0)}, "
+                f"constraints={stats.get('rejected_constraints', 0)}, "
+                f"empty_batches={stats.get('empty_batches', 0)}). "
+                f"Details: {path}"
+            )
+    except Exception as e:
+        print_debug(f"_log_generation_diagnostics failed: {e}")
+
 def generate_trials(n: int, recursion: bool) -> Tuple[Dict[int, Any], bool]:
     trials_dict: Dict[int, Any] = {}
     trial_durations: List[float] = []
@@ -12409,12 +12629,45 @@ def generate_trials(n: int, recursion: bool) -> Tuple[Dict[int, Any], bool]:
     start_time = time.time()
     cnt = 0
     retries = 0
+    gen_stats: Counter = Counter()
+
+    max_retries = int(args.max_abandoned_retrial or 20)
+    if getattr(args, "generate_all_jobs_at_once", False):
+        # In all-at-once mode the caller expects a full batch of
+        # ``num_parallel_jobs`` workers.  Duplicates/abandoned trials must not
+        # stop us at the old fixed retry limit before the batch is full.
+        max_retries = max(max_retries, n * 2)
 
     try:
-        while cnt < n and retries < args.max_abandoned_retrial:
-            for arm in get_batched_arms(n - cnt):
+        # Load the experiment state once per generation round.  Afterwards we
+        # keep working on the in-memory ax_client so that trials created below
+        # are visible to the generator.  Reloading before every single arm
+        # would discard those just-created pending trials and make BoTorch
+        # suggest the same point again.
+        load_experiment_state()
+
+        while cnt < n and retries < max_retries:
+            # Generate and register one arm at a time.  If we generate a
+            # whole batch before creating the trials, Ax does not know about
+            # the other pending arms of that batch and BoTorch happily
+            # suggests the same point over and over (especially near
+            # boundaries).  Those duplicates are then all abandoned, which is
+            # why large all-at-once batches used to collapse to ~20 workers.
+            arms = get_batched_arms(1, reload_state=False)
+
+            # An empty result means the generator could not produce anything
+            # in this round.  Count it as a failed attempt; otherwise the
+            # outer loop would spin forever without making progress.
+            if not arms:
+                gen_stats["empty_batches"] += 1
+                retries += 1
+                continue
+
+            for arm in arms:
                 if cnt >= n:
                     break
+
+                gen_stats["arms_seen"] += 1
 
                 if not arm.parameters:
                     print_red(
@@ -12422,6 +12675,7 @@ def generate_trials(n: int, recursion: bool) -> Tuple[Dict[int, Any], bool]:
                         f"(arm={arm}). This indicates the search space is empty in ax_client. "
                         f"Refusing to create a trial with no parameters."
                     )
+                    gen_stats["empty_parameters"] += 1
                     retries += 1
                     continue
 
@@ -12429,6 +12683,7 @@ def generate_trials(n: int, recursion: bool) -> Tuple[Dict[int, Any], bool]:
                     arm = ax_backend.create_arm(ax_backend.get_arm_parameters(arm))
                 except Exception as arm_err:
                     print_red(f"Error while creating new Arm: {arm_err}")
+                    gen_stats["arm_errors"] += 1
                     retries += 1
                     continue
 
@@ -12439,6 +12694,13 @@ def generate_trials(n: int, recursion: bool) -> Tuple[Dict[int, Any], bool]:
                     if result is not None:
                         trial_index, trial_duration, trial_successful = result
                 except TrialRejected as e:
+                    _reason = str(e).lower()
+                    if "duplicate" in _reason:
+                        gen_stats["rejected_duplicates"] += 1
+                    elif "constraint" in _reason:
+                        gen_stats["rejected_constraints"] += 1
+                    else:
+                        gen_stats["rejected_other"] += 1
                     print_debug(f"generate_trials: Trial rejected, error: {e}")
                     retries += 1
                     continue
@@ -12450,10 +12712,12 @@ def generate_trials(n: int, recursion: bool) -> Tuple[Dict[int, Any], bool]:
                     trials_dict[trial_index] = arm.parameters
 
         finalized = finalize_generation(trials_dict, cnt, n, start_time)
+        _log_generation_diagnostics(n, cnt, retries, max_retries, gen_stats)
 
         return finalized
 
     except Exception as e:
+        _log_generation_diagnostics(n, cnt, retries, max_retries, gen_stats)
         return handle_generation_failure(e, n, recursion)
 
 class TrialRejected(Exception):
@@ -13831,6 +14095,7 @@ def log_worker_status(nr_of_items: int, next_nr_steps: int) -> None:
     if nr_current_workers_errmsg:
         print_debug(f"log_worker_status: {nr_current_workers_errmsg}")
     _debug_worker_creation(f"{int(time.time())}, {nr_current_workers}, {nr_of_items}, {next_nr_steps}")
+    _log_queue_state_debug(nr_of_items, next_nr_steps, verbose=True)
 
 def handle_slurm_execution() -> None:
     if is_slurm_job() and not args.force_local_execution:

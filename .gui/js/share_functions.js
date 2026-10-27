@@ -163,7 +163,8 @@ function load_log_file(log_nr, filename) {
 	var pre_id = `single_run_${log_nr}_pre`;
 	var preEl = document.getElementById(pre_id);
 
-	if (preEl && !preEl.dataset.loaded) {
+	if (preEl && !preEl.dataset.loaded && !preEl.dataset.loading) {
+		preEl.dataset.loading = "true";
 		var params = new URLSearchParams(window.location.search);
 		var user_id = params.get('user_id');
 		var experiment_name = params.get('experiment_name');
@@ -187,15 +188,19 @@ function load_log_file(log_nr, filename) {
 				log(`Error loading log: ${error}`);
 				var spinner = document.getElementById("spinner_log_" + log_nr);
 				if (spinner) spinner.remove();
+			})
+			.finally(() => {
+				delete preEl.dataset.loading;
 			});
 	}
 }
 
 function load_pre_file(pre_id, filename, ansi_mode) {
 	var preEl = document.getElementById(pre_id);
-	if (!preEl || preEl.dataset.loaded) {
+	if (!preEl || preEl.dataset.loaded || preEl.dataset.loading) {
 		return;
 	}
+	preEl.dataset.loading = "true";
 	var params = new URLSearchParams(window.location.search);
 	var user_id = params.get('user_id');
 	var experiment_name = params.get('experiment_name');
@@ -218,6 +223,9 @@ function load_pre_file(pre_id, filename, ansi_mode) {
 			log(`Error loading log: ${error}`);
 			var spinner = document.getElementById("spinner_" + pre_id);
 			if (spinner) spinner.remove();
+		})
+		.finally(() => {
+			delete preEl.dataset.loading;
 		});
 }
 
@@ -225,7 +233,10 @@ function load_lazy_panel(panel) {
 	if (!panel) {
 		return;
 	}
-	var preEl = panel.querySelector("pre[data-log-file]:not([data-loaded='true'])");
+	// Ignore pre elements that belong to nested tab panels; those are
+	// loaded when their own tab group becomes active.
+	var preEl = Array.from(panel.querySelectorAll("pre[data-log-file]:not([data-loaded='true'])"))
+		.find(el => el.closest('[role="tabpanel"]') === panel);
 	if (!preEl) {
 		return;
 	}

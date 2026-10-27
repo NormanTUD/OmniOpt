@@ -7,12 +7,24 @@ function show_main_window() {
 
 function initialize_tabs () {
 	function setupTabs(container) {
-		const tabs = container.querySelectorAll('[role="tab"]');
-		const tabPanels = container.querySelectorAll('[role="tabpanel"]');
+		if (container.dataset.tabsInitialized === "true") {
+			return;
+		}
+
+		// Only handle tabs/panels that belong directly to this container.
+		// querySelectorAll() would also return nested tab groups, which
+		// added duplicate click handlers and caused the same log to be
+		// fetched multiple times.
+		const tabs = Array.from(container.querySelectorAll('[role="tab"]'))
+			.filter(tab => tab.closest(".tabs") === container);
+		const tabPanels = Array.from(container.querySelectorAll('[role="tabpanel"]'))
+			.filter(panel => panel.closest(".tabs") === container);
 
 		if (tabs.length === 0 || tabPanels.length === 0) {
 			return;
 		}
+
+		container.dataset.tabsInitialized = "true";
 
 		tabs.forEach(tab => tab.setAttribute("aria-selected", "false"));
 		tabPanels.forEach(panel => panel.hidden = true);

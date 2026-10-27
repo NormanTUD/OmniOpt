@@ -1,0 +1,814 @@
+#!/usr/bin/env python3
+"""End-to-end tests for the UUID -> job-folder routing of the share server.
+
+The server rule is intentionally simple and strict:
+
+  * a UUID that already exists for the same user + experiment updates that
+    exact run folder in place;
+  * any UUID that does not exist there (including a UUID that belongs to a
+    different user / experiment) creates a brand-new run folder;
+  * a missing/empty UUID always creates a brand-new run folder -- it must
+    NEVER be merged into the newest existing share.
+
+These tests upload real manifest + bundle requests to a PHP built-in server
+running the actual ``.gui/share_internal.php`` and inspect the resulting
+share tree.  They also run the PHP unit tests for the routing helpers.
+"""
+
+from __future__ import annotations
+
+import json
+import os
+import shutil
+import socket
+import subprocess
+import sys
+import tempfile
+import time
+import urllib.parse
+import urllib.request
+from importlib.machinery import SourceFileLoader
+from pathlib import Path
+from types import SimpleNamespace
+
+THIS_DIR = Path(__file__).resolve().parent
+REPO_ROOT = THIS_DIR.parent
+GUI_DIR = REPO_ROOT / ".gui"
+if str(THIS_DIR) not in sys.path:
+    sys.path.insert(0, str(THIS_DIR))
+
+# pylint: disable-next=deprecated-method
+os_ = SourceFileLoader(
+    "omniopt_share_uuid_routing", str(REPO_ROOT / "omniopt_share")
+).load_module()
+
+from _framework.helpers import green_text, red_text, yellow_text  # noqa: E402
+
+
+_ABSENT = object()
+_BASE_URL = ""
+_SHARES = Path()
+_TMP = Path()
+_SERVER = None
+_SERVER_LOG = None
+_ERRORS: list[str] = []
+
+
+# ---------------------------------------------------------------------------
+# Server lifecycle
+# ---------------------------------------------------------------------------
+
+
+def _free_port() -> int:
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.bind(("127.0.0.1", 0))
+        return int(sock.getsockname()[1])
+
+
+def _server_output() -> str:
+    if _SERVER_LOG is None:
+        return ""
+    try:
+        _SERVER_LOG.flush()
+        return Path(_SERVER_LOG.name).read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return ""
+
+
+def _start_server(shares: Path) -> tuple[subprocess.Popen, object, str]:
+    port = _free_port()
+    env = os.environ.copy()
+    env["OO_TARGET_FILE"] = str(GUI_DIR / "share_internal.php")
+    env["share_path"] = str(shares)
+    env["CI"] = "1"
+    env.pop("disable_folder_creation", None)
+
+    log_path = Path(tempfile.mkstemp(prefix="oo_share_uuid_server_", suffix=".log")[1])
+    log = log_path.open("w", encoding="utf-8")
+    proc = subprocess.Popen(
+        [
+            "php",
+            "-S",
+            f"127.0.0.1:{port}",
+            "-t",
+            str(GUI_DIR),
+            str(THIS_DIR / "share_test_router.php"),
+        ],
+        cwd=str(GUI_DIR),
+        env=env,
+        stdout=log,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+
+    deadline = time.time() + 20
+    while time.time() < deadline:
+        if proc.poll() is not None:
+            log.flush()
+            output = log_path.read_text(encoding="utf-8", errors="replace")
+            log.close()
+            log_path.unlink(missing_ok=True)
+            raise RuntimeError("PHP server exited during startup:\n" + output)
+        try:
+            with socket.create_connection(("127.0.0.1", port), timeout=0.25):
+                return proc, log, f"http://127.0.0.1:{port}"
+        except OSError:
+            time.sleep(0.05)
+
+    proc.terminate()
+    output = log_path.read_text(encoding="utf-8", errors="replace")
+    log.close()
+    log_path.unlink(missing_ok=True)
+    raise RuntimeError("PHP server did not start in time:\n" + output)
+
+
+def _stop_server(proc, log) -> None:
+    if proc is not None and proc.poll() is None:
+        proc.terminate()
+        try:
+            proc.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+            proc.wait(timeout=5)
+    if log is not None:
+        name = getattr(log, "name", "")
+        log.close()
+        if name:
+            Path(name).unlink(missing_ok=True)
+
+
+# ---------------------------------------------------------------------------
+# Test harness
+# ---------------------------------------------------------------------------
+
+
+def check(name: str, condition: bool, detail: str = "") -> bool:
+    if condition:
+        return True
+    msg = f"{name}" + (f": {detail}" if detail else "")
+    _ERRORS.append(msg)
+    red_text(f"FAIL: {msg}")
+    return False
+
+
+def check_eq(name: str, expected, got) -> bool:
+    return check(name, expected == got, f"expected {expected!r}, got {got!r}")
+
+
+_TESTS: list = []
+
+
+def test(fn):
+    _TESTS.append(fn)
+    return fn
+
+
+# ---------------------------------------------------------------------------
+# Local run + upload helpers
+# ---------------------------------------------------------------------------
+
+
+def make_local_run(
+    label: str,
+    *,
+    uuid=_ABSENT,
+    content: str | None = None,
+    extra_files: dict[str, str] | None = None,
+) -> Path:
+    root = _TMP / "local" / label / "experiment" / "0"
+    root.mkdir(parents=True, exist_ok=True)
+    text = content if content is not None else f"content of {label}\n"
+    (root / "results.csv").write_text(text, encoding="utf-8")
+    (root / "parameters.txt").write_text("x: range(1, 2)\n", encoding="utf-8")
+    (root / "git_version").write_text("deadbeef\n", encoding="utf-8")
+    if uuid is not _ABSENT and uuid is not None:
+        state = root / "state_files"
+        state.mkdir(exist_ok=True)
+        (state / "run_uuid").write_text(str(uuid), encoding="utf-8")
+    for rel, value in (extra_files or {}).items():
+        path = root / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(value, encoding="utf-8")
+    return root
+
+
+def _post_with_query(
+    manifest: dict,
+    zip_path: Path,
+    *,
+    extra_query: str = "",
+) -> tuple[int, str]:
+    params = {
+        "user_id": manifest["user_id"],
+        "experiment_name": manifest["experiment_name"],
+    }
+    if manifest["update"]:
+        params["update"] = "1"
+    if manifest["update_uuid"]:
+        params["update_uuid"] = str(manifest["update_uuid"])
+    if manifest["password"]:
+        params["password"] = str(manifest["password"])
+    url = f"{_BASE_URL}/share_internal.php?" + urllib.parse.urlencode(params)
+    if extra_query:
+        url += "&" + extra_query
+
+    boundary = "----oo-share-uuid-test-" + os.urandom(8).hex()
+    length, chunks = os_._build_multipart_stream(boundary, manifest, zip_path)
+    body = b"".join(chunks)
+    if len(body) != length:
+        raise AssertionError("multipart content-length mismatch")
+
+    req = urllib.request.Request(
+        url,
+        data=body,
+        headers={
+            "Content-Type": f"multipart/form-data; boundary={boundary}",
+            "Content-Length": str(length),
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            return resp.status, resp.read().decode("utf-8", errors="replace")
+    except urllib.error.HTTPError as exc:  # pragma: no cover - for parity
+        return exc.code, exc.read().decode("utf-8", errors="replace")
+
+
+def upload(
+    run_dir: Path,
+    *,
+    user: str,
+    experiment: str,
+    update: bool,
+    manifest_uuid=_ABSENT,
+    password: str | None = None,
+    extra_query: str = "",
+) -> tuple[int, str, dict]:
+    files = os_.collect_shareable_files(
+        str(run_dir), send_single_runs=False, include_state_files=False
+    )
+    manifest = os_.build_manifest(
+        run_dir=str(run_dir),
+        user_id=user,
+        experiment_name=experiment,
+        update=bool(update),
+        update_uuid=None,
+        password=password,
+        send_single_runs=False,
+        include_state_files=False,
+        files=files,
+    )
+    if manifest_uuid is not _ABSENT:
+        manifest["update_uuid"] = manifest_uuid
+
+    out_dir = Path(tempfile.mkdtemp(prefix="oo_share_uuid_bundle_"))
+    try:
+        _, zip_path = os_.write_bundle(manifest, out_dir, source_dir=run_dir)
+        status, body = _post_with_query(
+            manifest, zip_path, extra_query=extra_query
+        )
+    finally:
+        shutil.rmtree(out_dir, ignore_errors=True)
+    return status, body, manifest
+
+
+def upload_ok(*args, **kwargs) -> tuple[str, dict]:
+    status, body, manifest = upload(*args, **kwargs)
+    ok = check(
+        f"upload succeeded ({kwargs.get('user')}/{kwargs.get('experiment')})",
+        status == 200 and "Error" not in body,
+        f"status={status}, body={body[:300]!r}",
+    )
+    if not ok:
+        raise AssertionError(body)
+    return body, manifest
+
+
+def _shares_base(user: str, experiment: str) -> Path:
+    return _SHARES / user / experiment
+
+
+def run_folders(user: str, experiment: str) -> list[str]:
+    base = _shares_base(user, experiment)
+    if not base.is_dir():
+        return []
+    return sorted(
+        [p.name for p in base.iterdir() if p.is_dir() and p.name.isdigit()],
+        key=int,
+    )
+
+
+def folder_path(user: str, experiment: str, run_nr: str) -> Path:
+    return _shares_base(user, experiment) / run_nr
+
+
+def read_share_file(user: str, experiment: str, run_nr: str, rel: str) -> str:
+    path = folder_path(user, experiment, run_nr) / rel
+    return path.read_text(encoding="utf-8")
+
+
+def identity(name: str) -> tuple[str, str]:
+    safe = "".join(ch if ch.isalnum() else "_" for ch in name)[:40]
+    return f"user_{safe}", f"exp_{safe}"
+
+
+def setup_old_job(
+    user: str,
+    experiment: str,
+    *,
+    uuid: str = "old-uuid",
+    content: str = "OLD\n",
+    label: str = "old",
+    password: str | None = None,
+) -> Path:
+    run = make_local_run(label, uuid=uuid, content=content)
+    upload_ok(
+        run,
+        user=user,
+        experiment=experiment,
+        update=False,
+        manifest_uuid=uuid,
+        password=password,
+    )
+    return run
+
+
+# ---------------------------------------------------------------------------
+# Core routing tests
+# ---------------------------------------------------------------------------
+
+
+@test
+def new_uuid_with_existing_old_job_creates_new_folder() -> bool:
+    user, exp = identity("new_uuid_existing_old")
+    setup_old_job(user, exp, uuid="uuid-old", content="OLD\n")
+
+    new_run = make_local_run("new", uuid="uuid-new", content="NEW\n")
+    upload_ok(
+        new_run,
+        user=user,
+        experiment=exp,
+        update=True,
+        manifest_uuid="uuid-new",
+    )
+
+    ok = check_eq("old job remains in run 0 and new job gets run 1", ["0", "1"], run_folders(user, exp))
+    ok &= check_eq("run 0 still has the old UUID", "uuid-old", read_share_file(user, exp, "0", "state_files/run_uuid"))
+    ok &= check_eq("run 1 has the new UUID", "uuid-new", read_share_file(user, exp, "1", "state_files/run_uuid"))
+    ok &= check_eq("run 0 keeps the old results", "OLD\n", read_share_file(user, exp, "0", "results.csv"))
+    ok &= check_eq("run 1 has the new results", "NEW\n", read_share_file(user, exp, "1", "results.csv"))
+    return ok
+
+
+@test
+def new_uuid_does_not_copy_old_files_into_new_folder() -> bool:
+    user, exp = identity("new_uuid_no_file_mix")
+    setup_old_job(user, exp, uuid="uuid-old", content="OLD\n")
+    (folder_path(user, exp, "0") / "old_only.txt").write_text("only-old\n", encoding="utf-8")
+
+    new_run = make_local_run(
+        "new",
+        uuid="uuid-new",
+        content="NEW\n",
+        extra_files={"new_only.txt": "only-new\n"},
+    )
+    upload_ok(new_run, user=user, experiment=exp, update=True, manifest_uuid="uuid-new")
+
+    new_folder = folder_path(user, exp, "1")
+    old_folder = folder_path(user, exp, "0")
+    ok = check("new folder does not contain old-only files", not (new_folder / "old_only.txt").exists())
+    ok &= check("old folder does not contain new-only files", not (old_folder / "new_only.txt").exists())
+    ok &= check_eq("old-only file is still in old folder", "only-old\n", read_share_file(user, exp, "0", "old_only.txt"))
+    ok &= check_eq("new-only file is in new folder", "only-new\n", read_share_file(user, exp, "1", "new_only.txt"))
+    return ok
+
+
+@test
+def existing_uuid_updates_same_folder() -> bool:
+    user, exp = identity("existing_uuid_update")
+    setup_old_job(user, exp, uuid="uuid-same", content="V1\n")
+
+    updated = make_local_run("updated", uuid="uuid-same", content="V2\n")
+    upload_ok(updated, user=user, experiment=exp, update=True, manifest_uuid="uuid-same")
+
+    ok = check_eq("no extra folder was created", ["0"], run_folders(user, exp))
+    ok &= check_eq("same folder was updated in place", "V2\n", read_share_file(user, exp, "0", "results.csv"))
+    ok &= check_eq("UUID stays the same", "uuid-same", read_share_file(user, exp, "0", "state_files/run_uuid"))
+    return ok
+
+
+@test
+def existing_uuid_without_update_flag_still_updates_same_folder() -> bool:
+    user, exp = identity("existing_uuid_no_update_flag")
+    setup_old_job(user, exp, uuid="uuid-same", content="V1\n")
+
+    updated = make_local_run("updated", uuid="uuid-same", content="V3\n")
+    upload_ok(updated, user=user, experiment=exp, update=False, manifest_uuid="uuid-same")
+
+    ok = check_eq("no extra folder was created", ["0"], run_folders(user, exp))
+    ok &= check_eq("same folder was updated", "V3\n", read_share_file(user, exp, "0", "results.csv"))
+    return ok
+
+
+@test
+def three_new_uuids_create_three_separate_jobs() -> bool:
+    user, exp = identity("three_new_uuids")
+    for idx, uuid in enumerate(("uuid-a", "uuid-b", "uuid-c")):
+        run = make_local_run(f"job{idx}", uuid=uuid, content=f"CONTENT-{idx}\n")
+        upload_ok(run, user=user, experiment=exp, update=True, manifest_uuid=uuid)
+
+    ok = check_eq("three folders exist", ["0", "1", "2"], run_folders(user, exp))
+    for idx, uuid in enumerate(("uuid-a", "uuid-b", "uuid-c")):
+        ok &= check_eq(
+            f"run {idx} has UUID {uuid}",
+            uuid,
+            read_share_file(user, exp, str(idx), "state_files/run_uuid"),
+        )
+        ok &= check_eq(
+            f"run {idx} has its own content",
+            f"CONTENT-{idx}\n",
+            read_share_file(user, exp, str(idx), "results.csv"),
+        )
+    return ok
+
+
+@test
+def updating_old_uuid_after_a_new_job_only_touches_the_old_folder() -> bool:
+    user, exp = identity("update_old_after_new")
+    setup_old_job(user, exp, uuid="uuid-old", content="OLD-V1\n")
+    new_run = make_local_run("new", uuid="uuid-new", content="NEW-V1\n")
+    upload_ok(new_run, user=user, experiment=exp, update=True, manifest_uuid="uuid-new")
+
+    old_update = make_local_run("old-update", uuid="uuid-old", content="OLD-V2\n")
+    upload_ok(old_update, user=user, experiment=exp, update=True, manifest_uuid="uuid-old")
+
+    ok = check_eq("still exactly two folders", ["0", "1"], run_folders(user, exp))
+    ok &= check_eq("old folder got the update", "OLD-V2\n", read_share_file(user, exp, "0", "results.csv"))
+    ok &= check_eq("new folder was not touched", "NEW-V1\n", read_share_file(user, exp, "1", "results.csv"))
+    return ok
+
+
+@test
+def new_uuid_with_identical_content_still_creates_new_job() -> bool:
+    user, exp = identity("new_uuid_same_content")
+    setup_old_job(user, exp, uuid="uuid-old", content="IDENTICAL\n")
+
+    new_run = make_local_run("new", uuid="uuid-new", content="IDENTICAL\n")
+    upload_ok(new_run, user=user, experiment=exp, update=True, manifest_uuid="uuid-new")
+
+    ok = check_eq("duplicate hash did not suppress the new job", ["0", "1"], run_folders(user, exp))
+    ok &= check_eq("new job has the new UUID", "uuid-new", read_share_file(user, exp, "1", "state_files/run_uuid"))
+    return ok
+
+
+# ---------------------------------------------------------------------------
+# Unknown / missing UUIDs must never merge into an old share
+# ---------------------------------------------------------------------------
+
+
+@test
+def empty_uuid_with_update_flag_creates_new_folder_instead_of_mixing() -> bool:
+    user, exp = identity("empty_uuid_update")
+    setup_old_job(user, exp, uuid="uuid-old", content="OLD\n")
+
+    new_run = make_local_run("no-uuid", content="NO-UUID-NEW\n")
+    upload_ok(
+        new_run,
+        user=user,
+        experiment=exp,
+        update=True,
+        manifest_uuid=None,
+    )
+
+    ok = check_eq("empty UUID did not touch the old share", ["0", "1"], run_folders(user, exp))
+    ok &= check_eq("old share still has its content", "OLD\n", read_share_file(user, exp, "0", "results.csv"))
+    ok &= check_eq("new share has the new content", "NO-UUID-NEW\n", read_share_file(user, exp, "1", "results.csv"))
+    ok &= check("new share has no run_uuid file (none was supplied)", not (folder_path(user, exp, "1") / "state_files" / "run_uuid").exists())
+    return ok
+
+
+@test
+def empty_uuid_without_update_flag_creates_new_folder() -> bool:
+    user, exp = identity("empty_uuid_no_update")
+    setup_old_job(user, exp, uuid="uuid-old", content="OLD\n")
+
+    new_run = make_local_run("no-uuid", content="NEW\n")
+    upload_ok(new_run, user=user, experiment=exp, update=False, manifest_uuid=None)
+
+    ok = check_eq("new folder created", ["0", "1"], run_folders(user, exp))
+    ok &= check_eq("old content untouched", "OLD\n", read_share_file(user, exp, "0", "results.csv"))
+    return ok
+
+
+@test
+def unknown_uuid_creates_new_folder() -> bool:
+    user, exp = identity("unknown_uuid")
+    setup_old_job(user, exp, uuid="uuid-old", content="OLD\n")
+
+    new_run = make_local_run("unknown", uuid="uuid-unknown", content="UNKNOWN\n")
+    upload_ok(new_run, user=user, experiment=exp, update=True, manifest_uuid="uuid-unknown")
+
+    ok = check_eq("unknown UUID creates a new folder", ["0", "1"], run_folders(user, exp))
+    ok &= check_eq("old UUID still points at run 0", "uuid-old", read_share_file(user, exp, "0", "state_files/run_uuid"))
+    ok &= check_eq("run 1 has the unknown (new) UUID", "uuid-unknown", read_share_file(user, exp, "1", "state_files/run_uuid"))
+    return ok
+
+
+@test
+def manifest_uuid_new_overrides_stale_get_uuid() -> bool:
+    user, exp = identity("manifest_overrides_get")
+    setup_old_job(user, exp, uuid="uuid-old", content="OLD\n")
+
+    new_run = make_local_run("new", uuid="uuid-new", content="NEW\n")
+    upload_ok(
+        new_run,
+        user=user,
+        experiment=exp,
+        update=True,
+        manifest_uuid="uuid-new",
+        extra_query="update_uuid=uuid-old",
+    )
+
+    ok = check_eq("stale GET UUID did not redirect the upload", ["0", "1"], run_folders(user, exp))
+    ok &= check_eq("old share untouched", "OLD\n", read_share_file(user, exp, "0", "results.csv"))
+    ok &= check_eq("new share has the manifest UUID", "uuid-new", read_share_file(user, exp, "1", "state_files/run_uuid"))
+    return ok
+
+
+@test
+def manifest_null_uuid_overrides_stale_get_uuid() -> bool:
+    user, exp = identity("manifest_null_overrides_get")
+    setup_old_job(user, exp, uuid="uuid-old", content="OLD\n")
+
+    new_run = make_local_run("no-uuid", content="NEW\n")
+    upload_ok(
+        new_run,
+        user=user,
+        experiment=exp,
+        update=True,
+        manifest_uuid=None,
+        extra_query="update_uuid=uuid-old",
+    )
+
+    ok = check_eq("null manifest UUID ignored stale GET UUID", ["0", "1"], run_folders(user, exp))
+    ok &= check_eq("old share untouched", "OLD\n", read_share_file(user, exp, "0", "results.csv"))
+    return ok
+
+
+@test
+def manifest_null_uuid_does_not_use_latest_fallback() -> bool:
+    user, exp = identity("manifest_null_no_fallback")
+    setup_old_job(user, exp, uuid="uuid-old", content="OLD\n")
+
+    new_run = make_local_run("no-uuid", content="NEW\n")
+    upload_ok(new_run, user=user, experiment=exp, update=True, manifest_uuid=None)
+
+    ok = check_eq("no fallback to latest folder", ["0", "1"], run_folders(user, exp))
+    ok &= check_eq("old share untouched", "OLD\n", read_share_file(user, exp, "0", "results.csv"))
+    return ok
+
+
+# ---------------------------------------------------------------------------
+# User / experiment scoping
+# ---------------------------------------------------------------------------
+
+
+@test
+def same_uuid_other_user_creates_new_job() -> bool:
+    user, exp = identity("same_uuid_other_user")
+    setup_old_job(user, exp, uuid="uuid-shared", content="ALICE\n")
+
+    other_run = make_local_run("bob", uuid="uuid-shared", content="BOB\n")
+    other_user = user + "_bob"
+    upload_ok(other_run, user=other_user, experiment=exp, update=True, manifest_uuid="uuid-shared")
+
+    ok = check_eq("old user still has one folder", ["0"], run_folders(user, exp))
+    ok &= check_eq("other user got its own folder", ["0"], run_folders(other_user, exp))
+    ok &= check_eq("old user's content untouched", "ALICE\n", read_share_file(user, exp, "0", "results.csv"))
+    ok &= check_eq("other user's content uploaded", "BOB\n", read_share_file(other_user, exp, "0", "results.csv"))
+    return ok
+
+
+@test
+def same_uuid_other_experiment_creates_new_job() -> bool:
+    user, exp = identity("same_uuid_other_exp")
+    setup_old_job(user, exp, uuid="uuid-shared", content="OLD-EXP\n")
+
+    other_run = make_local_run("other", uuid="uuid-shared", content="NEW-EXP\n")
+    other_exp = exp + "_other"
+    upload_ok(other_run, user=user, experiment=other_exp, update=True, manifest_uuid="uuid-shared")
+
+    ok = check_eq("old experiment still has one folder", ["0"], run_folders(user, exp))
+    ok &= check_eq("other experiment got its own folder", ["0"], run_folders(user, other_exp))
+    ok &= check_eq("old experiment untouched", "OLD-EXP\n", read_share_file(user, exp, "0", "results.csv"))
+    ok &= check_eq("other experiment content uploaded", "NEW-EXP\n", read_share_file(user, other_exp, "0", "results.csv"))
+    return ok
+
+
+# ---------------------------------------------------------------------------
+# UUID storage variants
+# ---------------------------------------------------------------------------
+
+
+@test
+def legacy_top_level_run_uuid_is_found_and_updated() -> bool:
+    user, exp = identity("legacy_top_level_uuid")
+    run_nr = folder_path(user, exp, "0")
+    run_nr.mkdir(parents=True)
+    (run_nr / "run_uuid").write_text("legacy-uuid\n", encoding="utf-8")
+    (run_nr / "results.csv").write_text("LEGACY-OLD\n", encoding="utf-8")
+
+    updated = make_local_run("updated", uuid="legacy-uuid", content="LEGACY-NEW\n")
+    upload_ok(updated, user=user, experiment=exp, update=True, manifest_uuid="legacy-uuid")
+
+    ok = check_eq("legacy UUID updated the existing folder", ["0"], run_folders(user, exp))
+    ok &= check_eq("legacy folder content updated", "LEGACY-NEW\n", read_share_file(user, exp, "0", "results.csv"))
+    ok &= check_eq("new state_files copy has the UUID", "legacy-uuid", read_share_file(user, exp, "0", "state_files/run_uuid"))
+    return ok
+
+
+@test
+def stored_uuid_whitespace_is_ignored() -> bool:
+    user, exp = identity("stored_uuid_whitespace")
+    run_dir = folder_path(user, exp, "0")
+    state = run_dir / "state_files"
+    state.mkdir(parents=True)
+    (state / "run_uuid").write_text("\n  spaced-uuid  \n", encoding="utf-8")
+    (run_dir / "results.csv").write_text("OLD\n", encoding="utf-8")
+
+    updated = make_local_run("updated", uuid="spaced-uuid", content="NEW\n")
+    upload_ok(updated, user=user, experiment=exp, update=True, manifest_uuid="spaced-uuid")
+
+    ok = check_eq("whitespace-wrapped stored UUID matched", ["0"], run_folders(user, exp))
+    ok &= check_eq("folder content updated", "NEW\n", read_share_file(user, exp, "0", "results.csv"))
+    return ok
+
+
+# ---------------------------------------------------------------------------
+# Passwords are scoped to the resolved folder
+# ---------------------------------------------------------------------------
+
+
+@test
+def new_uuid_is_not_blocked_by_old_jobs_password() -> bool:
+    user, exp = identity("new_uuid_old_password")
+    setup_old_job(user, exp, uuid="uuid-old", content="OLD\n", password="secret")
+
+    new_run = make_local_run("new", uuid="uuid-new", content="NEW\n")
+    upload_ok(new_run, user=user, experiment=exp, update=True, manifest_uuid="uuid-new")
+
+    ok = check_eq("new job created despite old password", ["0", "1"], run_folders(user, exp))
+    ok &= check("new job has no inherited password", not (folder_path(user, exp, "1") / "password.sha256").exists())
+    return ok
+
+
+@test
+def updating_password_protected_job_requires_the_password() -> bool:
+    user, exp = identity("protected_update")
+    setup_old_job(user, exp, uuid="uuid-protected", content="OLD\n", password="secret")
+
+    updated = make_local_run("updated", uuid="uuid-protected", content="NEW\n")
+    status, body, _ = upload(
+        updated,
+        user=user,
+        experiment=exp,
+        update=True,
+        manifest_uuid="uuid-protected",
+        password=None,
+    )
+    ok = check(
+        "update without password is rejected",
+        status == 200 and "password" in body.lower(),
+        f"status={status}, body={body[:200]!r}",
+    )
+    ok &= check_eq("rejected update did not modify the share", "OLD\n", read_share_file(user, exp, "0", "results.csv"))
+
+    upload_ok(
+        updated,
+        user=user,
+        experiment=exp,
+        update=True,
+        manifest_uuid="uuid-protected",
+        password="secret",
+    )
+    ok &= check_eq("update with password succeeds", "NEW\n", read_share_file(user, exp, "0", "results.csv"))
+    return ok
+
+
+# ---------------------------------------------------------------------------
+# Misc edge cases
+# ---------------------------------------------------------------------------
+
+
+@test
+def initial_upload_without_uuid_creates_run_zero() -> bool:
+    user, exp = identity("initial_no_uuid")
+    run = make_local_run("first", content="FIRST\n")
+    upload_ok(run, user=user, experiment=exp, update=False, manifest_uuid=None)
+
+    ok = check_eq("first upload creates run 0", ["0"], run_folders(user, exp))
+    ok &= check_eq("content uploaded", "FIRST\n", read_share_file(user, exp, "0", "results.csv"))
+    return ok
+
+
+@test
+def two_uploads_with_same_new_uuid_create_one_job() -> bool:
+    user, exp = identity("same_new_uuid_twice")
+    first = make_local_run("first", uuid="uuid-same-new", content="FIRST\n")
+    upload_ok(first, user=user, experiment=exp, update=False, manifest_uuid="uuid-same-new")
+
+    second = make_local_run("second", uuid="uuid-same-new", content="SECOND\n")
+    upload_ok(second, user=user, experiment=exp, update=True, manifest_uuid="uuid-same-new")
+
+    ok = check_eq("same UUID reuses the folder", ["0"], run_folders(user, exp))
+    ok &= check_eq("second upload updated the content", "SECOND\n", read_share_file(user, exp, "0", "results.csv"))
+    return ok
+
+
+@test
+def uuid_of_existing_job_in_other_user_does_not_update_it() -> bool:
+    owner, exp = identity("cross_user_owner")
+    setup_old_job(owner, exp, uuid="uuid-owner", content="OWNER\n")
+
+    intruder_user = owner + "_intruder"
+    run = make_local_run("intruder", uuid="uuid-owner", content="INTRUDER\n")
+    upload_ok(run, user=intruder_user, experiment=exp, update=True, manifest_uuid="uuid-owner")
+
+    ok = check_eq("owner share untouched", "OWNER\n", read_share_file(owner, exp, "0", "results.csv"))
+    ok &= check_eq("intruder got a separate folder", ["0"], run_folders(intruder_user, exp))
+    ok &= check_eq("intruder content separate", "INTRUDER\n", read_share_file(intruder_user, exp, "0", "results.csv"))
+    return ok
+
+
+# ---------------------------------------------------------------------------
+# Entry point
+# ---------------------------------------------------------------------------
+
+
+def _php_unit_tests() -> bool:
+    if not shutil.which("php"):
+        yellow_text("PHP not installed, skipping share UUID routing tests")
+        return True
+    proc = subprocess.run(
+        ["php", str(GUI_DIR / "test_share_uuid_routing.php")],
+        cwd=str(GUI_DIR),
+        capture_output=True,
+        text=True,
+    )
+    if proc.returncode != 0:
+        red_text("PHP UUID routing unit tests failed:")
+        red_text((proc.stdout or "") + (proc.stderr or ""))
+        return False
+    return True
+
+
+def main(argv=None) -> int:  # pylint: disable=unused-argument
+    global _BASE_URL, _SHARES, _TMP, _SERVER, _SERVER_LOG
+
+    if not shutil.which("php"):
+        yellow_text("PHP not installed, skipping share UUID routing tests")
+        return 0
+
+    if not _php_unit_tests():
+        return 1
+
+    work = Path(tempfile.mkdtemp(prefix="oo_share_uuid_routing_"))
+    _TMP = work
+    _SHARES = work / "shares"
+    _SHARES.mkdir(parents=True)
+    try:
+        _SERVER, _SERVER_LOG, _BASE_URL = _start_server(_SHARES)
+        passed = 0
+        for fn in _TESTS:
+            name = getattr(fn, "__name__", str(fn))
+            before = len(_ERRORS)
+            try:
+                fn()
+            except Exception as exc:  # pylint: disable=broad-except
+                _ERRORS.append(f"{name}: exception {exc!r}")
+                red_text(f"FAIL: {name}: exception {exc!r}")
+            if len(_ERRORS) == before:
+                passed += 1
+            else:
+                log = _server_output()
+                if log.strip():
+                    red_text(f"--- PHP server log (tail) ---\n{log[-1500:]}")
+        total = len(_TESTS)
+        if _ERRORS:
+            red_text(f"share UUID routing: {total - passed}/{total} test(s) failed")
+            for err in _ERRORS:
+                red_text(f"  - {err}")
+            return min(255, len(_ERRORS))
+
+        green_text(f"share UUID routing: all {total} test(s) passed")
+        return 0
+    finally:
+        _stop_server(_SERVER, _SERVER_LOG)
+        shutil.rmtree(work, ignore_errors=True)
+
+
+if __name__ == "__main__":
+    try:
+        sys.exit(main())
+    except KeyboardInterrupt:
+        sys.exit(0)

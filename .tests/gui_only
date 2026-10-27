@@ -17,7 +17,8 @@ if str(THIS_DIR) not in sys.path:
 REPO_ROOT = THIS_DIR.parent
 TESTS = [
     "php_files", "php_unit_tests", "js_syntax", "js_gui_unit_tests",
-    "php_search", "share", "share_tests", "find_typos_in_gui",
+    "php_search", "share", "share_tests", "share_uuid_routing",
+    "find_typos_in_gui",
     "find_typos_in_js", "find_typos_in_php",
     "all_oo_options_are_in_gui_and_vice_versa", "find_double_function_names",
     "find_unused_share_functions", "doc_has_outdated_params",

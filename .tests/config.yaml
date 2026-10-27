@@ -697,6 +697,14 @@ tests:
     wanted_exit_code: 19
     tags: [suite:full, quick:no]
 
+  # ---- share ---------------------------------------------------------------
+  - id: share_uuid_routing
+    class: share
+    name: "Share UUID routing (new UUID => new job; old UUID => update)"
+    cmd: "python3 {REPO_ROOT}/.tests/share_uuid_routing"
+    wanted_exit_code: 0
+    tags: [suite:share, quick:false]
+
   # ---- GUI -----------------------------------------------------------------
   - id: gui_oo_setup
     class: gui
@@ -794,6 +802,7 @@ smoke_tests:
   - test_omniopt_plot
   - test_omniopt_share
   - test_omniopt_share_comprehensive
+  - share_uuid_routing
   - test_omniopt_install
   - test_optuna_integration
   - test_lmod_modules_and_venv

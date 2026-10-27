@@ -96,17 +96,6 @@
 	$update_uuid = get_get("update_uuid");
 	$uuid_folder = null;
 
-	if ($update_uuid) {
-		$uuid_folder = find_matching_uuid_run_folder($update_uuid, $user_id, $experiment_name);
-	}
-
-	if(file_exists("$uuid_folder/password.sha256")) {
-		if(hash("sha256", get_get("password")) != file_get_contents("$uuid_folder/password.sha256")) {
-			print("Error: The password you provided does not match the password of this job. Even for updating job on live-share, the password is required.");
-			exit(1);
-		}
-	}
-
 	$num_offered_files = 0;
 
 	$offered_files_i = get_offered_files($acceptable_files, $acceptable_file_names, 0);
@@ -181,22 +170,25 @@
 		if (is_string($manifest["experiment_name"]) && $manifest["experiment_name"] !== "") {
 			$experiment_name = $manifest["experiment_name"];
 		}
-		if (array_key_exists("update_uuid", $manifest) && is_string($manifest["update_uuid"]) && $manifest["update_uuid"] !== "") {
-			$update_uuid = $manifest["update_uuid"];
-			// Re-resolve uuid_folder against the (possibly new) update_uuid.
-			if ($update_uuid) {
-				$uuid_folder = find_matching_uuid_run_folder($update_uuid, $user_id, $experiment_name);
+		if (array_key_exists("update_uuid", $manifest)) {
+			// The manifest is authoritative: a missing/null UUID means "no
+			// UUID", even when a stale one was appended to the URL.  Only a
+			// non-empty string identifies an existing job.
+			$update_uuid = is_string($manifest["update_uuid"])
+				? trim($manifest["update_uuid"])
+				: "";
+		}
+		if (array_key_exists("update", $manifest)) {
+			if (!empty($manifest["update"])) {
+				$_GET["update"] = "1";
+			} else {
+				unset($_GET["update"]);
 			}
 		}
-		// Only fall back to the latest run when the client asked for an
-		// update *without* providing a UUID (legacy behaviour).  If the
-		// client supplied a UUID that does not exist on the server, this is
-		// a new run (e.g. a fresh local run with a new run_uuid) and must be
-		// uploaded into a new folder.  Never merge it into an unrelated old
-		// share, and never overwrite the old run.
-		if (empty($uuid_folder) && !empty($manifest["update"]) && empty($update_uuid)) {
-			$uuid_folder = find_latest_run_folder($user_id, $experiment_name);
-		}
+		// Never fall back to the latest existing run here.  A manifest
+		// upload without a UUID (or with an unknown UUID) is a new job and
+		// must get a new folder.  Otherwise a new local run could be mixed
+		// into an unrelated old share.
 		$_GET["password"] = $manifest["password"] ?? "";
 
 		if (!isset($_FILES["bundle"]) || !file_exists($_FILES["bundle"]["tmp_name"])) {
@@ -270,6 +262,28 @@
 			$num_offered_files++;
 		}
 		$offered_files = $valid_names;
+	}
+
+	// Resolve the target folder only after the manifest had the chance to
+	// override user_id / experiment_name / update_uuid.  An existing UUID
+	// selects exactly one run folder; any other UUID (or no UUID) creates a
+	// new folder.  This is the single source of truth for the
+	// "new UUID => new job, old UUID => update same job" rule.
+	$update_uuid = is_string($update_uuid) ? trim($update_uuid) : "";
+	$uuid_folder = null;
+	if ($user_id !== null && $experiment_name !== null) {
+		$uuid_folder = resolve_share_target_folder(
+			$update_uuid,
+			$user_id,
+			$experiment_name
+		);
+	}
+
+	if ($uuid_folder && file_exists("$uuid_folder/password.sha256")) {
+		if(hash("sha256", (string) get_get("password")) != file_get_contents("$uuid_folder/password.sha256")) {
+			print("Error: The password you provided does not match the password of this job. Even for updating job on live-share, the password is required.");
+			exit(1);
+		}
 	}
 
 	foreach ($_FILES as $_file) {

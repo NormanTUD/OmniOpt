@@ -2240,7 +2240,44 @@
 		echo "Warning: " . $message . "\n";
 	}
 
+	/**
+	 * Decide which run folder an upload must target.
+	 *
+	 * The server treats the run UUID as the job identity:
+	 *
+	 *   * non-empty UUID that already exists for this user/experiment
+	 *     -> update that folder in place;
+	 *   * non-empty UUID that does not exist (or belongs to another
+	 *     user/experiment) -> return null so a brand-new folder is created;
+	 *   * missing/empty UUID -> return null (create a new folder), unless
+	 *     the caller explicitly opts into the legacy "latest folder"
+	 *     fallback.
+	 *
+	 * The legacy fallback must NEVER be used for manifest uploads: an
+	 * upload without a UUID is not proof that it belongs to the newest
+	 * existing share.  Mixing a new job into an old one is far worse than
+	 * creating an extra folder.
+	 */
+	function resolve_share_target_folder($update_uuid, $user_id, $experiment_name, $allow_latest_fallback = false): ?string {
+		$update_uuid = is_string($update_uuid) ? trim($update_uuid) : "";
+
+		if ($update_uuid !== "") {
+			return find_matching_uuid_run_folder($update_uuid, $user_id, $experiment_name);
+		}
+
+		if ($allow_latest_fallback) {
+			return find_latest_run_folder($user_id, $experiment_name);
+		}
+
+		return null;
+	}
+
 	function find_matching_uuid_run_folder(string $targetUUID, $user_id, $experiment_name): ?string {
+		$targetUUID = trim($targetUUID);
+		if ($targetUUID === "") {
+			return null;
+		}
+
 		try {
 			// Validation using preg_match - this may trigger the JIT error
 			if (!preg_match("/^[a-zA-Z0-9_-]+$/", $user_id) || 

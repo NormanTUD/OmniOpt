@@ -28,6 +28,8 @@
 			32 => "Error regarding the --signed_weighted_euclidean_weights parameter. Check output for details",
 			33 => "Unknown data type for EXTERNAL_GENERATOR",
 			34 => "Died because of DIE_AFTER_THIS_NR_OF_DONE_JOBS, see environment variables help page for more details",
+			35 => "Failed to load the Lmod modules requested with --modules. Check module names/versions with module avail or module spider.",
+			36 => "Failed to activate the virtualenv requested with --venv. Check the path and its bin/activate script.",
 			44 => "Continuation of previous job failed",
 			45 => "Could not create log dir",
 			47 => "Missing checkpoint or defective file or state files (check output)",

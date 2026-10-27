@@ -7,7 +7,7 @@ module because it starts its own bootstrap), so they are extracted with
 real to verify:
 
 * ``xyz`` / ``module xyz`` / ``ml xyz`` all load module ``xyz``;
-* module failures produce exit code 4 and an actionable message;
+* module failures produce exit code 35 and an actionable message;
 * a virtualenv directory or activate script is sourced correctly;
 * the order is modules -> virtualenv -> run program;
 * ``run_program_once`` never activates the evaluation virtualenv.
@@ -167,7 +167,7 @@ def test_module_setup_failure(namespace: dict) -> bool:
     setup = namespace["_omniopt_module_setup_script"](commands)
     script = 'ml() { echo "fake lmod error" >&2; return 1; }\n' + setup
     result = _run_bash(script)
-    ok = _check(result.returncode == 4, f"expected exit code 4, got {result.returncode}")
+    ok = _check(result.returncode == 35, f"expected exit code 35, got {result.returncode}")
     ok &= _check("module command failed" in result.stderr, "missing 'module command failed' hint")
     ok &= _check("module avail" in result.stderr, "missing 'module avail' hint")
     return ok
@@ -197,7 +197,7 @@ def test_venv_activation(namespace: dict) -> bool:
         ok &= _check("VENV=1" in result.stdout, f"activate-script marker missing: {result.stdout!r}")
 
         result = _run_bash(setup_venv(str(Path(tmp) / "does-not-exist")))
-        ok &= _check(result.returncode == 23, f"missing venv should exit 23, got {result.returncode}")
+        ok &= _check(result.returncode == 36, f"missing venv should exit 36, got {result.returncode}")
         ok &= _check("could not find the virtualenv" in result.stderr, "missing missing-venv hint")
     return ok
 
@@ -597,7 +597,7 @@ def test_real_omniopt_fake_ml_failure(namespace: dict) -> bool:
             fake_lmod_cmd=fake_lmod_cmd,
         )
         combined = result.stdout or ""
-        ok = _check(result.returncode == 4, f"expected exit code 4, got {result.returncode}")
+        ok = _check(result.returncode == 35, f"expected exit code 35, got {result.returncode}")
         ok &= _check(
             "Could not load the modules requested with --modules." in combined,
             "real run did not print the module error",
@@ -611,7 +611,7 @@ def test_real_omniopt_fake_ml_failure(namespace: dict) -> bool:
                 "module failure was not printed as a red error",
             )
         if ok:
-            green_text("PASS: failing module load -> expected exit 4, red actionable error, no optimization run")
+            green_text("PASS: failing module load -> expected exit 35, red actionable error, no optimization run")
         return ok
 
 

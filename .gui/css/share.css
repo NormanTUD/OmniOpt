@@ -176,3 +176,73 @@ select {
 	border-radius: 0;
 	border: 1px solid black;
 }
+
+.results-toolbar {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	align-items: center;
+	margin-bottom: 10px;
+}
+
+.results-search {
+	flex: 1 1 260px;
+	min-width: 220px;
+	padding: 4px 6px;
+}
+
+.results-page-size,
+.results-button {
+	padding: 4px 8px;
+}
+
+.results-button {
+	cursor: pointer;
+}
+
+.results-info {
+	white-space: nowrap;
+}
+
+.results-table-scroll {
+	max-height: 70vh;
+	overflow: auto;
+	border: 1px solid gray;
+}
+
+.results-table {
+	border-collapse: collapse;
+	width: 100%;
+}
+
+.results-table th,
+.results-table td {
+	border: 1px solid gray;
+	padding: 4px 8px;
+	white-space: nowrap;
+}
+
+.results-table thead th {
+	position: sticky;
+	top: 0;
+	z-index: 3;
+	background: #00015a;
+	color: white;
+	cursor: pointer;
+	user-select: none;
+}
+
+.results-table tbody tr:nth-child(even) {
+	background: rgba(127, 127, 127, 0.08);
+}
+
+.results-sort-arrow {
+	opacity: 0.8;
+}
+
+.results-pagination {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+	margin-top: 8px;
+}

@@ -468,6 +468,46 @@ expect_true("uuidv4: position 14 is 4",
 expect_true("uuidv4: position 19 is one of 8,9,a,b",
 	"89ab".includes(uuid[19]));
 
+// --- Group: results table helpers ---
+console.log("\n--- Testing: results table helpers ---");
+var fs = require("fs");
+var resultsCode = fs.readFileSync(__dirname + "/js/results_table.js", "utf8");
+var resultsHelpers = new Function(
+	resultsCode + "\nreturn {" +
+	"_resultsColumnKinds, _resultsCompareValues, _resultsCsvEscape, _resultsCsvString};"
+)();
+
+expect("results column kinds: numeric columns",
+	resultsHelpers._resultsColumnKinds([[1, "2"], [3, "4"]], ["a", "b"]),
+	["number", "number"]);
+expect("results column kinds: empty cells ignored for numeric detection",
+	resultsHelpers._resultsColumnKinds([[1, ""], [2, "x"]], ["a", "b"]),
+	["number", "string"]);
+expect("results column kinds: all empty is a string column",
+	resultsHelpers._resultsColumnKinds([["", ""]], ["a", "b"]),
+	["string", "string"]);
+expect("results compare: numeric ascending",
+	resultsHelpers._resultsCompareValues("2", "10", "number", 1) < 0, true);
+expect("results compare: numeric descending",
+	resultsHelpers._resultsCompareValues("2", "10", "number", -1) > 0, true);
+expect("results compare: strings",
+	resultsHelpers._resultsCompareValues("alpha", "beta", "string", 1) < 0, true);
+expect("results compare: empty goes last ascending",
+	resultsHelpers._resultsCompareValues("", "beta", "string", 1) > 0, true);
+expect("results compare: empty goes last descending",
+	resultsHelpers._resultsCompareValues("", "beta", "string", -1) > 0, true);
+expect("results compare: both empty equal",
+	resultsHelpers._resultsCompareValues("", "", "string", 1), 0);
+expect("results csv escape: comma",
+	resultsHelpers._resultsCsvEscape("a,b"), "\"a,b\"");
+expect("results csv escape: quotes",
+	resultsHelpers._resultsCsvEscape('a"b'), "\"a\"\"b\"");
+expect("results csv escape: newline",
+	resultsHelpers._resultsCsvEscape("a\nb"), "\"a\nb\"");
+expect("results csv string: header and rows",
+	resultsHelpers._resultsCsvString(["a", "b"], [[1, "x,y"]]),
+	"a,b\n1,\"x,y\"");
+
 // ============================================================
 // SUMMARY
 // ============================================================

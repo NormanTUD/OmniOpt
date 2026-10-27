@@ -1216,34 +1216,16 @@
 			$GLOBALS["json_data"]["{$id}_headers_json"] = $headers_json;
 			$GLOBALS["json_data"]["{$id}_csv_json"] = $csv_json;
 
-
-			$content = file_get_contents($filename);
-
-			$content = normalize_csv_file_contents($content);
-
-			$content = my_htmlentities($content);
-
-			if($content && $header_line) {
-				$content = implode(",", $header_line)."\n$content";
-			}
-
-			// Do NOT build the GridJS table here.  The table can contain
-			// hundreds of thousands of cells and GridJS installs its own
-			// resize observers; building it while the panel is hidden blocks
-			// the main thread and forces unnecessary layout work on pages
-			// that never open the Results tab (e.g. #tab_histogram).  The
-			// table is created on first activation by load_lazy_panel().
-			$results_html = "<div id='{$id}_csv_table' data-lazy-grid-id='{$id}'></div>\n";
-			$results_html .= copy_id_to_clipboard_string("{$id}_csv_table_pre", $filename);
-			$results_html .= "<pre id='{$id}_csv_table_pre'>".$content."</pre>\n";
-			$results_html .= copy_id_to_clipboard_string("{$id}_csv_table_pre", $filename);
+			// The table is rendered lazily by results_table.js when the tab
+			// is opened.  Do not embed the raw CSV a second time as a <pre>:
+			// that doubled the page size and made parsing large shares slow.
+			$results_html = "<div id='{$id}_csv_table' data-lazy-results-table-id='{$id}'></div>\n";
 
 			$svg_icon = get_icon_html("csv.svg");
 
 			$tabs["$svg_icon$name"] = [
 				'id' => $id,
-				'content' => $results_html,
-				'onclick' => 'colorize_table_entries();'
+				'content' => $results_html
 			];
 		} else {
 			if(!is_file($filename)) {

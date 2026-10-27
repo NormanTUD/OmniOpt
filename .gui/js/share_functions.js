@@ -247,12 +247,12 @@ function load_pre_file(pre_id, filename, ansi_mode) {
 		});
 }
 
-function initialize_lazy_grid_tables(root) {
+function initialize_lazy_results_tables(root) {
 	var scope = root || document;
-	var tableContainers = scope.querySelectorAll("[data-lazy-grid-id]");
+	var tableContainers = scope.querySelectorAll("[data-lazy-results-table-id]");
 	for (var i = 0; i < tableContainers.length; i++) {
 		var el = tableContainers[i];
-		if (el.dataset.gridInitialized === "true") {
+		if (el.dataset.resultsInitialized === "true") {
 			continue;
 		}
 		// Only initialize tables that belong directly to the panel that is
@@ -261,17 +261,15 @@ function initialize_lazy_grid_tables(root) {
 			continue;
 		}
 
-		var id = el.dataset.lazyGridId;
+		var id = el.dataset.lazyResultsTableId;
 		var data = window[id + "_csv_json"];
 		var headers = window[id + "_headers_json"];
 		if (!Array.isArray(data) || !Array.isArray(headers)) {
 			continue;
 		}
 
-		// Mark first: createTable() is synchronous and may trigger a
-		// resize observer callback before it returns.
-		el.dataset.gridInitialized = "true";
-		createTable(data, headers, id + "_csv_table");
+		el.dataset.resultsInitialized = "true";
+		createResultsTable(data, headers, id + "_csv_table");
 	}
 }
 
@@ -279,7 +277,7 @@ function load_lazy_panel(panel) {
 	if (!panel) {
 		return;
 	}
-	initialize_lazy_grid_tables(panel);
+	initialize_lazy_results_tables(panel);
 	// Ignore pre elements that belong to nested tab panels; those are
 	// loaded when their own tab group becomes active.
 	var preEl = Array.from(panel.querySelectorAll("pre[data-log-file]:not([data-loaded='true'])"))
@@ -338,7 +336,9 @@ function load_debug_log() {
 	}
 }
 
-function _colorize_table_entries_by_generation_method() {
+function _colorize_table_entries_by_generation_method(markDark, root) {
+	markDark = markDark !== false;
+	root = root || document;
 	var colorMap = {
 		"manual": "green",
 		"sobol": "orange",
@@ -351,7 +351,7 @@ function _colorize_table_entries_by_generation_method() {
 		"botorch": "yellow"
 	};
 
-	var els = document.querySelectorAll('[data-column-id="generation_node"]');
+	var els = root.querySelectorAll('[data-column-id="generation_node"]');
 	for (var i = 0; i < els.length; i++) {
 		var el = els[i];
 		var text = el.textContent.toLowerCase();
@@ -365,12 +365,16 @@ function _colorize_table_entries_by_generation_method() {
 		if (color) {
 			el.style.backgroundColor = color;
 		}
-		el.classList.add("invert_in_dark_mode");
+		if (markDark) {
+			el.classList.add("invert_in_dark_mode");
+		}
 	}
 }
 
-function _colorize_table_entries_by_trial_status() {
-	var els = document.querySelectorAll('[data-column-id="trial_status"]');
+function _colorize_table_entries_by_trial_status(markDark, root) {
+	markDark = markDark !== false;
+	root = root || document;
+	var els = root.querySelectorAll('[data-column-id="trial_status"]');
 	for (var i = 0; i < els.length; i++) {
 		var el = els[i];
 		var text = el.textContent;
@@ -380,14 +384,18 @@ function _colorize_table_entries_by_trial_status() {
 			text.includes("CANDIDATE") ? "lightblue" :
 			text.includes("ABANDONED") ? "yellow" : "";
 		if (color) el.style.backgroundColor = color;
-		el.classList.add("invert_in_dark_mode");
+		if (markDark) {
+			el.classList.add("invert_in_dark_mode");
+		}
 	}
 }
 
-function _colorize_table_entries(configs) {
+function _colorize_table_entries(configs, markDark, root) {
+	markDark = markDark !== false;
+	root = root || document;
 	for (var c = 0; c < configs.length; c++) {
 		var cfg = configs[c];
-		var cells = document.querySelectorAll(cfg.selector);
+		var cells = root.querySelectorAll(cfg.selector);
 		if (cells.length === 0) continue;
 
 		if (cfg.type === "categorical") {
@@ -403,7 +411,9 @@ function _colorize_table_entries(configs) {
 				var v = cells[i].textContent.trim();
 				var hue = Math.round((360 / uniqueCount) * uniqueMap[v]);
 				cells[i].style.backgroundColor = `hsl(${hue}, 70%, 60%)`;
-				cells[i].classList.add("invert_in_dark_mode");
+				if (markDark) {
+					cells[i].classList.add("invert_in_dark_mode");
+				}
 			}
 			continue;
 		}
@@ -439,13 +449,15 @@ function _colorize_table_entries(configs) {
 			var green = (255 * (1 - ratio)) | 0;
 
 			cells[i].style.backgroundColor = `rgb(${red},${green},0)`;
-			cells[i].classList.add("invert_in_dark_mode");
+			if (markDark) {
+				cells[i].classList.add("invert_in_dark_mode");
+			}
 		}
 	}
 }
 
-function _apply_colorization() {
-	_colorize_table_entries([
+function _results_colorization_configs() {
+	return [
 		{ selector: '[data-column-id="queue_time"]', type: "linear" },
 		{ selector: '[data-column-id="run_time"]', type: "linear" },
 		...result_names.map((name, i) => ({
@@ -456,7 +468,11 @@ function _apply_colorization() {
 		})),
 		{ selector: '[data-column-id="hostname"]:not(.gridjs-th)', type: "categorical" },
 		{ selector: '[data-column-id="generation_node"]:not(.gridjs-th)', type: "categorical" }
-	]);
+	];
+}
+
+function _apply_colorization() {
+	_colorize_table_entries(_results_colorization_configs());
 }
 
 var _colorize_timer = null;
@@ -473,18 +489,7 @@ function colorize_table_entries() {
 
 		_colorize_table_entries_by_trial_status();
 
-		_colorize_table_entries([
-			{ selector: '[data-column-id="queue_time"]', type: "linear" },
-			{ selector: '[data-column-id="run_time"]', type: "linear" },
-			...result_names.map((name, i) => ({
-				selector: `[data-column-id="${name}"]`,
-				type: "log",
-				filter: v => v > 0 && !isNaN(v),
-				invert: result_min_max[i] === "max"
-			})),
-			{ selector: '[data-column-id="hostname"]:not(.gridjs-th)', type: "categorical" },
-			{ selector: '[data-column-id="generation_node"]:not(.gridjs-th)', type: "categorical" }
-		]);
+		_colorize_table_entries(_results_colorization_configs());
 
 		_colorize_table_entries_by_generation_method();
 

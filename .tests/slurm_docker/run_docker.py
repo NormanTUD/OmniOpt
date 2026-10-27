@@ -42,6 +42,47 @@ def _install_if_missing(cmd: str, install_via_apt: bool = True,
         sys.exit(exit_code)
 
 
+def _docker_compose_cmd() -> List[str]:
+    """Return the command prefix for Docker Compose, or an empty list."""
+    if shutil.which("docker-compose") is not None:
+        return ["docker-compose"]
+    result = subprocess.run(
+        ["docker", "compose", "version"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if result.returncode == 0:
+        return ["docker", "compose"]
+    return []
+
+
+def _ensure_docker_compose() -> List[str]:
+    compose_cmd = _docker_compose_cmd()
+    if compose_cmd:
+        return compose_cmd
+
+    if shutil.which("apt") is not None:
+        subprocess.run(["sudo", "apt-get", "update"], check=False)
+        subprocess.run(
+            ["sudo", "apt-get", "install", "-y", "docker-compose-plugin"],
+            check=False,
+        )
+        compose_cmd = _docker_compose_cmd()
+        if compose_cmd:
+            return compose_cmd
+        subprocess.run(
+            ["sudo", "apt-get", "install", "-y", "docker-compose"],
+            check=False,
+        )
+        compose_cmd = _docker_compose_cmd()
+
+    if not compose_cmd:
+        print("Failed to install docker-compose", file=sys.stderr)
+        sys.exit(2)
+    return compose_cmd
+
+
 def create_docker_compose_yml(nr_nodes: int) -> str:
     nodes = []
     for n in range(1, nr_nodes + 1):
@@ -194,7 +235,7 @@ def build_argparser() -> argparse.ArgumentParser:
 def main(argv=None) -> int:
     _install_if_missing("curl", install_via_apt=True, exit_code=2)
     _install_if_missing("docker", install_via_apt=False, install_via_curl=True, exit_code=2)
-    _install_if_missing("docker-compose", install_via_apt=True, exit_code=2)
+    compose_cmd = _ensure_docker_compose()
     _install_if_missing("wget", install_via_apt=True, exit_code=2)
     _install_if_missing("git", install_via_apt=True, exit_code=2)
 
@@ -204,7 +245,7 @@ def main(argv=None) -> int:
     if args.stop:
         compose_path = THIS_DIR / "docker-compose.yml"
         compose_path.write_text(create_docker_compose_yml(_count_running_slurmnodes()))
-        subprocess.run(["docker-compose", "-f", str(compose_path), "stop"], check=False)
+        subprocess.run(compose_cmd + ["-f", str(compose_path), "stop"], check=False)
         compose_path.unlink(missing_ok=True)
         return 0
 
@@ -221,22 +262,15 @@ def main(argv=None) -> int:
 
     try:
         if args.install_slurm:
-            if shutil.which("docker-compose") is None:
-                if shutil.which("apt") is None:
-                    print("Cannot install docker-compose. Apt needed, but not found.",
-                          file=sys.stderr)
-                    return 1
-                subprocess.run(["sudo", "apt", "install", "-y", "docker-compose"],
-                               check=False)
-            subprocess.run(["docker-compose", "build", "slurmmaster"], check=False)
-            subprocess.run(["docker-compose", "build", "slurmfrontend"], check=False)
+            subprocess.run(compose_cmd + ["build", "slurmmaster"], check=False)
+            subprocess.run(compose_cmd + ["build", "slurmfrontend"], check=False)
             compose_text = compose_path.read_text()
             import re
             for match in re.findall(r"^(slurmnode\d+):", compose_text, re.MULTILINE):
-                subprocess.run(["docker-compose", "build", match], check=False)
+                subprocess.run(compose_cmd + ["build", match], check=False)
 
         subprocess.run(
-            ["docker-compose", "-f", str(compose_path), "up", "-d", "--remove-orphans"],
+            compose_cmd + ["-f", str(compose_path), "up", "-d", "--remove-orphans"],
             check=False,
         )
 

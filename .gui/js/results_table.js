@@ -4,9 +4,9 @@
 //
 // GridJS rendered every row at once, which blocked the main thread for
 // seconds on large runs and made switching tabs feel frozen.  This table only
-// keeps one page of rows in the DOM, while search and sorting still operate on
-// the complete data set.  Cell colors are computed once from the full data so
-// they stay stable when the user changes pages.
+// keeps only the visible window of rows in the DOM, while search and sorting
+// still operate on the complete data set.  Cell colors are computed once from
+// the full data so they stay stable while scrolling.
 
 function _resultsColumnKinds(data, headers) {
 	return headers.map(function (_header, columnIndex) {
@@ -247,13 +247,16 @@ function createResultsTable(data, headers, table_name) {
 	container.classList.add("results-table-root");
 
 	var state = {
-		page: 0,
-		pageSize: 50,
 		sortColumn: -1,
 		sortDirection: 1,
 		search: "",
 		view: []
 	};
+
+	var ROW_HEIGHT = 32;
+	var OVERSCAN = 10;
+	var lastFirstRow = -1;
+	var lastLastRow = -1;
 
 	var columnKinds = _resultsColumnKinds(data, headers);
 	var colorize = _resultsBuildColorizer(data, headers);
@@ -266,17 +269,6 @@ function createResultsTable(data, headers, table_name) {
 	searchInput.placeholder = "Search results...";
 	searchInput.className = "results-search";
 	toolbar.appendChild(searchInput);
-
-	var pageSizeSelect = document.createElement("select");
-	pageSizeSelect.className = "results-page-size";
-	[25, 50, 100, 250].forEach(function (size) {
-		var option = document.createElement("option");
-		option.value = String(size);
-		option.textContent = size + " rows";
-		if (size === state.pageSize) option.selected = true;
-		pageSizeSelect.appendChild(option);
-	});
-	toolbar.appendChild(pageSizeSelect);
 
 	var info = document.createElement("span");
 	info.className = "results-info";
@@ -324,9 +316,9 @@ function createResultsTable(data, headers, table_name) {
 					state.sortColumn = columnIndex;
 					state.sortDirection = 1;
 				}
-				state.page = 0;
 				updateView();
-				render();
+				scroll.scrollTop = 0;
+				renderWindow(true);
 			};
 		})(c));
 
@@ -340,26 +332,15 @@ function createResultsTable(data, headers, table_name) {
 	scroll.appendChild(table);
 	container.appendChild(scroll);
 
-	var pagination = document.createElement("div");
-	pagination.className = "results-pagination";
-
-	var prevButton = document.createElement("button");
-	prevButton.type = "button";
-	prevButton.textContent = "Previous";
-	prevButton.className = "results-button";
-	pagination.appendChild(prevButton);
-
-	var pageInfo = document.createElement("span");
-	pageInfo.className = "results-page-info";
-	pagination.appendChild(pageInfo);
-
-	var nextButton = document.createElement("button");
-	nextButton.type = "button";
-	nextButton.textContent = "Next";
-	nextButton.className = "results-button";
-	pagination.appendChild(nextButton);
-
-	container.appendChild(pagination);
+	function createSpacer(height) {
+		var tr = document.createElement("tr");
+		tr.className = "results-spacer";
+		var td = document.createElement("td");
+		td.colSpan = headers.length;
+		td.style.height = height + "px";
+		tr.appendChild(td);
+		return tr;
+	}
 
 	function updateView() {
 		var query = state.search.trim().toLowerCase();
@@ -397,10 +378,6 @@ function createResultsTable(data, headers, table_name) {
 		}
 
 		state.view = view;
-		var maxPage = Math.max(0, Math.ceil(view.length / state.pageSize) - 1);
-		if (state.page > maxPage) {
-			state.page = maxPage;
-		}
 	}
 
 	function updateHeaderArrows() {
@@ -413,18 +390,49 @@ function createResultsTable(data, headers, table_name) {
 		}
 	}
 
-	function render() {
+	/**
+	 * Render only the rows that are currently visible (plus a small
+	 * overscan).  There is no pagination: the full result set is in one
+	 * scrolling table, but the DOM only contains the window around the
+	 * viewport.
+	 */
+	function renderWindow(force) {
 		updateHeaderArrows();
-		tbody.innerHTML = "";
 
 		var total = state.view.length;
-		var start = state.page * state.pageSize;
-		var end = Math.min(start + state.pageSize, total);
-		var fragment = document.createDocumentFragment();
+		if (total === 0) {
+			(lastFirstRow = -1);
+			lastLastRow = -1;
+			tbody.innerHTML = "";
+			info.textContent = "No matching results";
+			return;
+		}
 
-		for (var i = start; i < end; i++) {
+		var headerHeight = thead.offsetHeight || ROW_HEIGHT;
+		var scrollTop = Math.max(0, scroll.scrollTop - headerHeight);
+		var viewportHeight = scroll.clientHeight || 700;
+		var visibleCount = Math.ceil(viewportHeight / ROW_HEIGHT) + OVERSCAN * 2;
+
+		var first = Math.max(0, Math.floor(scrollTop / ROW_HEIGHT) - OVERSCAN);
+		var last = Math.min(total, first + visibleCount);
+		first = Math.max(0, Math.min(first, total - visibleCount));
+		last = Math.min(total, first + visibleCount);
+
+		if (!force && first === lastFirstRow && last === lastLastRow) {
+			return;
+		}
+		lastFirstRow = first;
+		lastLastRow = last;
+
+		var fragment = document.createDocumentFragment();
+		if (first > 0) {
+			fragment.appendChild(createSpacer(first * ROW_HEIGHT));
+		}
+
+		for (var i = first; i < last; i++) {
 			var source = data[state.view[i]];
 			var tr = document.createElement("tr");
+			tr.className = "results-row";
 			for (var c = 0; c < headers.length; c++) {
 				var td = document.createElement("td");
 				td.dataset.columnId = headers[c];
@@ -434,49 +442,40 @@ function createResultsTable(data, headers, table_name) {
 			}
 			fragment.appendChild(tr);
 		}
-		tbody.appendChild(fragment);
 
-		if (total === 0) {
-			info.textContent = "No matching results";
-			pageInfo.textContent = "Page 0 of 0";
-		} else {
-			info.textContent = "Showing " + (start + 1) + " to " + end + " of " + total + " results";
-			var pageCount = Math.ceil(total / state.pageSize);
-			pageInfo.textContent = "Page " + (state.page + 1) + " of " + pageCount;
+		if (last < total) {
+			fragment.appendChild(createSpacer((total - last) * ROW_HEIGHT));
 		}
 
-		prevButton.disabled = state.page <= 0;
-		nextButton.disabled = end >= total;
-
+		tbody.innerHTML = "";
+		tbody.appendChild(fragment);
+		info.textContent = total + " results";
 		colorize(table);
 	}
 
+	var scrollRaf = null;
+	scroll.addEventListener("scroll", function () {
+		if (scrollRaf !== null) {
+			return;
+		}
+		scrollRaf = requestAnimationFrame(function () {
+			scrollRaf = null;
+			renderWindow(false);
+		});
+	});
+
+	var searchTimer = null;
 	searchInput.addEventListener("input", function () {
-		state.search = searchInput.value;
-		state.page = 0;
-		updateView();
-		render();
-	});
-
-	pageSizeSelect.addEventListener("change", function () {
-		state.pageSize = parseInt(pageSizeSelect.value, 10) || 50;
-		state.page = 0;
-		updateView();
-		render();
-	});
-
-	prevButton.addEventListener("click", function () {
-		if (state.page > 0) {
-			state.page--;
-			render();
+		if (searchTimer !== null) {
+			clearTimeout(searchTimer);
 		}
-	});
-
-	nextButton.addEventListener("click", function () {
-		if ((state.page + 1) * state.pageSize < state.view.length) {
-			state.page++;
-			render();
-		}
+		searchTimer = setTimeout(function () {
+			searchTimer = null;
+			state.search = searchInput.value;
+			updateView();
+			scroll.scrollTop = 0;
+			renderWindow(true);
+		}, 120);
 	});
 
 	copyButton.addEventListener("click", function () {
@@ -497,5 +496,17 @@ function createResultsTable(data, headers, table_name) {
 	});
 
 	updateView();
-	render();
+	renderWindow(true);
+
+	// The panel is only just becoming visible, so the client height may still be
+	// tiny on the first synchronous render.  Re-render once layout is ready
+	// and whenever the viewport height changes (window resize, browser zoom).
+	requestAnimationFrame(function () {
+		renderWindow(true);
+	});
+	if (typeof ResizeObserver !== "undefined") {
+		new ResizeObserver(function () {
+			renderWindow(true);
+		}).observe(scroll);
+	}
 }

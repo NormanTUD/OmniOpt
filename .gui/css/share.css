@@ -222,6 +222,20 @@ select {
 	white-space: nowrap;
 }
 
+.results-table tbody td {
+	height: 32px;
+	box-sizing: border-box;
+	line-height: 22px;
+}
+
+.results-table tr.results-spacer td {
+	height: 0;
+	padding: 0 !important;
+	border: 0 !important;
+	line-height: 0;
+	font-size: 0;
+}
+
 .results-table thead th {
 	position: sticky;
 	top: 0;

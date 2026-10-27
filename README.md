@@ -378,6 +378,7 @@ Recent additions include:
 - `36`: the virtualenv requested with `--venv` could not be activated
 - `87`: search space exhausted
 - `89`: all jobs failed
+- `248`: the external generator failed repeatedly (its input folder is kept)
 
 Failed evaluations include a red summary panel with actionable hints for common
 problems: missing results, Python traceback output, missing files, wrong working

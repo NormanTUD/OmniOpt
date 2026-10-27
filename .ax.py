@@ -906,7 +906,12 @@ def generation_strategy_gen(
     try:
         return gs.gen(experiment=experiment, n=n)
     except BaseException as exc:
-        raise _translate_exception(exc) from exc
+        translated = _translate_exception(exc)
+        if translated is exc:
+            # Preserve the original __cause__ chain (e.g. custom generator
+            # errors) instead of re-raising the same object ``from`` itself.
+            raise
+        raise translated from exc
 
 
 def generation_strategy_current_node_name(gs: Any) -> str:

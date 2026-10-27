@@ -4300,6 +4300,36 @@ class InteractiveCLIGenerationNode(ax_backend.ExternalGenerationNodeBase):
         console.rule()
         return candidate
 
+class ExternalGeneratorFailed(RuntimeError):
+    """Raised when the configured external generator cannot produce a point."""
+
+
+def _last_lines(text: str, max_lines: int = 40) -> str:
+    """Return the last ``max_lines`` lines of ``text`` (for error messages)."""
+    lines = (text or "").rstrip().splitlines()
+    if not lines:
+        return ""
+    if len(lines) > max_lines:
+        lines = ["... (truncated)"] + lines[-max_lines:]
+    return "\n".join(lines)
+
+
+def _find_external_generator_failure(exc: Optional[BaseException]) -> Optional[ExternalGeneratorFailed]:
+    """Find an :class:`ExternalGeneratorFailed` anywhere in an exception chain.
+
+    Ax may wrap exceptions raised by a generation node in its own ``RuntimeError``.
+    Walking ``__cause__``/``__context__`` lets callers recognise an external
+    generator failure without relying on the outermost exception type.
+    """
+    seen: set[int] = set()
+    while exc is not None and id(exc) not in seen:
+        if isinstance(exc, ExternalGeneratorFailed):
+            return exc
+        seen.add(id(exc))
+        exc = exc.__cause__ or exc.__context__
+    return None
+
+
 @dataclass(init=False)
 class ExternalProgramGenerationNode(ax_backend.ExternalGenerationNodeBase):
     def __init__(self: Any, external_generator: str = args.external_generator, name: str = "EXTERNAL_GENERATOR") -> None:
@@ -4421,7 +4451,47 @@ class ExternalProgramGenerationNode(ax_backend.ExternalGenerationNodeBase):
 
             run_this_program = self.external_generator.replace('\n', '').split() + [temp_dir]
 
-            subprocess.run(run_this_program, check=True, cwd=get_eval_working_dir())
+            # Retry only a few times: most failures are deterministic (bad
+            # command, missing import, invalid results), so retrying forever
+            # just floods the run folder with temp dirs and hides the error.
+            max_attempts = max(1, min(int(getattr(args, "max_attempts_for_generation", 20) or 1), 3))
+            last_stdout = ""
+            last_stderr = ""
+            last_exit_code = 0
+            for attempt in range(1, max_attempts + 1):
+                proc = subprocess.run(
+                    run_this_program, cwd=get_eval_working_dir(),
+                    capture_output=True, text=True,
+                )
+                last_exit_code = proc.returncode
+                last_stdout = proc.stdout or ""
+                last_stderr = proc.stderr or ""
+                if proc.returncode == 0:
+                    if last_stdout:
+                        sys.stdout.write(last_stdout)
+                    if last_stderr:
+                        sys.stderr.write(last_stderr)
+                    break
+                print_debug(
+                    f"External generator attempt {attempt}/{max_attempts} failed "
+                    f"with exit code {proc.returncode}: {' '.join(run_this_program)}"
+                )
+                if attempt < max_attempts:
+                    _sleep(1)
+            else:
+                output_parts = []
+                if last_stdout:
+                    output_parts.append(f"stdout:\n{_last_lines(last_stdout)}")
+                if last_stderr:
+                    output_parts.append(f"stderr:\n{_last_lines(last_stderr)}")
+                output = "\n".join(output_parts) or "(no output)"
+                raise ExternalGeneratorFailed(
+                    f"External generator failed after {max_attempts} attempt(s) "
+                    f"(last exit code {last_exit_code}).\n"
+                    f"Command: {' '.join(run_this_program)}\n"
+                    f"Input kept for inspection in: {temp_dir}\n"
+                    f"Last output:\n{output}"
+                )
 
             print_debug(f"Executed external program: {' '.join(run_this_program)}")
 
@@ -4461,8 +4531,14 @@ class ExternalProgramGenerationNode(ax_backend.ExternalGenerationNodeBase):
             print_debug(f"Found new candidate: {candidate}")
             return candidate
 
+        except ExternalGeneratorFailed:
+            raise
         except Exception as e:
-            raise RuntimeError(f"Error getting next candidate: {e}") from e
+            temp_dir_hint = locals().get("temp_dir", "(not created)")
+            raise ExternalGeneratorFailed(
+                f"External generator failed: {e}\n"
+                f"Input kept for inspection in: {temp_dir_hint}"
+            ) from e
 
 decoder_registry["ExternalProgramGenerationNode"] = ExternalProgramGenerationNode
 
@@ -12270,6 +12346,14 @@ def get_batched_arms(nr_of_jobs_to_get: int) -> list:
             print_red(f"Error at global_gs.gen: {e}")
             sys.exit(97)
         except Exception as e:
+            external_failure = _find_external_generator_failure(e)
+            if external_failure is None and "External generator failed" in str(e):
+                external_failure = ExternalGeneratorFailed(str(e))
+            if external_failure is not None:
+                # Do not swallow this: the caller turns it into a fatal,
+                # actionable error instead of retrying the same failing
+                # generator forever.
+                raise external_failure
             print_debug(f"global_gs.gen failed: {e}")
             traceback.print_exception(type(e), e, e.__traceback__, file=sys.stderr)
             break
@@ -12428,11 +12512,15 @@ def handle_generation_failure(
     requested: int,
     recursion: bool
 ) -> Tuple[Dict[int, Any], bool]:
+    external_failure = _find_external_generator_failure(e)
+    if external_failure is not None:
+        _fatal_error(str(external_failure), 248)
+
     if isinstance(e, np.linalg.LinAlgError):
         _handle_linalg_error(e)
         my_exit(242)
 
-    elif isinstance(e, (
+    if isinstance(e, (
         ax_backend.SearchSpaceExhausted,
         ax_backend.GenerationStrategyRepeatedPoints,
         ax_backend.MaxParallelismReachedException

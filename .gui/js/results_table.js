@@ -236,6 +236,35 @@ function _resultsBuildColorizer(data, headers) {
 	};
 }
 
+function _resultsRowMatchesSearch(row, query) {
+	if (query === "") {
+		return true;
+	}
+	for (var c = 0; c < row.length; c++) {
+		if (String(row[c] === null || row[c] === undefined ? "" : row[c]).toLowerCase().indexOf(query) !== -1) {
+			return true;
+		}
+	}
+	return false;
+}
+
+function _resultsFilterRows(data, search, externalFilter) {
+	var query = String(search === null || search === undefined ? "" : search).trim().toLowerCase();
+	var view = [];
+
+	for (var r = 0; r < data.length; r++) {
+		if (externalFilter && !externalFilter(data[r], r)) {
+			continue;
+		}
+		if (!_resultsRowMatchesSearch(data[r], query)) {
+			continue;
+		}
+		view.push(r);
+	}
+
+	return view;
+}
+
 function createResultsTable(data, headers, table_name) {
 	var container = document.getElementById(table_name);
 	if (!container) {
@@ -250,6 +279,7 @@ function createResultsTable(data, headers, table_name) {
 		sortColumn: -1,
 		sortDirection: 1,
 		search: "",
+		externalFilter: null,
 		view: []
 	};
 
@@ -343,24 +373,7 @@ function createResultsTable(data, headers, table_name) {
 	}
 
 	function updateView() {
-		var query = state.search.trim().toLowerCase();
-		var view = [];
-
-		if (query === "") {
-			for (var r = 0; r < data.length; r++) {
-				view.push(r);
-			}
-		} else {
-			for (var r = 0; r < data.length; r++) {
-				var row = data[r];
-				for (var c = 0; c < row.length; c++) {
-					if (String(row[c] === null || row[c] === undefined ? "" : row[c]).toLowerCase().indexOf(query) !== -1) {
-						view.push(r);
-						break;
-					}
-				}
-			}
-		}
+		var view = _resultsFilterRows(data, state.search, state.externalFilter);
 
 		if (state.sortColumn >= 0) {
 			var columnIndex = state.sortColumn;
@@ -400,11 +413,12 @@ function createResultsTable(data, headers, table_name) {
 		updateHeaderArrows();
 
 		var total = state.view.length;
+		var hasFilter = state.externalFilter !== null || state.search.trim() !== "";
 		if (total === 0) {
 			(lastFirstRow = -1);
 			lastLastRow = -1;
 			tbody.innerHTML = "";
-			info.textContent = "No matching results";
+			info.textContent = hasFilter ? "No matching results (0 of " + data.length + ")" : "No matching results";
 			return;
 		}
 
@@ -449,7 +463,7 @@ function createResultsTable(data, headers, table_name) {
 
 		tbody.innerHTML = "";
 		tbody.appendChild(fragment);
-		info.textContent = total + " results";
+		info.textContent = hasFilter ? total + " of " + data.length + " results" : total + " results";
 		colorize(table);
 	}
 
@@ -509,4 +523,38 @@ function createResultsTable(data, headers, table_name) {
 			renderWindow(true);
 		}).observe(scroll);
 	}
+
+	function refreshFilteredView() {
+		updateView();
+		scroll.scrollTop = 0;
+		renderWindow(true);
+	}
+
+	return {
+		setExternalFilter: function (filter) {
+			state.externalFilter = typeof filter === "function" ? filter : null;
+			refreshFilteredView();
+		},
+		clearExternalFilter: function () {
+			state.externalFilter = null;
+			refreshFilteredView();
+		},
+		setSearch: function (text) {
+			searchInput.value = text || "";
+			state.search = searchInput.value;
+			refreshFilteredView();
+		},
+		getVisibleCount: function () {
+			return state.view.length;
+		},
+		getTotalCount: function () {
+			return data.length;
+		},
+		getData: function () {
+			return data;
+		},
+		getHeaders: function () {
+			return headers;
+		}
+	};
 }

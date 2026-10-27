@@ -43,6 +43,13 @@ def main(argv=None) -> int:  # pylint: disable=unused-argument
             red_text("At least one additional JS-unit test failed")
             return 1
 
+    analysis_test_file = GUI_DIR / "gui_results_analysis_tests.js"
+    if analysis_test_file.exists():
+        proc3 = subprocess.run(["node", str(analysis_test_file)], cwd=str(GUI_DIR))
+        if proc3.returncode != 0:
+            red_text("At least one results-analysis test failed")
+            return 1
+
     if os.environ.get("SHOW_SUCCESS"):
         green_text("JS-Unit-Tests OK")
     return 0

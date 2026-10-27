@@ -306,7 +306,16 @@ function initialize_lazy_results_tables(root) {
 		}
 
 		el.dataset.resultsInitialized = "true";
-		createResultsTable(data, headers, id + "_csv_table");
+		var controller = createResultsTable(data, headers, id + "_csv_table");
+
+		var analysisApi = window.OmniOptResultsAnalysis;
+		if (id === "tab_results" && controller && analysisApi && typeof analysisApi.initializeResultsAnalysis === "function") {
+			analysisApi.initializeResultsAnalysis(id + "_csv_table", data, headers, controller, {
+				resultNames: window.result_names,
+				resultMinMax: window.result_min_max,
+				specialColumns: window.special_col_names
+			});
+		}
 	}
 }
 

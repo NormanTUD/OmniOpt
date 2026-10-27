@@ -61,13 +61,31 @@ function createTable(data, headers, table_name) {
 		return;
 	}
 
-	new gridjs.Grid({
+	// Never render every row at once.  The results table can contain tens of
+	// thousands of cells; building all of them blocked the main thread for
+	// seconds and delayed switching to other tabs.  Pagination keeps only a
+	// small page in the DOM while search/sort still work on the full dataset.
+	var grid = new gridjs.Grid({
 		columns: headers,
 		data: data,
 		search: true,
 		sort: true,
-		ellipsis: false
-	}).render(el);
+		ellipsis: false,
+		pagination: {
+			limit: 50,
+			summary: true
+		}
+	});
+	grid.render(el);
+
+	// Re-apply the heat-map colors after a page change or sort.  GridJS
+	// replaces the visible rows on every page/sort update, so the newly
+	// rendered cells do not carry the inline colors yet.
+	el.addEventListener("click", function (event) {
+		if (event.target.closest(".gridjs-pagination, .gridjs-th")) {
+			colorize_table_entries();
+		}
+	});
 
 	if (typeof apply_theme_based_on_system_preferences === 'function') {
 		apply_theme_based_on_system_preferences();

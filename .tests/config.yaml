@@ -705,6 +705,13 @@ tests:
     wanted_exit_code: 0
     tags: [suite:share, quick:false]
 
+  - id: share_end_to_end
+    class: share
+    name: "Share end-to-end (real OmniOpt run -> localhost -> GUI)"
+    cmd: "python3 {REPO_ROOT}/.tests/share_end_to_end"
+    wanted_exit_code: 0
+    tags: [suite:share, quick:never, runtime:long]
+
   # ---- GUI -----------------------------------------------------------------
   - id: gui_oo_setup
     class: gui
@@ -803,6 +810,7 @@ smoke_tests:
   - test_omniopt_share
   - test_omniopt_share_comprehensive
   - share_uuid_routing
+  - share_end_to_end
   - test_omniopt_install
   - test_optuna_integration
   - test_lmod_modules_and_venv

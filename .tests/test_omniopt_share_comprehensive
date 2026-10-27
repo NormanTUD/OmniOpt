@@ -124,6 +124,46 @@ def test_collect_includes_extensionless_git_version() -> bool:
     return _check("git_version" in names, f"git_version missing: {names}")
 
 
+def test_collect_includes_extensionless_run_files() -> bool:
+    """Files like outfile/log/progressbar have no extension but are GUI files."""
+    with tempfile.TemporaryDirectory() as tmp:
+        run = Path(tmp) / "e" / "0"
+        run.mkdir(parents=True)
+        for name in ("outfile", "log", "progressbar", "install_errors", "trial_index_to_params"):
+            (run / name).write_text(f"{name}\n")
+        files = os_.collect_shareable_files(str(run), send_single_runs=False)
+        names = {f["archive_path"] for f in files}
+    expected = {"outfile", "log", "progressbar", "install_errors", "trial_index_to_params"}
+    return _check(expected.issubset(names), f"missing extensionless files: {names}")
+
+
+def test_collect_includes_main_stdout_from_log_dir() -> bool:
+    """The main omniopt stdout lives in logs/<run_uuid> outside the run dir."""
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        run = root / "experiment" / "0"
+        run.mkdir(parents=True)
+        run_uuid = "00000000-0000-0000-0000-000000000001"
+        sf = run / "state_files"
+        sf.mkdir()
+        (sf / "run_uuid").write_text(run_uuid)
+        logs = root / "logs"
+        logs.mkdir()
+        (logs / run_uuid).write_text("main stdout\n")
+        (logs / f"{run_uuid}_log").write_text("debug log\n")
+        (logs / f"{run_uuid}_progressbar").write_text("progress\n")
+        files = os_.collect_shareable_files(str(run), send_single_runs=False)
+        by_archive = {f["archive_path"]: f for f in files}
+    ok = _check("outfile" in by_archive, f"outfile missing: {sorted(by_archive)}")
+    ok &= _check("log" in by_archive, f"log missing: {sorted(by_archive)}")
+    ok &= _check("progressbar" in by_archive, f"progressbar missing: {sorted(by_archive)}")
+    ok &= _check(
+        by_archive.get("outfile", {}).get("local_path") == logs / run_uuid,
+        f"outfile points to {by_archive.get('outfile', {}).get('local_path')}",
+    )
+    return ok
+
+
 def test_collect_picks_up_state_files_recursively() -> bool:
     """Subdirectories of state_files/ are NOT collected (bash version too)."""
     with tempfile.TemporaryDirectory() as tmp:
@@ -522,6 +562,45 @@ def test_bundle_contains_exactly_manifest_files() -> bool:
     ok &= _check(len(names) == len(set(names)),
                  f"duplicates in zip: {names}")
     return ok
+
+
+def test_bundle_uses_explicit_local_paths() -> bool:
+    """Log files outside the run dir must still end up in the bundle."""
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        run = root / "experiment" / "0"
+        run.mkdir(parents=True)
+        (run / "results.csv").write_text("a,b\n1,2\n")
+        external = root / "logs" / "main-uuid"
+        external.parent.mkdir()
+        external.write_text("main stdout\n")
+        files = [
+            {
+                "name": "outfile",
+                "archive_path": "outfile",
+                "local_path": external,
+            }
+        ]
+        manifest = os_.build_manifest(
+            run_dir=str(run),
+            user_id="alice",
+            experiment_name="exp",
+            update=False,
+            update_uuid=None,
+            password=None,
+            files=files,
+        )
+        out_dir = root / "out"
+        out_dir.mkdir()
+        _, z_path = os_.write_bundle(
+            manifest,
+            out_dir,
+            source_dir=str(run),
+            local_paths={"outfile": external},
+        )
+        with zipfile.ZipFile(z_path) as zf:
+            content = zf.read("outfile").decode()
+    return _check(content == "main stdout\n", f"got {content!r}")
 
 
 def test_bundle_files_preserve_exact_bytes() -> bool:
@@ -1400,6 +1479,48 @@ def test_share_one_incremental_update_sends_only_changed_files() -> bool:
     return ok
 
 
+def test_external_main_logs_are_shared_and_cached() -> bool:
+    """logs/<uuid> outside the run dir is uploaded and stays in the cache."""
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp_path = Path(tmp)
+        old_cache_dir = os.environ.get("OO_SHARE_CACHE_DIR")
+        os.environ["OO_SHARE_CACHE_DIR"] = str(tmp_path / "cache")
+        try:
+            run = _make_run_dir(tmp_path, with_singleruns=False)
+            run_uuid = (run / "state_files" / "run_uuid").read_text().strip()
+            logs = tmp_path / "logs"
+            logs.mkdir()
+            (logs / run_uuid).write_text("main stdout\n")
+            (logs / f"{run_uuid}_log").write_text("debug\n")
+
+            calls: list[list[str]] = []
+
+            def fake_post(base_url, manifest, zip_path, args):  # pylint: disable=unused-argument
+                with zipfile.ZipFile(zip_path) as zf:
+                    calls.append(sorted(zf.namelist()))
+                return 200, "ok"
+
+            args = os_.parse_args([str(run), "--update", "--username=alice"])
+            rc1 = os_._share_one_with(
+                args, "alice", str(run), "http://example", post_manifest=fake_post
+            )
+            rc2 = os_._share_one_with(
+                args, "alice", str(run), "http://example", post_manifest=fake_post
+            )
+            first_names = calls[0] if calls else []
+        finally:
+            if old_cache_dir is None:
+                os.environ.pop("OO_SHARE_CACHE_DIR", None)
+            else:
+                os.environ["OO_SHARE_CACHE_DIR"] = old_cache_dir
+
+    ok = _check(rc1 == 0 and rc2 == 0, f"unexpected exit codes: {rc1}, {rc2}")
+    ok &= _check("outfile" in first_names, f"main stdout missing: {first_names}")
+    ok &= _check("log" in first_names, f"debug log missing: {first_names}")
+    ok &= _check(len(calls) == 1, f"unchanged external logs were resent: {calls}")
+    return ok
+
+
 def test_share_one_skips_large_state_snapshots_by_default() -> bool:
     """pd.json/checkpoint noise is omitted unless --include_state_files is set."""
     with tempfile.TemporaryDirectory() as tmp:
@@ -1564,6 +1685,8 @@ TESTS = [
     test_collect_includes_all_expected_top_level_extensions,
     test_collect_excludes_disallowed_extensions,
     test_collect_includes_extensionless_git_version,
+    test_collect_includes_extensionless_run_files,
+    test_collect_includes_main_stdout_from_log_dir,
     test_collect_picks_up_state_files_recursively,
     test_collect_single_runs_uses_digit_subdir_only,
     test_collect_single_runs_only_out_and_err,
@@ -1586,6 +1709,7 @@ TESTS = [
     test_manifest_rejects_file_larger_than_max,
     # Bundle structure
     test_bundle_contains_exactly_manifest_files,
+    test_bundle_uses_explicit_local_paths,
     test_bundle_files_preserve_exact_bytes,
     test_bundle_manifest_is_valid_json,
     test_bundle_missing_source_file_raises,
@@ -1639,6 +1763,7 @@ TESTS = [
     test_build_manifest_is_deterministic_for_same_run,
     # Incremental update / large-run handling
     test_share_one_incremental_update_sends_only_changed_files,
+    test_external_main_logs_are_shared_and_cached,
     test_share_one_skips_large_state_snapshots_by_default,
     test_share_one_failed_log_filtering_cap_and_disable,
     # CLI flags

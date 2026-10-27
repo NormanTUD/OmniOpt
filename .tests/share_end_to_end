@@ -1,0 +1,363 @@
+#!/usr/bin/env python3
+"""End-to-end share test with a real OmniOpt run and the real GUI."""
+
+from __future__ import annotations
+
+import os
+import shutil
+import socket
+import subprocess
+import sys
+import tempfile
+import time
+import urllib.error
+import urllib.parse
+import urllib.request
+from pathlib import Path
+
+THIS_DIR = Path(__file__).resolve().parent
+REPO_ROOT = THIS_DIR.parent
+GUI_DIR = REPO_ROOT / ".gui"
+if str(THIS_DIR) not in sys.path:
+    sys.path.insert(0, str(THIS_DIR))
+
+from _framework.helpers import green_text, red_text, yellow_text  # noqa: E402
+
+
+ERRORS: list[str] = []
+
+
+def check(name: str, condition: bool, detail: str = "") -> bool:
+    if condition:
+        return True
+    message = name + (f": {detail}" if detail else "")
+    ERRORS.append(message)
+    red_text(f"FAIL: {message}")
+    return False
+
+
+def free_port() -> int:
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.bind(("127.0.0.1", 0))
+        return int(sock.getsockname()[1])
+
+
+def start_php_server(shares: Path, router: Path | None, name: str):
+    port = free_port()
+    env = os.environ.copy()
+    env["share_path"] = str(shares)
+    env["CI"] = "1"
+    env["disable_folder_creation"] = "0"
+    if router is not None:
+        env["OO_TARGET_FILE"] = str(GUI_DIR / "share_internal.php")
+
+    log_path = Path(tempfile.mkstemp(prefix=f"oo_{name}_", suffix=".log")[1])
+    log = log_path.open("w", encoding="utf-8")
+    cmd = ["php", "-S", f"127.0.0.1:{port}", "-t", str(GUI_DIR)]
+    if router is not None:
+        cmd.append(str(router))
+    proc = subprocess.Popen(
+        cmd,
+        cwd=str(GUI_DIR),
+        env=env,
+        stdout=log,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+
+    deadline = time.time() + 20
+    while time.time() < deadline:
+        if proc.poll() is not None:
+            log.flush()
+            output = log_path.read_text(encoding="utf-8", errors="replace")
+            log.close()
+            log_path.unlink(missing_ok=True)
+            raise RuntimeError(f"{name} server exited during startup:\n{output}")
+        try:
+            with socket.create_connection(("127.0.0.1", port), timeout=0.25):
+                return proc, log, f"http://127.0.0.1:{port}"
+        except OSError:
+            time.sleep(0.05)
+
+    proc.terminate()
+    output = log_path.read_text(encoding="utf-8", errors="replace")
+    log.close()
+    log_path.unlink(missing_ok=True)
+    raise RuntimeError(f"{name} server did not start in time:\n{output}")
+
+
+def stop_php_server(proc, log) -> None:
+    if proc is not None and proc.poll() is None:
+        proc.terminate()
+        try:
+            proc.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+            proc.wait(timeout=5)
+    if log is not None:
+        name = getattr(log, "name", "")
+        log.close()
+        if name:
+            Path(name).unlink(missing_ok=True)
+
+
+def server_output(log) -> str:
+    if log is None:
+        return ""
+    try:
+        log.flush()
+        return Path(log.name).read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return ""
+
+
+def http_get(url: str, timeout: int = 60) -> tuple[int, str]:
+    try:
+        with urllib.request.urlopen(url, timeout=timeout) as response:
+            return response.status, response.read().decode("utf-8", errors="replace")
+    except urllib.error.HTTPError as exc:
+        return exc.code, exc.read().decode("utf-8", errors="replace")
+
+
+def run_omniopt(workdir: Path, base_url: str, username: str, experiment: str):
+    env = os.environ.copy()
+    env["OMNIOPT_BASE_URL"] = base_url
+    env["OO_SHARE_CACHE_DIR"] = str(workdir / "share_cache")
+    env.pop("OO_MAIN_TESTS", None)
+    env.pop("CI", None)
+    env["PYTHONUNBUFFERED"] = "1"
+
+    cmd = [
+        str(REPO_ROOT / "omniopt"),
+        f"--experiment_name={experiment}",
+        "--max_eval=1",
+        "--num_random_steps=1",
+        "--num_parallel_jobs=1",
+        "--worker_timeout=10",
+        "--mem_gb=1",
+        "--time=5",
+        "--force_local_execution",
+        "--run_mode=local",
+        "--result_names",
+        "RESULT=min",
+        "--parameter",
+        "x",
+        "range",
+        "1",
+        "2",
+        "int",
+        "--run_program",
+        'echo "RESULT: 42"',
+        "--live_share",
+        f"--username={username}",
+        "--no_sleep",
+        "--disable_tqdm",
+    ]
+    return subprocess.run(
+        cmd,
+        cwd=str(workdir),
+        env=env,
+        text=True,
+        capture_output=True,
+        timeout=600,
+    )
+
+
+def run_final_share(run_dir: Path, base_url: str, username: str):
+    env = os.environ.copy()
+    env["OMNIOPT_BASE_URL"] = base_url
+    env["OO_SHARE_CACHE_DIR"] = str(run_dir.parent.parent.parent / "share_cache")
+    env.pop("OO_MAIN_TESTS", None)
+    cmd = [
+        sys.executable,
+        str(REPO_ROOT / "omniopt_share"),
+        str(run_dir),
+        "--update",
+        "--force",
+        f"--username={username}",
+        "--no_color",
+    ]
+    return subprocess.run(
+        cmd,
+        cwd=str(REPO_ROOT),
+        env=env,
+        text=True,
+        capture_output=True,
+        timeout=300,
+    )
+
+
+def find_run_dir(workdir: Path, experiment: str) -> Path | None:
+    candidates = sorted(
+        (workdir / "runs" / experiment).glob("*/state_files/run_uuid"),
+        key=lambda path: int(path.parent.parent.name),
+    )
+    if not candidates:
+        return None
+    return candidates[-1].parent.parent
+
+
+def find_share_dir(shares: Path, username: str, experiment: str) -> Path | None:
+    base = shares / username / experiment
+    if not base.is_dir():
+        return None
+    candidates = [
+        path for path in base.iterdir()
+        if path.is_dir() and (path / "results.csv").is_file()
+    ]
+    if not candidates:
+        return None
+    return sorted(candidates, key=lambda path: int(path.name))[-1]
+
+
+def main(argv=None) -> int:  # pylint: disable=unused-argument
+    if not shutil.which("php"):
+        yellow_text("PHP not installed, skipping share end-to-end test")
+        return 0
+
+    work = Path(tempfile.mkdtemp(prefix="oo_share_e2e_"))
+    shares = work / "shares"
+    shares.mkdir(parents=True)
+    upload_server = None
+    upload_log = None
+    gui_server = None
+    gui_log = None
+
+    try:
+        upload_server, upload_log, base_url = start_php_server(
+            shares, THIS_DIR / "share_test_router.php", "share_e2e_upload"
+        )
+        gui_server, gui_log, gui_url = start_php_server(
+            shares, None, "share_e2e_gui"
+        )
+
+        username = "e2e_user"
+        experiment = "share_end_to_end"
+        proc = run_omniopt(work, base_url, username, experiment)
+        if proc.returncode != 0:
+            red_text("Real OmniOpt run failed")
+            red_text(f"stdout tail:\n{(proc.stdout or '')[-3000:]}")
+            red_text(f"stderr tail:\n{(proc.stderr or '')[-3000:]}")
+            red_text(f"upload server log tail:\n{server_output(upload_log)[-2000:]}")
+            return 1
+
+        run_dir = find_run_dir(work, experiment)
+        if run_dir is None:
+            red_text(f"No run folder found under {work / 'runs' / experiment}")
+            return 1
+
+        final = run_final_share(run_dir, base_url, username)
+        if final.returncode != 0:
+            red_text("Final omniopt_share upload failed")
+            red_text(f"stdout tail:\n{(final.stdout or '')[-3000:]}")
+            red_text(f"stderr tail:\n{(final.stderr or '')[-3000:]}")
+            red_text(f"upload server log tail:\n{server_output(upload_log)[-2000:]}")
+            return 1
+
+        share_dir = find_share_dir(shares, username, experiment)
+        if not check("share folder created", share_dir is not None, str(shares)):
+            return 1
+        assert share_dir is not None
+
+        expected_files = [
+            "results.csv",
+            "parameters.txt",
+            "args_overview.txt",
+            "experiment_overview.txt",
+            "job_infos.csv",
+            "best_result.txt",
+            "result_names.txt",
+            "result_min_max.txt",
+            "ui_url.txt",
+            "state_files/run_uuid",
+            "outfile",
+            "log",
+        ]
+        for rel in expected_files:
+            path = share_dir / rel
+            check(f"shared {rel}", path.is_file() and path.stat().st_size > 0, str(path))
+
+        for src in sorted(run_dir.iterdir()):
+            if src.is_file() and src.suffix.lower() in (".csv", ".txt", ".log", ".json"):
+                path = share_dir / src.name
+                check(
+                    f"shared job file {src.name}",
+                    path.is_file() and path.stat().st_size > 0,
+                    str(path),
+                )
+
+        for optional_name in (
+            "git_version",
+            "progressbar",
+            "install_errors",
+            "trial_index_to_params",
+        ):
+            if (run_dir / optional_name).is_file():
+                path = share_dir / optional_name
+                check(
+                    f"shared job file {optional_name}",
+                    path.is_file() and path.stat().st_size > 0,
+                    str(path),
+                )
+
+        outfile = share_dir / "outfile"
+        if outfile.is_file():
+            content = outfile.read_text(encoding="utf-8", errors="replace")
+            check("main stdout contains Run-UUID", "Run-UUID" in content)
+            check("main stdout contains Run-Program", "Run-Program" in content)
+            check("main stdout is not empty", len(content.strip()) > 0)
+
+        debug_log = share_dir / "log"
+        if debug_log.is_file():
+            check(
+                "debug log is not empty",
+                len(debug_log.read_text(encoding="utf-8", errors="replace").strip()) > 0,
+            )
+
+        status, html = http_get(
+            f"{gui_url}/share.php?"
+            + urllib.parse.urlencode(
+                {
+                    "user_id": username,
+                    "experiment_name": experiment,
+                    "run_nr": share_dir.name,
+                }
+            )
+        )
+        check("GUI share page HTTP 200", status == 200, f"status={status}")
+        check("GUI renders Main-Log tab", "Main-Log" in html)
+        check("GUI renders results tab", "Results" in html)
+        check("GUI includes main stdout content", "Run-UUID" in html)
+        if (share_dir / "log").is_file():
+            check("GUI renders Debug tab", "Debug" in html)
+        if (share_dir / "progressbar").is_file():
+            check("GUI renders Progressbar tab", "Progressbar" in html)
+        if (share_dir / "oo_errors.txt").is_file():
+            check("GUI renders Errors tab", "Errors" in html)
+
+        if ERRORS:
+            red_text("share end-to-end failures:")
+            for error in ERRORS:
+                red_text(f"  - {error}")
+            red_text(f"upload server log tail:\n{server_output(upload_log)[-2000:]}")
+            red_text(f"gui server log tail:\n{server_output(gui_log)[-2000:]}")
+            return min(255, len(ERRORS))
+
+        green_text("share end-to-end: real omniopt run shared and rendered by the GUI")
+        return 0
+    except Exception as exc:  # pylint: disable=broad-except
+        red_text(f"share end-to-end exception: {exc!r}")
+        red_text(f"upload server log tail:\n{server_output(upload_log)[-2000:]}")
+        red_text(f"gui server log tail:\n{server_output(gui_log)[-2000:]}")
+        return 1
+    finally:
+        stop_php_server(upload_server, upload_log)
+        stop_php_server(gui_server, gui_log)
+        shutil.rmtree(work, ignore_errors=True)
+
+
+if __name__ == "__main__":
+    try:
+        sys.exit(main())
+    except KeyboardInterrupt:
+        sys.exit(0)

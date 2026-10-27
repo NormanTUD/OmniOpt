@@ -3040,6 +3040,45 @@ logfile_progressbar: str = f'{log_uuid_dir}_progressbar'
 logfile_worker_creation_logs: str = f'{log_uuid_dir}_worker_creation_logs'
 logfile_trial_index_to_param_logs: str = f'{log_uuid_dir}_trial_index_to_param_logs'
 LOGFILE_DEBUG_GET_NEXT_TRIALS: Union[str, None] = None
+main_stdout_logfile: str = f"{LOG_DIR}/{run_uuid}"
+
+class _TeeStream:
+    def __init__(self, stream: Any, log_file: Any, lock: Any) -> None:
+        self._stream = stream
+        self._log_file = log_file
+        self._lock = lock
+
+    def write(self, data: str) -> int:
+        with self._lock:
+            try:
+                self._log_file.write(data)
+                self._log_file.flush()
+            except (OSError, ValueError):
+                pass
+        return self._stream.write(data)
+
+    def flush(self) -> None:
+        with self._lock:
+            try:
+                self._log_file.flush()
+            except (OSError, ValueError):
+                pass
+        self._stream.flush()
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._stream, name)
+
+def _enable_main_log_capture(path: str) -> None:
+    try:
+        log_file = open(path, mode="a", encoding="utf-8", errors="replace")
+    except OSError:
+        return
+    lock = threading.Lock()
+    sys.stdout = _TeeStream(sys.stdout, log_file, lock)
+    sys.stderr = _TeeStream(sys.stderr, log_file, lock)
+
+os.environ["RUN_UUID"] = run_uuid
+_enable_main_log_capture(main_stdout_logfile)
 
 def error_without_print(text: str) -> None:
     print_debug(text)
@@ -15281,6 +15320,10 @@ def process_fixed_parameter(i: int, param: list) -> dict:
     return {f"parameter_{i}_value": param[2] if len(param) > 2 else ""}
 
 def get_base_url() -> str:
+    env_url = os.environ.get("OMNIOPT_BASE_URL")
+    if env_url:
+        return env_url
+
     file_path = Path.home() / ".oo_base_url"
     if file_path.exists():
         return file_path.read_text().strip()

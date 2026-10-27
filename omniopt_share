@@ -63,6 +63,19 @@ DEFAULT_BASE_URL = "https://imageseg.scads.de/omniax"
 # Whitelisted file extensions for the top-level of a run dir.
 TOP_LEVEL_EXTENSIONS = (".csv", ".txt", ".log", ".json")
 
+# Extensionless files that have a fixed meaning in the GUI.
+TOP_LEVEL_EXTENSIONLESS_FILES = ("outfile", "log", "progressbar", "install_errors", "trial_index_to_params")
+
+# Log files live next to the run dirs, not inside them.  These suffixes map
+# them to the names the GUI expects.
+LOG_FILE_ALIASES = (
+    ("outfile", ""),
+    ("log", "_log"),
+    ("progressbar", "_progressbar"),
+    ("install_errors", "_install_errors"),
+    ("trial_index_to_params", "_trial_index_to_param_logs"),
+)
+
 # Whitelisted file extensions under state_files/.
 STATE_FILE_EXTENSIONS = (".csv", ".txt", ".json")
 
@@ -121,6 +134,33 @@ def sanitize_archive_path(path: str) -> str:
 # ---------------------------------------------------------------------------
 
 
+def _find_log_dir(run_dir: Path) -> Optional[Path]:
+    seen = set()
+    starts = [run_dir.resolve(), Path.cwd().resolve(), SCRIPT_DIR]
+    for start in starts:
+        for base in (start, *start.parents):
+            if base in seen:
+                continue
+            seen.add(base)
+            candidate = base / "logs"
+            if candidate.is_dir():
+                return candidate
+    return None
+
+
+def _read_run_uuid(run_dir: Path) -> Optional[str]:
+    path = run_dir / "state_files" / "run_uuid"
+    try:
+        value = path.read_text(encoding="utf-8").strip()
+    except OSError:
+        return None
+    if not value or value in (".", ".."):
+        return None
+    if not re.fullmatch(r"[A-Za-z0-9_.-]+", value):
+        return None
+    return value
+
+
 def collect_shareable_files(
     run_dir: str,
     send_single_runs: bool = True,
@@ -146,29 +186,37 @@ def collect_shareable_files(
         return []
 
     out: List[Dict[str, Any]] = []
+    seen_archive_paths = set()
+
+    def add_entry(
+        name: str, archive_path: str, local_path: Path
+    ) -> None:
+        archive_path = sanitize_archive_path(archive_path)
+        if archive_path in seen_archive_paths:
+            return
+        seen_archive_paths.add(archive_path)
+        out.append(
+            {
+                "name": name,
+                "archive_path": archive_path,
+                "local_path": local_path,
+            }
+        )
 
     # Top-level files
     for entry in sorted(root.iterdir()):
         if entry.is_file() and entry.suffix.lower() in TOP_LEVEL_EXTENSIONS:
-            name = entry.stem
-            out.append(
-                {
-                    "name": name,
-                    "archive_path": sanitize_archive_path(entry.name),
-                    "local_path": entry,
-                }
-            )
+            add_entry(entry.stem, entry.name, entry)
+
+    for entry_name in TOP_LEVEL_EXTENSIONLESS_FILES:
+        entry = root / entry_name
+        if entry.is_file():
+            add_entry(entry_name, entry_name, entry)
 
     # git_version (no specific extension requirement)
     git_version = root / "git_version"
     if git_version.is_file():
-        out.append(
-            {
-                "name": "git_version",
-                "archive_path": "git_version",
-                "local_path": git_version,
-            }
-        )
+        add_entry("git_version", "git_version", git_version)
 
     # state_files/ - only csv/txt/json.  Large checkpoint/model snapshots are
     # skipped by default; the GUI only needs run_uuid (added separately).
@@ -189,13 +237,16 @@ def collect_shareable_files(
     # state_files/run_uuid (no extension — always include for update matching)
     run_uuid_file = root / "state_files" / "run_uuid"
     if run_uuid_file.is_file():
-        out.append(
-            {
-                "name": "run_uuid",
-                "archive_path": "state_files/run_uuid",
-                "local_path": run_uuid_file,
-            }
-        )
+        add_entry("run_uuid", "state_files/run_uuid", run_uuid_file)
+
+    # Main log files are kept outside the run dir (logs/<run_uuid>...).
+    log_dir = _find_log_dir(root)
+    run_uuid_value = _read_run_uuid(root)
+    if log_dir is not None and run_uuid_value is not None:
+        for archive_name, suffix in LOG_FILE_ALIASES:
+            local_path = log_dir / f"{run_uuid_value}{suffix}"
+            if local_path.is_file():
+                add_entry(archive_name, archive_name, local_path)
 
     # single_runs/<digit>/<file.{out,err}>  (optional)
     if send_single_runs:
@@ -209,14 +260,10 @@ def collect_shareable_files(
                         entry.is_file()
                         and entry.suffix.lower() in SINGLE_RUN_SUFFIXES
                     ):
-                        out.append(
-                            {
-                                "name": f"single_run_file_{run_folder.name}_{entry.name}",
-                                "archive_path": sanitize_archive_path(
-                                    f"single_runs/{run_folder.name}/{entry.name}"
-                                ),
-                                "local_path": entry,
-                            }
+                        add_entry(
+                            f"single_run_file_{run_folder.name}_{entry.name}",
+                            f"single_runs/{run_folder.name}/{entry.name}",
+                            entry,
                         )
 
     return out
@@ -742,11 +789,15 @@ def _update_cache(
     source_dir: str,
     *,
     replace: bool,
+    local_paths: Optional[Dict[str, Path]] = None,
 ) -> Dict[str, Dict[str, Any]]:
     new_cache: Dict[str, Dict[str, Any]] = {} if replace else dict(old_cache)
     for entry in manifest["files"]:
         archive_path = entry["archive_path"]
-        local = Path(source_dir) / archive_path
+        if local_paths is not None and archive_path in local_paths:
+            local = Path(local_paths[archive_path])
+        else:
+            local = Path(source_dir) / archive_path
         try:
             state = _file_state(local)
         except OSError:
@@ -780,6 +831,7 @@ def write_bundle_zip(
     zip_path: str | os.PathLike,
     *,
     source_dir: Optional[str | os.PathLike] = None,
+    local_paths: Optional[Dict[str, Path]] = None,
 ) -> Path:
     """Write only the bundle ZIP to ``zip_path``.
 
@@ -802,7 +854,10 @@ def write_bundle_zip(
     with zipfile.ZipFile(zip_path, "w") as zf:
         for f in manifest["files"]:
             arc = sanitize_archive_path(f["archive_path"])
-            local = (base / arc) if base is not None else Path(arc)
+            if local_paths is not None and arc in local_paths:
+                local = Path(local_paths[arc])
+            else:
+                local = (base / arc) if base is not None else Path(arc)
             if not local.is_file():
                 raise FileNotFoundError(f"Bundle missing source file: {local}")
 
@@ -843,6 +898,7 @@ def write_bundle(
     out_dir: str | os.PathLike,
     *,
     source_dir: Optional[str | os.PathLike] = None,
+    local_paths: Optional[Dict[str, Path]] = None,
 ) -> Tuple[Path, Path]:
     """Write ``manifest.json`` and ``bundle.zip`` to ``out_dir``.
 
@@ -855,7 +911,9 @@ def write_bundle(
     manifest_path = out_dir / "manifest.json"
     zip_path = out_dir / "bundle.zip"
 
-    write_bundle_zip(manifest, zip_path, source_dir=source_dir)
+    write_bundle_zip(
+        manifest, zip_path, source_dir=source_dir, local_paths=local_paths
+    )
     manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True))
 
     return manifest_path, zip_path
@@ -1040,6 +1098,9 @@ def _build_multipart_stream(
 
 
 def _resolve_base_url() -> str:
+    env_url = os.environ.get("OMNIOPT_BASE_URL")
+    if env_url:
+        return env_url
     if BASE_URL_FILE.exists():
         return BASE_URL_FILE.read_text(encoding="utf-8").strip() or DEFAULT_BASE_URL
     return DEFAULT_BASE_URL
@@ -1198,8 +1259,13 @@ def _share_one_with(
     os.close(zip_fd)
     zip_path = Path(zip_name)
     try:
+        local_paths = {
+            f["archive_path"]: Path(f["local_path"]) for f in files_to_send
+        }
         try:
-            write_bundle_zip(manifest, zip_path, source_dir=run_dir)
+            write_bundle_zip(
+                manifest, zip_path, source_dir=run_dir, local_paths=local_paths
+            )
         except ValueError as e:
             print(f"Refusing to share: {e}", file=sys.stderr)
             return 1
@@ -1233,6 +1299,7 @@ def _share_one_with(
             pre_states,
             run_dir,
             replace=not incremental,
+            local_paths=local_paths,
         )
         print(body)
         return 0

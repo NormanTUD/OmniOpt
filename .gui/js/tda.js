@@ -336,21 +336,47 @@ function _tdaShowMessage(message) {
 	}
 }
 
-function _tdaPlot(results, cutoff) {
+function _tdaPlot(results, cutoff, normalizationLabel) {
 	var curves = _tdaBettiCurves(results.h0, results.h1, cutoff);
+	var maxBeta1 = 0;
+	var maxBeta1Index = 0;
+	for (var i = 0; i < curves.beta1.length; i++) {
+		if (curves.beta1[i] > maxBeta1) {
+			maxBeta1 = curves.beta1[i];
+			maxBeta1Index = i;
+		}
+	}
+	var maxBeta1Epsilon = curves.xs[maxBeta1Index] || 0;
+	var h0Start = curves.beta0.length ? curves.beta0[0] : 0;
+	var h0End = curves.beta0.length ? curves.beta0[curves.beta0.length - 1] : 0;
+	var finiteH1 = results.h1.filter(function (bar) { return isFinite(bar.death); });
+	var longestH1 = 0;
+	for (var i = 0; i < finiteH1.length; i++) {
+		longestH1 = Math.max(longestH1, finiteH1[i].death - finiteH1[i].birth);
+	}
 
 	var bettiTraces = [
 		{ x: curves.xs, y: curves.beta0, mode: "lines", name: "H0 (components)", line: { color: "#2e7d32", width: 3 } },
 		{ x: curves.xs, y: curves.beta1, mode: "lines", name: "H1 (loops)", line: { color: "#ef6c00", width: 3 } }
 	];
+	var filtrationAxis = "Filtration radius ε (" + normalizationLabel + " distance)";
 	var bettiLayout = add_default_layout_data({
 		title: "Betti curves of the Vietoris-Rips filtration",
-		xaxis: get_axis_title_data("Filtration radius", "linear"),
-		yaxis: get_axis_title_data("Betti number", "linear"),
+		xaxis: { title: get_axis_title_data(filtrationAxis), type: "linear" },
+		yaxis: { title: get_axis_title_data("Betti number (number of features)") },
 		legend: { orientation: "h" },
 		hovermode: "x unified"
 	});
 	Plotly.newPlot("tda_betti_plot", bettiTraces, bettiLayout, { responsive: true });
+
+	var bettiExplanation = document.getElementById("tda_betti_explanation");
+	if (bettiExplanation) {
+		bettiExplanation.textContent =
+			"β₀ counts connected components and starts at " + h0Start + "; it drops whenever clusters merge. " +
+			"β₁ counts independent loops. β₀ ends at " + h0End + " and β₁ peaks at " + maxBeta1 +
+			" around ε ≈ " + maxBeta1Epsilon.toFixed(3) + ". " +
+			"A high β₁ over a long interval indicates ring-like structure, while a peak that disappears immediately is usually sampling noise.";
+	}
 
 	var h0 = results.h0.slice().sort(function (a, b) {
 		var da = isFinite(a.death) ? a.death : Infinity;
@@ -366,8 +392,8 @@ function _tdaPlot(results, cutoff) {
 	];
 	var barcodeLayout = add_default_layout_data({
 		title: "Persistence barcode (infinite bars are clipped at the dashed cutoff)",
-		xaxis: get_axis_title_data("Filtration radius", "linear"),
-		yaxis: { title: get_axis_title_data("Homology generators"), showticklabels: false },
+		xaxis: { title: get_axis_title_data(filtrationAxis), type: "linear" },
+		yaxis: { title: get_axis_title_data("Homology generators (H0 components, then H1 loops)"), showticklabels: false },
 		legend: { orientation: "h" },
 		shapes: [{
 			type: "line",
@@ -380,6 +406,16 @@ function _tdaPlot(results, cutoff) {
 		}]
 	});
 	Plotly.newPlot("tda_barcode_plot", barcodeTraces, barcodeLayout, { responsive: true });
+
+	var barcodeExplanation = document.getElementById("tda_barcode_explanation");
+	if (barcodeExplanation) {
+		barcodeExplanation.textContent =
+			"Each horizontal segment is one topological feature. The left end is its birth radius and the right end is the radius where it disappears. " +
+			"Green segments are H0 connected components; orange segments are H1 loops. " +
+			"There are " + finiteH1.length + " finite H1 bar(s); the longest H1 bar has persistence " +
+			longestH1.toFixed(3) + ". Long bars are strong features, short bars are usually noise. " +
+			"The infinite H0 component is clipped at the dashed cutoff line.";
+	}
 }
 
 function _tdaRun() {
@@ -421,7 +457,8 @@ function _tdaRun() {
 		var results = _tdaPersistence(normalized);
 		var cutoff = results.maxDistance > 0 ? results.maxDistance * 1.05 : 1;
 
-		_tdaPlot(results, cutoff);
+		var normalizationLabel = normalization === "none" ? "unnormalized" : (normalization === "minmax" ? "min-max normalized" : "z-score normalized");
+		_tdaPlot(results, cutoff, normalizationLabel);
 
 		var h0Finite = results.h0.filter(function (bar) { return isFinite(bar.death); }).length;
 		var h1Finite = results.h1.filter(function (bar) { return isFinite(bar.death); }).length;
@@ -569,15 +606,29 @@ function initializeTDA() {
 
 	summary.textContent = columnInfo.length + " usable numeric dimension(s) found.";
 
+	var bettiHeading = document.createElement("h3");
+	bettiHeading.textContent = "Betti curves (H0 / H1)";
+	root.appendChild(bettiHeading);
 	var bettiPlot = document.createElement("div");
 	bettiPlot.id = "tda_betti_plot";
 	bettiPlot.className = "invert_in_dark_mode";
 	root.appendChild(bettiPlot);
+	var bettiExplanation = document.createElement("p");
+	bettiExplanation.id = "tda_betti_explanation";
+	bettiExplanation.className = "tda_explanation";
+	root.appendChild(bettiExplanation);
 
+	var barcodeHeading = document.createElement("h3");
+	barcodeHeading.textContent = "Persistence barcode";
+	root.appendChild(barcodeHeading);
 	var barcodePlot = document.createElement("div");
 	barcodePlot.id = "tda_barcode_plot";
 	barcodePlot.className = "invert_in_dark_mode";
 	root.appendChild(barcodePlot);
+	var barcodeExplanation = document.createElement("p");
+	barcodeExplanation.id = "tda_barcode_explanation";
+	barcodeExplanation.className = "tda_explanation";
+	root.appendChild(barcodeExplanation);
 
 	_tdaRun();
 }

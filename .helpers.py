@@ -889,9 +889,14 @@ DEFAULT_USAGE_STATS_BASE_URL = "https://imageseg.scads.de/omniax"
 def _resolve_usage_stats_base_url() -> str:
     """Return the base URL for usage-stat and exit-code-lookup calls.
 
-    Reads $HOME/.oo_base_url, which is the override mechanism the old bash
-    implementation used (see omniopt bash `myexit` / `send_status_report`).
+    Reads ``OMNIOPT_BASE_URL`` first, then $HOME/.oo_base_url (the override
+    mechanism the old bash implementation used, see ``myexit`` /
+    ``send_status_report``).
     """
+    env_url = os.environ.get("OMNIOPT_BASE_URL")
+    if env_url:
+        return env_url
+
     base = DEFAULT_USAGE_STATS_BASE_URL
     override_path = os.path.join(os.path.expanduser("~"), ".oo_base_url")
     if os.path.exists(override_path):

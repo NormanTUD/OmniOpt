@@ -13,6 +13,8 @@ __pycache__
 .tests/mnist/.tests
 .tests/orchestrator_tests.bin
 .coverage.*
+.php-coverage
+.js-coverage
 coverage-report
 *.swp
 .DS_Store

@@ -1,0 +1,160 @@
+#!/usr/bin/env python3
+"""Serve the real PHP GUI on localhost and exercise its main pages.
+
+The share tests already start a PHP server for the share endpoints.  This test
+covers the normal GUI entry points (`index.php`, `gui.php`, `search.php`,
+`share.php`, ...) over HTTP, which is also where PHP/Xdebug coverage for those
+pages is collected during CI.
+"""
+
+from __future__ import annotations
+
+import os
+import shutil
+import socket
+import subprocess
+import sys
+import tempfile
+import time
+import urllib.error
+import urllib.request
+from pathlib import Path
+
+THIS_DIR = Path(__file__).resolve().parent
+if str(THIS_DIR) not in sys.path:
+    sys.path.insert(0, str(THIS_DIR))
+
+from _framework.helpers import green_text, red_text, yellow_text
+
+
+REPO_ROOT = THIS_DIR.parent
+GUI_DIR = REPO_ROOT / ".gui"
+
+PAGES = [
+    ("/index.php", 200, None),
+    ("/gui.php", 200, "OmniOpt"),
+    ("/search.php?regex=a", 200, None),
+    ("/share.php", 200, None),
+    ("/search.php", 200, None),
+    ("/exit_code_table.php?exit_code=1", 200, None),
+    ("/get_overview_data.php", 200, None),
+    ("/power_on_self_test.php", 200, None),
+    ("/404.php?filename=doesnotexist", 404, None),
+]
+
+
+def _free_port() -> int:
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.bind(("127.0.0.1", 0))
+        return int(sock.getsockname()[1])
+
+
+def _start_server(shares: Path) -> tuple[subprocess.Popen, object, str]:
+    port = _free_port()
+    env = os.environ.copy()
+    env["share_path"] = str(shares)
+    env["CI"] = "1"
+    env["disable_folder_creation"] = "1"
+    log_path = Path(tempfile.mkstemp(prefix="oo_php_gui_", suffix=".log")[1])
+    log = log_path.open("w", encoding="utf-8")
+    proc = subprocess.Popen(
+        ["php", "-S", f"127.0.0.1:{port}", "-t", str(GUI_DIR)],
+        cwd=str(GUI_DIR),
+        env=env,
+        stdout=log,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    deadline = time.time() + 20
+    while time.time() < deadline:
+        if proc.poll() is not None:
+            log.flush()
+            output = log_path.read_text(encoding="utf-8", errors="replace")
+            log.close()
+            log_path.unlink(missing_ok=True)
+            raise RuntimeError("PHP server exited during startup:\n" + output)
+        try:
+            with socket.create_connection(("127.0.0.1", port), timeout=0.25):
+                return proc, log, f"http://127.0.0.1:{port}"
+        except OSError:
+            time.sleep(0.05)
+
+    proc.terminate()
+    output = log_path.read_text(encoding="utf-8", errors="replace")
+    log.close()
+    log_path.unlink(missing_ok=True)
+    raise RuntimeError("PHP server did not start in time:\n" + output)
+
+
+def _stop_server(proc, log) -> None:
+    if proc is not None and proc.poll() is None:
+        proc.terminate()
+        try:
+            proc.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+            proc.wait(timeout=5)
+    if log is not None:
+        name = getattr(log, "name", "")
+        log.close()
+        if name:
+            Path(name).unlink(missing_ok=True)
+
+
+def _get(url: str) -> tuple[int, str]:
+    try:
+        with urllib.request.urlopen(url, timeout=30) as response:
+            return response.status, response.read().decode("utf-8", errors="replace")
+    except urllib.error.HTTPError as exc:
+        return exc.code, exc.read().decode("utf-8", errors="replace")
+
+
+def main(argv=None) -> int:  # pylint: disable=unused-argument
+    if not shutil.which("php"):
+        yellow_text("PHP not installed, skipping localhost GUI test")
+        return 0
+    if not GUI_DIR.is_dir():
+        red_text(f"{GUI_DIR} not found")
+        return 1
+
+    work = Path(tempfile.mkdtemp(prefix="oo_php_gui_"))
+    shares = work / "shares"
+    shares.mkdir(parents=True)
+    server = None
+    log = None
+    errors: list[str] = []
+    try:
+        server, log, base_url = _start_server(shares)
+        for path, expected_status, expected_text in PAGES:
+            status, body = _get(base_url + path)
+            if status != expected_status:
+                errors.append(f"{path}: status {status}, expected {expected_status}")
+            if expected_text and expected_text not in body:
+                errors.append(f"{path}: body does not contain {expected_text!r}")
+        if errors:
+            red_text("PHP localhost GUI failures:")
+            for error in errors:
+                red_text(f"  - {error}")
+            try:
+                log.flush()
+                output = Path(log.name).read_text(encoding="utf-8", errors="replace")
+            except OSError:
+                output = ""
+            if output.strip():
+                red_text(f"PHP server log tail:\n{output[-2000:]}")
+            return len(errors)
+        green_text(f"PHP localhost GUI: all {len(PAGES)} pages passed")
+        return 0
+    except Exception as exc:  # pylint: disable=broad-except
+        red_text(f"PHP localhost GUI exception: {exc!r}")
+        return 1
+    finally:
+        _stop_server(server, log)
+        shutil.rmtree(work, ignore_errors=True)
+
+
+if __name__ == "__main__":
+    try:
+        sys.exit(main())
+    except KeyboardInterrupt:
+        sys.exit(0)

@@ -81,7 +81,7 @@ jobs:
     - name: GUI-only Tests
       if: needs.detect_changes.outputs.gui_only == 'true'
       run: |
-        python3 .tests/gui_only
+        python3 .tests/gui_only --run_with_coverage
 
     - name: Run linter
       if: needs.detect_changes.outputs.gui_only != 'true'
@@ -89,13 +89,13 @@ jobs:
         python3 .tests/linter --check_only_changed_since_last_success
 
     - name: Coverage report
-      if: always() && needs.detect_changes.outputs.gui_only != 'true'
+      if: always()
       continue-on-error: true
       run: |
         python3 .tests/coverage_report --label "smoke-tests"
 
     - name: Upload coverage artifact
-      if: always() && needs.detect_changes.outputs.gui_only != 'true'
+      if: always()
       uses: actions/upload-artifact@v4
       with:
         name: coverage-smoke-tests

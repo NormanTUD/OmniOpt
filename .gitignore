@@ -225,3 +225,6 @@ one_month_ago
 .tests_logs/
 
 coverage-report/
+
+.php-coverage/
+.js-coverage/

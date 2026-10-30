@@ -85,9 +85,16 @@
 
 <?php
 		if (isset($_SERVER["SCRIPT_FILENAME"]) && strpos($_SERVER['SCRIPT_FILENAME'], 'share.php') !== false) {
+			$is_share_run_view = isset($_GET["user_id"], $_GET["experiment_name"], $_GET["run_nr"])
+				&& is_string($_GET["run_nr"])
+				&& $_GET["run_nr"] !== "";
 ?>
 			<link rel="stylesheet" href="css/share.css">
 			<meta name="robots" content="noindex, nofollow">
+			<?php js("js/share_functions.js"); ?>
+<?php
+			if ($is_share_run_view) {
+?>
 			<?php js("libs/plotly-latest.min.js"); ?>
 			<?php js("js/gridjs.umd.js"); ?>
 
@@ -111,8 +118,6 @@
 			<?php js("js/pareto_from_idxs.js"); ?>
 			<?php js("js/results_table.js"); ?>
 			<?php js("js/results_analysis.js"); ?>
-			<?php js("js/tda.js"); ?>
-			<?php js("js/share_functions.js"); ?>
 			<?php js("js/arm_distribution.js"); ?>
 			<?php js("js/kde_histogram.js"); ?>
 			<?php js("js/stacked_histogram.js"); ?>
@@ -120,6 +125,7 @@
 
 			<link href="css/mermaid.min.css" rel="stylesheet" />
 <?php
+			}
 		}
 ?>
 		<link rel="stylesheet" href="css/xp.css">

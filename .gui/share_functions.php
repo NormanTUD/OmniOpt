@@ -22,6 +22,268 @@
 		exit(1);
 	}
 
+	/*
+	 * Persistent share cache.
+	 *
+	 * All entries are validated against the current file mtime/size (or a
+	 * recursive run-directory fingerprint).  A changed file therefore always
+	 * invalidates its cache entry, so the GUI stays up to date while avoiding
+	 * repeated multi-second CSV/log parsing.
+	 */
+	function share_cache_base_dir() {
+		static $dir = null;
+
+		if ($dir !== null) {
+			return $dir;
+		}
+
+		$candidates = [];
+		$env_dir = getenv("share_cache_path");
+		if (is_string($env_dir) && $env_dir !== "") {
+			$candidates[] = rtrim($env_dir, "/");
+		}
+
+		$uid = function_exists("posix_geteuid") ? posix_geteuid() : "user";
+		$candidates[] = rtrim(sys_get_temp_dir(), "/") . "/omniopt-share-cache-" . $uid;
+
+		foreach ($candidates as $candidate) {
+			try {
+				if (!is_dir($candidate)) {
+					@mkdir($candidate, 0700, true);
+				}
+				if (is_dir($candidate) && is_writable($candidate)) {
+					$dir = $candidate;
+					return $dir;
+				}
+			} catch (\Throwable $e) {
+				// Try the next candidate.
+			}
+		}
+
+		$dir = "";
+		return $dir;
+	}
+
+	function share_cache_namespace_dir($namespace) {
+		$base = share_cache_base_dir();
+		if ($base === "" || !preg_match('/^[a-zA-Z0-9_-]+$/', $namespace)) {
+			return null;
+		}
+
+		$dir = $base . "/" . $namespace;
+
+		try {
+			if (!is_dir($dir)) {
+				@mkdir($dir, 0700, true);
+			}
+			if (is_dir($dir) && is_writable($dir)) {
+				return $dir;
+			}
+		} catch (\Throwable $e) {
+			// Fall through.
+		}
+
+		return null;
+	}
+
+	function share_cache_read_blob($namespace, $key, $extension = "cache") {
+		if (!preg_match('/^[a-f0-9]+$/', $key)) {
+			return null;
+		}
+
+		$dir = share_cache_namespace_dir($namespace);
+		if ($dir === null) {
+			return null;
+		}
+
+		$path = "$dir/$key.$extension";
+		if (!is_file($path)) {
+			return null;
+		}
+
+		try {
+			$raw = @file_get_contents($path);
+			if ($raw === false) {
+				return null;
+			}
+			$decoded = @gzdecode($raw);
+			return $decoded === false ? null : $decoded;
+		} catch (\Throwable $e) {
+			return null;
+		}
+	}
+
+	function share_cache_write_blob($namespace, $key, $data, $extension = "cache") {
+		if (!preg_match('/^[a-f0-9]+$/', $key) || !is_string($data)) {
+			return false;
+		}
+
+		$dir = share_cache_namespace_dir($namespace);
+		if ($dir === null) {
+			return false;
+		}
+
+		$path = "$dir/$key.$extension";
+
+		try {
+			$tmp = @tempnam($dir, "tmp-");
+			if ($tmp === false) {
+				return false;
+			}
+
+			$encoded = @gzencode($data, 6);
+			if ($encoded === false || @file_put_contents($tmp, $encoded, LOCK_EX) === false) {
+				@unlink($tmp);
+				return false;
+			}
+
+			@chmod($tmp, 0600);
+			if (!@rename($tmp, $path)) {
+				@unlink($tmp);
+				return false;
+			}
+			return true;
+		} catch (\Throwable $e) {
+			return false;
+		}
+	}
+
+	function share_cache_read_serialized($namespace, $key) {
+		$blob = share_cache_read_blob($namespace, $key);
+		if ($blob === null) {
+			return null;
+		}
+
+		try {
+			$value = @unserialize($blob, ["allowed_classes" => false]);
+		} catch (\Throwable $e) {
+			return null;
+		}
+
+		return $value === false && $blob !== serialize(false) ? null : $value;
+	}
+
+	function share_cache_write_serialized($namespace, $key, $value) {
+		try {
+			return share_cache_write_blob($namespace, $key, serialize($value));
+		} catch (\Throwable $e) {
+			return false;
+		}
+	}
+
+	function share_cache_code_version() {
+		static $version = null;
+
+		if ($version !== null) {
+			return $version;
+		}
+
+		$files = [
+			"share.php",
+			"share_functions.php",
+			"_header_base.php",
+			"_functions.php",
+			"results_analyzer.php",
+			"footer.php",
+			"share.js",
+			"js/share_functions.js",
+		];
+
+		$parts = ["share-cache-v1"];
+		foreach ($files as $file) {
+			$path = __DIR__ . "/" . $file;
+			if (is_file($path)) {
+				$parts[] = $file . ":" . (int)@filemtime($path) . ":" . (int)@filesize($path);
+			}
+		}
+
+		return $version = sha1(implode("|", $parts));
+	}
+
+	function share_run_fingerprint($run_dir) {
+		static $fingerprints = [];
+
+		$key = realpath($run_dir) ?: $run_dir;
+		if (array_key_exists($key, $fingerprints)) {
+			return $fingerprints[$key];
+		}
+
+		$entries = [];
+
+		try {
+			$iterator = new RecursiveIteratorIterator(
+				new RecursiveDirectoryIterator($run_dir, FilesystemIterator::SKIP_DOTS),
+				RecursiveIteratorIterator::SELF_FIRST
+			);
+
+			foreach ($iterator as $fileInfo) {
+				if (!$fileInfo->isFile()) {
+					continue;
+				}
+				$relative = substr($fileInfo->getPathname(), strlen($run_dir) + 1);
+				$entries[$relative] = $fileInfo->getMTime() . ":" . $fileInfo->getSize();
+			}
+		} catch (\Throwable $e) {
+			return $fingerprints[$key] = null;
+		}
+
+		ksort($entries);
+
+		$parts = [];
+		foreach ($entries as $relative => $meta) {
+			$parts[] = $relative . "=" . $meta;
+		}
+
+		return $fingerprints[$key] = sha1(implode("\n", $parts));
+	}
+
+	function share_run_page_cache_key($run_dir) {
+		$request = $_SERVER["REQUEST_URI"] ?? "";
+		$request .= "|" . ($_SERVER["HTTP_HOST"] ?? "");
+
+		$query = $_GET;
+		ksort($query);
+		$request .= "|" . http_build_query($query);
+
+		$path = realpath($run_dir) ?: $run_dir;
+		return sha1($path . "|" . $request . "|" . share_cache_code_version());
+	}
+
+	function share_run_page_cache_read($run_dir, $key) {
+		$entry = share_cache_read_serialized("runpage", $key);
+		if (!is_array($entry) || !isset($entry["fingerprint"]) || !isset($entry["html"])) {
+			return null;
+		}
+
+		$fingerprint = share_run_fingerprint($run_dir);
+		if ($fingerprint === null || !hash_equals((string)$entry["fingerprint"], (string)$fingerprint)) {
+			return null;
+		}
+
+		return is_string($entry["html"]) ? $entry["html"] : null;
+	}
+
+	function share_run_page_cache_write($run_dir, $key, $html) {
+		if (!is_string($html)) {
+			return false;
+		}
+
+		$fingerprint = share_run_fingerprint($run_dir);
+		if ($fingerprint === null) {
+			return false;
+		}
+
+		return share_cache_write_serialized("runpage", $key, [
+			"fingerprint" => $fingerprint,
+			"html" => $html,
+		]);
+	}
+
+	function share_file_cache_key($prefix, $path, $extra = "") {
+		$resolved = realpath($path) ?: $path;
+		return sha1($prefix . "|" . $resolved . "|" . $extra . "|" . share_cache_code_version());
+	}
+
 	function validate_param($param_name, $pattern, $error_message) {
 		$value = get_get($param_name);
 		if (!preg_match($pattern, $value)) {
@@ -337,6 +599,25 @@
 			return json_encode(["error" => "File not found or not readable"], JSON_PRETTY_PRINT);
 		}
 
+		$mtime = @filemtime($csvFilePath);
+		$size = @filesize($csvFilePath);
+		$cache_key = null;
+
+		if ($mtime !== false && $size !== false) {
+			$cache_key = share_file_cache_key("status", $csvFilePath, (string)$mtime . "|" . (string)$size);
+			$cached = share_cache_read_serialized("status", $cache_key);
+
+			if (
+				is_array($cached) &&
+				($cached["mtime"] ?? null) === $mtime &&
+				($cached["size"] ?? null) === $size &&
+				isset($cached["status"]) &&
+				is_array($cached["status"])
+			) {
+				return $cached["status"];
+			}
+		}
+
 		$statuses = [
 			"failed" => 0,
 			"succeeded" => 0,
@@ -350,7 +631,8 @@
 
 		if (($handle = fopen($csvFilePath, "r")) !== false) {
 			while (($data = fgetcsv($handle, 0, ",", "\"", "\\")) !== false) {
-				if (count($data) < 3) continue;
+				if (!is_array($data) || count($data) === 0) continue;
+				if (count($data) === 1 && trim((string)($data[0] ?? "")) === "") continue;
 
 				if ($k == 0) {
 					$status_index = array_search('trial_status', $data);
@@ -374,6 +656,14 @@
 				$k++;
 			}
 			fclose($handle);
+		}
+
+		if ($cache_key !== null) {
+			share_cache_write_serialized("status", $cache_key, [
+				"mtime" => $mtime,
+				"size" => $size,
+				"status" => $statuses,
+			]);
 		}
 
 		return $statuses;
@@ -1372,43 +1662,20 @@
 			return "";
 		}
 
-		$handle = fopen($res_csv, "r");
-		if (!$handle) {
+		$statuses = get_status_for_results_csv($res_csv);
+		if (!is_array($statuses) || !isset($statuses["total"])) {
 			return "";
 		}
-
-		$delimiter = ",";
-		$enclosure = "\"";
-		$escape = "\\";
-
-		$header = fgetcsv($handle, 0, $delimiter, $enclosure, $escape);
-		$statusIndex = array_search("trial_status", $header);
-
-		if ($statusIndex === false) {
-			fclose($handle);
-			return "";
-		}
-
-		$statusCounts = [
-			"COMPLETED" => 0,
-			"FAILED" => 0,
-			"RUNNING" => 0
-		];
-
-		while (($row = fgetcsv($handle, 0, $delimiter, $enclosure, $escape)) !== false) {
-			$status = $row[$statusIndex];
-			if (isset($statusCounts[$status])) {
-				$statusCounts[$status]++;
-			}
-		}
-
-		fclose($handle);
 
 		$parts = [];
-		foreach ($statusCounts as $status => $count) {
-			if ($count > 0) {
-				$parts[] = ucfirst(strtolower($status)) . ": $count";
-			}
+		if (($statuses["succeeded"] ?? 0) > 0) {
+			$parts[] = "Completed: " . $statuses["succeeded"];
+		}
+		if (($statuses["failed"] ?? 0) > 0) {
+			$parts[] = "Failed: " . $statuses["failed"];
+		}
+		if (($statuses["running"] ?? 0) > 0) {
+			$parts[] = "Running: " . $statuses["running"];
 		}
 
 		return implode(", ", $parts);
@@ -1460,6 +1727,45 @@
 		return $latestTime;
 	}
 
+	function get_folder_summary($folderPath) {
+		if (isset($GLOBALS["folderSummaryCache"][$folderPath])) {
+			return $GLOBALS["folderSummaryCache"][$folderPath];
+		}
+
+		$summary = [
+			"mtime" => 0,
+			"non_empty" => false,
+		];
+
+		try {
+			$iterator = new RecursiveIteratorIterator(
+				new RecursiveDirectoryIterator($folderPath, FilesystemIterator::SKIP_DOTS),
+				RecursiveIteratorIterator::SELF_FIRST
+			);
+
+			foreach ($iterator as $fileInfo) {
+				if (!$fileInfo->isFile()) {
+					continue;
+				}
+
+				$summary["non_empty"] = true;
+				$mtime = $fileInfo->getMTime();
+				if ($mtime > $summary["mtime"]) {
+					$summary["mtime"] = $mtime;
+				}
+			}
+		} catch (\Throwable $e) {
+			// Keep the defaults; the folder is unreadable or vanished.
+		}
+
+		if ($summary["mtime"] === 0 && is_dir($folderPath)) {
+			$summary["mtime"] = (int)@filemtime($folderPath);
+		}
+
+		$GLOBALS["folderSummaryCache"][$folderPath] = $summary;
+		return $summary;
+	}
+
 	function generate_folder_buttons($folderPath, $new_param_name) {
 		if (!isset($_SERVER["REQUEST_URI"])) {
 			return;
@@ -1481,19 +1787,20 @@
 			}
 			closedir($dir);
 
+			$summaries = [];
+			foreach ($folders as $folder) {
+				$summaries[$folder] = get_folder_summary($folderPath . '/' . $folder);
+			}
+
 			switch ($sort) {
 				case 'time_asc':
-					usort($folders, function($a, $b) use ($folderPath) {
-						$timeA = get_latest_modification_time($folderPath . '/' . $a);
-						$timeB = get_latest_modification_time($folderPath . '/' . $b);
-						return $timeA - $timeB;
+					usort($folders, function($a, $b) use ($summaries) {
+						return $summaries[$a]["mtime"] - $summaries[$b]["mtime"];
 					});
 					break;
 				case 'time_desc':
-					usort($folders, function($a, $b) use ($folderPath) {
-						$timeA = get_latest_modification_time($folderPath . '/' . $a);
-						$timeB = get_latest_modification_time($folderPath . '/' . $b);
-						return $timeB - $timeA;
+					usort($folders, function($a, $b) use ($summaries) {
+						return $summaries[$b]["mtime"] - $summaries[$a]["mtime"];
 					});
 					break;
 				case 'nr_asc':
@@ -1508,13 +1815,15 @@
 
 			if (count($folders)) {
 				foreach ($folders as $folder) {
+					$raw_folder = $folder;
 					$folderPathWithFile = $folderPath . '/' . $folder;
+					$summary = $summaries[$folder] ?? get_folder_summary($folderPathWithFile);
 					$url = $currentUrl . (strpos($currentUrl, '?') === false ? '?' : '&') . $new_param_name . '=' . urlencode($folder);
 					if ($sort != 'nr_asc') {
 						$url .= '&sort=' . urlencode($sort);
 					}
 
-					$timestamp = get_latest_modification_time($folderPathWithFile);
+					$timestamp = $summary["mtime"];
 					$lastModified = date("F d Y H:i:s", $timestamp);
 					$timeSince = time_since($timestamp);
 
@@ -1527,13 +1836,13 @@
 						}
 					}
 
-					if(has_non_empty_folder($folderPathWithFile)) {
+					if($summary["non_empty"]) {
 						$folder = htmlspecialchars($folder);
 						$url = htmlspecialchars($url);
 
 						$bracket_string = "$lastModified | $timeSince";
 
-						$res_csv = "$folderPath/$folder/results.csv";
+						$res_csv = "$folderPath/$raw_folder/results.csv";
 
 						$show = 1;
 
@@ -2875,26 +3184,6 @@
 		}
 	}
 
-	function add_tda_tab($tabs, $warnings, $run_dir) {
-		$results_csv_file = "$run_dir/results.csv";
-
-		if(!is_file($results_csv_file) || !filesize($results_csv_file)) {
-			$warnings[] = "$results_csv_file not found or empty, cannot add topological analysis tab";
-			return [$tabs, $warnings];
-		}
-
-		$svg_icon = get_icon_html("network.svg");
-		$html = "<div id='tda_root'></div>\n";
-
-		$tabs["{$svg_icon}Topology"] = [
-			'id' => 'tab_tda',
-			'content' => $html,
-			'onclick' => 'initializeTDA();'
-		];
-
-		return [$tabs, $warnings];
-	}
-
 	function add_pareto_from_from_file($tabs, $warnings, $run_dir) {
 		$pareto_front_txt_file = "$run_dir/pareto_front_table.txt";
 		$pareto_front_json_file = "$run_dir/pareto_front_data.json";
@@ -3428,12 +3717,33 @@ $onclick_string
 	}
 
 	function is_ascii_or_utf8($filepath) {
-		if (isset($GLOBALS["ascii_or_utf8_cache"][$filepath])) {
-			return $GLOBALS["ascii_or_utf8_cache"][$filepath];
-		}
-
 		if (!is_readable($filepath) || !is_file($filepath)) {
 			return false;
+		}
+
+		$mtime = @filemtime($filepath);
+		$size = @filesize($filepath);
+		$inline_key = $filepath . "|" . (string)$mtime . "|" . (string)$size;
+
+		if (isset($GLOBALS["ascii_or_utf8_cache"][$inline_key])) {
+			return $GLOBALS["ascii_or_utf8_cache"][$inline_key];
+		}
+
+		$cache_key = null;
+
+		if ($mtime !== false && $size !== false) {
+			$cache_key = share_file_cache_key("utf8", $filepath, (string)$mtime . "|" . (string)$size);
+			$cached = share_cache_read_serialized("utf8", $cache_key);
+
+			if (
+				is_array($cached) &&
+				($cached["mtime"] ?? null) === $mtime &&
+				($cached["size"] ?? null) === $size &&
+				array_key_exists("valid", $cached)
+			) {
+				$GLOBALS["ascii_or_utf8_cache"][$inline_key] = (bool)$cached["valid"];
+				return $GLOBALS["ascii_or_utf8_cache"][$inline_key];
+			}
 		}
 
 		$content = file_get_contents($filepath);
@@ -3443,7 +3753,15 @@ $onclick_string
 
 		$valid = mb_check_encoding($content, 'UTF-8');
 
-		$GLOBALS["ascii_or_utf8_cache"][$filepath] = $valid;
+		$GLOBALS["ascii_or_utf8_cache"][$inline_key] = $valid;
+
+		if ($cache_key !== null) {
+			share_cache_write_serialized("utf8", $cache_key, [
+				"mtime" => $mtime,
+				"size" => $size,
+				"valid" => $valid,
+			]);
+		}
 
 		return $valid;
 	}
@@ -3721,6 +4039,40 @@ $onclick_string
 		return [$overview_html, $warnings];
 	}
 
+	function create_insights_cached($results_csv_file, $result_names, $result_min_max) {
+		$mtime = @filemtime($results_csv_file);
+		$size = @filesize($results_csv_file);
+		$cache_key = null;
+
+		if ($mtime !== false && $size !== false) {
+			$extra = (string)$mtime . "|" . (string)$size . "|" . json_encode($result_names) . "|" . json_encode($result_min_max);
+			$cache_key = share_file_cache_key("insights", $results_csv_file, $extra);
+			$cached = share_cache_read_serialized("insights", $cache_key);
+
+			if (
+				is_array($cached) &&
+				($cached["mtime"] ?? null) === $mtime &&
+				($cached["size"] ?? null) === $size &&
+				isset($cached["markdown"]) &&
+				is_string($cached["markdown"])
+			) {
+				return $cached["markdown"];
+			}
+		}
+
+		$markdown = create_insights($results_csv_file, $result_names, $result_min_max);
+
+		if ($cache_key !== null) {
+			share_cache_write_serialized("insights", $cache_key, [
+				"mtime" => $mtime,
+				"size" => $size,
+				"markdown" => $markdown,
+			]);
+		}
+
+		return $markdown;
+	}
+
 	function add_insights_from_file($tabs, $warnings, $run_dir, $result_names, $result_min_max) {
 		$results_csv_file = "$run_dir/results.csv";
 
@@ -3728,7 +4080,7 @@ $onclick_string
 			$status_data = get_status_for_results_csv($results_csv_file);
 
 			if($status_data["total"]) {
-				$natural_language_markdown = nl2br(create_insights($results_csv_file, $result_names, $result_min_max));
+				$natural_language_markdown = nl2br(create_insights_cached($results_csv_file, $result_names, $result_min_max));
 				$svg_icon = get_icon_html("insights.svg");
 
 				$html = convert_markdown_to_html($natural_language_markdown);

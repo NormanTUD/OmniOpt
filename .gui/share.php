@@ -87,6 +87,26 @@
 		}
 	}
 
+	$share_page_cache_key = null;
+
+	if(
+		!count($errors) && $user_id && $experiment_name && $run_nr != -1 && $run_nr !== null && is_dir($run_dir)
+		&& !file_exists("$run_dir/password.sha256")
+		&& !isset($_GET["export"])
+		&& !isset($_GET["export_and_exit"])
+		&& !isset($_GET["filter_tabs_regex"])
+	) {
+		$share_page_cache_key = share_run_page_cache_key($run_dir);
+		$cached_page = share_run_page_cache_read($run_dir, $share_page_cache_key);
+
+		if($cached_page !== null) {
+			echo $cached_page;
+			exit(0);
+		}
+
+		ob_start();
+	}
+
 	if(!count($errors) && $user_id && $experiment_name && $run_nr != -1 && $run_nr !== null && is_dir($run_dir)) {
 		$password_hash_file = "$run_dir/password.sha256";
 
@@ -108,7 +128,6 @@
 						["$run_dir/results.csv", "Results", "tab_results"],
 						//["$run_dir/get_next_trials.csv", "Get-Next-Trials", "tab_get_next_trials", ["time", "got", "requested"]],
 					],
-					'add_tda_tab' => [["$run_dir"]],
 					'add_simple_pre_tab_from_file' => [
 						["$run_dir/oo_errors.txt", "Errors", "tab_errors", true, true],
 						["$run_dir/outfile", "Main-Log", "tab_main_log", true],
@@ -441,7 +460,7 @@
 <?php
 		if(count($GLOBALS["json_data"])) {
 			foreach ($GLOBALS["json_data"] as $json_name => $json_data) {
-				print "\tvar $json_name = ".json_encode($json_data, JSON_PRETTY_PRINT).";\n";
+				print "\tvar $json_name = ".json_encode($json_data, JSON_UNESCAPED_SLASHES).";\n";
 			}
 		}
 ?>
@@ -645,4 +664,14 @@
 	</div>
 <?php
 	include("footer.php");
+
+	if($share_page_cache_key !== null) {
+		$page_html = ob_get_clean();
+
+		if(!count($errors)) {
+			share_run_page_cache_write($run_dir, $share_page_cache_key, $page_html);
+		}
+
+		echo $page_html;
+	}
 ?>

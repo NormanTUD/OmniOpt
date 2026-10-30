@@ -4,6 +4,7 @@
 
 	$GLOBALS["modificationCache"] = [];
 	$GLOBALS["recursiveModificationCache"] = [];
+	$GLOBALS["folderSummaryCache"] = [];
 	$GLOBALS["ascii_or_utf8_cache"] = [];
 
 	$GLOBALS["sharesPath"] = "shares/";

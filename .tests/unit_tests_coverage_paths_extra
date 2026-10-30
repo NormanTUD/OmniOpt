@@ -1,0 +1,1941 @@
+#!/usr/bin/env python3
+"""Extra unit tests for uncovered branches in the Python helper modules.
+
+This is a companion to ``unit_tests_coverage_paths``.  It focuses on the
+largest remaining gaps in the CI coverage report (``.helpers.py``,
+``.optuna_runner.py``, ``omniopt_share``, ``omniopt_plot`` and the plot
+modules) without touching any production file.
+
+All tests are offline and use temporary directories / mocks.  Run from the
+repository root:
+
+    python3 .tests/unit_tests_coverage_paths_extra
+"""
+
+from __future__ import annotations
+
+import atexit
+import contextlib
+import io
+import json
+import os
+import shutil
+import sys
+import tempfile
+import types
+import urllib.error
+import zipfile
+from datetime import datetime, timedelta
+from importlib.machinery import SourceFileLoader
+from pathlib import Path
+from types import SimpleNamespace
+from unittest import mock
+
+THIS_DIR = Path(__file__).resolve().parent
+REPO_ROOT = THIS_DIR.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+import numpy as np  # noqa: E402
+import pandas as pd  # noqa: E402
+
+from _framework.helpers import red_text  # noqa: E402
+
+
+def _load(name: str, path: Path):
+    # pylint: disable-next=deprecated-method
+    return SourceFileLoader(name, str(path)).load_module()
+
+
+helpers = _load("coverage_helpers_extra", REPO_ROOT / ".helpers.py")
+pareto = _load("coverage_pareto_extra", REPO_ROOT / ".pareto.py")
+plot = _load("coverage_omniopt_plot_extra", REPO_ROOT / "omniopt_plot")
+share = _load("coverage_omniopt_share_extra", REPO_ROOT / "omniopt_share")
+
+
+def _install_hyperopt_stub() -> None:
+    """Tiny hyperopt stand-in so the TPE tests also run without the real package."""
+    module = types.ModuleType("hyperopt")
+    module.STATUS_OK = "ok"
+
+    class Space:
+        def __init__(self, kind, **kwargs):
+            self.kind = kind
+            self.kwargs = kwargs
+
+    def quniform(name, lo, hi, _q):
+        return Space("int", name=name, lo=lo, hi=hi)
+
+    def uniform(name, lo, hi):
+        return Space("float", name=name, lo=lo, hi=hi)
+
+    def choice(name, values):
+        return Space("choice", name=name, values=values)
+
+    class Trials:
+        def __init__(self):
+            self.trials = []
+
+        @property
+        def best_trial(self):
+            return min(self.trials, key=lambda t: t["result"].get("loss", 0))
+
+    def fmin(fn, space, algo, trials, max_evals, verbose, rstate):
+        del algo, verbose
+        rng = rstate
+        for _ in range(max_evals):
+            vals = {}
+            for name, spec in space.items():
+                if spec.kind == "int":
+                    vals[name] = [int(round(rng.uniform(spec.kwargs["lo"], spec.kwargs["hi"])))]
+                elif spec.kind == "float":
+                    vals[name] = [rng.uniform(spec.kwargs["lo"], spec.kwargs["hi"])]
+                else:
+                    vals[name] = [rng.integers(len(spec.kwargs["values"]))]
+            result = fn({name: value[0] for name, value in vals.items()})
+            trials.trials.append({"misc": {"vals": vals}, "result": result})
+        return trials.best_trial
+
+    module.hp = SimpleNamespace(quniform=quniform, uniform=uniform, choice=choice)
+    module.tpe = SimpleNamespace(suggest=lambda *_a, **_k: None)
+    module.Trials = Trials
+    module.fmin = fmin
+    sys.modules["hyperopt"] = module
+
+
+try:
+    import hyperopt  # noqa: F401
+except ModuleNotFoundError:
+    _install_hyperopt_stub()
+try:
+    tpe = _load("coverage_tpe_extra", REPO_ROOT / ".tpe.py")
+except (ImportError, SystemExit):
+    tpe = None
+try:
+    optuna_runner = _load("coverage_optuna_runner_extra", REPO_ROOT / ".optuna_runner.py")
+except (ImportError, SystemExit):
+    optuna_runner = None
+
+try:
+    import seaborn  # noqa: F401
+except ModuleNotFoundError:
+    _seaborn_stub = types.ModuleType("seaborn")
+    for _name in ("lineplot", "boxplot", "countplot", "heatmap", "histplot", "pairplot"):
+        setattr(_seaborn_stub, _name, mock.MagicMock())
+    sys.modules["seaborn"] = _seaborn_stub
+
+_PLOT_TMP = tempfile.mkdtemp(prefix="coverage_extra_plots_")
+atexit.register(shutil.rmtree, _PLOT_TMP, ignore_errors=True)
+pd.DataFrame({"result": [1.0, 2.0], "x": [0.0, 1.0]}).to_csv(
+    Path(_PLOT_TMP) / "results.csv"
+)
+
+
+def _load_plot(name: str, filename: str, argv):
+    old_argv = sys.argv
+    try:
+        sys.argv = [filename, *argv]
+        return _load(name, REPO_ROOT / filename)
+    except (ImportError, SystemExit):
+        return None
+    finally:
+        sys.argv = old_argv
+
+
+cpu_ram = _load_plot(
+    "coverage_plot_cpu_ram", ".omniopt_plot_cpu_ram_usage.py", ["--run_dir", _PLOT_TMP]
+)
+general = _load_plot(
+    "coverage_plot_general", ".omniopt_plot_general.py", ["--run_dir", _PLOT_TMP]
+)
+kde = _load_plot(
+    "coverage_plot_kde", ".omniopt_plot_kde.py", ["--run_dir", _PLOT_TMP]
+)
+scatter = _load_plot(
+    "coverage_plot_scatter", ".omniopt_plot_scatter.py", ["--run_dir", _PLOT_TMP]
+)
+scatter_gen = _load_plot(
+    "coverage_plot_scatter_gen",
+    ".omniopt_plot_scatter_generation_method.py",
+    ["--run_dir", _PLOT_TMP],
+)
+scatter_hex = _load_plot(
+    "coverage_plot_scatter_hex",
+    ".omniopt_plot_scatter_hex.py",
+    ["--run_dir", _PLOT_TMP, "--bins", "3"],
+)
+trial_index = _load_plot(
+    "coverage_plot_trial_index",
+    ".omniopt_plot_trial_index_result.py",
+    ["--run_dir", _PLOT_TMP],
+)
+worker = _load_plot(
+    "coverage_plot_worker", ".omniopt_plot_worker.py", ["--run_dir", _PLOT_TMP]
+)
+
+
+def _check(condition: bool, message: str) -> bool:
+    if not condition:
+        red_text(f"FAIL: {message}")
+    return condition
+
+
+@contextlib.contextmanager
+def _env(**values):
+    old = {key: os.environ.get(key) for key in values}
+    try:
+        for key, value in values.items():
+            if value is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = value
+        yield
+    finally:
+        for key, value in old.items():
+            if value is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = value
+
+
+def _expect_exit(fn, code=None) -> bool:
+    try:
+        fn()
+    except SystemExit as exc:
+        return code is None or exc.code == code
+    except Exception:
+        return False
+    return False
+
+
+def _args(**kwargs):
+    values = {
+        "run_dir": _PLOT_TMP,
+        "save_to_file": "0",
+        "min": None,
+        "max": None,
+        "allow_axes": [],
+        "no_legend": False,
+        "merge_with_previous_runs": [],
+    }
+    values.update(kwargs)
+    return SimpleNamespace(**values)
+
+
+def _write_run(root: Path, *, result=("result", [1.0, 2.0, 3.0]), extra=None) -> Path:
+    run = root / "run"
+    run.mkdir(parents=True, exist_ok=True)
+    data = {result[0]: result[1], "x": list(range(len(result[1])))}
+    if extra:
+        data.update(extra)
+    pd.DataFrame(data).to_csv(run / "results.csv")
+    return run
+
+
+# ---------------------------------------------------------------------------
+# .helpers.py - widgets, titles and graph orchestration
+# ---------------------------------------------------------------------------
+
+
+def test_helpers_widgets_and_title() -> bool:
+    fake_plt = mock.MagicMock()
+    fake_plt.axes.side_effect = [mock.MagicMock(), mock.MagicMock(), mock.MagicMock()]
+    fake_button = mock.MagicMock()
+    fake_textboxes = [mock.MagicMock(), mock.MagicMock()]
+    update = mock.MagicMock()
+    with mock.patch.object(helpers, "Button", return_value=fake_button) as button_cls, \
+            mock.patch.object(helpers, "TextBox", side_effect=fake_textboxes) as textbox_cls:
+        widgets = helpers.create_widgets(
+            [fake_plt, None, None, None, _args(min="1.5", max=2), None, None, update]
+        )
+    ok = _check(len(widgets) == 5, "create_widgets must return five widgets")
+    ok &= _check(fake_button.on_clicked.call_args[0][0] is update, "button callback")
+    ok &= _check(button_cls.call_count == 1 and textbox_cls.call_count == 2, "widget counts")
+    ok &= _check(
+        textbox_cls.call_args_list[0].kwargs["initial"] == "1.5",
+        "minimum textbox initial value",
+    )
+    ok &= _check(
+        textbox_cls.call_args_list[1].kwargs["initial"] == "2",
+        "maximum textbox initial value",
+    )
+
+    with tempfile.TemporaryDirectory() as tmp:
+        run = _write_run(Path(tmp))
+        df = pd.read_csv(run / "results.csv", index_col=0)
+        (run / "result_min_max.txt").write_text("max\n")
+        title = helpers.get_title(
+            _args(run_dir=str(run)), df["result"], df, len(df), 1.5, 2.5
+        )
+        ok &= _check("Maximum" in title, "maximize title")
+        ok &= _check("x = 2" in title, "extreme parameter in title")
+        ok &= _check("show min = 1.5" in title and "show max = 2.5" in title, "min/max in title")
+        (run / "result_min_max.txt").write_text("min\n")
+        title = helpers.get_title(
+            _args(run_dir=str(run)), df["result"], df, len(df), None, None
+        )
+        ok &= _check("Minimum" in title, "minimize title")
+    return ok
+
+
+def test_helpers_graph_orchestration() -> bool:
+    df = pd.DataFrame({"x": [1, 2], "result": [2, 1]})
+    params = ["csv", mock.MagicMock(), mock.MagicMock(), None, None, None, None,
+              _args(), False, mock.MagicMock(), mock.MagicMock(), None]
+    with mock.patch.object(helpers, "get_csv_file_path", return_value="csv"), \
+            mock.patch.object(helpers, "set_min_max", return_value=(None, None)), \
+            mock.patch.object(helpers, "load_and_merge_data", return_value=df), \
+            mock.patch.object(helpers, "get_df_filtered", return_value=df), \
+            mock.patch.object(helpers, "check_filtering") as check_filtering, \
+            mock.patch.object(helpers, "plot_parameters") as plot_parameters:
+        helpers._update_graph(params)
+    ok = _check(check_filtering.called and plot_parameters.called, "_update_graph happy path")
+    ok &= _check(params[1].draw.called, "_update_graph redraws")
+
+    params_none = list(params)
+    with mock.patch.object(helpers, "get_csv_file_path", return_value="csv"), \
+            mock.patch.object(helpers, "set_min_max", return_value=(None, None)), \
+            mock.patch.object(helpers, "load_and_merge_data", return_value=None):
+        with contextlib.redirect_stdout(io.StringIO()):
+            helpers._update_graph(params_none)
+    ok &= _check(True, "_update_graph empty dataframe branch")
+
+    with mock.patch.object(helpers, "get_csv_file_path", side_effect=RuntimeError("boom")):
+        with contextlib.redirect_stdout(io.StringIO()):
+            helpers._update_graph(params)
+    ok &= _check(True, "_update_graph exception branch")
+
+    helpers.check_filtering(df, df.iloc[:1], "csv", None, None)
+
+    fig = mock.MagicMock()
+    fig.subplots.return_value = mock.MagicMock()
+    plot_graphs = mock.MagicMock()
+    set_title = mock.MagicMock()
+    with mock.patch.object(helpers, "get_parameter_combinations", return_value=[("x", "result")]), \
+            mock.patch.object(helpers, "get_non_empty_graphs", return_value=[("x", "result")]), \
+            mock.patch.object(helpers, "get_num_subplots_rows_and_cols", return_value=(1, 1, 1)), \
+            mock.patch.object(helpers, "remove_widgets") as remove_widgets, \
+            mock.patch.object(helpers, "get_result_column_values", return_value=df["result"]), \
+            mock.patch.object(helpers, "get_csv_file_path", return_value="csv"):
+        helpers.plot_parameters(
+            ["csv", df, df, _args(), fig, None, None, None, plot_graphs,
+             set_title, False, None, None]
+        )
+    ok &= _check(remove_widgets.called and plot_graphs.called and set_title.called,
+                 "plot_parameters orchestration")
+    return ok
+
+
+def test_helpers_colors_legends_and_merging() -> bool:
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        run = _write_run(root)
+        args = _args(run_dir=str(run), no_legend=False)
+        fig = mock.MagicMock()
+        cbar = fig.colorbar.return_value
+        helpers.show_legend(args, fig, object(), [])
+        ok = _check(cbar.set_label.called, "legend label set")
+        fig.colorbar.side_effect = RuntimeError("no legend")
+        with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+            helpers.show_legend(args, fig, object(), [])
+        ok &= _check(True, "legend exception branch")
+
+        df = pd.read_csv(run / "results.csv", index_col=0)
+        (run / "result_min_max.txt").write_text("min\n")
+        fake_plt = SimpleNamespace(Normalize=lambda lo, hi: ("norm", lo, hi))
+        cmap, norm, colors = helpers.get_color_list(df, args, fake_plt, str(run / "results.csv"))
+        ok &= _check(cmap is not None and norm[0] == "norm", "color list")
+        (run / "result_min_max.txt").write_text("max\n")
+        _, _, colors_max = helpers.get_color_list(df, args, fake_plt, str(run / "results.csv"))
+        ok &= _check((colors_max <= 0).all(), "maximize negates colors")
+
+        with mock.patch.object(helpers, "get_colors", return_value=None):
+            ok &= _check(_expect_exit(
+                lambda: helpers.get_color_list(df, args, fake_plt, str(run / "results.csv")), 3
+            ), "color list rejects None colors")
+        bad_plt = SimpleNamespace(Normalize=mock.MagicMock(side_effect=RuntimeError("bad")))
+        ok &= _check(_expect_exit(
+            lambda: helpers.get_color_list(df, args, bad_plt, str(run / "results.csv")), 16
+        ), "color list rejects bad values")
+
+        prev = root / "prev"
+        prev.mkdir()
+        pd.DataFrame({"result": [4.0, 5.0], "x": [10, 11]}).to_csv(prev / "results.csv")
+        prev_df = pd.read_csv(prev / "results.csv", index_col=0)
+        args_merge = _args(run_dir=str(run), merge_with_previous_runs=[[str(prev)]])
+        merged = helpers.merge_df_with_old_data(
+            args_merge, df, None, None, ",".join(sorted(df.columns))
+        )
+        ok &= _check(len(merged) == len(df) + len(prev_df), "merge previous run")
+        empty_merge = helpers.merge_df_with_old_data(
+            _args(run_dir=str(run), merge_with_previous_runs=[]), df, None, None, ""
+        )
+        ok &= _check(len(empty_merge) == len(df), "merge without previous runs")
+
+        loaded = helpers.load_and_merge_data(
+            _args(run_dir=str(run)), None, None, False, str(run / "results.csv")
+        )
+        ok &= _check(loaded is not None and not loaded.empty, "load_and_merge_data")
+        missing = helpers.load_and_merge_data(
+            _args(run_dir=str(run)), None, None, False, str(root / "missing.csv")
+        )
+        ok &= _check(missing is None, "load_and_merge_data missing file")
+
+        filtered = helpers.filter_data(
+            _args(run_dir=str(run)), df, 2.0, 3.0, str(run / "results.csv")
+        )
+        ok &= _check(len(filtered) == 2, "filter_data min/max")
+        no_result = pd.DataFrame({"other": [1]})
+        ok &= _check(_expect_exit(
+            lambda: helpers.filter_data(
+                _args(run_dir=str(run)), no_result, 1.0, None, str(run / "results.csv")
+            ), 19
+        ), "filter_data missing result column")
+
+        args_check = _args(run_dir=str(run), min=3, max=1)
+        with contextlib.redirect_stdout(io.StringIO()):
+            helpers.check_args(args_check)
+        ok &= _check(args_check.min == 1 and args_check.max == 3, "check_args swaps min/max")
+        args_same = _args(run_dir=str(run), min=2, max=2)
+        with contextlib.redirect_stdout(io.StringIO()):
+            helpers.check_args(args_same)
+
+        multi = root / "multi"
+        multi.mkdir()
+        (multi / "result_names.txt").write_text("a\nb\n")
+        ok &= _check(helpers.can_be_plotted(str(multi)) is False, "multiple results not plottable")
+        ok &= _check(_expect_exit(lambda: helpers.die_if_cannot_be_plotted(str(multi)), 2),
+                     "die_if_cannot_be_plotted")
+        ok &= _check(_expect_exit(lambda: helpers.die_if_cannot_be_plotted(None), 2),
+                     "die_if_cannot_be_plotted(None)")
+    return ok
+
+
+def test_helpers_usage_stats_and_download_edges() -> bool:
+    calls = []
+    old_urlopen = helpers._urlopen_quiet
+    old_get_anon = helpers.get_anon_user_id
+    helpers._urlopen_quiet = lambda url, timeout=5.0: calls.append(url) or True
+    try:
+        with _env(OO_MAIN_TESTS="1", ITWORKSONMYMACHINE=None,
+                  CUSTOM_VIRTUAL_ENV="1", OMNIOPT_BASE_URL="http://base"):
+            helpers.send_anonymized_usage_stats(True, "", "", None, 0)
+        ok = _check(bool(calls), "usage stats request fired")
+        ok &= _check("git_hash=pipinstall" in calls[-1], "pipinstall git hash")
+        ok &= _check("exit_code=-1" in calls[-1] and "runtime=0" in calls[-1], "stats defaults")
+        calls.clear()
+        helpers.get_anon_user_id = mock.MagicMock(side_effect=RuntimeError("nope"))
+        with _env(OO_MAIN_TESTS=None, ITWORKSONMYMACHINE=None):
+            helpers.send_anonymized_usage_stats(False, "uuid", "hash", 1, 2)
+        ok &= _check(not calls, "usage stats swallows anon-id failures")
+    finally:
+        helpers._urlopen_quiet = old_urlopen
+        helpers.get_anon_user_id = old_get_anon
+
+    with mock.patch.object(helpers.os, "getgroups", side_effect=RuntimeError("no groups")), \
+            _env(USER="coverage-user"):
+        ok &= _check(len(helpers.get_anon_user_id()) == 32, "anon id without groups")
+
+    class Response:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *exc):
+            return False
+
+        def read(self, _n=-1):
+            return b"ok"
+
+    with mock.patch.object(helpers.urllib.request, "urlopen", return_value=Response()):
+        ok &= _check(helpers._urlopen_quiet("http://example.invalid") is True, "_urlopen_quiet success")
+    with mock.patch.object(helpers.urllib.request, "urlopen", side_effect=urllib.error.URLError("x")):
+        ok &= _check(helpers._urlopen_quiet("http://example.invalid") is False, "_urlopen_quiet failure")
+        ok &= _check(helpers.fetch_exit_code_help(2) == "", "exit help failure")
+
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        zip_path = root / "share.zip"
+        with zipfile.ZipFile(zip_path, "w") as zf:
+            zf.writestr("results.csv", "result\n1\n")
+
+        class ZipResponse:
+            def __init__(self, path):
+                self.fh = open(path, "rb")
+
+            def __enter__(self):
+                return self.fh
+
+            def __exit__(self, *exc):
+                self.fh.close()
+                return False
+
+        runs = root / "runs" / "user" / "exp"
+        (runs / "0").mkdir(parents=True)
+        old = helpers.urllib.request.urlopen
+        helpers.urllib.request.urlopen = lambda *a, **k: ZipResponse(zip_path)
+        try:
+            target = helpers.download_share_run(
+                "https://x/share.php?user_id=user&experiment_name=exp&run_nr=0",
+                runs_root=str(root / "runs"),
+            )
+            ok &= _check(target is not None and Path(target).name == "1", "download collision bump")
+        finally:
+            helpers.urllib.request.urlopen = old
+        helpers.urllib.request.urlopen = mock.MagicMock(side_effect=urllib.error.URLError("down"))
+        try:
+            ok &= _check(helpers.download_share_run(
+                "https://x/share.php?user_id=user&experiment_name=exp&run_nr=0",
+                runs_root=str(root / "runs"),
+            ) is None, "download network failure")
+        finally:
+            helpers.urllib.request.urlopen = old
+    return ok
+
+
+def test_helpers_time_git_and_io_edges() -> bool:
+    ok = helpers.humanize_seconds(59) == "59 seconds"
+    ok &= helpers.humanize_seconds(3661) == "1 hours 1 minutes and 1 seconds"
+    ok &= helpers.humanize_seconds(90061) == "1 days 1 hours 1 minutes and 1 seconds"
+    now = datetime.now()
+    soon = (now + timedelta(seconds=30)).strftime("%Y-%m-%d %H:%M:%S")
+    ok &= _check(helpers.remaining_time(soon) in ("soon", "in about 0 minutes"),
+                 "remaining_time soon")
+    near = (now + timedelta(minutes=5)).strftime("%Y-%m-%d %H:%M:%S")
+    ok &= _check("minutes" in helpers.remaining_time(near), "remaining_time minutes")
+    hours = (now + timedelta(hours=3, minutes=12)).strftime("%Y-%m-%d %H:%M:%S")
+    ok &= _check("hours" in helpers.remaining_time(hours), "remaining_time hours")
+    days = (now + timedelta(days=2, hours=3, minutes=4)).strftime("%Y-%m-%d %H:%M:%S")
+    ok &= _check("days" in helpers.remaining_time(days), "remaining_time days")
+    years = (now + timedelta(days=400)).strftime("%Y-%m-%d %H:%M:%S")
+    ok &= _check("year" in helpers.remaining_time(years), "remaining_time years")
+    coloured = "\x1b[31m" + days + "\x1b[0m"
+    ok &= _check("days" in helpers.remaining_time(coloured), "remaining_time strips colours")
+
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        (root / "git_hash").write_text("abc\n")
+        with mock.patch("builtins.open", side_effect=OSError("no")):
+            ok &= _check(helpers._read_git_hash(str(root)) == "NOT_DETERMININABLE",
+                         "_read_git_hash OSError")
+        with mock.patch.object(helpers.subprocess, "check_output",
+                               side_effect=OSError("no git")):
+            ok &= _check(helpers._run_git(str(root), "status") is None, "_run_git OSError")
+        old_hash, old_run = helpers._read_git_hash, helpers._run_git
+        try:
+            values = {
+                ("describe", "--tags", "--abbrev=0"): "v1",
+                ("rev-list", "-n", "1", "v1"): "taghash",
+                ("rev-list", "--count", "taghash..HEAD"): "not-a-number",
+            }
+            helpers._read_git_hash = lambda _d: "hash"
+            helpers._run_git = lambda _d, *a, **k: values.get(a, "")
+            action, message = helpers.resolve_git_version(".")
+            ok &= _check(action == "print" and "version: v1" in message,
+                         "resolve_git_version non-integer count")
+        finally:
+            helpers._read_git_hash, helpers._run_git = old_hash, old_run
+
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        (root / "small.txt").write_text("hello")
+        ok &= _check(share._read_text_excerpt(root / "missing") == "", "missing excerpt")
+        cancel = (root / "cancel.txt")
+        cancel.write_text("CANCELLED")
+        ok &= _check(share._single_run_log_indicates_failure(cancel) is True,
+                     "cancelled log is failure")
+        ok &= _check(helpers._parse_share_url("https://x/share.php?user_id=u&experiment_name=e&run_nr=0")
+                     == ("u", "e"), "https share url")
+    return ok
+
+
+# ---------------------------------------------------------------------------
+# .pareto.py and .tpe.py
+# ---------------------------------------------------------------------------
+
+
+def test_pareto_extra_paths() -> bool:
+    x = np.array([0.0, 1.0, 2.0])
+    y = np.array([2.0, 1.0, 0.0])
+    ok = _check(len(pareto.pareto_front_general([], [], True, True)) == 0,
+                "pareto handles invalid input")
+    ok &= _check(pareto._point_dominates(2, 2, 1, 1, True, True) is True,
+                 "point dominance minimize")
+    ok &= _check(pareto._point_dominates(2, 1, 1, 2, True, True) is False,
+                 "point non-dominance")
+    dominated = pareto._find_dominated(x, y, False, False)
+    ok &= _check(dominated.dtype == bool, "_find_dominated maximize")
+    points = [("a", 0.0, 2.0), ("b", 1.0, 1.0), ("c", 2.0, 0.0)]
+    selected = pareto.pareto_front_select_pareto_points(x, y, True, True, points, 2)
+    ok &= _check(len(selected) <= 2, "select pareto points")
+    complete = pareto.pareto_front_filter_complete_points(
+        "p", {("k", "f"): {"means": {"a": 1.0, "b": 2.0}}}, "a", "b"
+    )
+    ok &= _check(complete == [(("k", "f"), 1.0, 2.0)], "complete pareto points")
+    table = mock.MagicMock()
+    pareto.pareto_front_table_add_headers(table, ["p"], ["r"])
+    pareto.pareto_front_table_add_rows(
+        table, [{"p": "1", "r": "2"}], ["p"], ["r"]
+    )
+    ok &= _check(table.add_row.called, "pareto table rows")
+    try:
+        pareto.pareto_front_filter_complete_points(
+            "p", {("k", "f"): {"means": {"other": 1}}}, "a", "b"
+        )
+        ok = False
+    except ValueError:
+        pass
+    return ok
+
+
+def test_tpe_extra_paths() -> bool:
+    if tpe is None:
+        return True
+    ok = True
+    parameters = {
+        "i": {"parameter_type": "RANGE", "range": [0, 10], "type": "INT"},
+        "f": {"parameter_type": "RANGE", "range": [0.0, 1.0], "type": "FLOAT"},
+        "c": {"parameter_type": "CHOICE", "values": ["a", "b"]},
+        "x": {"parameter_type": "FIXED", "value": 7},
+    }
+    space = tpe.build_space(parameters)
+    ok &= _check(set(space) == set(parameters), "TPE build_space all parameter types")
+    known = [({"i": 1, "f": 0.5}, 3.0)]
+    objective = tpe.make_objective(known, [], "minimize")
+    first = objective({"i": 1})
+    second = objective({"i": 2})
+    ok &= _check(first["loss"] == 3.0 and second["loss"] == 0.0, "TPE objective replay")
+    violated = tpe.make_objective([], ["i > 100"], "maximize")({"i": 1})
+    ok &= _check(violated["loss"] == -1e6, "TPE constraint penalty maximize")
+    decoded = tpe._decode_trial(
+        {"i": [1.6], "f": [0.5], "c": [1.0], "x": [9], "unknown": [2], "none": []},
+        parameters,
+    )
+    ok &= _check(decoded["i"] == 2 and decoded["c"] == "b" and decoded["x"] == 7,
+                 "TPE decode known types")
+    ok &= _check(decoded["none"] is None and decoded["unknown"] == 2.0,
+                 "TPE decode unknown/none types")
+
+    data = {
+        "parameters": parameters,
+        "objectives": {"r": "min"},
+        "trials": [[{"i": 1, "f": 0.5, "c": "a", "x": 7}], [{"r": 1.0}]],
+        "constraints": [],
+        "seed": 1,
+    }
+    point = tpe.generate_tpe_point(data, extra_iters=0)
+    ok &= _check("i" in point, "TPE generate with only replayed trial")
+
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        (root / "input.json").write_text(json.dumps({
+            "parameters": parameters,
+            "objectives": {"r": "min"},
+            "trials": [[], []],
+        }))
+        old_argv = sys.argv
+        try:
+            sys.argv = ["tpe", str(root)]
+            with _env(OMNIOPT_TPE_EXTRA_ITERS="1"):
+                tpe.main()
+        finally:
+            sys.argv = old_argv
+        ok &= _check((root / "results.json").is_file(), "TPE main writes results")
+    return ok
+
+
+# ---------------------------------------------------------------------------
+# .optuna_runner.py
+# ---------------------------------------------------------------------------
+
+
+def _input(workdir: Path, parameters, objectives, trials=None, constraints=None) -> None:
+    data = {
+        "parameters": parameters,
+        "objectives": objectives,
+        "trials": trials if trials is not None else [[], []],
+        "constraints": constraints or [],
+    }
+    (workdir / "input.json").write_text(json.dumps(data))
+
+
+def _params() -> dict:
+    return {
+        "x": {"parameter_type": "RANGE", "range": [0, 5], "type": "INT"},
+        "f": {"parameter_type": "RANGE", "range": [0.0, 1.0], "type": "FLOAT"},
+        "c": {"parameter_type": "CHOICE", "values": ["a", "b"]},
+        "fixed": {"parameter_type": "FIXED", "value": 3},
+    }
+
+
+def test_optuna_builders_and_replay() -> bool:
+    if optuna_runner is None:
+        return True
+    ok = True
+    for sampler_name in ("tpe", "random"):
+        sampler = optuna_runner.build_sampler(sampler_name, 1, 3, False, False, False, 0)
+        ok &= _check(sampler is not None, f"sampler {sampler_name}")
+    constrained = optuna_runner.build_sampler("tpe", 1, 3, True, True, True, 5)
+    ok &= _check(constrained is not None, "TPE with constraints/EI")
+    for sampler_name in ("cmaes", "nsgaii", "motpe"):
+        cls_name = optuna_runner.SAMPLER_ALIASES.get(sampler_name)
+        if cls_name and not hasattr(optuna_runner.optuna.samplers, cls_name):
+            continue
+        sampler = optuna_runner.build_sampler(sampler_name, None, 3, False, False, False, 0)
+        ok &= _check(sampler is not None, f"sampler {sampler_name}")
+    ok &= _check(type(optuna_runner.build_pruner("threshold")).__name__ == "NopPruner",
+                 "threshold pruner falls back to NopPruner")
+    ok &= _check(optuna_runner.build_pruner("median") is not None, "median pruner")
+
+    directions, keys = optuna_runner.parse_objectives({"r": "min", "s": "max"})
+    ok &= _check(directions == ["minimize", "maximize"] and keys == ["r", "s"],
+                 "multi-objective parse")
+
+    sampler = optuna_runner.build_sampler("random", 1, 3, False, False, False, 0)
+    study = optuna_runner.build_study(sampler, ["minimize"], None, "in-memory", True)
+    ok &= _check(len(study.directions) == 1, "in-memory study")
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        study = optuna_runner.build_study(
+            sampler, ["minimize"], None, "file-study", True, workdir=root
+        )
+        ok &= _check(len(study.trials) == 0, "workdir-backed study")
+        search_space = optuna_runner.build_distributions_map({"c": _params()["c"]})
+        grid = optuna_runner.optuna.samplers.GridSampler(
+            search_space={"c": search_space["c"].choices}
+        )
+        grid_study = optuna_runner.build_study(
+            grid, ["minimize"], "sqlite:///" + str(root / "grid.db"), "grid-study", True,
+            search_space=search_space,
+        )
+        ok &= _check(grid_study is not None, "GridSampler study conversion")
+
+    fallback_study = optuna_runner.optuna.create_study(direction="minimize")
+    fallback_storage_study = optuna_runner.optuna.create_study(direction="minimize")
+    real_sampler = optuna_runner.build_sampler("random", 1, 3, False, False, False, 0)
+    with mock.patch.object(optuna_runner.optuna, "create_study",
+                           side_effect=[TypeError("old"), fallback_study]) as create:
+        result = optuna_runner.build_study(real_sampler, ["minimize"], None, "s", True)
+    ok &= _check(result is fallback_study and "direction" in create.call_args.kwargs,
+                 "old Optuna direction fallback")
+    with mock.patch.object(optuna_runner.optuna, "create_study",
+                           side_effect=[TypeError("old"), fallback_storage_study]) as create:
+        result = optuna_runner.build_study(
+            real_sampler, ["minimize"], "sqlite:///x.db", "s", True
+        )
+    ok &= _check(result is fallback_storage_study and "load_if_exists" not in create.call_args.kwargs,
+                 "old Optuna storage fallback")
+
+    replay_params = {k: _params()[k] for k in ("x", "c")}
+    study = optuna_runner.optuna.create_study(directions=["minimize"])
+    known = [
+        ({"x": 1, "c": "a"}, {"r": 2.0}),
+        ({"x": 2, "c": "b"}, {"r": "not-a-number"}),
+        ({"x": 3, "c": "b"}, {"r": 0.1}),
+    ]
+    optuna_runner.replay_trials(study, known, replay_params, ["r"], [], 1e6)
+    ok &= _check(len(study.trials) == 2, "replay_trials skips invalid values")
+    multi = optuna_runner.optuna.create_study(directions=["minimize", "maximize"])
+    optuna_runner.replay_trials(
+        multi, [({"x": 1, "c": "a"}, {"r": 1.0, "s": 2.0})],
+        replay_params, ["r", "s"], [], 1e6,
+    )
+    ok &= _check(len(multi.trials) == 1, "replay_trials multi-objective")
+    penalized = optuna_runner.optuna.create_study(direction="minimize")
+    optuna_runner.replay_trials(
+        penalized, [({"x": 1, "c": "a"}, {"r": 2e6}), ({"x": 2, "c": "a"}, {"r": 1.0})],
+        replay_params, ["r"], ["x > 10"], 1e6,
+    )
+    ok &= _check(len(penalized.trials) == 2, "replay_trials constraint penalties")
+
+    with mock.patch.object(study, "add_trial", side_effect=RuntimeError("cannot add")):
+        optuna_runner.replay_trials(
+            study, [({"x": 1, "c": "a"}, {"r": 1.0})], replay_params, ["r"], [], 1e6
+        )
+    ok &= _check(True, "replay_trials logs add_trial failures")
+    return ok
+
+
+def test_optuna_suggest_and_random() -> bool:
+    if optuna_runner is None:
+        return True
+    ok = True
+    params = _params()
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        _input(root, params, {"r": "min"},
+               trials=[[{"x": 1, "c": "a"}], [{"r": 1.0}]])
+        result = optuna_runner.suggest_workdir(
+            root, sampler_name="random", pruner_name="none", seed=1,
+            n_startup_trials=3, multivariate=False, group=False,
+            constraints=False, n_ei_candidates=0, extra_iters=1,
+            storage=None, study_name="suggest-study", load_if_exists=True,
+        )
+        ok &= _check("parameters" in result and set(result["parameters"]) == set(params),
+                     "suggest_workdir returns complete point")
+
+        _input(root, params, {"r": "max"}, constraints=["x > 100"])
+        result = optuna_runner.suggest_workdir(
+            root, sampler_name="random", pruner_name="none", seed=2,
+            n_startup_trials=3, multivariate=False, group=False,
+            constraints=True, n_ei_candidates=0, extra_iters=1,
+            storage=None, study_name="constraints-study", load_if_exists=True,
+        )
+        ok &= _check("parameters" in result, "suggest_workdir constraint fallback")
+
+        _input(root, params, {"r": "min"})
+        with mock.patch.object(optuna_runner, "suggest_point_from_trial",
+                               side_effect=RuntimeError("cannot suggest")):
+            result = optuna_runner.suggest_workdir(
+                root, sampler_name="random", pruner_name="none", seed=3,
+                n_startup_trials=3, multivariate=False, group=False,
+                constraints=False, n_ei_candidates=0, extra_iters=1,
+                storage=None, study_name="failure-study", load_if_exists=True,
+            )
+        ok &= _check(set(result["parameters"]) == set(params),
+                     "suggest_workdir random fallback")
+
+    point = optuna_runner._random_point(params, 1)
+    ok &= _check(set(point) == set(params), "_random_point all parameter types")
+    try:
+        optuna_runner._random_point({"bad": {"parameter_type": "NOPE"}}, 1)
+        ok = False
+    except ValueError:
+        pass
+    ok &= _check(optuna_runner._env_or("NO_SUCH_ENV_EXTRA", "d") == "d", "_env_or default")
+    with _env(COVERAGE_EXTRA_ENV="v"):
+        ok &= _check(optuna_runner._env_or("COVERAGE_EXTRA_ENV", "d") == "v", "_env_or env")
+    return ok
+
+
+def test_optuna_cli_and_study_commands() -> bool:
+    if optuna_runner is None:
+        return True
+    ok = True
+    parser = optuna_runner._build_study_parser()
+    ok &= _check(optuna_runner._split_argv_at_study(["x", "study", "create"]) == (["x"], ["study", "create"]),
+                 "_split_argv_at_study")
+    ok &= _check(optuna_runner._split_argv_at_study(["x"]) == (["x"], []),
+                 "_split_argv_at_study without study")
+    ok &= _check(optuna_runner._direction_name(SimpleNamespace(name="MINIMIZE")) == "minimize",
+                 "_direction_name name attr")
+    ok &= _check(optuna_runner._direction_name("MAXIMIZE") == "maximize",
+                 "_direction_name string")
+    ok &= _check(optuna_runner._direction_name("other") == "other", "_direction_name other")
+
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        study_dir = root / "single"
+        create = parser.parse_args(["create", "--workdir", str(study_dir), "--objectives", "r"])
+        with contextlib.redirect_stdout(io.StringIO()) as out:
+            ok &= _check(optuna_runner._dispatch_study(create) == 0, "study create")
+        ok &= _check('"n_trials": 0' in out.getvalue(), "study create output")
+
+        params_file = root / "params.json"
+        params_file.write_text(json.dumps({"x": 1, "f": 0.5, "c": "a"}))
+        values_file = root / "values.json"
+        values_file.write_text(json.dumps({"r": 1.5}))
+        add = parser.parse_args([
+            "add", "--workdir", str(study_dir), "--params-file", str(params_file),
+            "--values", "@" + str(values_file),
+        ])
+        with contextlib.redirect_stdout(io.StringIO()) as out:
+            ok &= _check(optuna_runner._dispatch_study(add) == 0, "study add values file")
+        ok &= _check('"added_trial": 1' in out.getvalue(), "study add output")
+        add_list = parser.parse_args([
+            "add", "--workdir", str(study_dir), "--params-file", str(params_file),
+            "--values", "[2.0]", "--state", "PRUNED",
+        ])
+        with contextlib.redirect_stdout(io.StringIO()):
+            ok &= _check(optuna_runner._dispatch_study(add_list) == 0, "study add list values")
+
+        spec_file = root / "spec.json"
+        suggest_spec = _params()
+        suggest_spec["c"] = {"parameter_type": "CHOICE", "values": ["a"]}
+        spec_file.write_text(json.dumps(suggest_spec))
+        suggest = parser.parse_args([
+            "suggest", "--workdir", str(study_dir), "--parameters-file", str(spec_file),
+            "--output", str(root / "suggested.json"),
+        ])
+        with contextlib.redirect_stdout(io.StringIO()):
+            ok &= _check(optuna_runner._dispatch_study(suggest) == 0, "study suggest")
+        ok &= _check((root / "suggested.json").is_file(), "study suggest output file")
+
+        best = parser.parse_args(["best", "--workdir", str(study_dir)])
+        with contextlib.redirect_stdout(io.StringIO()) as out:
+            ok &= _check(optuna_runner._dispatch_study(best) == 0, "study best single")
+        ok &= _check("best_value" in out.getvalue(), "study best single output")
+        trials = parser.parse_args(["trials", "--workdir", str(study_dir)])
+        with contextlib.redirect_stdout(io.StringIO()) as out:
+            ok &= _check(optuna_runner._dispatch_study(trials) == 0, "study trials")
+        ok &= _check('"state"' in out.getvalue(), "study trials output")
+
+        multi_dir = root / "multi"
+        create_multi = parser.parse_args([
+            "create", "--workdir", str(multi_dir), "--objectives", "r,s",
+            "--directions", "minimize,maximize",
+        ])
+        with contextlib.redirect_stdout(io.StringIO()):
+            ok &= _check(optuna_runner._dispatch_study(create_multi) == 0, "study create multi")
+        add_multi = parser.parse_args([
+            "add", "--workdir", str(multi_dir), "--params-file", str(params_file),
+            "--values", "[1.0, 2.0]",
+        ])
+        with contextlib.redirect_stdout(io.StringIO()):
+            ok &= _check(optuna_runner._dispatch_study(add_multi) == 0, "study add multi")
+        best_multi = parser.parse_args(["best", "--workdir", str(multi_dir)])
+        with contextlib.redirect_stdout(io.StringIO()) as out:
+            ok &= _check(optuna_runner._dispatch_study(best_multi) == 0, "study best multi")
+        ok &= _check("best_trials" in out.getvalue(), "study best multi output")
+
+        add_mismatch = parser.parse_args([
+            "add", "--workdir", str(multi_dir), "--params-file", str(params_file),
+            "--values", '{"r": 1.0}',
+        ])
+        try:
+            optuna_runner._dispatch_study(add_mismatch)
+            ok = False
+        except ValueError:
+            pass
+
+        invalid_direction = parser.parse_args([
+            "create", "--workdir", str(root / "bad"), "--objectives", "r",
+            "--directions", "sideways",
+        ])
+        try:
+            optuna_runner._dispatch_study(invalid_direction)
+            ok = False
+        except ValueError:
+            pass
+        mismatch_direction = parser.parse_args([
+            "create", "--workdir", str(root / "bad2"), "--objectives", "r,s",
+            "--directions", "minimize",
+        ])
+        try:
+            optuna_runner._dispatch_study(mismatch_direction)
+            ok = False
+        except ValueError:
+            pass
+
+        delete = parser.parse_args([
+            "delete", "--storage", "sqlite:///" + str(root / "single" / "optuna_study.db"),
+            "--study-name", "omniopt_study",
+        ])
+        with contextlib.redirect_stdout(io.StringIO()):
+            ok &= _check(optuna_runner._dispatch_study(delete) == 0, "study delete")
+
+        with contextlib.redirect_stdout(io.StringIO()):
+            ok &= _check(optuna_runner.main([]) == 2, "main without workdir prints help")
+        suggest_input = root / "main_suggest"
+        suggest_input.mkdir()
+        _input(suggest_input, _params(), {"r": "min"})
+        with contextlib.redirect_stdout(io.StringIO()):
+            ok &= _check(
+                optuna_runner.main(["--sampler", "random", str(suggest_input)]) == 0,
+                "main suggest flow",
+            )
+        ok &= _check((suggest_input / "results.json").is_file(), "main suggest writes results")
+        with contextlib.redirect_stdout(io.StringIO()):
+            ok &= _check(
+                optuna_runner.main(["study", "create", "--workdir", str(root / "via-main")]) == 0,
+                "main study dispatch",
+            )
+    return ok
+
+
+# ---------------------------------------------------------------------------
+# omniopt_plot and omniopt_share
+# ---------------------------------------------------------------------------
+
+
+def test_omniopt_plot_extra_paths() -> bool:
+    ok = plot.levenshtein("abc", "abd") == 1
+    ok &= plot.levenshtein("", "") == 0
+    ok &= plot.find_closest_match("scat", ["scatter", "kde"]) == ["scatter"]
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        run = _write_run(root)
+        ok &= plot.parse_args([str(run)]).run_dir == str(run)
+        old_types = plot.list_plot_types
+        plot.list_plot_types = lambda _d: ["scatter", "kde"]
+        try:
+            parsed = plot.parse_args(["scatt"])
+        finally:
+            plot.list_plot_types = old_types
+        ok &= _check(parsed.plot_type == "scatter", "fuzzy positional plot type")
+
+        with mock.patch.object(plot.subprocess, "run") as run_mock:
+            plot._print_help(str(REPO_ROOT), "general")
+            ok &= _check(run_mock.called, "_print_help dispatches to plot script")
+        with contextlib.redirect_stdout(io.StringIO()):
+            plot._print_help(str(REPO_ROOT), plot.MENU_KEY)
+
+        (root / ".omniopt_plot_demo.py").write_text(
+            "# DESCRIPTION: Demo\n# EXPECTED FILES: results.csv\n"
+            "args.min\nadd_argument('--save_to_file')\n"
+        )
+        old_types = plot.list_plot_types
+        try:
+            plot.list_plot_types = lambda _d: ["demo"]
+            with mock.patch.object(plot, "check_plot_prerequisites", return_value=True), \
+                    mock.patch.object(plot.subprocess, "run", return_value=SimpleNamespace(returncode=23)):
+                ok &= _check(plot.main(["--run_dir", str(run), "--plot_type", "demo"]) == 23,
+                             "main dispatches plot script")
+            with mock.patch.object(plot, "check_plot_prerequisites", return_value=True), \
+                    mock.patch.object(plot, "_textual_plot_menu", return_value="demo"), \
+                    mock.patch.object(plot.subprocess, "run", return_value=SimpleNamespace(returncode=0)):
+                ok &= _check(plot.main(["--run_dir", str(run)]) == 0, "main menu dispatch")
+            with mock.patch.object(plot, "_textual_plot_menu", return_value=None):
+                ok &= _check(plot.main(["--run_dir", str(run)]) == 0, "main menu quit")
+        finally:
+            plot.list_plot_types = old_types
+
+        ok &= _check(plot.main(["--run_dir", str(root / "missing")]) == 1,
+                     "main rejects missing run dir")
+        ok &= _check(plot.main(["--plot_type", "menu"]) == 1, "main menu needs run dir")
+
+        with mock.patch.object(plot, "list_plot_types", return_value=["demo"]), \
+                mock.patch.object(plot, "check_plot_prerequisites", return_value=True), \
+                mock.patch.object(plot, "get_plot_description", return_value="Demo"), \
+                mock.patch.object(plot, "plot_type_accepts_min_max", return_value=True), \
+                mock.patch.object(plot, "plot_type_supports_save_to_file", return_value=True):
+            with mock.patch("builtins.input", side_effect=["bogus", "1"]), \
+                    contextlib.redirect_stdout(io.StringIO()):
+                ok &= _check(plot._textual_plot_menu(str(run), str(REPO_ROOT)) == "demo",
+                             "menu retries invalid choice")
+            with mock.patch("builtins.input", side_effect=["demo"]), \
+                    contextlib.redirect_stdout(io.StringIO()):
+                ok &= _check(plot._textual_plot_menu(str(run), str(REPO_ROOT)) == "demo",
+                             "menu accepts key")
+        with mock.patch.object(plot, "list_plot_types", return_value=["demo"]), \
+                mock.patch.object(plot, "check_plot_prerequisites", return_value=False), \
+                contextlib.redirect_stderr(io.StringIO()):
+            ok &= _check(plot._textual_plot_menu(str(run), str(REPO_ROOT)) is None,
+                         "menu with no available plots")
+    return ok
+
+
+def test_share_extra_breakdown_manifest_and_cache() -> bool:
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        big = root / "big.out"
+        with big.open("wb") as fh:
+            fh.truncate(share.LARGE_SHARE_WARNING_BYTES + 1)
+        files = [
+            {"archive_path": "single_runs/0/0.out", "local_path": big},
+            {"archive_path": "results.csv", "local_path": big},
+        ]
+        with contextlib.redirect_stderr(io.StringIO()) as err:
+            share._print_size_breakdown(files, files[:1], [files[0]], False, [files[0]])
+        ok = _check("Share size check" in err.getvalue(), "size breakdown prints")
+        ok &= _check("omitted" in err.getvalue(), "size breakdown marks omissions")
+    return ok
+
+
+def test_share_extra_manifest_and_cache() -> bool:
+    ok = True
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        run = _write_run(root)
+        (run / "state_files").mkdir()
+        (run / "state_files" / "run_uuid").write_text("uuid-1\n")
+        manifest = share.build_manifest(
+            run_dir=str(run), user_id="user", experiment_name="exp",
+            update=False, update_uuid=None, password=None,
+        )
+        ok &= _check(manifest["update_uuid"] == "uuid-1", "manifest reads run_uuid")
+        ok &= _check(share._guess_content_type("x.unknown") == "application/octet-stream",
+                     "unknown content type")
+        old_max = share.MAX_FILE_SIZE
+        try:
+            share.MAX_FILE_SIZE = 1
+            try:
+                share.build_manifest(
+                    run_dir=str(run), user_id="user", experiment_name="exp",
+                    update=False, update_uuid=None, password=None,
+                )
+                ok = False
+            except ValueError:
+                pass
+        finally:
+            share.MAX_FILE_SIZE = old_max
+
+        cache_dir = root / "cache"
+        with _env(OO_SHARE_CACHE_DIR=str(cache_dir)):
+            ok &= _check(share._cache_dir() == cache_dir, "cache dir env override")
+            path = share._cache_file_path(str(run), "u", "e", "http://base", "uuid")
+            ok &= _check(path.parent == cache_dir, "cache file path")
+            share._save_cache(path, {"results.csv": {"size": 1}})
+            ok &= _check(path.is_file(), "cache saved")
+            ok &= _check(share._load_cache(path).get("results.csv") is not None, "cache loaded")
+        with mock.patch.object(Path, "mkdir", side_effect=OSError("readonly")):
+            with contextlib.redirect_stderr(io.StringIO()):
+                share._save_cache(root / "x" / "cache.json", {})
+        ok &= _check(True, "cache save failure is swallowed")
+
+        local = run / "results.csv"
+        files = [{"archive_path": "results.csv", "local_path": local}]
+        state = share._file_state(local)
+        selected, pre = share._split_changed_files(
+            files, {"results.csv": {"size": state["size"], "mtime_ns": state["mtime_ns"]}}
+        )
+        ok &= _check(selected == [] and pre == {}, "unchanged file skipped")
+        selected, pre = share._split_changed_files(
+            files + [{"archive_path": "missing", "local_path": root / "missing"}], {}
+        )
+        ok &= _check(len(selected) == 1 and "results.csv" in pre, "missing file skipped")
+
+        manifest = share.build_manifest(
+            run_dir=str(run), user_id="user", experiment_name="exp",
+            update=False, update_uuid="uuid-1", password=None,
+        )
+        cache_path = root / "update-cache.json"
+        new_cache = share._update_cache(
+            cache_path, {"old": {}}, manifest, pre, str(run), replace=False,
+            local_paths={"results.csv": local},
+        )
+        ok &= _check("old" in new_cache and "results.csv" in new_cache, "update cache keeps old")
+        changed_pre = {"results.csv": {"size": 999, "mtime_ns": 999}}
+        new_cache = share._update_cache(
+            cache_path, {}, manifest, changed_pre, str(run), replace=True,
+            local_paths={"results.csv": local},
+        )
+        ok &= _check("results.csv" not in new_cache, "cache drops file changed during upload")
+
+        zip_path = root / "bundle.zip"
+        share.write_bundle_zip(
+            manifest, zip_path, source_dir=str(run),
+            local_paths={"results.csv": local},
+        )
+        ok &= _check(zipfile.is_zipfile(zip_path), "write_bundle_zip writes archive")
+        manifest_dir, zip_out = share.write_bundle(
+            manifest, root / "out", source_dir=str(run),
+            local_paths={"results.csv": local},
+        )
+        ok &= _check(manifest_dir.is_file() and zip_out.is_file(), "write_bundle writes files")
+        bad = dict(manifest)
+        bad["files"] = []
+        try:
+            share.write_bundle_zip(bad, root / "bad.zip")
+            ok = False
+        except ValueError:
+            pass
+        try:
+            share.write_bundle_zip(
+                manifest, root / "missing.zip", local_paths={"results.csv": root / "missing"}
+            )
+            ok = False
+        except FileNotFoundError:
+            pass
+    return ok
+
+
+def test_share_extra_cli_and_transport() -> bool:
+    ok = True
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        run = _write_run(root)
+        (run / "state_files").mkdir()
+        (run / "state_files" / "run_uuid").write_text("uuid-2\n")
+        args = share.parse_args(["--username", "user", str(run)])
+
+        old_username, old_dont = share.USERNAME_FILE, share.DONT_ASK_FILE
+        try:
+            share.USERNAME_FILE = root / "username"
+            share.DONT_ASK_FILE = root / "dont_ask"
+            share.USERNAME_FILE.write_text("cached-user\n")
+            share.DONT_ASK_FILE.write_text("")
+            ok &= _check(share._read_username_from_cache() == "cached-user",
+                         "cached username read")
+            ok &= _check(share._resolve_username(share.parse_args([str(run)])) == "cached-user",
+                         "cached username resolved")
+            share.USERNAME_FILE.write_text("bad user\n")
+            ok &= _check(share._read_username_from_cache() is None, "invalid cached username")
+        finally:
+            share.USERNAME_FILE, share.DONT_ASK_FILE = old_username, old_dont
+        bad_user = share.parse_args(["--username", "bad user", str(run)])
+        with contextlib.redirect_stderr(io.StringIO()):
+            ok &= _check(share._resolve_username(bad_user) is None, "invalid username rejected")
+
+        with _env(OMNIOPT_BASE_URL="http://env-base"):
+            ok &= _check(share._resolve_base_url() == "http://env-base", "base url env")
+        old_base = share.BASE_URL_FILE
+        try:
+            share.BASE_URL_FILE = root / "base_url"
+            share.BASE_URL_FILE.write_text("http://file-base\n")
+            with _env(OMNIOPT_BASE_URL=None):
+                ok &= _check(share._resolve_base_url() == "http://file-base", "base url file")
+            share.BASE_URL_FILE.unlink()
+            with _env(OMNIOPT_BASE_URL=None):
+                ok &= _check(share._resolve_base_url() == share.DEFAULT_BASE_URL,
+                             "base url default")
+        finally:
+            share.BASE_URL_FILE = old_base
+
+        with contextlib.redirect_stdout(io.StringIO()):
+            ok &= _check(share.main(["--help"]) == 0, "share help")
+        with contextlib.redirect_stderr(io.StringIO()):
+            ok &= _check(share.main([]) == 1, "share needs a run dir")
+            ok &= _check(share.main(["--username", "bad user", str(run)]) == 1,
+                         "share rejects invalid username")
+
+        bundle = root / "bundle.bin"
+        bundle.write_bytes(b"zipdata")
+        manifest = share.build_manifest(
+            run_dir=str(run), user_id="user", experiment_name="exp",
+            update=True, update_uuid="uuid-2", password="pw",
+        )
+
+        class Resp:
+            status = 200
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *exc):
+                return False
+
+            def read(self):
+                return b"uploaded"
+
+        with mock.patch.object(share.urllib.request, "urlopen", return_value=Resp()):
+            status, body = share._post_manifest("http://base", manifest, bundle, args)
+        ok &= _check(status == 200 and body == "uploaded", "post manifest success")
+        http_error = urllib.error.HTTPError("http://x", 400, "bad", {}, io.BytesIO(b"nope"))
+        with mock.patch.object(share.urllib.request, "urlopen", side_effect=http_error):
+            status, body = share._post_manifest("http://base", manifest, bundle, args)
+        ok &= _check(status == 400 and body == "nope", "post manifest HTTP error")
+        with mock.patch.object(share.urllib.request, "urlopen",
+                               side_effect=urllib.error.URLError("offline")):
+            status, _body = share._post_manifest("http://base", manifest, bundle, args)
+        ok &= _check(status == 7, "post manifest connection error")
+
+        def post_ok(*_a, **_k):
+            return 200, "shared"
+
+        with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+            ok &= _check(share._share_one_with(
+                args, "user", str(run), "http://base", post_manifest=post_ok
+            ) == 0, "share one success")
+            update_args = share.parse_args(["--update", "--username", "user", str(run)])
+            ok &= _check(share._share_one_with(
+                update_args, "user", str(run), "http://base", post_manifest=post_ok
+            ) == 0, "share incremental nothing changed")
+            force_args = share.parse_args(["--update", "--force", "--debug",
+                                           "--username", "user", str(run)])
+            ok &= _check(share._share_one_with(
+                force_args, "user", str(run), "http://base", post_manifest=post_ok
+            ) == 0, "share forced update")
+            ok &= _check(share._share_one_with(
+                args, "user", str(root / "missing"), "http://base", post_manifest=post_ok
+            ) == 1, "share missing directory")
+            empty = root / "empty"
+            empty.mkdir()
+            ok &= _check(share._share_one_with(
+                args, "user", str(empty), "http://base", post_manifest=post_ok
+            ) == 1, "share empty directory")
+            ok &= _check(share._share_one_with(
+                args, "user", str(run), "http://base",
+                post_manifest=lambda *_a, **_k: (7, "offline"),
+            ) == 7, "share connection error propagation")
+            ok &= _check(share._share_one_with(
+                args, "user", str(run), "http://base",
+                post_manifest=lambda *_a, **_k: (500, "server error"),
+            ) == 500, "share server error propagation")
+            with mock.patch.object(share, "write_bundle_zip", side_effect=ValueError("bad")):
+                ok &= _check(share._share_one_with(
+                    args, "user", str(run), "http://base", post_manifest=post_ok
+                ) == 1, "share refuses invalid bundle")
+
+        failed_run = _write_run(root, extra={"trial_status": ["COMPLETED"] * 3})
+        sr = failed_run / "single_runs" / "0"
+        sr.mkdir(parents=True)
+        (sr / "0.out").write_text("EXIT_CODE: 1\n")
+        sr2 = failed_run / "single_runs" / "1"
+        sr2.mkdir(parents=True)
+        (sr2 / "1.out").write_text("Job completed successfully\n")
+        with mock.patch.object(share, "MAX_FAILED_LOG_BYTES", 1), \
+                contextlib.redirect_stdout(io.StringIO()), \
+                contextlib.redirect_stderr(io.StringIO()):
+            ok &= _check(share._share_one_with(
+                args, "user", str(failed_run), "http://base", post_manifest=post_ok
+            ) == 0, "share caps failed logs")
+
+        with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+            ok &= _check(share.main(["--username", "user", str(run)],
+                                    post_manifest=post_ok) == 0, "share main")
+            ok &= _check(share.main(["--username", "user", str(run), str(root / "missing")],
+                                    post_manifest=post_ok) != 0, "share main reports failures")
+    return ok
+
+
+# ---------------------------------------------------------------------------
+# .omniopt_plot_*.py modules
+# ---------------------------------------------------------------------------
+
+
+def _old_args(module, new_args):
+    old = module.args
+    module.args = new_args
+    return old
+
+
+def test_cpu_ram_plot_module() -> bool:
+    if cpu_ram is None:
+        return True
+    ok = True
+    cpu_ram.load_helpers(str(REPO_ROOT))
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        empty = root / "empty.csv"
+        empty.write_text("")
+        ok &= _check(_expect_exit(lambda: cpu_ram.load_data(str(empty)), 19),
+                     "cpu/ram empty CSV")
+        with mock.patch.object(cpu_ram.pd, "read_csv",
+                               side_effect=UnicodeDecodeError("utf-8", b"", 0, 1, "x")):
+            ok &= _check(_expect_exit(lambda: cpu_ram.load_data(str(root / "x.csv")), 7),
+                         "cpu/ram unicode CSV")
+        with mock.patch.object(cpu_ram.pd, "read_csv", side_effect=FileNotFoundError()):
+            ok &= _check(_expect_exit(lambda: cpu_ram.load_data(str(root / "x.csv")), 1),
+                         "cpu/ram missing CSV")
+        with mock.patch.object(cpu_ram.pd, "read_csv", return_value=pd.DataFrame()):
+            ok &= _check(cpu_ram.load_data(str(root / "x.csv")) is None,
+                         "cpu/ram empty dataframe")
+
+        df = pd.DataFrame({
+            "timestamp": [1, 2], "ram_usage_mb": [10, 20],
+            "cpu_usage_percent": [5, 6],
+        })
+        old = _old_args(cpu_ram, SimpleNamespace(
+            run_dir=str(root), save_to_file=str(root / "out.png"), no_plt_show=True
+        ))
+        old_save = cpu_ram.helpers.save_to_file
+        cpu_ram.helpers.save_to_file = mock.MagicMock()
+        try:
+            cpu_ram.plot_graph(df, str(root / "out.png"))
+            ok &= _check(cpu_ram.helpers.save_to_file.called, "cpu/ram save plot")
+            cpu_ram.plot_graph(df, None)
+            with mock.patch.object(cpu_ram, "load_data", return_value=df):
+                cpu_ram.update_graph(str(root / "x.csv"))
+        finally:
+            cpu_ram.helpers.save_to_file = old_save
+            cpu_ram.args = old
+
+        old = _old_args(cpu_ram, SimpleNamespace(run_dir=str(root / "missing"),
+                                                 save_to_file=None, no_plt_show=True))
+        try:
+            ok &= _check(_expect_exit(cpu_ram.main, 1), "cpu/ram main missing dir")
+        finally:
+            cpu_ram.args = old
+        old = _old_args(cpu_ram, SimpleNamespace(run_dir=str(root),
+                                                 save_to_file=None, no_plt_show=True))
+        old_load, old_update = cpu_ram.load_helpers, cpu_ram.update_graph
+        cpu_ram.load_helpers = mock.MagicMock()
+        cpu_ram.update_graph = mock.MagicMock()
+        try:
+            cpu_ram.main()
+            ok &= _check(cpu_ram.update_graph.called, "cpu/ram main valid")
+        finally:
+            cpu_ram.load_helpers, cpu_ram.update_graph = old_load, old_update
+            cpu_ram.args = old
+        with mock.patch.object(cpu_ram.importlib.util, "spec_from_file_location", return_value=None):
+            try:
+                cpu_ram.load_helpers(str(REPO_ROOT))
+                ok = False
+            except ImportError:
+                pass
+    return ok
+
+
+def test_general_plot_module() -> bool:
+    if general is None:
+        return True
+    ok = True
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        old = _old_args(general, SimpleNamespace(
+            run_dir=str(root), bins=5, alpha=0.4, save_to_file=str(root / "nested" / "p.png"),
+            no_plt_show=True, min=0.0, max=3.0,
+        ))
+        old_save = general.helpers.save_to_file
+        general.helpers.save_to_file = mock.MagicMock()
+        try:
+            missing = pd.DataFrame({"x": [1]})
+            ok &= _check(_expect_exit(lambda: general.plot_graph(missing, None), 169),
+                         "general missing result column")
+            df = pd.DataFrame({
+                "generation_method": ["Sobol", "Sobol", "BoTorch"],
+                "trial_status": ["COMPLETED"] * 3,
+                "result": [1.0, 2.0, 3.0],
+                "x": [0.0, 1.0, 2.0],
+            })
+            general.plot_graph(df, str(root / "out.png"))
+            ok &= _check(general.helpers.save_to_file.called, "general save plot")
+            general.plot_graph(df, None)
+
+            pd.DataFrame(df).to_csv(root / "results.csv")
+            general.update_graph()
+            ok &= _check((root / "nested").is_dir(), "general creates save directory")
+
+            general.args = SimpleNamespace(
+                run_dir=str(root / "missing"), bins=5, alpha=0.4,
+                save_to_file=None, no_plt_show=True, min=None, max=None,
+            )
+            general.update_graph()
+
+            general.args = SimpleNamespace(
+                run_dir=str(root), bins=5, alpha=0.4,
+                save_to_file=None, no_plt_show=True, min=None, max=None,
+            )
+            with mock.patch.object(general.pd, "read_csv", side_effect=RuntimeError("boom")):
+                with contextlib.redirect_stderr(io.StringIO()), contextlib.redirect_stdout(io.StringIO()):
+                    general.update_graph()
+            with mock.patch.object(general.pd, "read_csv",
+                                   return_value=pd.DataFrame({"result": []})):
+                with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+                    general.update_graph()
+        finally:
+            general.helpers.save_to_file = old_save
+            general.args = old
+
+        old_argv = sys.argv
+        try:
+            sys.argv = ["general", "--run_dir", str(root), "--bins", "3"]
+            parsed = general.parse_arguments()
+        finally:
+            sys.argv = old_argv
+        ok &= _check(parsed.bins == 3, "general parse_arguments")
+    return ok
+
+
+def test_kde_plot_module() -> bool:
+    if kde is None:
+        return True
+    ok = True
+    ok &= _check(kde.get_num_rows_cols(4, 1, 4) == (2, 2), "KDE rows/cols > 1")
+    ok &= _check(kde.get_num_rows_cols(1, 1, 1) == (1, 1), "KDE rows/cols == 1")
+    ok &= _check(_expect_exit(lambda: kde.check_rows_cols_or_die(0, 1), 42),
+                 "KDE rejects empty grid")
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        df = pd.DataFrame({"result": [1.0, 2.0, 3.0], "x": [0.0, 1.0, 2.0]})
+        old = _old_args(kde, SimpleNamespace(
+            run_dir=str(root), bins=3, alpha=0.5, no_legend=True,
+            save_to_file=None, no_plt_show=True,
+        ))
+        old_save = kde.helpers.save_to_file
+        kde.helpers.save_to_file = mock.MagicMock()
+        try:
+            kde.args = None
+            kde.plot_histograms(df)
+            kde.args = SimpleNamespace(
+                run_dir=str(root), bins=3, alpha=0.5, no_legend=False,
+                save_to_file=str(root / "kde.png"), no_plt_show=True,
+            )
+            (root / "results.csv").write_text("result\n1\n")
+            kde.plot_histograms(df)
+            ok &= _check(kde.helpers.save_to_file.called, "KDE save plot")
+            kde.save_to_file_or_show_canvas()
+            kde.args.save_to_file = None
+            kde.save_to_file_or_show_canvas()
+            kde.args = None
+            kde.save_to_file_or_show_canvas()
+            kde.args = SimpleNamespace(
+                run_dir=str(root), bins=3, alpha=0.5, no_legend=True,
+                save_to_file=None, no_plt_show=True,
+            )
+            bad = pd.DataFrame({"x": [1.0]})
+            ok &= _check(_expect_exit(lambda: kde.plot_histograms(bad), 169),
+                         "KDE missing result column")
+            empty = pd.DataFrame({"result": [1.0]})
+            ok &= _check(_expect_exit(lambda: kde.plot_histograms(empty), 42),
+                         "KDE no numeric columns")
+
+            empty_csv = root / "empty.csv"
+            empty_csv.write_text("")
+            kde.args = SimpleNamespace(
+                run_dir=str(root), bins=3, alpha=0.5, no_legend=True,
+                save_to_file=None, no_plt_show=True,
+            )
+            with mock.patch.object(kde.pd, "read_csv", side_effect=pd.errors.EmptyDataError()):
+                ok &= _check(_expect_exit(kde.update_graph, 19), "KDE empty CSV")
+            with mock.patch.object(kde.pd, "read_csv",
+                                   side_effect=UnicodeDecodeError("utf-8", b"", 0, 1, "x")):
+                ok &= _check(_expect_exit(kde.update_graph, 7), "KDE unicode CSV")
+            with mock.patch.object(kde.pd, "read_csv", side_effect=FileNotFoundError()):
+                with contextlib.redirect_stderr(io.StringIO()):
+                    kde.update_graph()
+            with mock.patch.object(kde.pd, "read_csv", side_effect=RuntimeError("boom")):
+                with contextlib.redirect_stderr(io.StringIO()), contextlib.redirect_stdout(io.StringIO()):
+                    kde.update_graph()
+        finally:
+            kde.helpers.save_to_file = old_save
+            kde.args = old
+    return ok
+
+
+def test_scatter_plot_module() -> bool:
+    if scatter is None:
+        return True
+    ok = True
+    df = pd.DataFrame({"x": [0.0, 1.0], "y": [1.0, 0.0], "result": [1.0, 2.0]})
+    old = _old_args(scatter, SimpleNamespace(
+        exclude_params=[], run_dir=_PLOT_TMP, no_plt_show=True,
+        save_to_file=None, min=None, max=None,
+    ))
+    try:
+        axs = mock.MagicMock()
+        axs.scatter.return_value = "scatter"
+        ok &= _check(scatter.plot_single_graph(
+            [axs, df[["x", "y"]], [1, 2], "cmap", "norm", [("x",)]]
+        ) == "scatter", "scatter single graph")
+        scatter.plot_multiple_graphs(
+            [[("x", "y")], 1, axs, df, [1, 2], "cmap", "norm", [("x", "y")], 1]
+        )
+        ok &= _check(axs.__getitem__.return_value.scatter.called, "scatter multiple graphs")
+        scatter.args.exclude_params = [["x"]]
+        scatter.plot_multiple_graphs(
+            [[("x", "y")], 1, axs, df, [1, 2], "cmap", "norm", [("x", "y")], 1]
+        )
+        scatter.args.exclude_params = []
+
+        broken = mock.MagicMock()
+        broken.__getitem__.side_effect = RuntimeError("not subscriptable")
+        with mock.patch.object(scatter.helpers, "hide_empty_plots", return_value=broken), \
+                mock.patch.object(scatter.helpers, "show_legend"):
+            scatter.plot_multiple_graphs(
+                [[("x", "y")], 1, broken, df, [1, 2], "cmap", "norm", [("x", "y")], 1]
+            )
+        ok &= _check(broken.scatter.called, "scatter multiple graphs fallback")
+
+        fig = mock.MagicMock()
+        scatter.fig = fig
+        scatter.set_title(df, df["result"], len(df), None, None)
+        ok &= _check(fig.suptitle.called, "scatter set_title")
+
+        with mock.patch.object(scatter.helpers, "get_color_list", return_value=("cmap", "norm", [1, 2])), \
+                mock.patch.object(scatter.helpers, "hide_empty_plots", return_value=axs):
+            scatter.plot_graphs([df, fig, axs, df, [("x",)], 1, [("x",)], 1, 1, None, "csv"])
+            scatter.plot_graphs([df, fig, axs, df, [("x", "y")], 2, [("x", "y")], 1, 1, None, "csv"])
+
+        old_update = scatter.update_graph
+        scatter.update_graph = mock.MagicMock()
+        old_helpers = {
+            name: getattr(scatter.helpers, name)
+            for name in (
+                "die_if_cannot_be_plotted", "use_matplotlib", "get_csv_file_path",
+                "get_data", "merge_df_with_old_data", "get_df_filtered",
+                "check_min_and_max", "get_parameter_combinations",
+                "get_non_empty_graphs", "get_num_subplots_rows_and_cols",
+                "get_result_column_values", "hide_empty_plots", "set_margins",
+                "save_to_file", "create_widgets",
+            )
+        }
+        try:
+            scatter.args = SimpleNamespace(
+                exclude_params=[], run_dir=_PLOT_TMP, no_plt_show=True,
+                save_to_file=str(Path(_PLOT_TMP) / "scatter.png"),
+                min=None, max=None, allow_axes=[], merge_with_previous_runs=[],
+            )
+            for name in old_helpers:
+                setattr(scatter.helpers, name, mock.MagicMock())
+            scatter.helpers.get_data.return_value = df
+            scatter.helpers.merge_df_with_old_data.return_value = df
+            scatter.helpers.get_df_filtered.return_value = df
+            scatter.helpers.get_parameter_combinations.return_value = [("x",)]
+            scatter.helpers.get_non_empty_graphs.return_value = [("x",)]
+            scatter.helpers.get_num_subplots_rows_and_cols.return_value = (1, 1, 1)
+            scatter.helpers.get_result_column_values.return_value = df["result"]
+            scatter.helpers.create_widgets.return_value = (None, None, None, None, None)
+            with mock.patch.object(scatter.plt, "subplots", return_value=(fig, axs)), \
+                    mock.patch.object(scatter, "plot_graphs"), \
+                    mock.patch.object(scatter, "set_title"):
+                scatter.main()
+                ok &= _check(scatter.helpers.save_to_file.called, "scatter main save branch")
+                scatter.args.save_to_file = None
+                scatter.main()
+                ok &= _check(scatter.update_graph.called, "scatter main widget branch")
+        finally:
+            scatter.args = old
+            scatter.update_graph = old_update
+    finally:
+        scatter.update_graph = old_update
+        for name, value in old_helpers.items():
+            setattr(scatter.helpers, name, value)
+        scatter.args = old
+    with mock.patch.object(scatter.helpers, "_update_graph") as update:
+        scatter.update_graph("csv", None, 1, 2)
+        ok &= _check(update.called, "scatter update_graph delegates")
+    return ok
+
+
+def test_scatter_generation_method_module() -> bool:
+    if scatter_gen is None:
+        return True
+    ok = True
+    df = pd.DataFrame({
+        "generation_method": ["Sobol", "BoTorch"],
+        "trial_index": [1, 2], "arm_name": ["a", "b"],
+        "trial_status": ["COMPLETED", "COMPLETED"],
+        "result": [1.0, 2.0], "x": [0.0, 1.0],
+    })
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        old = _old_args(scatter_gen, SimpleNamespace(
+            run_dir=str(root), min=None, max=None, save_to_file=None, no_plt_show=True,
+        ))
+        old_save = scatter_gen.helpers.save_to_file
+        scatter_gen.helpers.save_to_file = mock.MagicMock()
+        try:
+            fake_fig = mock.MagicMock()
+            fake_plot = SimpleNamespace(fig=fake_fig)
+            fake_fig.canvas.manager = mock.MagicMock()
+            with mock.patch.object(scatter_gen.sns, "pairplot", return_value=fake_plot):
+                scatter_gen.plot_graph(df, str(root / "sg.png"))
+                ok &= _check(scatter_gen.helpers.save_to_file.called, "scatter-gen save plot")
+                scatter_gen.plot_graph(df, None)
+            scatter_gen.ensure_directory_exists(str(root / "nested" / "x.png"))
+            ok &= _check((root / "nested").is_dir(), "scatter-gen creates directory")
+            with contextlib.redirect_stdout(io.StringIO()):
+                ok &= _check(_expect_exit(
+                    lambda: scatter_gen.handle_error("err", 4), 4
+                ), "scatter-gen handle_error")
+
+            df.to_csv(root / "results.csv", index=False)
+            scatter_gen.update_graph()
+            scatter_gen.args.min = 0.0
+            scatter_gen.args.max = 3.0
+            scatter_gen.update_graph()
+            scatter_gen.args.min = scatter_gen.args.max = None
+            scatter_gen.args.save_to_file = str(root / "nested2" / "p.png")
+            with mock.patch.object(scatter_gen, "plot_graph"):
+                scatter_gen.update_graph()
+            ok &= _check((root / "nested2").is_dir(), "scatter-gen update creates directory")
+
+            with mock.patch.object(scatter_gen.pd, "read_csv", side_effect=FileNotFoundError()):
+                with contextlib.redirect_stdout(io.StringIO()):
+                    scatter_gen.update_graph()
+            with mock.patch.object(scatter_gen.pd, "read_csv",
+                                   side_effect=pd.errors.EmptyDataError()):
+                with contextlib.redirect_stdout(io.StringIO()):
+                    ok &= _check(_expect_exit(scatter_gen.update_graph, 19),
+                                 "scatter-gen empty CSV")
+            with mock.patch.object(scatter_gen.pd, "read_csv",
+                                   side_effect=UnicodeDecodeError("utf-8", b"", 0, 1, "x")):
+                ok &= _check(_expect_exit(scatter_gen.update_graph, 7),
+                             "scatter-gen unicode CSV")
+            with mock.patch.object(scatter_gen, "plot_graph", side_effect=KeyError("missing")):
+                with contextlib.redirect_stdout(io.StringIO()):
+                    scatter_gen.update_graph()
+            with mock.patch.object(scatter_gen.pd, "read_csv",
+                                   return_value=pd.DataFrame()):
+                with contextlib.redirect_stdout(io.StringIO()):
+                    scatter_gen.update_graph()
+            with mock.patch.object(scatter_gen.pd, "read_csv",
+                                   side_effect=RuntimeError("boom")):
+                with contextlib.redirect_stdout(io.StringIO()):
+                    scatter_gen.update_graph()
+            scatter_gen.args = None
+            scatter_gen.update_graph()
+        finally:
+            scatter_gen.helpers.save_to_file = old_save
+            scatter_gen.args = old
+    return ok
+
+
+def test_scatter_hex_plot_module() -> bool:
+    if scatter_hex is None:
+        return True
+    ok = True
+    df = pd.DataFrame({"x": [0.0, 1.0], "y": [1.0, 0.0], "result": [1.0, 2.0]})
+    old = _old_args(scatter_hex, SimpleNamespace(
+        exclude_params=[], gridsize=3, run_dir=_PLOT_TMP, no_plt_show=True,
+        save_to_file=None, min=None, max=None, no_legend=True,
+    ))
+    old_bins = scatter_hex.bins
+    old_res = scatter_hex.res_col_name
+    try:
+        scatter_hex.res_col_name = "result"
+        axs = mock.MagicMock()
+        scatter_hex.bins = 3
+        scatter_hex.plot_single_graph([axs, df[["x", "y", "result"]], "cmap", "norm", [("x", "y")], [1, 2]])
+        ok &= _check(axs.hexbin.called, "hex single graph bins")
+        scatter_hex.bins = None
+        scatter_hex.plot_single_graph([axs, df[["x", "y", "result"]], "cmap", "norm", [("x", "y")], [1, 2]])
+        ok &= _check(_expect_exit(
+            lambda: scatter_hex.plot_single_graph(
+                [axs, df[["result"]], "cmap", "norm", [("x", "y")], [1, 2]]
+            ), 17
+        ), "hex single graph needs two columns")
+
+        axs2 = mock.MagicMock()
+        for bins in (3, None):
+            scatter_hex.bins = bins
+            scatter_hex.plot_multiple_graphs(
+                [[("x", "y")], 1, axs2, df, "cmap", "norm", [("x", "y")], 1, [1, 2]]
+            )
+        ok &= _check(axs2.__getitem__.return_value.__getitem__.return_value.hexbin.called, "hex multiple graphs")
+
+        broken = mock.MagicMock()
+        broken.__getitem__.side_effect = TypeError("'Axes' object is not subscriptable")
+        for bins in (3, None):
+            scatter_hex.bins = bins
+            scatter_hex.plot_multiple_graphs(
+                [[("x", "y")], 1, broken, df, "cmap", "norm", [("x", "y")], 1, [1, 2]]
+            )
+        ok &= _check(broken.hexbin.called, "hex multiple graphs fallback")
+
+        string_error = mock.MagicMock()
+        string_error.__getitem__.side_effect = ValueError("could not convert string to float")
+        ok &= _check(_expect_exit(
+            lambda: scatter_hex.plot_multiple_graphs(
+                [[("x", "y")], 1, string_error, df, "cmap", "norm", [("x", "y")], 1, [1, 2]]
+            ), 177
+        ), "hex string conversion failure")
+        other_error = mock.MagicMock()
+        other_error.__getitem__.side_effect = ValueError("other")
+        ok &= _check(_expect_exit(
+            lambda: scatter_hex.plot_multiple_graphs(
+                [[("x", "y")], 1, other_error, df, "cmap", "norm", [("x", "y")], 1, [1, 2]]
+            ), 17
+        ), "hex generic plot failure")
+
+        fig = mock.MagicMock()
+        scatter_hex.fig = fig
+        scatter_hex.set_title(df, df["result"], len(df))
+        ok &= _check(fig.suptitle.called, "hex set_title")
+        with mock.patch.object(scatter_hex.helpers, "get_color_list", return_value=("cmap", "norm", [1, 2])), \
+                mock.patch.object(scatter_hex.helpers, "hide_empty_plots", return_value=axs2):
+            scatter_hex.bins = None
+            scatter_hex.plot_graphs([df, fig, axs2, df, [("x", "y")], 1, [("x", "y")], 1, 1, [1, 2], "csv"])
+            scatter_hex.plot_graphs([df, fig, axs2, df, [("x", "y")], 2, [("x", "y")], 1, 1, [1, 2], "csv"])
+
+        old_update = scatter_hex.update_graph
+        scatter_hex.update_graph = mock.MagicMock()
+        old_helpers = {
+            name: getattr(scatter_hex.helpers, name)
+            for name in (
+                "die_if_cannot_be_plotted", "use_matplotlib", "get_csv_file_path",
+                "get_data", "get_result_name_or_default_from_csv_file_path",
+                "merge_df_with_old_data", "get_df_filtered", "check_min_and_max",
+                "get_parameter_combinations", "get_non_empty_graphs",
+                "get_num_subplots_rows_and_cols", "get_result_column_values",
+                "hide_empty_plots", "set_margins", "save_to_file", "create_widgets",
+            )
+        }
+        try:
+            scatter_hex.args = SimpleNamespace(
+                exclude_params=[], gridsize=3, run_dir=_PLOT_TMP, no_plt_show=True,
+                save_to_file=str(Path(_PLOT_TMP) / "hex.png"), min=None, max=None,
+                no_legend=False, allow_axes=[], merge_with_previous_runs=[],
+            )
+            for name in old_helpers:
+                setattr(scatter_hex.helpers, name, mock.MagicMock())
+            scatter_hex.helpers.get_data.return_value = df
+            scatter_hex.helpers.get_result_name_or_default_from_csv_file_path.return_value = "result"
+            scatter_hex.helpers.merge_df_with_old_data.return_value = df
+            scatter_hex.helpers.get_df_filtered.return_value = df
+            scatter_hex.helpers.get_parameter_combinations.return_value = [("x", "y")]
+            scatter_hex.helpers.get_non_empty_graphs.return_value = [("x", "y")]
+            scatter_hex.helpers.get_num_subplots_rows_and_cols.return_value = (1, 1, 1)
+            scatter_hex.helpers.get_result_column_values.return_value = df["result"]
+            scatter_hex.helpers.create_widgets.return_value = (None, None, None, None, None)
+            with mock.patch.object(scatter_hex.plt, "subplots", return_value=(fig, axs2)), \
+                    mock.patch.object(scatter_hex, "plot_graphs"), \
+                    mock.patch.object(scatter_hex, "set_title"):
+                scatter_hex.bins = None
+                scatter_hex.main()
+                ok &= _check(scatter_hex.helpers.save_to_file.called, "hex main save branch")
+                scatter_hex.args.save_to_file = None
+                scatter_hex.main()
+                ok &= _check(scatter_hex.update_graph.called, "hex main widget branch")
+                scatter_hex.args.no_legend = True
+                scatter_hex.main()
+        finally:
+            scatter_hex.update_graph = old_update
+            for name, value in old_helpers.items():
+                setattr(scatter_hex.helpers, name, value)
+            scatter_hex.args = old
+            scatter_hex.bins = old_bins
+            scatter_hex.res_col_name = old_res
+        with mock.patch.object(scatter_hex.helpers, "_update_graph") as update:
+            scatter_hex.update_graph("csv", True, 1, 2)
+            ok &= _check(update.called, "hex update_graph delegates")
+    finally:
+        scatter_hex.args = old
+        scatter_hex.bins = old_bins
+        scatter_hex.res_col_name = old_res
+    return ok
+
+
+def test_trial_index_plot_module() -> bool:
+    if trial_index is None:
+        return True
+    ok = True
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        old = _old_args(trial_index, SimpleNamespace(
+            run_dir=str(root), no_plt_show=True, save_to_file=None,
+            min=None, max=None,
+        ))
+        old_save = trial_index.helpers.save_to_file
+        trial_index.helpers.save_to_file = mock.MagicMock()
+        try:
+            df = pd.DataFrame({"trial_index": [1, 2], "result": [1.0, 2.0]})
+            missing = pd.DataFrame({"x": [1]})
+            ok &= _check(_expect_exit(lambda: trial_index.plot_graph(missing, None), 169),
+                         "trial-index missing result")
+            trial_index.plot_graph(df, str(root / "trial.png"))
+            ok &= _check(trial_index.helpers.save_to_file.called, "trial-index save plot")
+            trial_index.plot_graph(df, None)
+            trial_index.args = None
+            with contextlib.redirect_stdout(io.StringIO()):
+                trial_index.plot_graph(df, None)
+            trial_index.args = SimpleNamespace(
+                run_dir=str(root), no_plt_show=True, save_to_file=None,
+                min=None, max=None,
+            )
+            df.to_csv(root / "results.csv", index=False)
+            trial_index.update_graph()
+            trial_index.args.min = 0.0
+            trial_index.args.max = 3.0
+            trial_index.update_graph()
+            trial_index.args.min = trial_index.args.max = None
+            with mock.patch.object(trial_index.pd, "read_csv",
+                                   side_effect=pd.errors.EmptyDataError()):
+                ok &= _check(_expect_exit(trial_index.update_graph, 19),
+                             "trial-index empty CSV")
+            with mock.patch.object(trial_index.pd, "read_csv",
+                                   side_effect=UnicodeDecodeError("utf-8", b"", 0, 1, "x")):
+                ok &= _check(_expect_exit(trial_index.update_graph, 7),
+                             "trial-index unicode CSV")
+            with mock.patch.object(trial_index.pd, "read_csv",
+                                   return_value=pd.DataFrame({"result": []})):
+                with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+                    trial_index.update_graph()
+            with mock.patch.object(trial_index.helpers, "filter_data",
+                                   side_effect=KeyError("result")):
+                trial_index.args.min = 1.0
+                ok &= _check(_expect_exit(trial_index.update_graph, 10),
+                             "trial-index filter KeyError")
+            trial_index.args.min = None
+            with mock.patch.object(trial_index.pd, "read_csv", side_effect=FileNotFoundError()):
+                with contextlib.redirect_stderr(io.StringIO()):
+                    trial_index.update_graph()
+            with mock.patch.object(trial_index.pd, "read_csv", side_effect=RuntimeError("boom")):
+                with contextlib.redirect_stderr(io.StringIO()), contextlib.redirect_stdout(io.StringIO()):
+                    trial_index.update_graph()
+        finally:
+            trial_index.helpers.save_to_file = old_save
+            trial_index.args = old
+    return ok
+
+
+def test_worker_plot_module() -> bool:
+    if worker is None:
+        return True
+    ok = True
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        old = _old_args(worker, SimpleNamespace(
+            run_dir=str(root), debug=True, save_to_file=None, no_plt_show=True,
+        ))
+        try:
+            good = root / "worker_usage.csv"
+            good.write_text("1,2,2,100\n1,2,2,100\n2,3,3,90\n")
+            worker.plot_worker_usage(str(good))
+            worker.args.save_to_file = str(root / "worker.png")
+            old_save = worker.helpers.save_to_file
+            worker.helpers.save_to_file = mock.MagicMock()
+            try:
+                worker.plot_worker_usage(str(good))
+                ok &= _check(worker.helpers.save_to_file.called, "worker save plot")
+            finally:
+                worker.helpers.save_to_file = old_save
+            worker.args.save_to_file = None
+
+            with contextlib.redirect_stderr(io.StringIO()):
+                worker.plot_worker_usage(str(root / "missing.csv"))
+            with mock.patch.object(worker.pd, "read_csv", return_value=pd.DataFrame()):
+                with contextlib.redirect_stderr(io.StringIO()):
+                    worker.plot_worker_usage(str(good))
+            bad = root / "bad.csv"
+            bad.write_bytes(b"\xff\xfe\x00")
+            with contextlib.redirect_stdout(io.StringIO()):
+                ok &= _check(_expect_exit(lambda: worker.plot_worker_usage(str(bad)), 7),
+                             "worker invalid UTF-8")
+            with mock.patch.object(worker.pd, "read_csv", side_effect=RuntimeError("boom")):
+                with contextlib.redirect_stderr(io.StringIO()), contextlib.redirect_stdout(io.StringIO()):
+                    worker.plot_worker_usage(str(good))
+
+            worker.args.run_dir = str(root / "no_csv_dir")
+            with contextlib.redirect_stdout(io.StringIO()):
+                ok &= _check(_expect_exit(worker.main, 19), "worker main missing csv")
+            worker.args.run_dir = str(root)
+            old_plot = worker.plot_worker_usage
+            worker.plot_worker_usage = mock.MagicMock()
+            try:
+                with contextlib.redirect_stdout(io.StringIO()):
+                    worker.main()
+                ok &= _check(worker.plot_worker_usage.called, "worker main valid")
+                worker.plot_worker_usage.side_effect = RuntimeError("boom")
+                with contextlib.redirect_stderr(io.StringIO()):
+                    ok &= _check(_expect_exit(worker.main, 3), "worker main plot failure")
+            finally:
+                worker.plot_worker_usage = old_plot
+        finally:
+            worker.args = old
+    return ok
+
+
+TESTS = [
+    test_helpers_widgets_and_title,
+    test_helpers_graph_orchestration,
+    test_helpers_colors_legends_and_merging,
+    test_helpers_usage_stats_and_download_edges,
+    test_helpers_time_git_and_io_edges,
+    test_pareto_extra_paths,
+    test_tpe_extra_paths,
+    test_optuna_builders_and_replay,
+    test_optuna_suggest_and_random,
+    test_optuna_cli_and_study_commands,
+    test_omniopt_plot_extra_paths,
+    test_share_extra_breakdown_manifest_and_cache,
+    test_share_extra_manifest_and_cache,
+    test_share_extra_cli_and_transport,
+    test_cpu_ram_plot_module,
+    test_general_plot_module,
+    test_kde_plot_module,
+    test_scatter_plot_module,
+    test_scatter_generation_method_module,
+    test_scatter_hex_plot_module,
+    test_trial_index_plot_module,
+    test_worker_plot_module,
+]
+
+
+def main() -> int:
+    failures = 0
+    for test in TESTS:
+        print(f"running {test.__name__} ...", end=" ", flush=True)
+        try:
+            ok = test()
+        except Exception as exc:  # noqa: BLE001
+            ok = False
+            red_text(f"\n  EXCEPTION: {exc!r}")
+        if ok:
+            print("ok")
+        else:
+            failures += 1
+            print("FAIL")
+    if failures:
+        red_text(f"\n{failures} test(s) failed")
+        return 1
+    print("\nAll extra coverage-path unit tests passed")
+    return 0
+
+
+if __name__ == "__main__":
+    try:
+        sys.exit(main())
+    except KeyboardInterrupt:
+        sys.exit(0)

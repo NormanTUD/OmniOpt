@@ -57,6 +57,20 @@ tests:
     wanted_exit_code: 0
     tags: [suite:meta, quick:false, env:local]
 
+  - id: unit_tests_coverage_paths_extra
+    class: meta
+    name: "Extra Python coverage-path tests"
+    cmd: "python3 {REPO_ROOT}/.tests/unit_tests_coverage_paths_extra"
+    wanted_exit_code: 0
+    tags: [suite:meta, quick:false]
+
+  - id: php_coverage_extra
+    class: share
+    name: "Extra PHP coverage-path tests"
+    cmd: "php {REPO_ROOT}/.gui/tests_coverage_extra.php"
+    wanted_exit_code: 0
+    tags: [suite:share, quick:false]
+
   # ---- basic omniopt self-test ---------------------------------------------
   - id: basic_tests
     class: basic
@@ -803,6 +817,7 @@ smoke_tests:
   #- test_omniopt_docker_blackbox
   - unit_tests
   - unit_tests_coverage_paths
+  - unit_tests_coverage_paths_extra
   - test_formulas
   - test_executor_backend
   - test_share_formula

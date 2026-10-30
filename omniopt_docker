@@ -185,6 +185,11 @@ def build_run_command(
         idx = cmd.index("-t")
         cmd = cmd[:idx] + extra + cmd[idx:]
 
+    coverage_file = os.environ.get("COVERAGE_FILE")
+    if coverage_file:
+        idx = cmd.index("-t")
+        cmd = cmd[:idx] + ["--env", f"COVERAGE_FILE={coverage_file}"] + cmd[idx:]
+
     return cmd
 
 

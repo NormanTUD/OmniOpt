@@ -223,3 +223,5 @@ package-lock.json
 package.json
 one_month_ago
 .tests_logs/
+
+coverage-report/

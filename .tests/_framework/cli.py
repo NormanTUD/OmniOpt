@@ -73,7 +73,7 @@ def build_base_parser(
     g_basic.add_argument("--help", "-h", action="store_true", help="Show this help.")
     g_basic.add_argument("--debug", action="store_true", help="Enable debug mode.")
     g_basic.add_argument("--run_with_coverage", action="store_true",
-                         help="Use coverage run -p instead of python3.")
+                         help="Measure this process and all Python subprocesses with coverage.")
     g_basic.add_argument("--exit_on_first_error", action="store_true",
                          help="Exit on first error.")
     if with_run_options:

@@ -44,6 +44,8 @@ jobs:
 
     runs-on: "ubuntu-latest"
     environment: Production
+    env:
+      COVERAGE_FILE: ${{ github.workspace }}/.coverage
 
     permissions:
       contents: write
@@ -74,7 +76,7 @@ jobs:
     - name: Smoke Tests
       if: needs.detect_changes.outputs.gui_only != 'true'
       run: |
-        python3 .tests/smoke_tests
+        python3 .tests/smoke_tests --run_with_coverage
 
     - name: GUI-only Tests
       if: needs.detect_changes.outputs.gui_only == 'true'
@@ -86,11 +88,29 @@ jobs:
       run: |
         python3 .tests/linter --check_only_changed_since_last_success
 
+    - name: Coverage report
+      if: always() && needs.detect_changes.outputs.gui_only != 'true'
+      continue-on-error: true
+      run: |
+        python3 .tests/coverage_report --label "smoke-tests"
+
+    - name: Upload coverage artifact
+      if: always() && needs.detect_changes.outputs.gui_only != 'true'
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-smoke-tests
+        path: coverage-report/
+        if-no-files-found: warn
+        include-hidden-files: true
+        retention-days: 14
+
   install-via-pip:
     needs: [smoke-tests, docker-test, detect_changes]
     if: needs.detect_changes.outputs.gui_only != 'true'
     runs-on: ubuntu-24.04
     environment: Production
+    env:
+      COVERAGE_FILE: ${{ github.workspace }}/.coverage
     strategy:
       fail-fast: true
       matrix:
@@ -104,12 +124,37 @@ jobs:
 
     - name: main test script
       run: |
-        python3 .tests/install_via_pip --debug
+        python3 .tests/install_via_pip --debug --run_with_coverage
+
+    - name: Prepare coverage tooling
+      if: always()
+      run: |
+        python3 -m venv "$RUNNER_TEMP/coverage-venv"
+        "$RUNNER_TEMP/coverage-venv/bin/pip" install --upgrade pip coverage
+        echo "$RUNNER_TEMP/coverage-venv/bin" >> "$GITHUB_PATH"
+
+    - name: Coverage report
+      if: always()
+      continue-on-error: true
+      run: |
+        python3 .tests/coverage_report --label "install-via-pip-${{ matrix.os }}"
+
+    - name: Upload coverage artifact
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-install-via-pip-${{ matrix.os }}
+        path: coverage-report/
+        if-no-files-found: warn
+        include-hidden-files: true
+        retention-days: 14
   docker-test:
     needs: [smoke-tests, detect_changes]
     if: needs.detect_changes.outputs.gui_only != 'true'
     runs-on: ubuntu-24.04
     environment: Production
+    env:
+      COVERAGE_FILE: /var/opt/omniopt/docker_user_dir/.coverage
     strategy:
       fail-fast: true
 
@@ -127,11 +172,36 @@ jobs:
       run: |
         ./omniopt_docker python3 .tests/main --num_random_steps=1 --max_eval=2 --exit_on_first_error --run_with_coverage --only=suite:basic
 
+    - name: Prepare coverage tooling
+      if: always()
+      run: |
+        python3 -m venv "$RUNNER_TEMP/coverage-venv"
+        "$RUNNER_TEMP/coverage-venv/bin/pip" install --upgrade pip coverage
+        echo "$RUNNER_TEMP/coverage-venv/bin" >> "$GITHUB_PATH"
+
+    - name: Coverage report
+      if: always()
+      continue-on-error: true
+      run: |
+        python3 .tests/coverage_report --label "docker-test"
+
+    - name: Upload coverage artifact
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-docker-test
+        path: coverage-report/
+        if-no-files-found: warn
+        include-hidden-files: true
+        retention-days: 14
+
   main-test:
     needs: [smoke-tests, install-via-pip, detect_changes]
     if: needs.detect_changes.outputs.gui_only != 'true'
     runs-on: ${{ matrix.os }}
     environment: Production
+    env:
+      COVERAGE_FILE: ${{ github.workspace }}/.coverage
     strategy:
       fail-fast: true
       matrix:
@@ -174,12 +244,28 @@ jobs:
 
     - name: plot tests
       run: |
-        python3 .tests/plots
+        python3 .tests/plots --run_with_coverage
 
     - name: main test script
       shell: bash
       run: |
         python3 .tests/main --num_random_steps=1 --max_eval=2 --exit_on_first_error --no_plots --run_with_coverage
+
+    - name: Coverage report
+      if: always()
+      continue-on-error: true
+      run: |
+        python3 .tests/coverage_report --label "main-test-${{ matrix.os }}"
+
+    - name: Upload coverage artifact
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-main-test-${{ matrix.os }}
+        path: coverage-report/
+        if-no-files-found: warn
+        include-hidden-files: true
+        retention-days: 14
 
     - uses: release-drafter/release-drafter@v5
       with:
@@ -196,6 +282,46 @@ jobs:
         git push origin --tags || true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  merge-coverage:
+    needs: [smoke-tests, install-via-pip, docker-test, main-test, detect_changes]
+    if: always() && needs.detect_changes.outputs.gui_only != 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v5
+
+    - name: Download coverage artifacts
+      uses: actions/download-artifact@v4
+      continue-on-error: true
+      with:
+        pattern: coverage-*
+        path: coverage-artifacts
+
+    - name: Prepare coverage tooling
+      run: |
+        python3 -m venv "$RUNNER_TEMP/coverage-venv"
+        "$RUNNER_TEMP/coverage-venv/bin/pip" install --upgrade pip coverage
+        echo "$RUNNER_TEMP/coverage-venv/bin" >> "$GITHUB_PATH"
+
+    - name: Merge coverage
+      continue-on-error: true
+      run: |
+        python3 .tests/coverage_report \
+          --data-dir coverage-artifacts \
+          --label "merged (all test jobs)" \
+          --output-dir coverage-report
+
+    - name: Upload merged coverage artifact
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-merged
+        path: coverage-report/
+        if-no-files-found: warn
+        include-hidden-files: true
+        retention-days: 14
 
   todo-to-issue:
     needs: [smoke-tests]

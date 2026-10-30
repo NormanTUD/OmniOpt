@@ -3915,3 +3915,6 @@ maxFixture
 maxResult
 sumLeaves
 summaryText
+coveragerc
+sitecustomize
+sitecustomizepy

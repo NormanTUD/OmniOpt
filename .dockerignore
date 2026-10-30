@@ -13,5 +13,6 @@ __pycache__
 .tests/mnist/.tests
 .tests/orchestrator_tests.bin
 .coverage.*
+coverage-report
 *.swp
 .DS_Store

@@ -1,0 +1,312 @@
+#!/usr/bin/env python3
+"""Combine OmniOpt test coverage and write CI-friendly report artifacts.
+
+Every test subprocess writes a parallel coverage data file (``.coverage.*``)
+when the suite is started with ``--run_with_coverage``.  This script combines
+those files and produces:
+
+* ``coverage.xml``  - Cobertura XML (widely supported by CI/GitHub tooling)
+* ``coverage.json`` - machine-readable report including ``missing_lines``
+* ``coverage.txt``  - human-readable ``coverage report -m``
+* ``htmlcov/``      - browsable HTML report (only with ``--html``)
+* ``data/``         - the raw parallel data files, kept for later merging
+
+The JSON/XML files are the ones to hand back when new tests should be written
+for uncovered code: ``coverage.json`` contains the exact ``missing_lines`` per
+file.
+
+Usage:
+    python3 .tests/coverage_report
+    python3 .tests/coverage_report --label main-test-ubuntu-24.04
+    python3 .tests/coverage_report --data-dir downloaded-artifacts
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+from typing import Iterable, List, Optional
+
+
+THIS_DIR = Path(__file__).resolve().parent
+REPO_ROOT = THIS_DIR.parent
+if str(THIS_DIR) not in sys.path:
+    sys.path.insert(0, str(THIS_DIR))
+
+
+DEFAULT_OUTPUT_DIR = REPO_ROOT / "coverage-report"
+
+
+def _clen(value: object) -> str:
+    """Return *value* as a string without ANSI colour codes."""
+    import re
+
+    return re.sub(r"\x1b\[[0-9;]*m", "", str(value))
+
+
+def _coverage_runner() -> List[str]:
+    """Return the argv prefix that can run coverage.
+
+    Prefer the current interpreter when ``coverage`` is importable, otherwise
+    fall back to the project's auto-created test venv.
+    """
+    probe = subprocess.run(
+        [sys.executable, "-c", "import coverage"],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        check=False,
+    )
+    if probe.returncode == 0:
+        return [sys.executable, "-m", "coverage"]
+
+    from _framework.installer import _resolve_venv_dir, ensure_dependencies
+
+    venv_dir = _resolve_venv_dir()
+    ensure_dependencies(include_tests=True, venv_dir=venv_dir)
+    venv_python = venv_dir / "bin" / "python"
+    if venv_python.exists():
+        return [str(venv_python), "-m", "coverage"]
+
+    return [sys.executable, "-m", "coverage"]
+
+
+def _coverage_env() -> dict:
+    env = os.environ.copy()
+    env.pop("COVERAGE_PROCESS_START", None)
+    env.pop("COVERAGE_FILE", None)
+    env.pop("RUN_WITH_COVERAGE", None)
+    # The bootstrap sitecustomize must not start a second coverage instance in
+    # the reporting process itself.
+    bootstrap = str((THIS_DIR / "_framework" / "coverage_bootstrap").resolve())
+    parts = [p for p in env.get("PYTHONPATH", "").split(os.pathsep) if p and p != bootstrap]
+    if parts:
+        env["PYTHONPATH"] = os.pathsep.join(parts)
+    else:
+        env.pop("PYTHONPATH", None)
+    return env
+
+
+def _run(cmd: List[str], *, capture: bool = False) -> subprocess.CompletedProcess:
+    return subprocess.run(
+        cmd,
+        cwd=str(REPO_ROOT),
+        env=_coverage_env(),
+        text=True,
+        capture_output=capture,
+        check=False,
+    )
+
+
+def _find_data_files(data_dirs: Iterable[Path], output_dir: Path) -> List[Path]:
+    files: List[Path] = []
+    output_dir = output_dir.resolve()
+    for data_dir in data_dirs:
+        data_dir = data_dir.resolve()
+        if not data_dir.exists():
+            continue
+        if data_dir.is_file():
+            files.append(data_dir)
+            continue
+        for path in data_dir.rglob(".coverage.*"):
+            try:
+                path.resolve().relative_to(output_dir)
+            except ValueError:
+                pass
+            else:
+                continue
+            if path.is_file():
+                files.append(path)
+    return sorted(set(files))
+
+
+def _copy_raw_data(files: Iterable[Path], output_dir: Path) -> None:
+    data_dir = output_dir / "data"
+    data_dir.mkdir(parents=True, exist_ok=True)
+    used = set()
+    for path in files:
+        target = data_dir / path.name
+        if target.name in used:
+            target = data_dir / f"{path.parent.name}-{path.name}"
+        used.add(target.name)
+        try:
+            shutil.copy2(path, target)
+        except OSError:
+            continue
+
+
+def _write_summary(output_dir: Path, label: str, json_path: Path, data_count: int) -> None:
+    totals = {}
+    try:
+        with open(json_path, "r", encoding="utf-8") as f:
+            totals = (json.load(f) or {}).get("totals") or {}
+    except (OSError, ValueError):
+        pass
+
+    lines = [
+        f"## Coverage {label}".rstrip(),
+        "",
+        f"- Data files combined: **{data_count}**",
+    ]
+    if totals:
+        lines.extend(
+            [
+                f"- Statements: **{totals.get('covered_lines', 0)}/{totals.get('num_statements', 0)}**"
+                f" ({totals.get('percent_covered', 0):.2f}%)",
+                f"- Branches: **{totals.get('covered_branches', 0)}/{totals.get('num_branches', 0)}**",
+                f"- Missing lines: **{totals.get('missing_lines', 0)}**",
+            ]
+        )
+    try:
+        artifact_location = output_dir.relative_to(REPO_ROOT)
+    except ValueError:
+        artifact_location = output_dir
+    lines.extend(
+        [
+            "",
+            f"Artifacts are in `{artifact_location}`.",
+            "",
+        ]
+    )
+
+    summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
+    if summary_path:
+        try:
+            with open(summary_path, "a", encoding="utf-8") as f:
+                f.write("\n".join(lines) + "\n")
+        except OSError:
+            pass
+
+
+def main(argv: Optional[List[str]] = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--data-dir",
+        action="append",
+        default=[],
+        help="Directory (or file) containing coverage data. May be given multiple times. Defaults to the repository root.",
+    )
+    parser.add_argument(
+        "--output-dir",
+        default=str(DEFAULT_OUTPUT_DIR),
+        help=f"Directory for the generated artifacts (default: {DEFAULT_OUTPUT_DIR}).",
+    )
+    parser.add_argument("--label", default="all tests", help="Label shown in the CI summary.")
+    parser.add_argument(
+        "--html",
+        action="store_true",
+        help="Also generate the browsable HTML report (can be slow for large runs).",
+    )
+    args = parser.parse_args(argv)
+
+    output_dir = Path(args.output_dir).resolve()
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    data_dirs = [Path(p) for p in args.data_dir] if args.data_dir else [REPO_ROOT]
+    data_files = _find_data_files(data_dirs, output_dir)
+
+    coverage = _coverage_runner()
+    combined_file = output_dir / ".coverage"
+    if combined_file.exists():
+        try:
+            combined_file.unlink()
+        except OSError:
+            pass
+
+    if not data_files:
+        message = "No coverage data files found; nothing to report.\n"
+        (output_dir / "coverage.txt").write_text(message, encoding="utf-8")
+        print(message, end="")
+        _write_summary(output_dir, args.label, output_dir / "coverage.json", 0)
+        return 0
+
+    if combined_file.exists():
+        combined_file.unlink()
+
+    combine = _run(
+        [
+            *coverage,
+            "combine",
+            "--keep",
+            f"--data-file={combined_file}",
+            *[str(p) for p in data_files],
+        ],
+        capture=True,
+    )
+    if combine.stdout:
+        print(_clen(combine.stdout), end="")
+    if combine.stderr:
+        print(_clen(combine.stderr), end="", file=sys.stderr)
+    if combine.returncode != 0 and not combined_file.exists():
+        print("Could not combine coverage data.", file=sys.stderr)
+        return combine.returncode
+
+    report = _run(
+        [*coverage, "report", "-m", f"--data-file={combined_file}"],
+        capture=True,
+    )
+    report_text = _clen(report.stdout or "")
+    if report.stderr:
+        report_text += _clen(report.stderr)
+    (output_dir / "coverage.txt").write_text(report_text, encoding="utf-8")
+    report_lines = report_text.splitlines()
+    if report_lines:
+        print(report_lines[0])
+        print(report_lines[1] if len(report_lines) > 1 else "")
+        if len(report_lines) > 2:
+            print(report_lines[-1][:300])
+    else:
+        print(report_text, end="")
+
+    json_path = output_dir / "coverage.json"
+    _run(
+        [
+            *coverage,
+            "json",
+            "--pretty-print",
+            "--ignore-errors",
+            f"--data-file={combined_file}",
+            "-o",
+            str(json_path),
+        ],
+        capture=True,
+    )
+    xml_path = output_dir / "coverage.xml"
+    _run(
+        [
+            *coverage,
+            "xml",
+            "--ignore-errors",
+            f"--data-file={combined_file}",
+            "-o",
+            str(xml_path),
+        ],
+        capture=True,
+    )
+    if args.html:
+        _run(
+            [
+                *coverage,
+                "html",
+                "--ignore-errors",
+                f"--data-file={combined_file}",
+                "-d",
+                str(output_dir / "htmlcov"),
+            ],
+            capture=True,
+        )
+
+    _copy_raw_data(data_files, output_dir)
+    _write_summary(output_dir, args.label, json_path, len(data_files))
+    return 0
+
+
+if __name__ == "__main__":
+    try:
+        sys.exit(main())
+    except KeyboardInterrupt:
+        sys.exit(130)

@@ -79,7 +79,7 @@ def _build_commands_for_run(
                 continue  # skip this plot for this run
 
         this_img = f"{run_dir.parent.name}_{run_dir.name.split('/')[-1]}_image_{plot_type}.svg"
-        dispatcher = "coverage run -p ./omniopt_plot" if os.environ.get("RUN_WITH_COVERAGE") else "./omniopt_plot"
+        dispatcher = "./omniopt_plot"
         cmd = (
             f"{dispatcher} --run_dir={run_dir} --save_to_file={this_img} "
             f"--plot_type={plot_type}"
@@ -142,6 +142,15 @@ def main(argv=None) -> int:
     os.environ["DONT_SHOW_DONT_INSTALL_MESSAGE"] = "1"
 
     ensure_dependencies(include_tests=True)
+
+    if args.run_with_coverage:
+        from _framework import coverage_utils
+        from _framework.installer import _resolve_venv_dir
+
+        coverage_utils.enable_subprocess_coverage(
+            repo_root=REPO_ROOT,
+            venv_dir=_resolve_venv_dir(),
+        )
 
     plot_types = _list_plot_types()
     if args.test_types:

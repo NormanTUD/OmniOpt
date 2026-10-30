@@ -136,9 +136,13 @@ try:
             return 0
 
         if args.run_with_coverage:
-            os.environ["RUN_WITH_COVERAGE"] = "1"
-            coveragerc = Path(__file__).resolve().parent.parent / ".coveragerc"
-            os.environ["COVERAGE_PROCESS_START"] = str(coveragerc)
+            from _framework import coverage_utils
+            from _framework.installer import _resolve_venv_dir
+
+            coverage_utils.enable_subprocess_coverage(
+                repo_root=repo_root,
+                venv_dir=_resolve_venv_dir(),
+            )
 
         env_jobs = os.environ.get("SMOKE_JOBS")
         jobs_arg = args.jobs if args.jobs is not None else env_jobs

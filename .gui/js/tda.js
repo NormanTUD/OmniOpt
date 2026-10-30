@@ -336,7 +336,15 @@ function _tdaShowMessage(message) {
 	}
 }
 
-function _tdaPlot(results, cutoff, normalizationLabel) {
+function _tdaColumnNames(columns, limit) {
+	var names = columns.map(function (entry) { return entry.name; });
+	if (names.length <= limit) {
+		return names.join(", ");
+	}
+	return names.slice(0, limit).join(", ") + ", ... (+" + (names.length - limit) + " more)";
+}
+
+function _tdaPlot(results, cutoff, normalizationLabel, selectedColumns, pointCount) {
 	var curves = _tdaBettiCurves(results.h0, results.h1, cutoff);
 	var maxBeta1 = 0;
 	var maxBeta1Index = 0;
@@ -351,9 +359,32 @@ function _tdaPlot(results, cutoff, normalizationLabel) {
 	var h0End = curves.beta0.length ? curves.beta0[curves.beta0.length - 1] : 0;
 	var finiteH1 = results.h1.filter(function (bar) { return isFinite(bar.death); });
 	var longestH1 = 0;
+	var longestH1Bar = null;
 	for (var i = 0; i < finiteH1.length; i++) {
-		longestH1 = Math.max(longestH1, finiteH1[i].death - finiteH1[i].birth);
+		var persistence = finiteH1[i].death - finiteH1[i].birth;
+		if (persistence > longestH1) {
+			longestH1 = persistence;
+			longestH1Bar = finiteH1[i];
+		}
 	}
+	var largestDrop = 0;
+	var largestDropEpsilon = 0;
+	for (var i = 1; i < curves.beta0.length; i++) {
+		var drop = curves.beta0[i - 1] - curves.beta0[i];
+		if (drop > largestDrop) {
+			largestDrop = drop;
+			largestDropEpsilon = curves.xs[i];
+		}
+	}
+	var beta1Start = null;
+	var beta1End = null;
+	for (var i = 0; i < curves.beta1.length; i++) {
+		if (curves.beta1[i] > 0) {
+			if (beta1Start === null) beta1Start = curves.xs[i];
+			beta1End = curves.xs[i];
+		}
+	}
+	var columnNames = _tdaColumnNames(selectedColumns, 8);
 
 	var bettiTraces = [
 		{ x: curves.xs, y: curves.beta0, mode: "lines", name: "H0 (components)", line: { color: "#2e7d32", width: 3 } },
@@ -371,11 +402,30 @@ function _tdaPlot(results, cutoff, normalizationLabel) {
 
 	var bettiExplanation = document.getElementById("tda_betti_explanation");
 	if (bettiExplanation) {
+		var beta1Text;
+		if (maxBeta1 > 0 && beta1Start !== null) {
+			beta1Text =
+				"The orange β₁ curve is above zero between ε ≈ " + beta1Start.toFixed(3) +
+				" and ε ≈ " + beta1End.toFixed(3) + ", with a peak of " + maxBeta1 +
+				" loop(s) at ε ≈ " + maxBeta1Epsilon.toFixed(3) + ". " +
+				"That means at this scale the point cloud contains " + maxBeta1 +
+				" independent loop(s). A loop that survives only in a very narrow ε interval is usually noise; " +
+				"a loop that stays alive over a wide interval is a real ring-like structure.";
+		} else {
+			beta1Text =
+				"The orange β₁ curve stays at 0: no loop-shaped structure was detected in the selected dimensions. " +
+				"The data behaves like separated clusters that eventually merge into one blob, not like a ring.";
+		}
 		bettiExplanation.textContent =
-			"β₀ counts connected components and starts at " + h0Start + "; it drops whenever clusters merge. " +
-			"β₁ counts independent loops. β₀ ends at " + h0End + " and β₁ peaks at " + maxBeta1 +
-			" around ε ≈ " + maxBeta1Epsilon.toFixed(3) + ". " +
-			"A high β₁ over a long interval indicates ring-like structure, while a peak that disappears immediately is usually sampling noise.";
+			"This one plot contains two curves.\n" +
+			"Green β₀ counts connected components. At ε = 0 every point is its own component, so it starts at " + h0Start +
+			". Every time two clusters merge, β₀ drops by one; the strongest merge happens at ε ≈ " + largestDropEpsilon.toFixed(3) +
+			" (drop of " + largestDrop + "). At the largest radius it ends at " + h0End + " component(s).\n" +
+			beta1Text + "\n" +
+			"Input: " + pointCount + " points with " + selectedColumns.length + " dimension(s) [" + columnNames +
+			"], distances are " + normalizationLabel + ". Each point is one row of results.csv. " +
+			"Special and OO_Info columns are not part of this selection. If result columns are checked, they are part of the geometry; " +
+			"deselect them to analyze only the parameter space.";
 	}
 
 	var h0 = results.h0.slice().sort(function (a, b) {
@@ -409,12 +459,26 @@ function _tdaPlot(results, cutoff, normalizationLabel) {
 
 	var barcodeExplanation = document.getElementById("tda_barcode_explanation");
 	if (barcodeExplanation) {
+		var h1Text;
+		if (finiteH1.length === 0) {
+			h1Text =
+				"There are no finite orange H1 bars, so no persistent loop was found. " +
+				"That is consistent with a point cloud made of clusters without ring structure.";
+		} else if (longestH1Bar) {
+			h1Text =
+				"There are " + finiteH1.length + " finite orange H1 bar(s). The longest loop is born at ε ≈ " +
+				longestH1Bar.birth.toFixed(3) + ", dies at ε ≈ " + longestH1Bar.death.toFixed(3) +
+				", and has persistence " + longestH1.toFixed(3) + ". " +
+				"Long orange bars are meaningful loops; short orange bars are usually tiny numerical/noise cycles.";
+		}
 		barcodeExplanation.textContent =
-			"Each horizontal segment is one topological feature. The left end is its birth radius and the right end is the radius where it disappears. " +
-			"Green segments are H0 connected components; orange segments are H1 loops. " +
-			"There are " + finiteH1.length + " finite H1 bar(s); the longest H1 bar has persistence " +
-			longestH1.toFixed(3) + ". Long bars are strong features, short bars are usually noise. " +
-			"The infinite H0 component is clipped at the dashed cutoff line.";
+			"Each horizontal line is one topological feature. Its left end is the birth radius, its right end is the death radius. " +
+			"A long line means the feature survives many distance scales and is likely meaningful; a very short line is usually noise.\n" +
+			"Green lines are H0 connected components. Every green line starts at ε = 0 and ends when that component merges with another one. " +
+			"The single infinite H0 component is the last green line, clipped at the dashed cutoff so it fits in the plot.\n" +
+			h1Text + "\n" +
+			"Colors are the same as in the Betti plot: green = H0 components, orange = H1 loops. " +
+			"Compare the two plots: a bump in β₁ is exactly the range where orange barcode lines are alive.";
 	}
 }
 
@@ -458,7 +522,7 @@ function _tdaRun() {
 		var cutoff = results.maxDistance > 0 ? results.maxDistance * 1.05 : 1;
 
 		var normalizationLabel = normalization === "none" ? "unnormalized" : (normalization === "minmax" ? "min-max normalized" : "z-score normalized");
-		_tdaPlot(results, cutoff, normalizationLabel);
+		_tdaPlot(results, cutoff, normalizationLabel, selectedColumns, normalized.length);
 
 		var h0Finite = results.h0.filter(function (bar) { return isFinite(bar.death); }).length;
 		var h1Finite = results.h1.filter(function (bar) { return isFinite(bar.death); }).length;
@@ -498,7 +562,7 @@ function initializeTDA() {
 	root.innerHTML = "";
 
 	var intro = document.createElement("p");
-	intro.textContent = "Persistent homology of the numeric results as a Vietoris-Rips point cloud. H0 bars are connected components, H1 bars are loops. Special and OO_Info columns are automatically disabled.";
+	intro.textContent = "This tab intentionally shows two plots: (1) Betti curves, which count connected components (H0) and loops (H1) as the filtration radius grows, and (2) the persistence barcode, which shows the lifetime of every individual component and loop. Special and OO_Info columns are automatically disabled.";
 	root.appendChild(intro);
 
 	var controls = document.createElement("div");
@@ -616,6 +680,8 @@ function initializeTDA() {
 	var bettiExplanation = document.createElement("p");
 	bettiExplanation.id = "tda_betti_explanation";
 	bettiExplanation.className = "tda_explanation";
+	bettiExplanation.style.whiteSpace = "pre-line";
+	bettiExplanation.style.lineHeight = "1.5";
 	root.appendChild(bettiExplanation);
 
 	var barcodeHeading = document.createElement("h3");
@@ -628,6 +694,8 @@ function initializeTDA() {
 	var barcodeExplanation = document.createElement("p");
 	barcodeExplanation.id = "tda_barcode_explanation";
 	barcodeExplanation.className = "tda_explanation";
+	barcodeExplanation.style.whiteSpace = "pre-line";
+	barcodeExplanation.style.lineHeight = "1.5";
 	root.appendChild(barcodeExplanation);
 
 	_tdaRun();

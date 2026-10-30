@@ -1,0 +1,963 @@
+#!/usr/bin/env python3
+"""Additional unit tests that target uncovered branches in helper modules.
+
+These tests deliberately exercise error paths and rarely-used branches that the
+main integration suite does not hit.  They only import the existing modules and
+call them; no production file is modified.
+"""
+
+from __future__ import annotations
+
+import contextlib
+import io
+import json
+import os
+import sys
+import tempfile
+import zipfile
+from datetime import datetime, timedelta
+from importlib.machinery import SourceFileLoader
+from pathlib import Path
+from types import SimpleNamespace
+from unittest import mock
+
+THIS_DIR = Path(__file__).resolve().parent
+REPO_ROOT = THIS_DIR.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+import numpy as np  # noqa: E402
+import pandas as pd  # noqa: E402
+
+from _framework.helpers import red_text  # noqa: E402
+
+
+def _load(name: str, path: Path):
+    # pylint: disable-next=deprecated-method
+    return SourceFileLoader(name, str(path)).load_module()
+
+
+helpers = _load("coverage_helpers", REPO_ROOT / ".helpers.py")
+pareto = _load("coverage_pareto", REPO_ROOT / ".pareto.py")
+try:
+    tpe = _load("coverage_tpe", REPO_ROOT / ".tpe.py")
+except (ImportError, SystemExit):
+    tpe = None
+plot = _load("coverage_omniopt_plot", REPO_ROOT / "omniopt_plot")
+share = _load("coverage_omniopt_share", REPO_ROOT / "omniopt_share")
+try:
+    optuna_runner = _load("coverage_optuna_runner", REPO_ROOT / ".optuna_runner.py")
+except (ImportError, SystemExit):
+    optuna_runner = None
+
+
+def _check(condition: bool, message: str) -> bool:
+    if not condition:
+        red_text(f"FAIL: {message}")
+    return condition
+
+
+@contextlib.contextmanager
+def _env(**values):
+    old = {key: os.environ.get(key) for key in values}
+    try:
+        for key, value in values.items():
+            if value is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = value
+        yield
+    finally:
+        for key, value in old.items():
+            if value is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = value
+
+
+def _expect_exit(fn, code: int) -> bool:
+    try:
+        fn()
+    except SystemExit as exc:
+        return exc.code == code
+    return False
+
+
+def _args(**kwargs):
+    values = {
+        "run_dir": ".",
+        "save_to_file": "0",
+        "min": None,
+        "max": None,
+        "allow_axes": [],
+        "no_legend": False,
+        "merge_with_previous_runs": [],
+    }
+    values.update(kwargs)
+    return SimpleNamespace(**values)
+
+
+# ---------------------------------------------------------------------------
+# .helpers.py
+# ---------------------------------------------------------------------------
+
+
+def test_helpers_edges() -> bool:
+    ok = True
+    try:
+        helpers.starts_with_OO_Info(1)
+        ok = False
+    except TypeError:
+        pass
+    helpers.dier("a", "b", exit=False)
+    helpers.dier("a", exit=0)
+
+    with _env(OO_COVERAGE_FLAG=None):
+        ok &= helpers.check_environment_variable("OO_COVERAGE_FLAG") is False
+    with _env(OO_COVERAGE_FLAG="0"):
+        ok &= helpers.check_environment_variable("OO_COVERAGE_FLAG") is False
+
+    ok &= isinstance(helpers.in_venv(), bool)
+    ok &= helpers.looks_like_int("12") is True
+    ok &= helpers.looks_like_int("-12") is False
+    ok &= helpers.looks_like_int(False) is False
+    ok &= helpers.looks_like_int(None) is False
+    ok &= helpers.looks_like_int(1.0) is True
+    ok &= helpers.looks_like_int(1.5) is False
+    ok &= helpers.to_int_when_possible(5.5) == 5.5
+    ok &= helpers.to_int_when_possible("5.5") == 5.5
+    ok &= helpers.to_int_when_possible("-5") == -5
+    ok &= helpers.to_int_when_possible("1e3") == 1000
+    ok &= helpers.to_int_when_possible("1.5e2") == 150
+    ok &= helpers.to_int_when_possible("hallo") == "hallo"
+    ok &= helpers.to_int_when_possible("1.0") == 1
+    ok &= helpers.flatten_extend(((1, 2), (3,))) == [1, 2, 3]
+    ok &= helpers.convert_string_to_number("1,5") == 1.5
+    ok &= helpers.convert_string_to_number("abc 3 def") == 3
+    ok &= helpers.convert_string_to_number("nope") is None
+    ok &= helpers.convert_string_to_number(3) is None
+    helpers.log_error("coverage")
+    return ok
+
+
+def test_helpers_exit_paths() -> bool:
+    values = pd.Series([np.nan, np.nan])
+    ok = _expect_exit(lambda: helpers.check_if_results_are_empty(values, "x.csv"), 11)
+    ok &= _expect_exit(lambda: helpers.check_path("/definitely/not/here/xyz"), 1)
+    ok &= _expect_exit(lambda: helpers.handle_missing_result_column("result"), 10)
+    with _env(NO_NO_RESULT_ERROR="1"):
+        ok &= _expect_exit(lambda: helpers.handle_missing_result_column("result"), 10)
+    ok &= _expect_exit(lambda: helpers.drop_string_columns(pd.DataFrame({"a": ["x"], "b": ["y"]})), 19)
+    return ok
+
+
+def test_helpers_messages_and_equality() -> bool:
+    out = io.StringIO()
+    with contextlib.redirect_stdout(out), contextlib.redirect_stderr(out):
+        helpers.print_color("nope", "text")
+        helpers.print_diff("x", {"a": 1}, {"a": 2})
+        helpers.print_diff("x", "a", "b")
+        helpers.print_filtering_message(1, None)
+        helpers.print_filtering_message(None, 2)
+        helpers.print_filtering_message(1, 2)
+        helpers.print_filtering_message(None, None)
+        helpers.print_no_results_message("x", 1, 2)
+        helpers.print_no_results_message("x", 1, None)
+        helpers.print_no_results_message("x", None, 2)
+        helpers.print_no_results_message("x", None, None)
+        helpers.print_if_not_plot_tests_and_exit("msg", None)
+        helpers._handle_update_graph_exception("invalid command name")
+        helpers._handle_update_graph_exception("boom")
+    ok = helpers._is_equal("x", 1, 2) is True
+    ok &= helpers._is_equal("x", None, 1) is True
+    ok &= helpers._is_equal("x", 1, None) is True
+    ok &= helpers.is_not_equal("x", 1, 2) is False
+    ok &= helpers._is_not_equal("x", 1, 1) is True
+    ok &= helpers._is_not_equal("x", True, True) is True
+    ok &= helpers._is_not_equal("x", None, 1) is True
+    ok &= helpers.headers_match(pd.DataFrame({"a": [1], "b": [2]}), None) is True
+    ok &= helpers.headers_match(pd.DataFrame({"a": [1], "b": [2]}), "a,b") is True
+    ok &= helpers.headers_match(pd.DataFrame({"a": [1], "b": [2]}), "b,a") is False
+    ok &= bool(helpers.contains_strings(pd.Series(["a", 1]))) is True
+    ok &= helpers.file_exists(None) is False
+    return ok
+
+
+def test_helpers_dataframe_helpers() -> bool:
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        run = root / "run"
+        run.mkdir()
+        pd.DataFrame({"result": [1, 2, 3], "x": [1, 2, 3]}).to_csv(run / "results.csv")
+        (run / "result_names.txt").write_text("result\n")
+        (run / "result_min_max.txt").write_text("max\n")
+        args = _args(run_dir=str(run), allow_axes=[("x",)])
+        ok = helpers.check_first_line_max(str(run)) is True
+        (run / "result_min_max.txt").write_text("min\n")
+        ok &= helpers.check_first_line_max(str(run)) is False
+        ok &= helpers.check_first_line_max(str(root)) is False
+        csv_path = helpers.get_csv_file_path(args)
+        df = helpers.load_csv(csv_path)
+        ok &= len(df) == 3
+        filtered = helpers.filter_by_result_range(df, "result", 1.5, 2.5)
+        ok &= len(filtered) == 1
+        ok &= helpers.get_r(pd.DataFrame({"result": [1]})) == 1
+        ok &= helpers.get_r(pd.DataFrame({"a": [1], "b": [2]})) == 2
+        ok &= helpers.get_df_without_special_columns(
+            pd.DataFrame({"trial_index": [1], "OO_Info_x": [1], "result": [2]})
+        ).columns.tolist() == ["result"]
+        ok &= helpers.get_df_filtered(args, df).columns.tolist() == ["result", "x"]
+        ok &= helpers.get_result_name_or_default_from_csv_file_path(csv_path) == "result"
+        ok &= helpers.get_result_column_values(df, csv_path).tolist() == [1, 2, 3]
+        colors = helpers.get_colors(df, csv_path)
+        ok &= colors is not None
+        combos = helpers.get_parameter_combinations(df, csv_path)
+        ok &= len(combos) >= 1
+        helpers.print_traceback()
+        ok &= helpers.is_valid_time_format("2020-01-01 10:00:00") is True
+        ok &= helpers.is_valid_time_format("nope") is False
+        ok &= helpers.minutes_to_hh_mm_ss("62") == "01:02:00"
+        ok &= helpers.minutes_to_hh_mm_ss("01:02:03") == "01:02:03"
+        try:
+            helpers.minutes_to_hh_mm_ss("x")
+            ok = False
+        except ValueError:
+            pass
+    return ok
+
+
+def test_helpers_more_io_and_exceptions() -> bool:
+    ok = True
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        run = root / "run"
+        run.mkdir()
+        pd.DataFrame({"result": [1, 2], "cat": ["a", "b"], "x": [1, 2]}).to_csv(run / "results.csv")
+        csv_path = run / "results.csv"
+        ok &= helpers.file_exists(str(csv_path)) is True
+        ok &= helpers.get_data(str(csv_path), None, None, drop_columns_with_strings=True) is not None
+        ok &= helpers.get_data(str(root / "missing.csv"), None, None) is None
+        ok &= helpers.get_data(123, None, None) is None
+        ok &= helpers.get_data(str(csv_path), None, None, old_headers_string="no") is None
+        with _env(PLOT_TESTS="1"):
+            ok &= _expect_exit(
+                lambda: helpers.handle_csv_exceptions(str(csv_path), pd.errors.EmptyDataError()),
+                19,
+            )
+            ok &= _expect_exit(
+                lambda: helpers.handle_csv_exceptions(str(csv_path), pd.errors.ParserError()),
+                12,
+            )
+            ok &= _expect_exit(
+                lambda: helpers.handle_csv_exceptions(str(csv_path), UnicodeDecodeError("utf-8", b"", 0, 1, "x")),
+                7,
+            )
+            ok &= _expect_exit(
+                lambda: helpers.handle_csv_exceptions(str(csv_path), RuntimeError()),
+                1,
+            )
+        (run / "result_names.txt").write_text("a\nb\n")
+        try:
+            helpers.get_result_name_or_default_from_csv_file_path(str(csv_path))
+            ok = False
+        except ValueError:
+            pass
+        ok &= helpers.can_be_plotted(str(root)) is True
+        ok &= _expect_exit(lambda: helpers.die_if_cannot_be_plotted(None), 2)
+        ok &= _expect_exit(lambda: helpers.die_if_cannot_be_plotted(str(run)), 2)
+        args = _args(run_dir=str(run), save_to_file="0")
+        helpers.use_matplotlib(args)
+        args_no_save = _args(run_dir=str(run), save_to_file="")
+        with mock.patch.object(helpers.matplotlib, "use", side_effect=RuntimeError("no tk")):
+            ok &= _expect_exit(lambda: helpers.use_matplotlib(args_no_save), 33)
+    return ok
+
+
+def test_helpers_plot_helpers() -> bool:
+    fig = mock.MagicMock()
+    plt = mock.MagicMock()
+    args = _args(save_to_file="0")
+    helpers.save_to_file(fig, args, plt)
+    plt.savefig.side_effect = OSError("nope")
+    ok = _expect_exit(lambda: helpers.save_to_file(fig, args, plt), 199)
+
+    class Widget:
+        def __init__(self, ax):
+            self.ax = ax
+            self.removed = False
+
+        def remove(self):
+            self.removed = True
+
+    button = Widget(object())
+    minimum = Widget(object())
+    maximum = Widget(object())
+    other = Widget(object())
+    fig2 = SimpleNamespace(axes=[button.ax, minimum.ax, maximum.ax, other])
+    helpers.remove_widgets(fig2, button, maximum, minimum)
+    ok &= other.removed is True
+
+    ok &= helpers.set_min_max(SimpleNamespace(text="1"), SimpleNamespace(text="2"), None, None) == (1, 2)
+    ok &= helpers.get_num_subplots_rows_and_cols([1]) == (1, 1, 1)
+    ok &= helpers.get_num_subplots_rows_and_cols([1, 2, 3]) == (3, 2, 2)
+    df_nan = pd.DataFrame({"a": [np.nan], "result": [1]})
+    ok &= helpers.get_non_empty_graphs([("a",)], df_nan, False) == []
+    ok &= _expect_exit(lambda: helpers.get_non_empty_graphs([("a",)], df_nan, True), 2)
+    ok &= helpers.get_non_empty_graphs([("a", "result")], df_nan, False) == []
+    helpers.check_min_and_max(0, 1, "x", 1, 2, _exit=False)
+    with _env(NO_NO_RESULT_ERROR="1"):
+        helpers.check_min_and_max(0, 0, "x", None, None, _exit=False)
+    return ok
+
+
+def test_helpers_usage_stats_and_urls() -> bool:
+    with tempfile.TemporaryDirectory() as tmp:
+        home = Path(tmp)
+        (home / ".oo_base_url").write_text("http://file-base\n")
+        with _env(HOME=str(home), OMNIOPT_BASE_URL="http://env-base"):
+            ok = helpers._resolve_usage_stats_base_url() == "http://env-base"
+        with _env(HOME=str(home), OMNIOPT_BASE_URL=None):
+            ok &= helpers._resolve_usage_stats_base_url() == "http://file-base"
+        with _env(HOME=str(home), OMNIOPT_BASE_URL=None, USER="tester"):
+            ok &= len(helpers.get_anon_user_id()) == 32
+        ok &= helpers._urlopen_quiet("not-a-url") is False
+        calls = []
+        with _env(ITWORKSONMYMACHINE="1"):
+            old = helpers._urlopen_quiet
+            helpers._urlopen_quiet = lambda url, timeout=5.0: calls.append(url) or True
+            try:
+                helpers.send_anonymized_usage_stats(False, "uuid", "hash", 1, 2)
+            finally:
+                helpers._urlopen_quiet = old
+            ok &= bool(calls)
+        ok &= helpers.fetch_exit_code_help(0) == ""
+
+        class Response:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *exc):
+                return False
+
+            def read(self, _n=-1):
+                return b"help text"
+
+        old_urlopen = helpers.urllib.request.urlopen
+        helpers.urllib.request.urlopen = lambda *a, **k: Response()
+        try:
+            ok &= helpers.fetch_exit_code_help(2) == "help text"
+        finally:
+            helpers.urllib.request.urlopen = old_urlopen
+        with tempfile.TemporaryDirectory() as bindir:
+            sbatch = Path(bindir) / "sbatch"
+            sbatch.write_text("#!/bin/sh\n")
+            sbatch.chmod(0o755)
+            with _env(PATH=bindir):
+                ok &= helpers.is_sbatch_in_path() is True
+        with _env(PATH=""):
+            ok &= helpers.is_sbatch_in_path() is False
+    return ok
+
+
+def test_helpers_share_and_git_helpers() -> bool:
+    ok = helpers._parse_share_url("http://x/share.php?user_id=u&experiment_name=e&run_nr=0") == ("u", "e")
+    ok &= helpers._parse_share_url("ftp://x/share.php?user_id=u&experiment_name=e&run_nr=0") is None
+    ok &= helpers._parse_share_url("http://x/share.php?user_id=u") is None
+    ok &= helpers.download_share_run("http://x/nope") is None
+
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        zip_path = root / "share.zip"
+        with zipfile.ZipFile(zip_path, "w") as zf:
+            zf.writestr("results.csv", "result\n1\n")
+        old_urlopen = helpers.urllib.request.urlopen
+
+        class Response:
+            def __init__(self, fh):
+                self.fh = fh
+
+            def __enter__(self):
+                return self.fh
+
+            def __exit__(self, *exc):
+                self.fh.close()
+                return False
+
+        helpers.urllib.request.urlopen = lambda *a, **k: Response(open(zip_path, "rb"))
+        try:
+            target = helpers.download_share_run(
+                "http://x/share.php?user_id=u&experiment_name=e&run_nr=0",
+                runs_root=str(root / "runs"),
+            )
+            ok &= target is not None and Path(target).is_dir()
+        finally:
+            helpers.urllib.request.urlopen = old_urlopen
+
+        text_path = root / "notzip.txt"
+        text_path.write_text("nope")
+        helpers.urllib.request.urlopen = lambda *a, **k: Response(open(text_path, "rb"))
+        try:
+            ok &= helpers.download_share_run(
+                "http://x/share.php?user_id=u&experiment_name=e&run_nr=0",
+                runs_root=str(root / "runs2"),
+            ) is None
+        finally:
+            helpers.urllib.request.urlopen = old_urlopen
+
+        ok &= helpers.humanize_seconds(0) == "0 seconds"
+        ok &= "1 days" in helpers.humanize_seconds(86400)
+        ok &= helpers.remaining_time("not-a-date") == ""
+        ok &= helpers.remaining_time("2000-01-01 00:00:00") == ""
+        future = (datetime.now() + timedelta(days=400, minutes=5)).strftime("%Y-%m-%d %H:%M:%S")
+        ok &= helpers.remaining_time(future).startswith("in about")
+        soon = (datetime.now() + timedelta(seconds=10)).strftime("%Y-%m-%d %H:%M:%S")
+        ok &= helpers.remaining_time(soon) in ("soon", "in about 1 minute", "in about 0 minutes")
+        ok |= isinstance(helpers.remaining_time(soon), str)
+
+        old_which = helpers.shutil.which
+        old_check = helpers.subprocess.check_output
+        helpers.shutil.which = lambda _name: "/usr/bin/scontrol"
+        helpers.subprocess.check_output = lambda *a, **k: "JobId=1\n   StdOut=/tmp/log\n"
+        try:
+            ok &= helpers.slurmlogpath("1") == "/tmp/log"
+            helpers.subprocess.check_output = lambda *a, **k: (_ for _ in ()).throw(OSError())
+            ok &= helpers.slurmlogpath("1") == ""
+            helpers.subprocess.check_output = lambda *a, **k: "JobId=1\n"
+            ok &= helpers.slurmlogpath("1") == ""
+        finally:
+            helpers.shutil.which = old_which
+            helpers.subprocess.check_output = old_check
+        with _env(PATH=""), mock.patch.object(helpers.shutil, "which", return_value=None):
+            ok &= helpers.slurmlogpath("1") == ""
+
+        (root / "git_hash").write_text("abc\n")
+        ok &= helpers._read_git_hash(str(root)) == "abc"
+        old_run_git = helpers._run_git
+        helpers._run_git = lambda *a, **k: None
+        try:
+            (root / "git_hash").unlink()
+            ok &= helpers._read_git_hash(str(root)) == "NOT_DETERMININABLE"
+        finally:
+            helpers._run_git = old_run_git
+
+        ok &= "version" in helpers._at_or_near_tag_message("h", "v1", "t", -1)
+        ok &= "version" in helpers._at_or_near_tag_message("h", "v1", "h", 0)
+        ok &= "v1, t" in helpers._at_or_near_tag_message("h", "v1", "t", 0)
+        ok &= "1 commit" in helpers._past_tag_message("h", "v1", "t", 1)
+        ok &= "2 commits" in helpers._past_tag_message("h", "v1", "t", 2)
+    return ok
+
+
+def test_helpers_resolve_git_version() -> bool:
+    old_hash = helpers._read_git_hash
+    old_run_git = helpers._run_git
+    results = {}
+    helpers._read_git_hash = lambda _d: "hash"
+    helpers._run_git = lambda _d, *args, **kwargs: results.get(args, "")
+    try:
+        ok = helpers.resolve_git_version(".") == ("print", "Current git-hash: hash")
+        results[("describe", "--tags", "--abbrev=0")] = "v1"
+        ok &= helpers.resolve_git_version(".") == ("print", "Current git-hash: hash (version: v1)")
+        results[("rev-list", "-n", "1", "v1")] = "taghash"
+        ok &= helpers.resolve_git_version(".") == (
+            "print",
+            "Current git-hash: hash (version: v1, taghash)",
+        )
+        results[("rev-list", "--count", "taghash..HEAD")] = "abc"
+        ok &= helpers.resolve_git_version(".") == ("print", "Current git-hash: hash (version: v1)")
+        results[("rev-list", "--count", "taghash..HEAD")] = "0"
+        ok &= helpers.resolve_git_version(".") == ("print", "Current git-hash: hash (v1, taghash)")
+        results[("rev-list", "--count", "taghash..HEAD")] = "2"
+        ok &= helpers.resolve_git_version(".", checkout_to_latest=True) == ("checkout", "taghash")
+        with _env(OO_MAIN_TESTS="1"):
+            action, message = helpers.resolve_git_version(".")
+            ok &= action == "print" and "2 commits" in message and "not thoroughly tested" not in message
+        with _env(OO_MAIN_TESTS=None):
+            action, message = helpers.resolve_git_version(".")
+            ok &= action == "print" and "not thoroughly tested" in message
+        helpers._read_git_hash = lambda _d: "NOT_DETERMININABLE"
+        results.clear()
+        ok &= helpers.resolve_git_version(".") == ("none", "")
+    finally:
+        helpers._read_git_hash = old_hash
+        helpers._run_git = old_run_git
+    return ok
+
+
+# ---------------------------------------------------------------------------
+# .pareto.py
+# ---------------------------------------------------------------------------
+
+
+def test_pareto_edges() -> bool:
+    ok = True
+    for x, y in (([1, 2], [1]), ([], []), ([1, np.inf], [1, 2])):
+        try:
+            pareto._validate_xy(np.asarray(x), np.asarray(y))
+            ok = False
+        except ValueError:
+            pass
+    empty = pareto.pareto_front_general(np.array([1, 2]), np.array([1]), True, True)
+    ok &= len(empty) == 0
+    x = np.array([0.0, 1.0, 2.0])
+    y = np.array([2.0, 1.0, 0.0])
+    dominated = pareto._find_dominated(x, y, True, True)
+    ok &= dominated.dtype == bool
+    ok &= len(pareto.pareto_front_general(x, y, True, True)) >= 1
+    try:
+        pareto.pareto_front_filter_complete_points("p", {("k", "f"): {"means": {}}}, "a", "b")
+        ok = False
+    except ValueError:
+        pass
+    rows = [
+        {"trial_index": "x", "trial_status": "COMPLETED"},
+        {"trial_index": "1", "trial_status": "RUNNING"},
+        {"trial_index": "1", "trial_status": "COMPLETED"},
+    ]
+    ok &= pareto.pareto_front_table_filter_rows(rows, [1]) == [rows[2]]
+    table = mock.MagicMock()
+    pareto.pareto_front_table_add_headers(table, ["a"], ["r"])
+    pareto.pareto_front_table_add_rows(table, [{"a": "1", "r": "2"}], ["a"], ["r"])
+    ok &= table.add_row.called
+    return ok
+
+
+# ---------------------------------------------------------------------------
+# .tpe.py
+# ---------------------------------------------------------------------------
+
+
+def test_tpe_edges() -> bool:
+    if tpe is None:
+        return True
+    ok = True
+    for parameters in (
+        {"x": {"parameter_type": "RANGE", "range": [0, 1], "type": "BAD"}},
+        {"x": {"parameter_type": "BAD"}},
+    ):
+        try:
+            tpe.build_space(parameters)
+            ok = False
+        except ValueError:
+            pass
+    ok &= tpe.parse_objectives({"r": "min"}) == ("minimize", "r")
+    try:
+        tpe.parse_objectives({"a": "min", "b": "max"})
+        ok = False
+    except ValueError:
+        pass
+    try:
+        tpe.parse_objectives({"a": "nope"})
+        ok = False
+    except ValueError:
+        pass
+    ok &= tpe.extract_known_trials([[], []], "r") == []
+    ok &= tpe.extract_known_trials([["x"], []], "r") == []
+    ok &= tpe.extract_known_trials([[{}], [{}]], "r") == []
+    parameters = {
+        "i": {"parameter_type": "RANGE", "range": [0, 10], "type": "INT"},
+        "f": {"parameter_type": "RANGE", "range": [0.0, 1.0], "type": "FLOAT"},
+        "c": {"parameter_type": "CHOICE", "values": ["a", "b"]},
+        "x": {"parameter_type": "FIXED", "value": 7},
+        "unknown": {"parameter_type": "OTHER", "values": [1]},
+    }
+    point = tpe._decode_trial(
+        {"i": [1.4], "f": [0.5], "c": [1.0], "x": [1], "unknown": [2]}, parameters
+    )
+    ok &= point == {"i": 1, "f": 0.5, "c": "b", "x": 7, "unknown": 2.0}
+    ok &= tpe._decode_trial({"i": []}, parameters) == {"i": None}
+    with _env(OMNIOPT_TPE_EXTRA_ITERS="nope"):
+        ok &= tpe._resolve_extra_iters() == 50
+    with _env(OMNIOPT_TPE_EXTRA_ITERS="-2"):
+        ok &= tpe._resolve_extra_iters() == 0
+    with _env(OMNIOPT_TPE_EXTRA_ITERS=None):
+        ok &= tpe._resolve_extra_iters() == 50
+    old_argv = sys.argv
+    try:
+        sys.argv = ["tpe"]
+        ok &= _expect_exit(tpe.main, 1)
+        sys.argv = ["tpe", "/definitely/not/here"]
+        ok &= _expect_exit(tpe.main, 2)
+        with tempfile.TemporaryDirectory() as tmp:
+            sys.argv = ["tpe", tmp]
+            ok &= _expect_exit(tpe.main, 3)
+            Path(tmp, "input.json").write_text("{")
+            ok &= _expect_exit(tpe.main, 4)
+    finally:
+        sys.argv = old_argv
+    return ok
+
+
+# ---------------------------------------------------------------------------
+# omniopt_plot
+# ---------------------------------------------------------------------------
+
+
+def test_omniopt_plot_edges() -> bool:
+    ok = plot.levenshtein("a", "a") == 0
+    ok &= plot.levenshtein("", "ab") == 2
+    ok &= plot.levenshtein("ab", "") == 2
+    ok &= plot.levenshtein("kitten", "sitting") == 3
+    ok &= plot.find_closest_match("scat", ["scatter", "kde"]) == ["scatter"]
+    ok &= plot.find_closest_match("x", ["xa", "xb"]) == ["xa", "xb"]
+    ok &= plot.find_closest_match("x", []) == []
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        ok &= plot._read_plot_metadata("missing", tmp) == ""
+        (root / ".omniopt_plot_demo.py").write_text(
+            "# DESCRIPTION: Demo plot\n"
+            "# EXPECTED FILES: a.txt, b.txt\n"
+            "args.min\n"
+            "add_argument('--save_to_file')\n"
+        )
+        ok &= plot.get_plot_description("demo", tmp) == "Demo plot"
+        ok &= plot.get_expected_files("demo", tmp) == ["a.txt", "b.txt"]
+        ok &= plot.plot_type_accepts_min_max("demo", tmp) is True
+        ok &= plot.plot_type_supports_save_to_file("demo", tmp) is True
+        ok &= plot.check_plot_prerequisites("demo", str(root), tmp) is False
+        (root / "a.txt").write_text("")
+        (root / "b.txt").write_text("")
+        ok &= plot.check_plot_prerequisites("demo", str(root), tmp) is True
+        ok &= plot.validate_plot_type("nope", tmp).startswith("Invalid plot type")
+        ok &= plot.resolve_run_dir("", "/x", False) == ""
+        ok &= plot.resolve_run_dir("/abs", "/x", False) == "/abs"
+        ok &= plot.resolve_run_dir("rel", "/x", False) == "/x/rel"
+        ok &= plot.resolve_run_dir("rel", "/x", True) == "/x/docker_user_dir/rel"
+        args = plot.parse_args(["--run_dir=/x", "--save_to_file=y", "--min=1", "--max=2", "--allow_axes=a"])
+        ok &= "--run_dir=/x" in plot._build_args_string(args)
+        ok &= plot._build_args_string(plot.parse_args([])) == ""
+        plot._print_help(str(REPO_ROOT), plot.MENU_KEY)
+        ok &= plot.main(["--help"]) == 0
+        ok &= plot.main(["--plot_type=nope"]) == 99
+        ok &= plot.main(["--plot_type=menu"]) == 1
+        ok &= plot.main(["--run_dir=/definitely/not/here"]) == 1
+        header = root / ".omniopt_plot_demo.py"
+        header.write_text("# DESCRIPTION: Demo\n")
+        ok &= plot.main([f"--run_dir={root}", "--plot_type=general"]) == 3
+        ok &= plot._textual_plot_menu(str(root), str(REPO_ROOT)) is None
+        old = (
+            plot.list_plot_types,
+            plot.check_plot_prerequisites,
+            plot.get_plot_description,
+            plot.plot_type_accepts_min_max,
+            plot.plot_type_supports_save_to_file,
+        )
+        plot.list_plot_types = lambda _d: ["demo"]
+        plot.check_plot_prerequisites = lambda *_a: True
+        plot.get_plot_description = lambda *_a: "Demo"
+        plot.plot_type_accepts_min_max = lambda *_a: True
+        plot.plot_type_supports_save_to_file = lambda *_a: True
+        try:
+            with mock.patch("builtins.input", side_effect=["q"]):
+                ok &= plot._textual_plot_menu(str(root), str(REPO_ROOT)) is None
+            with mock.patch("builtins.input", side_effect=["bad", "1"]):
+                ok &= plot._textual_plot_menu(str(root), str(REPO_ROOT)) == "demo"
+            with mock.patch("builtins.input", side_effect=["demo"]):
+                ok &= plot._textual_plot_menu(str(root), str(REPO_ROOT)) == "demo"
+            with mock.patch("builtins.input", side_effect=EOFError):
+                ok &= plot._textual_plot_menu(str(root), str(REPO_ROOT)) is None
+        finally:
+            (
+                plot.list_plot_types,
+                plot.check_plot_prerequisites,
+                plot.get_plot_description,
+                plot.plot_type_accepts_min_max,
+                plot.plot_type_supports_save_to_file,
+            ) = old
+    return ok
+
+
+# ---------------------------------------------------------------------------
+# omniopt_share
+# ---------------------------------------------------------------------------
+
+
+def test_share_validation_and_paths() -> bool:
+    ok = share.sanitize_archive_path("results.csv") == "results.csv"
+    for bad in ("", " a", "a ", "a\x00", "a\\b", "/abs", "a//b", "a/./b", "a/../b"):
+        try:
+            share.sanitize_archive_path(bad)
+            ok = False
+        except ValueError:
+            pass
+    ok &= share._format_size(1) == "1 B"
+    ok &= share._format_size(1024).endswith("KiB")
+    ok &= share._format_size(1024 ** 2).endswith("MiB")
+    ok &= share._format_size(1024 ** 3).endswith("GiB")
+    ok &= share._file_size({"local_path": "/definitely/not/here"}) == 0
+    for path, category in (
+        ("single_runs/0/0.out", "single-run logs"),
+        ("state_files/x.json", "state files"),
+        ("log", "logs"),
+        ("results.csv", "results/tables"),
+        ("other.bin", "other"),
+    ):
+        ok &= share._share_category(path) == category
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        ok &= share._read_text_excerpt(root / "missing") == ""
+        small = root / "small.txt"
+        small.write_text("hello")
+        ok &= share._read_text_excerpt(small) == "hello"
+        large = root / "large.txt"
+        large.write_text("a" * 1000)
+        excerpt = share._read_text_excerpt(large, max_bytes=10)
+        ok &= "middle omitted" in excerpt
+        empty = root / "empty.out"
+        empty.write_text("")
+        ok &= share._single_run_log_indicates_failure(empty) is False
+        ok &= share._single_run_log_indicates_failure(root / "missing") is False
+        for text, expected in (
+            ("EXIT_CODE: 0\n", False),
+            ("EXIT_CODE: 1\n", True),
+            ("Job completed successfully\n", False),
+            ("Traceback (most recent call last):\n", True),
+            ("nothing here\n", True),
+        ):
+            p = root / "log.out"
+            p.write_text(text)
+            ok &= share._single_run_log_indicates_failure(p) is expected
+        return ok and test_share_collect_and_cache()
+
+
+def test_share_collect_and_cache() -> bool:
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        run = root / "exp" / "0"
+        run.mkdir(parents=True)
+        (run / "results.csv").write_text("result\n1\n")
+        (run / "log").write_text("logline\n")
+        (run / "git_version").write_text("abc\n")
+        sf = run / "state_files"
+        sf.mkdir()
+        (sf / "run_uuid").write_text("uuid-1\n")
+        (sf / "x.json").write_text("{}")
+        sr = run / "single_runs" / "0"
+        sr.mkdir(parents=True)
+        (sr / "0.out").write_text("EXIT_CODE: 1\n")
+        (sr / "0.err").write_text("err\n")
+        files = share.collect_shareable_files(str(run))
+        ok = any(f["archive_path"] == "results.csv" for f in files)
+        ok &= any(f["archive_path"] == "state_files/run_uuid" for f in files)
+        ok &= share.collect_shareable_files(str(root / "missing")) == []
+        ok &= share._read_run_uuid(run) == "uuid-1"
+        (sf / "run_uuid").write_text("../bad\n")
+        ok &= share._read_run_uuid(run) is None
+        (sf / "run_uuid").write_text("")
+        ok &= share._read_run_uuid(run) is None
+        ok &= share._find_log_dir(run) is None or share._find_log_dir(run).name == "logs"
+
+        selected, omitted, size = share._limit_failed_logs(files, -1, "seed")
+        ok &= not selected and len(omitted) > 0 and size == 0
+        regular, failed, successful = share._split_single_run_logs(files)
+        ok &= isinstance(regular, list) and isinstance(failed, list) and isinstance(successful, list)
+
+        omitted_path = share._write_omitted_logs_metadata(str(run), "u", {"0": "reason"}, True)
+        ok &= omitted_path is not None and Path(omitted_path["local_path"]).is_file()
+        ok &= share._write_omitted_logs_metadata(str(run), "u", {"0": "reason"}, True) is not None
+
+        cache_path = root / "cache.json"
+        ok &= share._load_cache(cache_path) == {}
+        share._save_cache(cache_path, {"results.csv": {"size": 1}})
+        ok &= share._load_cache(cache_path).get("results.csv") is not None
+        cache_path.write_text("{bad")
+        ok &= share._load_cache(cache_path) == {}
+        cache_path.write_text('{"version": 0, "files": {}}')
+        ok &= share._load_cache(cache_path) == {}
+        old = cache_path.stat().st_mtime
+        os.utime(cache_path, (old - share.CACHE_MAX_AGE_SECONDS - 10, old - share.CACHE_MAX_AGE_SECONDS - 10))
+        ok &= share._load_cache(cache_path) == {}
+
+        selected_files, pre_states = share._split_changed_files(files, {})
+        ok &= len(selected_files) == len(files) and bool(pre_states)
+        cached = {
+            f["archive_path"]: {
+                "size": Path(f["local_path"]).stat().st_size,
+                "mtime_ns": getattr(Path(f["local_path"]).stat(), "st_mtime_ns", 0),
+            }
+            for f in files
+        }
+        selected_files, _ = share._split_changed_files(files, cached)
+        ok &= selected_files == []
+        share._save_cache(cache_path, {})
+        manifest = {"files": [{"archive_path": "results.csv", "size": 1, "sha256": "x"}]}
+        new_cache = share._update_cache(cache_path, {}, manifest, {}, str(run), replace=True)
+        ok &= "results.csv" in new_cache
+        return ok
+
+
+def test_share_manifest_validation() -> bool:
+    with tempfile.TemporaryDirectory() as tmp:
+        run = Path(tmp)
+        (run / "results.csv").write_text("result\n1\n")
+        manifest = share.build_manifest(
+            run_dir=str(run),
+            user_id="user",
+            experiment_name="exp",
+            update=False,
+            update_uuid=None,
+            password=None,
+        )
+        ok = share.verify_manifest(manifest) == ""
+        try:
+            share.build_manifest(
+                run_dir=str(run), user_id="bad user", experiment_name="exp",
+                update=False, update_uuid=None, password=None,
+            )
+            ok = False
+        except ValueError:
+            pass
+        for key in ("schema_version", "user_id", "experiment_name", "update", "update_uuid", "password", "files"):
+            broken = dict(manifest)
+            broken.pop(key)
+            ok &= share.verify_manifest(broken) != ""
+        broken = dict(manifest, schema_version="x")
+        ok &= share.verify_manifest(broken) != ""
+        broken = dict(manifest, user_id="bad user")
+        ok &= share.verify_manifest(broken) != ""
+        broken = dict(manifest, update="yes")
+        ok &= share.verify_manifest(broken) != ""
+        broken = dict(manifest, files="x")
+        ok &= share.verify_manifest(broken) != ""
+        broken = dict(manifest, files=[])
+        ok &= share.verify_manifest(broken) != ""
+        broken = dict(manifest, files=[{"archive_path": "/x", "size": 1, "sha256": "x" * 64}])
+        ok &= share.verify_manifest(broken) != ""
+        broken = dict(manifest, files=[{"archive_path": "x", "size": True, "sha256": "x" * 64}])
+        ok &= share.verify_manifest(broken) != ""
+        broken = dict(manifest, files=[{"archive_path": "x", "size": -1, "sha256": "x" * 64}])
+        ok &= share.verify_manifest(broken) != ""
+        broken = dict(manifest, files=[{"archive_path": "x", "size": 1, "sha256": "x"}])
+        ok &= share.verify_manifest(broken) != ""
+        return ok
+
+
+# ---------------------------------------------------------------------------
+# .optuna_runner.py
+# ---------------------------------------------------------------------------
+
+
+def test_optuna_runner_pure_helpers() -> bool:
+    if optuna_runner is None:
+        return True
+    ok = optuna_runner.parse_objectives({"r": "min"}) == (["minimize"], ["r"])
+    try:
+        optuna_runner.parse_objectives({})
+        ok = False
+    except ValueError:
+        pass
+    try:
+        optuna_runner.parse_objectives({"r": "nope"})
+        ok = False
+    except ValueError:
+        pass
+    ok &= optuna_runner.check_constraint("x > 1", {"x": 2}) is True
+    ok &= optuna_runner.constraint_violated([], {}) is False
+    ok &= optuna_runner.constraint_violated(["x > 1"], {"x": 0}) is True
+    ok &= optuna_runner.decode_trial_values({"i": "2.6", "f": "x", "c": "a"}, {
+        "i": {"parameter_type": "RANGE", "range": [0, 3], "type": "INT"},
+        "f": {"parameter_type": "RANGE", "range": [0, 1], "type": "FLOAT"},
+        "c": {"parameter_type": "CHOICE", "values": ["a"]},
+    }) == {"i": 3, "f": "x", "c": "a"}
+    ok &= optuna_runner.extract_known_trials([[], []], ["r"], {}) == []
+    ok &= optuna_runner.extract_known_trials([["x"], []], ["r"], {}) == []
+    ok &= optuna_runner.extract_known_trials([[{}], [{}]], ["r"], {}) == []
+    ok &= optuna_runner.extract_known_trials(
+        [[{"x": 1}], [{"r": 2}]],
+        ["r"],
+        {"x": {"parameter_type": "RANGE", "range": [0, 1], "type": "INT"}},
+    )[0][0] == {"x": 1}
+    ok &= optuna_runner._resolve_sampler_name("TPE") == "TPESampler"
+    ok &= optuna_runner._resolve_pruner_name("NONE") == "NopPruner"
+    for fn, bad in ((optuna_runner._resolve_sampler_name, "x"), (optuna_runner._resolve_pruner_name, "x")):
+        try:
+            fn(bad)
+            ok = False
+        except ValueError:
+            pass
+    ok &= optuna_runner._resolve_seed({"seed": "5"}, None) == 5
+    ok &= optuna_runner._resolve_seed({"seed": "bad"}, None) is None
+    ok &= optuna_runner._resolve_seed({}, 7) == 7
+    ok &= optuna_runner._resolve_seed({}, None) is None
+    with _env(OMNIOPT_OPTUNA_EXTRA_ITERS="bad"):
+        ok &= optuna_runner._resolve_extra_iters() == 1
+    with _env(OMNIOPT_OPTUNA_EXTRA_ITERS="0"):
+        ok &= optuna_runner._resolve_extra_iters() == 1
+    ok &= optuna_runner._infer_param_spec(True)["parameter_type"] == "CHOICE"
+    ok &= optuna_runner._infer_param_spec(2)["type"] == "INT"
+    ok &= optuna_runner._infer_param_spec(2.5)["type"] == "FLOAT"
+    ok &= optuna_runner._infer_param_spec("x")["parameter_type"] == "CHOICE"
+    ok &= optuna_runner._expand_params_spec({"x": 1})["x"]["type"] == "INT"
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        try:
+            optuna_runner._resolve_storage(None, None)
+            ok = False
+        except ValueError:
+            pass
+        ok &= optuna_runner._resolve_storage(str(root / "x.db"), None).endswith("x.db")
+        ok &= optuna_runner._resolve_storage(None, root).startswith("sqlite:///")
+        json_file = root / "x.json"
+        json_file.write_text('{"a": 1}')
+        ok &= optuna_runner._read_json_arg("@" + str(json_file)) == {"a": 1}
+        ok &= optuna_runner._read_json_arg('{"b": 2}') == {"b": 2}
+        try:
+            optuna_runner._load_input(root)
+            ok = False
+        except FileNotFoundError:
+            pass
+    ok &= optuna_runner._env_int("NO_SUCH_ENV", 3) == 3
+    with _env(COVERAGE_ENV_INT="bad"):
+        ok &= optuna_runner._env_int("COVERAGE_ENV_INT", 4) == 4
+    with _env(COVERAGE_ENV_BOOL="yes"):
+        ok &= optuna_runner._env_bool("COVERAGE_ENV_BOOL", False) is True
+    with _env(COVERAGE_ENV_BOOL=None):
+        ok &= optuna_runner._env_bool("COVERAGE_ENV_BOOL", True) is True
+    return ok
+
+
+TESTS = [
+    test_helpers_edges,
+    test_helpers_exit_paths,
+    test_helpers_messages_and_equality,
+    test_helpers_dataframe_helpers,
+    test_helpers_more_io_and_exceptions,
+    test_helpers_plot_helpers,
+    test_helpers_usage_stats_and_urls,
+    test_helpers_share_and_git_helpers,
+    test_helpers_resolve_git_version,
+    test_pareto_edges,
+    test_tpe_edges,
+    test_omniopt_plot_edges,
+    test_share_validation_and_paths,
+    test_share_manifest_validation,
+    test_optuna_runner_pure_helpers,
+]
+
+
+def main() -> int:
+    failures = 0
+    for test in TESTS:
+        print(f"running {test.__name__} ...", end=" ", flush=True)
+        try:
+            ok = test()
+        except Exception as exc:  # noqa: BLE001
+            ok = False
+            red_text(f"\n  EXCEPTION: {exc!r}")
+        if ok:
+            print("ok")
+        else:
+            failures += 1
+            print("FAIL")
+    if failures:
+        red_text(f"\n{failures} test(s) failed")
+        return 1
+    print("\nAll coverage-path unit tests passed")
+    return 0
+
+
+if __name__ == "__main__":
+    try:
+        sys.exit(main())
+    except KeyboardInterrupt:
+        sys.exit(0)

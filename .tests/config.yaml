@@ -802,6 +802,7 @@ smoke_tests:
   - find_typos
   #- test_omniopt_docker_blackbox
   - unit_tests
+  - unit_tests_coverage_paths
   - test_formulas
   - test_executor_backend
   - test_share_formula

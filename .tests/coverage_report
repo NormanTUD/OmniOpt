@@ -15,7 +15,10 @@ This script combines those files and produces:
 * ``coverage.txt``  - human-readable Python ``coverage report -m``
 * ``php-coverage.json`` / ``php-coverage.txt`` - PHP coverage incl. missing lines
 * ``js-coverage.json`` / ``js-coverage.txt`` / ``js-lcov.info`` - JS coverage
-* ``htmlcov/``      - browsable Python HTML report (only with ``--html``)
+* ``index.html``    - combined HTML overview of Python, PHP and JS coverage
+* ``htmlcov/``      - browsable Python HTML report (disable with ``--no-html``)
+* ``php-html/``     - browsable PHP line-coverage report
+* ``js-html/``      - browsable JS/istanbul report
 * ``data/``, ``php-data/``, ``js-data/`` - raw data, kept for later merging
 
 The JSON files are the ones to hand back when new tests should be written for
@@ -30,11 +33,13 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import html
 import json
 import os
 import shutil
 import subprocess
 import sys
+import urllib.parse
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Tuple
 
@@ -213,8 +218,185 @@ def _gui_relative_path(path: str) -> Optional[str]:
     return None
 
 
-def _php_report(data_dirs: Iterable[Path], output_dir: Path) -> Optional[dict]:
-    data_files = _find_named_files(data_dirs, "php-coverage-*.json", output_dir)
+def _html_safe_name(name: str) -> str:
+    return "".join(char if char.isalnum() or char in "._-" else "_" for char in name)
+
+
+def _write_php_html(report: dict, output_dir: Path) -> None:
+    php_dir = output_dir / "php-html"
+    php_dir.mkdir(parents=True, exist_ok=True)
+    files = report.get("files") or {}
+    rows = []
+    for relative, entry in sorted(files.items()):
+        summary = entry.get("summary") or {}
+        missing = entry.get("missing_lines") or []
+        safe_name = _html_safe_name(relative)
+        link = f"php-html/{safe_name}.html"
+        rows.append(
+            "<tr>"
+            f"<td><a href=\"{html.escape(link)}\">{html.escape(relative)}</a></td>"
+            f"<td>{summary.get('num_statements', 0)}</td>"
+            f"<td>{summary.get('missing_lines', 0)}</td>"
+            f"<td>{summary.get('percent_covered', 0):.2f}%</td>"
+            f"<td>{html.escape(', '.join(str(line) for line in missing))}</td>"
+            "</tr>"
+        )
+
+        source_path = REPO_ROOT / relative
+        try:
+            source_lines = source_path.read_text(encoding="utf-8", errors="replace").splitlines()
+        except OSError:
+            source_lines = []
+        executed = set(entry.get("executed_lines") or [])
+        missed = set(missing)
+        excluded = set(entry.get("excluded_lines") or [])
+        body = []
+        for number, text in enumerate(source_lines, start=1):
+            css = "covered" if number in executed else ("missing" if number in missed else ("excluded" if number in excluded else ""))
+            body.append(
+                f"<tr class=\"{css}\"><td class=\"line\">{number}</td><td><pre>{html.escape(text)}</pre></td></tr>"
+            )
+        page = f"""<!doctype html>
+<html><head><meta charset="utf-8"><title>PHP coverage: {html.escape(relative)}</title>
+<style>
+body {{ font-family: sans-serif; margin: 2rem; }}
+table {{ border-collapse: collapse; width: 100%; }}
+td {{ border-bottom: 1px solid #eee; vertical-align: top; }}
+td.line {{ color: #777; text-align: right; padding-right: 1rem; width: 4rem; }}
+tr.covered {{ background: #e8f7e8; }}
+tr.missing {{ background: #fde8e8; }}
+tr.excluded {{ background: #eee; }}
+pre {{ margin: 0; white-space: pre-wrap; }}
+</style></head><body>
+<p><a href="index.html">&larr; PHP overview</a> | <a href="../index.html">&larr; combined overview</a></p>
+<h1>{html.escape(relative)}</h1>
+<p>{summary.get('covered_lines', 0)}/{summary.get('num_statements', 0)} statements covered
+({summary.get('percent_covered', 0):.2f}%). Missing lines: {html.escape(', '.join(str(line) for line in missing)) or '-'}</p>
+<table>{''.join(body)}</table></body></html>"""
+        (php_dir / f"{safe_name}.html").write_text(page, encoding="utf-8")
+
+    index = f"""<!doctype html>
+<html><head><meta charset="utf-8"><title>PHP coverage</title>
+<style>
+body {{ font-family: sans-serif; margin: 2rem; }}
+table {{ border-collapse: collapse; width: 100%; }}
+th, td {{ border-bottom: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }}
+</style></head><body>
+<p><a href="../index.html">&larr; combined overview</a></p>
+<h1>PHP coverage</h1>
+<table><thead><tr><th>File</th><th>Statements</th><th>Missing</th><th>Cover</th><th>Missing lines</th></tr></thead>
+<tbody>{''.join(rows)}</tbody></table></body></html>"""
+    (php_dir / "index.html").write_text(index, encoding="utf-8")
+
+
+def _js_missing_lines(entry: dict) -> List[int]:
+    statement_map = entry.get("statementMap") or {}
+    counts = entry.get("s") or {}
+    missing = set()
+    for statement_id, count in counts.items():
+        if count:
+            continue
+        statement = statement_map.get(statement_id) or {}
+        start = statement.get("start") or {}
+        line = start.get("line")
+        if isinstance(line, int):
+            missing.add(line)
+    return sorted(missing)
+
+
+def _write_html_overview(output_dir: Path) -> None:
+    rows: List[str] = []
+    totals: Dict[str, dict] = {}
+
+    def add_row(language: str, relative: str, statements: int, covered: int,
+                missing: List[int], link: str) -> None:
+        percent = (100.0 * covered / statements) if statements else 100.0
+        entry = totals.setdefault(language, {"statements": 0, "covered": 0, "missing": 0})
+        entry["statements"] += statements
+        entry["covered"] += covered
+        entry["missing"] += len(missing)
+        rows.append(
+            "<tr>"
+            f"<td>{html.escape(language)}</td>"
+            f"<td><a href=\"{html.escape(link)}\">{html.escape(relative)}</a></td>"
+            f"<td>{statements}</td><td>{len(missing)}</td><td>{percent:.2f}%</td>"
+            f"<td>{html.escape(', '.join(str(line) for line in missing))}</td>"
+            "</tr>"
+        )
+
+    try:
+        python_data = json.loads((output_dir / "coverage.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        python_data = {}
+    for relative, entry in sorted((python_data.get("files") or {}).items()):
+        summary = entry.get("summary") or {}
+        add_row(
+            "Python", relative,
+            int(summary.get("num_statements", 0)),
+            int(summary.get("covered_lines", 0)),
+            list(entry.get("missing_lines") or []),
+            "htmlcov/index.html",
+        )
+
+    try:
+        php_data = json.loads((output_dir / "php-coverage.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        php_data = {}
+    for relative, entry in sorted((php_data.get("files") or {}).items()):
+        summary = entry.get("summary") or {}
+        add_row(
+            "PHP", relative,
+            int(summary.get("num_statements", 0)),
+            int(summary.get("covered_lines", 0)),
+            list(entry.get("missing_lines") or []),
+            f"php-html/{_html_safe_name(relative)}.html",
+        )
+
+    try:
+        js_data = json.loads((output_dir / "js-coverage.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        js_data = {}
+    for relative, entry in sorted(js_data.items()):
+        statements = len(entry.get("s") or {})
+        covered = sum(1 for count in (entry.get("s") or {}).values() if count)
+        add_row(
+            "JavaScript", relative, statements, covered, _js_missing_lines(entry),
+            "js-html/lcov-report/" + urllib.parse.quote(relative) + ".html",
+        )
+
+    summary_rows = []
+    for language, entry in sorted(totals.items()):
+        statements = entry["statements"]
+        percent = (100.0 * entry["covered"] / statements) if statements else 0.0
+        summary_rows.append(
+            f"<tr><td>{html.escape(language)}</td><td>{entry['covered']}/{statements}</td>"
+            f"<td>{entry['missing']}</td><td>{percent:.2f}%</td></tr>"
+        )
+
+    page = f"""<!doctype html>
+<html><head><meta charset="utf-8"><title>OmniOpt coverage overview</title>
+<style>
+body {{ font-family: sans-serif; margin: 2rem; }}
+table {{ border-collapse: collapse; width: 100%; margin-bottom: 2rem; }}
+th, td {{ border-bottom: 1px solid #ddd; padding: .35rem .5rem; text-align: left; vertical-align: top; }}
+tr:hover {{ background: #f7f7f7; }}
+</style></head><body>
+<h1>OmniOpt coverage overview</h1>
+<p>Details: <a href="htmlcov/index.html">Python HTML</a> |
+<a href="php-html/index.html">PHP HTML</a> |
+<a href="js-html/lcov-report/index.html">JavaScript HTML</a></p>
+<h2>Totals</h2>
+<table><thead><tr><th>Language</th><th>Covered/Statements</th><th>Missing</th><th>Cover</th></tr></thead>
+<tbody>{''.join(summary_rows)}</tbody></table>
+<h2>Files</h2>
+<table><thead><tr><th>Language</th><th>File</th><th>Statements</th><th>Missing</th><th>Cover</th><th>Missing lines</th></tr></thead>
+<tbody>{''.join(rows)}</tbody></table>
+</body></html>"""
+    (output_dir / "index.html").write_text(page, encoding="utf-8")
+
+
+def _php_report(data_dirs: Iterable[Path], output_dir: Path, exclude_dir: Optional[Path] = None) -> Optional[dict]:
+    data_files = _find_named_files(data_dirs, "php-coverage-*.json", exclude_dir or output_dir)
     _copy_raw_data(data_files, output_dir, subdir="php-data")
     if not data_files:
         return None
@@ -298,14 +480,15 @@ def _php_report(data_dirs: Iterable[Path], output_dir: Path) -> Optional[dict]:
         f"{totals['percent_covered']:>6.1f}%"
     )
     (output_dir / "php-coverage.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    _write_php_html(report, output_dir)
     print(lines[0])
     print(lines[2] if len(lines) > 2 else "")
     print(lines[-1][:300])
     return totals
 
 
-def _js_report(data_dirs: Iterable[Path], output_dir: Path) -> Optional[dict]:
-    source_dirs = _find_js_temp_dirs(data_dirs, output_dir)
+def _js_report(data_dirs: Iterable[Path], output_dir: Path, exclude_dir: Optional[Path] = None) -> Optional[dict]:
+    source_dirs = _find_js_temp_dirs(data_dirs, exclude_dir or output_dir)
     raw_dir = output_dir / "js-data"
     copied = _copy_js_raw_data(source_dirs, output_dir)
     if not copied:
@@ -316,7 +499,7 @@ def _js_report(data_dirs: Iterable[Path], output_dir: Path) -> Optional[dict]:
         print("npx not found; cannot build JS coverage report.", file=sys.stderr)
         return None
 
-    report_dir = output_dir / "js-istanbul"
+    report_dir = output_dir / "js-html"
     cmd = [
         npx,
         "--yes",
@@ -455,7 +638,11 @@ def _write_summary(
         artifact_location = output_dir.relative_to(REPO_ROOT)
     except ValueError:
         artifact_location = output_dir
-    lines.extend(["", f"Artifacts are in `{artifact_location}`.", ""])
+    lines.extend([
+        "",
+        f"Artifacts are in `{artifact_location}`. Open `index.html` for the combined HTML overview.",
+        "",
+    ])
     _append_github_summary(lines)
 
 
@@ -486,8 +673,25 @@ def _write_python_reports(data_files: List[Path], output_dir: Path, html: bool) 
         print("Could not combine Python coverage data.", file=sys.stderr)
         return False, combine.returncode
 
+    report_file = combined_file
+    remapped_file = output_dir / ".coverage.remapped"
+    if remapped_file.exists():
+        try:
+            remapped_file.unlink()
+        except OSError:
+            pass
+    remap_script = THIS_DIR / "_framework" / "coverage_remap.py"
+    remap = _run(
+        [coverage[0], str(remap_script), str(combined_file), str(remapped_file)],
+        capture=True,
+    )
+    if remapped_file.exists():
+        report_file = remapped_file
+    elif remap.returncode != 0:
+        print(_clen(remap.stderr or "Could not remap coverage source paths."), file=sys.stderr)
+
     report = _run(
-        [*coverage, "report", "-m", f"--data-file={combined_file}"],
+        [*coverage, "report", "-m", f"--data-file={report_file}"],
         capture=True,
     )
     report_text = _clen(report.stdout or "")
@@ -510,7 +714,7 @@ def _write_python_reports(data_files: List[Path], output_dir: Path, html: bool) 
             "json",
             "--pretty-print",
             "--ignore-errors",
-            f"--data-file={combined_file}",
+            f"--data-file={report_file}",
             "-o",
             str(json_path),
         ],
@@ -521,7 +725,7 @@ def _write_python_reports(data_files: List[Path], output_dir: Path, html: bool) 
             *coverage,
             "xml",
             "--ignore-errors",
-            f"--data-file={combined_file}",
+            f"--data-file={report_file}",
             "-o",
             str(output_dir / "coverage.xml"),
         ],
@@ -533,7 +737,7 @@ def _write_python_reports(data_files: List[Path], output_dir: Path, html: bool) 
                 *coverage,
                 "html",
                 "--ignore-errors",
-                f"--data-file={combined_file}",
+                f"--data-file={report_file}",
                 "-d",
                 str(output_dir / "htmlcov"),
             ],
@@ -561,7 +765,14 @@ def main(argv: Optional[List[str]] = None) -> int:
     parser.add_argument(
         "--html",
         action="store_true",
-        help="Also generate the browsable HTML report (can be slow for large runs).",
+        default=True,
+        help=argparse.SUPPRESS,
+    )
+    parser.add_argument(
+        "--no-html",
+        dest="html",
+        action="store_false",
+        help="Skip the Python HTML report.",
     )
     args = parser.parse_args(argv)
 
@@ -569,7 +780,11 @@ def main(argv: Optional[List[str]] = None) -> int:
     output_dir.mkdir(parents=True, exist_ok=True)
 
     data_dirs = [Path(p) for p in args.data_dir] if args.data_dir else [REPO_ROOT]
-    data_files = _find_data_files(data_dirs, output_dir)
+    # When the caller names explicit data directories, do not exclude the
+    # output directory: ``--data-dir coverage/data --output-dir coverage`` is a
+    # legitimate way to regenerate HTML next to an existing report.
+    exclude_dir = output_dir if not args.data_dir else Path("/__coverage_no_exclude__")
+    data_files = _find_data_files(data_dirs, exclude_dir)
 
     return_code = 0
     if data_files:
@@ -581,8 +796,9 @@ def main(argv: Optional[List[str]] = None) -> int:
         (output_dir / "coverage.txt").write_text(message, encoding="utf-8")
         print(message, end="")
 
-    php_totals = _php_report(data_dirs, output_dir)
-    js_totals = _js_report(data_dirs, output_dir)
+    php_totals = _php_report(data_dirs, output_dir, exclude_dir)
+    js_totals = _js_report(data_dirs, output_dir, exclude_dir)
+    _write_html_overview(output_dir)
     _write_summary(
         output_dir,
         args.label,

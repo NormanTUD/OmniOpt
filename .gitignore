@@ -228,3 +228,4 @@ coverage-report/
 
 .php-coverage/
 .js-coverage/
+coverage

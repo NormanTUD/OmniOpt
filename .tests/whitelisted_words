@@ -3919,3 +3919,4 @@ coveragerc
 sitecustomize
 sitecustomizepy
 xdebug
+coveragepy

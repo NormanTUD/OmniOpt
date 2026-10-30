@@ -241,8 +241,7 @@ if (function_exists("imagecreatetruecolor")) {
 	imagefill($img, 0, 0, $black);
 	imagesetpixel($img, 1, 2, $red);
 	imagepng($img, $png);
-	imagedestroy($img);
-	clean_black_lines_inplace($png);
+	oo_tolerate_warnings(fn() => clean_black_lines_inplace($png));
 	oo_check('clean black lines', filesize($png) > 0);
 	clean_black_lines_inplace("$root/nope.png");
 	oo_write("$root/not-image.png", "no image");
@@ -285,7 +284,6 @@ $email_png = "$root/email.png";
 if (function_exists("imagecreatetruecolor")) {
 	$img = imagecreatetruecolor(2, 2);
 	imagepng($img, $email_png);
-	imagedestroy($img);
 	$embedded = embed_local_images_as_base64('<img src="email.png"><img src="https://x/y.png"><img src="missing.png">', $root);
 	oo_check('embed local image', strpos($embedded, "data:image/png;base64,") !== false);
 	oo_check('embed keeps remote image', strpos($embedded, "https://x/y.png") !== false);
@@ -1210,7 +1208,6 @@ if (function_exists("imagecreatetruecolor")) {
 	$black = imagecolorallocate($img, 0, 0, 0);
 	imagefill($img, 0, 0, $black);
 	imagepng($img, $black_png);
-	imagedestroy($img);
 	oo_tolerate_warnings(fn() => clean_black_lines_inplace($black_png));
 	oo_check('black image handled', is_file($black_png));
 }

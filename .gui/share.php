@@ -108,6 +108,7 @@
 						["$run_dir/results.csv", "Results", "tab_results"],
 						//["$run_dir/get_next_trials.csv", "Get-Next-Trials", "tab_get_next_trials", ["time", "got", "requested"]],
 					],
+					'add_tda_tab' => [["$run_dir"]],
 					'add_simple_pre_tab_from_file' => [
 						["$run_dir/oo_errors.txt", "Errors", "tab_errors", true, true],
 						["$run_dir/outfile", "Main-Log", "tab_main_log", true],

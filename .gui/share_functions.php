@@ -2875,6 +2875,26 @@
 		}
 	}
 
+	function add_tda_tab($tabs, $warnings, $run_dir) {
+		$results_csv_file = "$run_dir/results.csv";
+
+		if(!is_file($results_csv_file) || !filesize($results_csv_file)) {
+			$warnings[] = "$results_csv_file not found or empty, cannot add topological analysis tab";
+			return [$tabs, $warnings];
+		}
+
+		$svg_icon = get_icon_html("network.svg");
+		$html = "<div id='tda_root'></div>\n";
+
+		$tabs["{$svg_icon}Topology"] = [
+			'id' => 'tab_tda',
+			'content' => $html,
+			'onclick' => 'initializeTDA();'
+		];
+
+		return [$tabs, $warnings];
+	}
+
 	function add_pareto_from_from_file($tabs, $warnings, $run_dir) {
 		$pareto_front_txt_file = "$run_dir/pareto_front_table.txt";
 		$pareto_front_json_file = "$run_dir/pareto_front_data.json";

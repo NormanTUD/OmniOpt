@@ -111,6 +111,7 @@
 			<?php js("js/pareto_from_idxs.js"); ?>
 			<?php js("js/results_table.js"); ?>
 			<?php js("js/results_analysis.js"); ?>
+			<?php js("js/tda.js"); ?>
 			<?php js("js/share_functions.js"); ?>
 			<?php js("js/arm_distribution.js"); ?>
 			<?php js("js/kde_histogram.js"); ?>

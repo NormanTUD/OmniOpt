@@ -3920,3 +3920,6 @@ sitecustomize
 sitecustomizepy
 xdebug
 coveragepy
+zscore
+barcode
+minmax

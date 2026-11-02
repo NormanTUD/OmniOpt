@@ -522,6 +522,10 @@ expect("results columns: SLURM job id is technical",
 	resultsHelpers._resultsIsInterestingColumn("OO_Info_SLURM_JOB_ID", ["score"], technicalLookup), false);
 expect("results columns: program string is technical",
 	resultsHelpers._resultsIsInterestingColumn("program_string", ["score"], technicalLookup), false);
+expect("results columns: run time is interesting",
+	resultsHelpers._resultsIsInterestingColumn("run_time", ["score"], technicalLookup), true);
+expect("results columns: trial status is interesting",
+	resultsHelpers._resultsIsInterestingColumn("trial_status", ["score"], technicalLookup), true);
 expect("results columns: special column is technical",
 	resultsHelpers._resultsIsInterestingColumn("custom_meta", [], resultsHelpers._resultsTechnicalColumnLookup(["custom_meta"])), false);
 expect("results columns: minimal keeps result",

@@ -130,7 +130,7 @@ function _resultsIsInterestingColumn(header, resultNames, technicalLookup) {
 		return true;
 	}
 
-	if (header === "trial_index") {
+	if (header === "trial_index" || header === "run_time" || header === "trial_status") {
 		return true;
 	}
 

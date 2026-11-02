@@ -448,11 +448,20 @@ function createResultsTable(data, headers, table_name) {
 		exportOptions.quoteAll = storedExportOptions.quoteAll === true;
 	}
 
-	var storedColumns = readStoredJson(columnStorageKey);
+	var storedColumnState = readStoredJson(columnStorageKey);
+	var storedHiddenColumns = null;
+	var storedInterestingOnly = null;
 
-	if (Array.isArray(storedColumns)) {
+	if (Array.isArray(storedColumnState)) {
+		storedHiddenColumns = storedColumnState;
+	} else if (storedColumnState && typeof storedColumnState === "object" && Array.isArray(storedColumnState.hidden)) {
+		storedHiddenColumns = storedColumnState.hidden;
+		storedInterestingOnly = storedColumnState.interestingOnly === true;
+	}
+
+	if (storedHiddenColumns !== null) {
 		for (var sc = 0; sc < headers.length; sc++) {
-			if (storedColumns.indexOf(headers[sc]) !== -1) {
+			if (storedHiddenColumns.indexOf(headers[sc]) !== -1) {
 				state.hiddenColumns[sc] = true;
 			}
 		}
@@ -483,16 +492,24 @@ function createResultsTable(data, headers, table_name) {
 	interestingToggleButton.textContent = "Show only interesting columns";
 	toolbar.appendChild(interestingToggleButton);
 
-	var columnsControl = document.createElement("details");
+	var columnsControl = document.createElement("div");
 	columnsControl.className = "results-columns";
-	var columnsToggle = document.createElement("summary");
+	var columnsToggle = document.createElement("button");
+	columnsToggle.type = "button";
 	columnsToggle.className = "results-button results-columns-toggle";
 	columnsToggle.textContent = "Columns";
+	columnsToggle.setAttribute("aria-expanded", "false");
 	columnsControl.appendChild(columnsToggle);
 
 	var columnsPanel = document.createElement("div");
 	columnsPanel.className = "results-columns-panel";
+	columnsPanel.hidden = true;
 	columnsControl.appendChild(columnsPanel);
+
+	columnsToggle.addEventListener("click", function () {
+		columnsPanel.hidden = !columnsPanel.hidden;
+		columnsToggle.setAttribute("aria-expanded", columnsPanel.hidden ? "false" : "true");
+	});
 
 	var columnsActions = document.createElement("div");
 	columnsActions.className = "results-columns-actions";
@@ -536,16 +553,24 @@ function createResultsTable(data, headers, table_name) {
 
 	toolbar.appendChild(columnsControl);
 
-	var exportOptionsControl = document.createElement("details");
+	var exportOptionsControl = document.createElement("div");
 	exportOptionsControl.className = "results-export-options";
-	var exportOptionsToggle = document.createElement("summary");
+	var exportOptionsToggle = document.createElement("button");
+	exportOptionsToggle.type = "button";
 	exportOptionsToggle.className = "results-button results-export-options-toggle";
 	exportOptionsToggle.textContent = "Export options";
+	exportOptionsToggle.setAttribute("aria-expanded", "false");
 	exportOptionsControl.appendChild(exportOptionsToggle);
 
 	var exportOptionsPanel = document.createElement("div");
 	exportOptionsPanel.className = "results-export-options-panel";
+	exportOptionsPanel.hidden = true;
 	exportOptionsControl.appendChild(exportOptionsPanel);
+
+	exportOptionsToggle.addEventListener("click", function () {
+		exportOptionsPanel.hidden = !exportOptionsPanel.hidden;
+		exportOptionsToggle.setAttribute("aria-expanded", exportOptionsPanel.hidden ? "false" : "true");
+	});
 
 	var exportOptionsList = document.createElement("div");
 	exportOptionsList.className = "results-export-options-list";
@@ -709,7 +734,10 @@ function createResultsTable(data, headers, table_name) {
 			}
 		}
 
-		writeStoredJson(columnStorageKey, hidden);
+		writeStoredJson(columnStorageKey, {
+			hidden: hidden,
+			interestingOnly: state.interestingOnly
+		});
 	}
 
 	function selectionMatchesInteresting() {
@@ -945,6 +973,18 @@ function createResultsTable(data, headers, table_name) {
 	minimalButton.addEventListener("click", setMinimalColumnsOnly);
 	showAllButton.addEventListener("click", showAllColumns);
 
+	document.addEventListener("click", function (event) {
+		if (!columnsPanel.hidden && !columnsControl.contains(event.target)) {
+			columnsPanel.hidden = true;
+			columnsToggle.setAttribute("aria-expanded", "false");
+		}
+
+		if (!exportOptionsPanel.hidden && !exportOptionsControl.contains(event.target)) {
+			exportOptionsPanel.hidden = true;
+			exportOptionsToggle.setAttribute("aria-expanded", "false");
+		}
+	});
+
 	copyButton.addEventListener("click", function () {
 		copy_to_clipboard(exportCsvRows(data));
 	});
@@ -979,7 +1019,7 @@ function createResultsTable(data, headers, table_name) {
 		downloadCsv(rows);
 	});
 
-	state.interestingOnly = selectionMatchesInteresting();
+	state.interestingOnly = storedInterestingOnly !== null ? storedInterestingOnly : selectionMatchesInteresting();
 	applyColumnVisibility();
 	updateView();
 	renderWindow(true);

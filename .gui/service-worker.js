@@ -1,7 +1,7 @@
 "use strict";
 
 const CACHE_PREFIX = "omniopt-pwa-";
-const CACHE_NAME = CACHE_PREFIX + "v1";
+const CACHE_NAME = CACHE_PREFIX + "v2";
 const OFFLINE_PAGE = "offline.html";
 const PRECACHE_LIST = "offline_assets.php";
 
@@ -252,7 +252,12 @@ self.addEventListener("fetch", function (event) {
 	}
 
 	if (isStaticAsset(url)) {
-		event.respondWith(staleWhileRevalidate(request));
+		if (/\.(?:js|css|webmanifest)$/i.test(url.pathname)) {
+			event.respondWith(networkFirst(request));
+		} else {
+			event.respondWith(staleWhileRevalidate(request));
+		}
+
 		return;
 	}
 

@@ -32,6 +32,10 @@ def build_parser() -> argparse.ArgumentParser:
         "--keep-venvs", action="store_true",
         help="Do not delete the virtualenvs after the test.",
     )
+    parser.add_argument(
+        "--run_with_coverage", action="store_true",
+        help="Measure the installed OmniOpt package with coverage.",
+    )
 
     parser.add_argument(
         "--install-types", nargs="+", default=["omniopt", "git"],
@@ -91,6 +95,32 @@ def run(cmd, env, debug, desc=None):
     if debug:
         print(f"[cmd] {desc or 'subprocess.run'}: " + " ".join(shlex.quote(str(a)) for a in cmd))
     return subprocess.run(cmd, env=env)
+
+
+def _coverage_ready(venv_dir: Path, env: dict) -> bool:
+    probe = subprocess.run(
+        [str(venv_dir / "bin" / "python"), "-c", "import coverage"],
+        env=env,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        check=False,
+    )
+    return probe.returncode == 0
+
+
+def _coverage_env(env: dict) -> dict:
+    """Return *env* with coverage subprocess measurement enabled."""
+    from _framework import coverage_utils
+
+    result = dict(env)
+    result["RUN_WITH_COVERAGE"] = "1"
+    result["COVERAGE_PROCESS_START"] = str(REPO_ROOT / ".coveragerc")
+    result["PYTHONPATH"] = str(coverage_utils.BOOTSTRAP_DIR) + (
+        os.pathsep + os.environ["PYTHONPATH"] if os.environ.get("PYTHONPATH") else ""
+    )
+    if os.environ.get("COVERAGE_FILE"):
+        result["COVERAGE_FILE"] = os.environ["COVERAGE_FILE"]
+    return result
 
 
 def build_omniopt_cmd(omniopt_bin, args) -> list:
@@ -161,8 +191,15 @@ def main(argv=None) -> int:
         else:
             run([pip, "install", args.pip_package], env=env, debug=args.debug, desc="pip install pypi")
 
+        if args.run_with_coverage:
+            if not _coverage_ready(venv_dir, env):
+                run([pip, "install", "coverage"], env=env, debug=args.debug, desc="pip install coverage")
+            run_env = _coverage_env(env)
+        else:
+            run_env = env
+
         omniopt_bin = str(venv_dir / "bin" / "omniopt")
-        proc = run([omniopt_bin, "--help"], env=env, debug=args.debug, desc="omniopt --help")
+        proc = run([omniopt_bin, "--help"], env=run_env, debug=args.debug, desc="omniopt --help")
         if proc.returncode != 0:
             print(f"omniopt --help exited with {proc.returncode}")
             overall_ok = False
@@ -170,7 +207,7 @@ def main(argv=None) -> int:
                 shutil.rmtree(venv_dir)
             continue
 
-        proc2 = run(build_omniopt_cmd(omniopt_bin, args), env=env, debug=args.debug, desc="omniopt main")
+        proc2 = run(build_omniopt_cmd(omniopt_bin, args), env=run_env, debug=args.debug, desc="omniopt main")
         if proc2.returncode != 0:
             print(f"omniopt-main-script exited with {proc2.returncode}")
             overall_ok = False

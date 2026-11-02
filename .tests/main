@@ -15,7 +15,6 @@ tag/filter system for combining test suites:
 from __future__ import annotations
 
 import os
-import re
 import sys
 import time
 from pathlib import Path
@@ -155,22 +154,20 @@ def _print_test_list(tests) -> None:
 
 
 def _setup_coverage_env() -> None:
-    """Honour --run_with_coverage: rewrite ``python3`` commands to run under
-    coverage and measure every venv subprocess (incl. ``./omniopt`` re-execs)
-    via ``COVERAGE_PROCESS_START`` + the repo's ``.coveragerc``."""
-    os.environ["RUN_WITH_COVERAGE"] = "1"
-    repo_root = Path(__file__).resolve().parent.parent
-    coveragerc = repo_root / ".coveragerc"
-    os.environ["COVERAGE_PROCESS_START"] = str(coveragerc)
-    bin_dir = _bootstrap_venv / "bin"
-    if bin_dir.is_dir() and str(bin_dir) not in os.environ.get("PATH", "").split(os.pathsep):
-        os.environ["PATH"] = str(bin_dir) + os.pathsep + os.environ.get("PATH", "")
+    """Honour --run_with_coverage: measure this process' Python children via
+    ``COVERAGE_PROCESS_START`` and the bootstrap ``sitecustomize``."""
+    from _framework import coverage_utils
+
+    coverage_utils.enable_subprocess_coverage(
+        repo_root=Path(__file__).resolve().parent.parent,
+        venv_dir=_bootstrap_venv,
+    )
 
 
 def _render_command_with_coverage(cmd: str) -> str:
-    """Replace ``python3 <script>`` invocations with ``coverage run -p <script>``
-    so the test scripts themselves are measured too."""
-    return re.sub(r"\bpython3(?=\s)", "coverage run -p", cmd)
+    """Coverage is enabled through the process environment, so commands stay
+    unchanged.  Kept as a small helper for readability at the call site."""
+    return cmd
 
 
 def main(argv=None) -> int:

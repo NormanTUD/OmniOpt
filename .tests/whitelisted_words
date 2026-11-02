@@ -3915,3 +3915,11 @@ maxFixture
 maxResult
 sumLeaves
 summaryText
+coveragerc
+sitecustomize
+sitecustomizepy
+xdebug
+coveragepy
+minmax
+folderSummaryCache
+runpage

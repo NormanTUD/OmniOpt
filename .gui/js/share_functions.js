@@ -580,7 +580,9 @@ function resizePlotlyCharts() {
 			Plotly.relayout(plotlyElements[i], layout);
 		}
 
-		make_text_in_parallel_plot_nicer();
+		if (typeof make_text_in_parallel_plot_nicer === "function") {
+			make_text_in_parallel_plot_nicer();
+		}
 
 		if (typeof apply_theme_based_on_system_preferences === 'function') {
 			apply_theme_based_on_system_preferences();

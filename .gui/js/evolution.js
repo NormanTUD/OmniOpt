@@ -1,6 +1,12 @@
 function plotResultEvolution() {
 	if ($("#plotResultEvolution").data("loaded") === "true") return;
 
+	let evolutionPlotDiv = document.getElementById("plotResultEvolution");
+
+	if (evolutionPlotDiv) {
+		evolutionPlotDiv.innerHTML = "";
+	}
+
 	result_names.forEach((resultName, idx) => {
 		let xColumnIndex = tab_results_headers_json.indexOf("trial_index");
 		let resultIndex = tab_results_headers_json.indexOf(resultName);
@@ -21,15 +27,34 @@ function plotResultEvolution() {
 		let yData = filteredData.map(d => d.y);
 
 		let linearFit = calculateLinearFit(xData, yData);
-		let loessY = loessFit(xData, yData);
+		let loessSample = sampleSeriesForFit(xData, yData, 800);
+		let loessY = loessFit(loessSample.x, loessSample.y);
 
-		plotSingleRun(subDivContainer(), xData, yData, linearFit, loessY, resultName, minOrMax);
+		plotSingleRun(subDivContainer(), xData, yData, linearFit, loessSample.x, loessY, resultName, minOrMax);
 	});
 
 	$("#plotResultEvolution").data("loaded", "true");
 }
 
 // ------------------- Helper Functions -------------------
+
+function sampleSeriesForFit(x, y, maxPoints) {
+	if (x.length <= maxPoints) {
+		return { x: x, y: y };
+	}
+
+	const sampledX = new Array(maxPoints);
+	const sampledY = new Array(maxPoints);
+	const stride = x.length / maxPoints;
+
+	for (let i = 0; i < maxPoints; i++) {
+		const index = Math.floor(i * stride);
+		sampledX[i] = x[index];
+		sampledY[i] = y[index];
+	}
+
+	return { x: sampledX, y: sampledY };
+}
 
 function calculateLinearFit(x, y) {
 	let N = x.length;
@@ -84,7 +109,7 @@ function subDivContainer() {
 	return subDiv;
 }
 
-function plotSingleRun(subDiv, xData, yData, linearFit, loessY, resultName, minOrMax) {
+function plotSingleRun(subDiv, xData, yData, linearFit, loessX, loessY, resultName, minOrMax) {
 	let traceData = {
 		x: xData,
 		y: yData,
@@ -103,7 +128,7 @@ function plotSingleRun(subDiv, xData, yData, linearFit, loessY, resultName, minO
 	};
 
 	let traceLoess = {
-		x: xData,
+		x: loessX,
 		y: loessY,
 		mode: 'lines',
 		name: resultName + ' LOESS',

@@ -31,15 +31,41 @@ function plotKdeHistogram() {
 		return colorScale[binIdx % colorScale.length];
 	}
 
-	let numericColumns = tab_results_headers_json.filter(col => {
-		if (special_col_names.includes(col) || result_names.includes(col)) return false;
-		if (col.toLowerCase().startsWith("oo_info_")) return false;
-		let idx = tab_results_headers_json.indexOf(col);
-		return tab_results_csv_json.every(row => {
-			let v = parseFloat(row[idx]);
-			return !isNaN(v) && isFinite(v);
-		});
-	});
+	const headers = tab_results_headers_json;
+	const rows = tab_results_csv_json;
+	const headerIndex = new Map();
+	const specialSet = new Set(special_col_names);
+	const resultSet = new Set(result_names);
+
+	for (let i = 0; i < headers.length; i++) {
+		headerIndex.set(headers[i], i);
+	}
+
+	let numericColumns = [];
+
+	for (let c = 0; c < headers.length; c++) {
+		const col = headers[c];
+
+		if (specialSet.has(col) || resultSet.has(col) || col.toLowerCase().startsWith("oo_info_")) {
+			continue;
+		}
+
+		const idx = headerIndex.get(col);
+		let isNumeric = true;
+
+		for (let r = 0; r < rows.length; r++) {
+			const v = parseFloat(rows[r][idx]);
+
+			if (isNaN(v) || !isFinite(v)) {
+				isNumeric = false;
+				break;
+			}
+		}
+
+		if (isNumeric) {
+			numericColumns.push(col);
+		}
+	}
 
 	if (numericColumns.length < 1) {
 		console.error("Not enough numeric parameter columns for KDE histogram");
@@ -47,34 +73,58 @@ function plotKdeHistogram() {
 	}
 
 	let plotDiv = document.getElementById("plotKdeHistogram");
-	plotDiv.innerHTML = "";
+	let subDivIndex = 0;
 
 	numericColumns.forEach(col => {
-		let colIdx = tab_results_headers_json.indexOf(col);
-		let colData = tab_results_csv_json.map(row => parseFloat(row[colIdx]));
-		let validPairs = tab_results_csv_json
-			.map(row => ({ param: parseFloat(row[colIdx]), result: parseFloat(row[resultIndex]) }))
-			.filter(p => !isNaN(p.param) && !isNaN(p.result));
+		let colIdx = headers.indexOf(col);
+		let validPairs = [];
+
+		for (let r = 0; r < rows.length; r++) {
+			const param = parseFloat(rows[r][colIdx]);
+			const result = parseFloat(rows[r][resultIndex]);
+
+			if (!isNaN(param) && !isNaN(result)) {
+				validPairs.push({ param: param, result: result });
+			}
+		}
 
 		if (validPairs.length < 2) return;
 
-		let pMin = Math.min(...validPairs.map(p => p.param));
-		let pMax = Math.max(...validPairs.map(p => p.param));
+		let pMin = Infinity;
+		let pMax = -Infinity;
+		let bins = new Array(numBins);
+
+		for (let b = 0; b < numBins; b++) {
+			bins[b] = [];
+		}
+
+		for (let i = 0; i < validPairs.length; i++) {
+			const pair = validPairs[i];
+			if (pair.param < pMin) pMin = pair.param;
+			if (pair.param > pMax) pMax = pair.param;
+			bins[getResultBin(pair.result)].push(pair.param);
+		}
+
 		let pBinCount = Math.min(20, Math.max(5, Math.ceil(Math.sqrt(validPairs.length))));
 		let pBinWidth = (pMax - pMin) / pBinCount;
 		if (pBinWidth === 0) return;
 
-		let subDiv = document.createElement("div");
-		plotDiv.appendChild(subDiv);
+		let subDiv = plotDiv.children[subDivIndex];
+
+		if (!subDiv) {
+			subDiv = document.createElement("div");
+			plotDiv.appendChild(subDiv);
+		}
+
+		subDivIndex++;
 
 		let traces = [];
 		for (let b = 0; b < numBins; b++) {
-			let binLabel = (rMin + b * binWidth).toFixed(2) + " - " + (rMin + (b + 1) * binWidth).toFixed(2);
-			let binValues = validPairs
-				.filter(p => getResultBin(p.result) === b)
-				.map(p => p.param);
+			let binValues = bins[b];
 
 			if (binValues.length === 0) continue;
+
+			let binLabel = (rMin + b * binWidth).toFixed(2) + " - " + (rMin + (b + 1) * binWidth).toFixed(2);
 
 			traces.push({
 				x: binValues,
@@ -98,8 +148,16 @@ function plotKdeHistogram() {
 			legend: { font: get_font_data() }
 		};
 
-		Plotly.newPlot(subDiv, traces, add_default_layout_data(layout));
+		if (typeof Plotly.react === "function" && subDiv.classList.contains("js-plotly-plot")) {
+			Plotly.react(subDiv, traces, add_default_layout_data(layout));
+		} else {
+			Plotly.newPlot(subDiv, traces, add_default_layout_data(layout));
+		}
 	});
+
+	while (plotDiv.children.length > subDivIndex) {
+		plotDiv.removeChild(plotDiv.lastChild);
+	}
 
 	$("#plotKdeHistogram").data("loaded", "true");
 }

@@ -40,6 +40,7 @@ _OMNIOPT_HASHTAG = "OMNIOPT_BOOTSTRAPPED"
 _OMNIOPT_MODULES_LOADED = "OMNIOPT_HPC_MODULES_LOADED"
 # Module strings whose env we've already injected into os.environ (in order).
 _OMNIOPT_MODULE_ENV_LOADED: list = []
+_OMNIOPT_SHOWN_NO_SQUEUE_WARNING: bool = False
 
 # ---------------------------------------------------------------------------
 # Debug logging.
@@ -5142,9 +5143,10 @@ def log_nr_of_workers() -> None:
 
     nr_current_workers, nr_current_workers_errmsg = count_jobs_in_squeue()
 
-    if not nr_current_workers or nr_current_workers_errmsg:
+    if (not nr_current_workers or nr_current_workers_errmsg) and _OMNIOPT_SHOWN_NO_SQUEUE_WARNING:
         if nr_current_workers_errmsg:
             print_debug(f"log_nr_of_workers: {nr_current_workers_errmsg}")
+            _OMNIOPT_SHOWN_NO_SQUEUE_WARNING = True
         else:
             print_debug("log_nr_of_workers: nr_current_workers is False")
         return None

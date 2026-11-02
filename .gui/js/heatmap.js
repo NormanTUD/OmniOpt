@@ -27,25 +27,51 @@ function pearsonCorrelation(x, y) {
 function plotHeatmap() {
 	if ($("#plotHeatmap").data("loaded") === "true") return;
 
-	let numericColumns = tab_results_headers_json.filter(col => {
-		if (special_col_names.includes(col) || result_names.includes(col)) return false;
-		if (col.toLowerCase().startsWith("oo_info_")) return false;
-		let idx = tab_results_headers_json.indexOf(col);
-		return tab_results_csv_json.every(row => {
-			let v = parseFloat(row[idx]);
-			return !isNaN(v) && isFinite(v);
-		});
-	});
+	const headers = tab_results_headers_json;
+	const rows = tab_results_csv_json;
+	const headerIndex = new Map();
+	const specialSet = new Set(special_col_names);
+	const resultSet = new Set(result_names);
+
+	for (let i = 0; i < headers.length; i++) {
+		headerIndex.set(headers[i], i);
+	}
+
+	let numericColumns = [];
+	let columnData = [];
+
+	for (let c = 0; c < headers.length; c++) {
+		const col = headers[c];
+
+		if (specialSet.has(col) || resultSet.has(col) || col.toLowerCase().startsWith("oo_info_")) {
+			continue;
+		}
+
+		const idx = headerIndex.get(col);
+		const values = new Array(rows.length);
+		let isNumeric = true;
+
+		for (let r = 0; r < rows.length; r++) {
+			const v = parseFloat(rows[r][idx]);
+
+			if (isNaN(v) || !isFinite(v)) {
+				isNumeric = false;
+				break;
+			}
+
+			values[r] = v;
+		}
+
+		if (isNumeric) {
+			numericColumns.push(col);
+			columnData.push(values);
+		}
+	}
 
 	if (numericColumns.length < 2) {
 		console.error("Not enough valid numeric columns for Heatmap");
 		return;
 	}
-
-	let columnData = numericColumns.map(col => {
-		let idx = tab_results_headers_json.indexOf(col);
-		return tab_results_csv_json.map(row => parseFloat(row[idx]));
-	});
 
 	let dataMatrix = numericColumns.map((_, i) =>
 		numericColumns.map((_, j) => {
@@ -86,8 +112,12 @@ function plotHeatmap() {
 	};
 
 	let plotDiv = document.getElementById("plotHeatmap");
-	plotDiv.innerHTML = "";
 
-	Plotly.newPlot(plotDiv, [trace], add_default_layout_data(layout));
+	if (typeof Plotly.react === "function" && plotDiv.classList.contains("js-plotly-plot")) {
+		Plotly.react(plotDiv, [trace], add_default_layout_data(layout));
+	} else {
+		Plotly.newPlot(plotDiv, [trace], add_default_layout_data(layout));
+	}
+
 	$("#plotHeatmap").data("loaded", "true");
 }

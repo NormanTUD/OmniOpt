@@ -319,6 +319,7 @@
 			if (!button) {
 				button = createTabButton(tab);
 				bindLiveTabButton(button);
+				menu.appendChild(button);
 			} else {
 				if (button.innerHTML !== tab.name) {
 					button.innerHTML = tab.name;
@@ -333,12 +334,13 @@
 				}
 			}
 
-			menu.appendChild(button);
+			existingButtons.set(tab.id, button);
 
 			var panel = existingPanels.get(tab.id);
 
 			if (!panel) {
 				panel = createTabPanel(tab);
+				section.appendChild(panel);
 			} else {
 				var contentChanged = tab.content_hash && panel.dataset.shareContentHash !== tab.content_hash;
 
@@ -349,20 +351,48 @@
 			}
 
 			clearCachedPlotFlags(panel);
-			section.appendChild(panel);
+			existingPanels.set(tab.id, panel);
 		});
 
 		existingButtons.forEach(function (button, id) {
 			if (!wantedIds.has(id)) {
 				button.remove();
+				existingButtons.delete(id);
 			}
 		});
 
 		existingPanels.forEach(function (panel, id) {
 			if (!wantedIds.has(id)) {
 				panel.remove();
+				existingPanels.delete(id);
 			}
 		});
+
+		var desiredButtonOrder = liveTabs.map(function (tab) { return tab.id; }).filter(function (id) {
+			return existingButtons.has(id);
+		});
+		var currentButtonOrder = directTabs(menu).map(function (button) {
+			return button.getAttribute("aria-controls");
+		});
+
+		if (currentButtonOrder.join("\n") !== desiredButtonOrder.join("\n")) {
+			desiredButtonOrder.forEach(function (id) {
+				menu.appendChild(existingButtons.get(id));
+			});
+		}
+
+		var desiredPanelOrder = liveTabs.map(function (tab) { return tab.id; }).filter(function (id) {
+			return existingPanels.has(id);
+		});
+		var currentPanelOrder = directPanels(section).map(function (panel) {
+			return panel.id;
+		});
+
+		if (currentPanelOrder.join("\n") !== desiredPanelOrder.join("\n")) {
+			desiredPanelOrder.forEach(function (id) {
+				section.appendChild(existingPanels.get(id));
+			});
+		}
 
 		var activeButton = directTabs(menu).find(function (button) {
 			return button.getAttribute("aria-controls") === view.activeId;
@@ -583,6 +613,13 @@
 		if (liveEnabled) {
 			schedulePoll(300);
 		}
+	}
+
+	if (debugEnabled) {
+		window.__share_live_force_refresh = function () {
+			forceRefreshOnce = true;
+			return poll();
+		};
 	}
 
 	if (document.readyState === "complete") {

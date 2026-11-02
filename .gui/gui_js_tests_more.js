@@ -549,6 +549,29 @@ expect("results csv string: quote all",
 	resultsHelpers._resultsCsvString(["a", "b"], [[1, 2]], { delimiter: ",", includeHeader: true, quoteAll: true }),
 	"\"a\",\"b\"\n\"1\",\"2\"");
 
+// --- Group: parallel plot default result selection ---
+console.log("\n--- Testing: parallel plot default result selection ---");
+{
+	function parallel_default_result_selection(resultNames, previousResult) {
+		if (previousResult && previousResult !== "none") return previousResult;
+		if (Array.isArray(resultNames) && resultNames.length === 1) return resultNames[0];
+		return previousResult || "none";
+	}
+
+	expect("parallel: single result is selected automatically",
+		parallel_default_result_selection(["RESULT"], "none"), "RESULT");
+	expect("parallel: single result overrides missing previous value",
+		parallel_default_result_selection(["RESULT"], null), "RESULT");
+	expect("parallel: previous explicit result is preserved",
+		parallel_default_result_selection(["A", "B"], "B"), "B");
+	expect("parallel: multiple results without previous value stay uncolored",
+		parallel_default_result_selection(["A", "B"], null), "none");
+	expect("parallel: none stays none with multiple results",
+		parallel_default_result_selection(["A", "B"], "none"), "none");
+	expect("parallel: no results stays none",
+		parallel_default_result_selection([], null), "none");
+}
+
 // ============================================================
 // SUMMARY
 // ============================================================

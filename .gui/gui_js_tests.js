@@ -1122,6 +1122,64 @@ console.log("\n--- Testing: glyph normalization + token boundaries ---");
 	expect_true("boundary: '5' in '[−10,5]' ok", _is_number_boundary("−10,5", 4, 1));
 }
 
+// --- Group: time picker conversion ---
+console.log("\n--- Testing: time picker conversion ---");
+{
+	function time_picker_max_hours(max_minutes) {
+		var max = parseInt(max_minutes, 10);
+		if (isNaN(max) || max <= 0) return 99999;
+		return Math.ceil(max / 60);
+	}
+
+	function time_picker_parts_from_minutes(total_minutes, max_minutes) {
+		var minutes = parseInt(total_minutes, 10);
+		var max = parseInt(max_minutes, 10);
+		if (isNaN(minutes) || minutes < 0) minutes = 0;
+		if (!isNaN(max) && max > 0 && minutes > max) minutes = max;
+		return { hours: Math.floor(minutes / 60), minutes: minutes % 60, totalMinutes: minutes };
+	}
+
+	function time_picker_parts_from_hours_and_minutes(hours, minutes, max_minutes) {
+		var normalizedHours = parseInt(hours, 10);
+		var normalizedMinutes = parseInt(minutes, 10);
+		var max = parseInt(max_minutes, 10);
+		if (isNaN(normalizedHours) || normalizedHours < 0) normalizedHours = 0;
+		if (isNaN(normalizedMinutes)) normalizedMinutes = 0;
+		if (normalizedMinutes < 0) {
+			if (normalizedHours > 0) { normalizedHours -= 1; normalizedMinutes += 60; }
+			else normalizedMinutes = 0;
+		}
+		if (normalizedMinutes >= 60) {
+			normalizedHours += Math.floor(normalizedMinutes / 60);
+			normalizedMinutes = normalizedMinutes % 60;
+		}
+		var totalMinutes = normalizedHours * 60 + normalizedMinutes;
+		if (!isNaN(max) && max > 0 && totalMinutes > max) totalMinutes = max;
+		return { hours: Math.floor(totalMinutes / 60), minutes: totalMinutes % 60, totalMinutes: totalMinutes };
+	}
+
+	expect("time picker: max hours comes from partition max, not hardcoded 159",
+		time_picker_max_hours(13440), 224);
+	expect("time picker: 60 minutes -> 1h 0m",
+		time_picker_parts_from_minutes(60, 13440), { hours: 1, minutes: 0, totalMinutes: 60 });
+	expect("time picker: 1200 minutes -> 20h 0m",
+		time_picker_parts_from_minutes(1200, 13440), { hours: 20, minutes: 0, totalMinutes: 1200 });
+	expect("time picker: 9540 minutes -> 159h 0m",
+		time_picker_parts_from_minutes(9540, 13440), { hours: 159, minutes: 0, totalMinutes: 9540 });
+	expect("time picker: values above partition max are clamped",
+		time_picker_parts_from_minutes(999999, 13440), { hours: 224, minutes: 0, totalMinutes: 13440 });
+	expect("time picker: 20h 0m -> 1200 minutes",
+		time_picker_parts_from_hours_and_minutes(20, 0, 13440), { hours: 20, minutes: 0, totalMinutes: 1200 });
+	expect("time picker: minute overflow rolls into hours",
+		time_picker_parts_from_hours_and_minutes(1, 75, 13440), { hours: 2, minutes: 15, totalMinutes: 135 });
+	expect("time picker: negative minutes roll back one hour",
+		time_picker_parts_from_hours_and_minutes(1, -1, 13440), { hours: 0, minutes: 59, totalMinutes: 59 });
+	expect("time picker: hours above max are clamped",
+		time_picker_parts_from_hours_and_minutes(999, 0, 13440), { hours: 224, minutes: 0, totalMinutes: 13440 });
+	expect("time picker: invalid input becomes zero",
+		time_picker_parts_from_hours_and_minutes("abc", "xyz", 13440), { hours: 0, minutes: 0, totalMinutes: 0 });
+}
+
 // ============================================================
 // SUMMARY
 // ============================================================

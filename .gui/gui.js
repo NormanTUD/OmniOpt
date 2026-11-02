@@ -60,6 +60,75 @@ var shown_operation_insecure_without_server = false;
 
 var l = typeof log === "function" ? log : console.log;
 
+function time_picker_max_hours (max_minutes) {
+	var max = parseInt(max_minutes, 10);
+
+	if (isNaN(max) || max <= 0) {
+		return 99999;
+	}
+
+	return Math.ceil(max / 60);
+}
+
+function time_picker_parts_from_minutes (total_minutes, max_minutes) {
+	var minutes = parseInt(total_minutes, 10);
+	var max = parseInt(max_minutes, 10);
+
+	if (isNaN(minutes) || minutes < 0) {
+		minutes = 0;
+	}
+
+	if (!isNaN(max) && max > 0 && minutes > max) {
+		minutes = max;
+	}
+
+	return {
+		hours: Math.floor(minutes / 60),
+		minutes: minutes % 60,
+		totalMinutes: minutes
+	};
+}
+
+function time_picker_parts_from_hours_and_minutes (hours, minutes, max_minutes) {
+	var normalizedHours = parseInt(hours, 10);
+	var normalizedMinutes = parseInt(minutes, 10);
+	var max = parseInt(max_minutes, 10);
+
+	if (isNaN(normalizedHours) || normalizedHours < 0) {
+		normalizedHours = 0;
+	}
+
+	if (isNaN(normalizedMinutes)) {
+		normalizedMinutes = 0;
+	}
+
+	if (normalizedMinutes < 0) {
+		if (normalizedHours > 0) {
+			normalizedHours -= 1;
+			normalizedMinutes += 60;
+		} else {
+			normalizedMinutes = 0;
+		}
+	}
+
+	if (normalizedMinutes >= 60) {
+		normalizedHours += Math.floor(normalizedMinutes / 60);
+		normalizedMinutes = normalizedMinutes % 60;
+	}
+
+	var totalMinutes = normalizedHours * 60 + normalizedMinutes;
+
+	if (!isNaN(max) && max > 0 && totalMinutes > max) {
+		totalMinutes = max;
+	}
+
+	return {
+		hours: Math.floor(totalMinutes / 60),
+		minutes: totalMinutes % 60,
+		totalMinutes: totalMinutes
+	};
+}
+
 function input_to_time_picker (input_id) {
 	var $input = $("#" + input_id);
 	var $parent = $($input).parent();
@@ -73,19 +142,14 @@ function input_to_time_picker (input_id) {
 		return;
 	}
 
-	var minutes = $input.val();
-	var _hours = 0;
-	var _minutes = 0;
-
-	if (minutes) {
-		_hours = Math.floor(minutes / 60);
-		_minutes = minutes % 60;
-	}
+	var maxMinutes = $input.attr("max");
+	var maxHours = time_picker_max_hours(maxMinutes);
+	var parts = time_picker_parts_from_minutes($input.val(), maxMinutes);
 
 	var $div = $(`
 		    <div class='time_picker_container'>
-			<input type='number' min=-1 max=159 class="time_picker_hours" value='${_hours}' onchange='update_original_time_element("${input_id}", this)'></input> Hours,
-			<input type='number' min=-1 step=31 class="time_picker_minutes" value='${_minutes}' onchange='update_original_time_element("${input_id}", this)'></input> Minutes
+			<input type='number' min=0 max=${maxHours} class="time_picker_hours" value='${parts.hours}' onchange='update_original_time_element("${input_id}", this)'></input> Hours,
+			<input type='number' min=0 max=59 step=1 class="time_picker_minutes" value='${parts.minutes}' onchange='update_original_time_element("${input_id}", this)'></input> Minutes
 		    </div>
 		`);
 
@@ -98,37 +162,16 @@ function update_original_time_element (original_element_id, new_element) {
 	var $parent = $(new_element).parent();
 	var $time_picker_minutes = $parent.find(".time_picker_minutes");
 	var $time_picker_hours = $parent.find(".time_picker_hours");
+	var $original = $("#" + original_element_id);
+	var parts = time_picker_parts_from_hours_and_minutes(
+		$time_picker_hours.val(),
+		$time_picker_minutes.val(),
+		$original.attr("max")
+	);
 
-	var _minutes = parseInt($time_picker_minutes.val());
-	var _hours = parseInt($time_picker_hours.val());
-
-	if (_minutes == -1) {
-		if (_hours > 0) {
-			_hours = _hours - 1;
-			_minutes = 55;
-		} else {
-			_hours = 0;
-			_minutes = 5;
-		}
-	} else if (_minutes >= 60) {
-		_hours = _hours + 1;
-		_minutes = 0;
-	}
-
-	if (_hours == -1) {
-		if (_hours > 1) {
-			_hours = _hours - 1;
-		} else {
-			_hours = 0;
-		}
-	}
-
-	$time_picker_hours.val(_hours);
-	$time_picker_minutes.val(_minutes);
-
-	var new_val = (parseInt(_hours) * 60) + parseInt(_minutes);
-
-	$("#" + original_element_id).val(new_val).trigger("change");
+	$time_picker_hours.val(parts.hours);
+	$time_picker_minutes.val(parts.minutes);
+	$original.val(parts.totalMinutes).trigger("change");
 }
 
 function highlight_bash (code) {

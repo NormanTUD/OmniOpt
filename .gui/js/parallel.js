@@ -25,6 +25,18 @@ function parallel_move_oo_info_first(headers, dataArray) {
 	};
 }
 
+function parallel_default_result_selection(resultNames, previousResult) {
+	if (previousResult && previousResult !== "none") {
+		return previousResult;
+	}
+
+	if (Array.isArray(resultNames) && resultNames.length === 1) {
+		return resultNames[0];
+	}
+
+	return previousResult || "none";
+}
+
 function parallel_capture_ui_state() {
 	const state = {
 		columns: {},
@@ -223,13 +235,13 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [],
 			parallel_handle_color_change(this, numericalCols, dataArray, resultNames, colorValuesRef, updatePlot);
 		});
 
-		if (previousUiState && previousUiState.result && previousUiState.result !== "none") {
-			resultSelect.val(previousUiState.result);
-		} else if (resultNames.length === 1) {
-			resultSelect.val(resultNames[0]);
-		}
+		var defaultResultSelection = parallel_default_result_selection(
+			resultNames,
+			previousUiState ? previousUiState.result : null
+		);
+		resultSelect.val(defaultResultSelection);
 
-		if (resultSelect.val() !== "none") {
+		if (defaultResultSelection !== "none") {
 			resultSelect.trigger("change");
 		}
 

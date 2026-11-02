@@ -1,4 +1,4 @@
-function plotKdeHistogram() {
+async function plotKdeHistogram() {
 	if ($("#plotKdeHistogram").data("loaded") === "true") return;
 
 	let resultIndex = tab_results_headers_json.indexOf(result_names[0]);
@@ -74,8 +74,12 @@ function plotKdeHistogram() {
 
 	let plotDiv = document.getElementById("plotKdeHistogram");
 	let subDivIndex = 0;
+	window.__kdeRenderToken = (window.__kdeRenderToken || 0) + 1;
+	const renderToken = window.__kdeRenderToken;
 
-	numericColumns.forEach(col => {
+	for (const col of numericColumns) {
+		if (renderToken !== window.__kdeRenderToken) return;
+
 		let colIdx = headers.indexOf(col);
 		let validPairs = [];
 
@@ -88,7 +92,20 @@ function plotKdeHistogram() {
 			}
 		}
 
-		if (validPairs.length < 2) return;
+		if (validPairs.length < 2) continue;
+
+		const maxKdePoints = 3000;
+
+		if (validPairs.length > maxKdePoints) {
+			const sampledPairs = new Array(maxKdePoints);
+			const stride = validPairs.length / maxKdePoints;
+
+			for (let i = 0; i < maxKdePoints; i++) {
+				sampledPairs[i] = validPairs[Math.floor(i * stride)];
+			}
+
+			validPairs = sampledPairs;
+		}
 
 		let pMin = Infinity;
 		let pMax = -Infinity;
@@ -107,7 +124,7 @@ function plotKdeHistogram() {
 
 		let pBinCount = Math.min(20, Math.max(5, Math.ceil(Math.sqrt(validPairs.length))));
 		let pBinWidth = (pMax - pMin) / pBinCount;
-		if (pBinWidth === 0) return;
+		if (pBinWidth === 0) continue;
 
 		let subDiv = plotDiv.children[subDivIndex];
 
@@ -137,7 +154,7 @@ function plotKdeHistogram() {
 			});
 		}
 
-		if (traces.length === 0) return;
+		if (traces.length === 0) continue;
 
 		let layout = {
 			title: col + " (colored by " + result_names[0] + " range)",
@@ -149,11 +166,15 @@ function plotKdeHistogram() {
 		};
 
 		if (typeof Plotly.react === "function" && subDiv.classList.contains("js-plotly-plot")) {
-			Plotly.react(subDiv, traces, add_default_layout_data(layout));
+			await Plotly.react(subDiv, traces, add_default_layout_data(layout));
 		} else {
-			Plotly.newPlot(subDiv, traces, add_default_layout_data(layout));
+			await Plotly.newPlot(subDiv, traces, add_default_layout_data(layout));
 		}
-	});
+
+		await new Promise(resolve => setTimeout(resolve, 0));
+	}
+
+	if (renderToken !== window.__kdeRenderToken) return;
 
 	while (plotDiv.children.length > subDivIndex) {
 		plotDiv.removeChild(plotDiv.lastChild);

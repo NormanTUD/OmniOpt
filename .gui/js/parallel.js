@@ -223,11 +223,13 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [],
 			parallel_handle_color_change(this, numericalCols, dataArray, resultNames, colorValuesRef, updatePlot);
 		});
 
-		if (previousUiState && previousUiState.result) {
+		if (previousUiState && previousUiState.result && previousUiState.result !== "none") {
 			resultSelect.val(previousUiState.result);
+		} else if (resultNames.length === 1) {
+			resultSelect.val(resultNames[0]);
 		}
 
-		if (resultNames.length === 1 || (previousUiState && previousUiState.result)) {
+		if (resultSelect.val() !== "none") {
 			resultSelect.trigger("change");
 		}
 

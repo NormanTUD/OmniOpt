@@ -1,0 +1,43 @@
+{
+	"name": "OmniOpt2",
+	"short_name": "OmniOpt2",
+	"description": "Hyperparameter optimization GUI, documentation and share pages, available offline.",
+	"id": "./",
+	"start_url": "./index.php",
+	"scope": "./",
+	"display": "standalone",
+	"orientation": "any",
+	"background_color": "#ffffff",
+	"theme_color": "#00015a",
+	"icons": [
+		{
+			"src": "icons/icon-192.png",
+			"sizes": "192x192",
+			"type": "image/png",
+			"purpose": "any maskable"
+		},
+		{
+			"src": "icons/icon-512.png",
+			"sizes": "512x512",
+			"type": "image/png",
+			"purpose": "any maskable"
+		}
+	],
+	"shortcuts": [
+		{
+			"name": "GUI",
+			"short_name": "GUI",
+			"url": "./gui.php"
+		},
+		{
+			"name": "Documentation",
+			"short_name": "Docs",
+			"url": "./tutorials.php"
+		},
+		{
+			"name": "Share",
+			"short_name": "Share",
+			"url": "./share.php"
+		}
+	]
+}

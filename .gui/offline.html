@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="theme-color" content="#00015a">
+		<title>OmniOpt2 - Offline</title>
+		<link rel="icon" type="image/x-icon" href="favicon.ico">
+		<link rel="manifest" href="manifest.webmanifest">
+		<style>
+			* { box-sizing: border-box; }
+			body {
+				margin: 0;
+				min-height: 100vh;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				background: #ece9d8;
+				color: #111;
+				font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+				padding: 24px;
+			}
+			main {
+				max-width: 560px;
+				background: #fff;
+				border: 2px solid #00015a;
+				box-shadow: 8px 8px 0 #00015a;
+				padding: 28px;
+			}
+			img {
+				display: block;
+				max-width: 280px;
+				width: 100%;
+				margin-bottom: 24px;
+			}
+			h1 { margin-top: 0; }
+			p { line-height: 1.5; }
+			.actions {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 10px;
+				margin-top: 24px;
+			}
+			a {
+				display: inline-block;
+				padding: 8px 12px;
+				background: #00015a;
+				color: #fff;
+				text-decoration: none;
+				font-weight: bold;
+			}
+			a.secondary {
+				background: #fff;
+				color: #00015a;
+				border: 2px solid #00015a;
+			}
+			@media (prefers-color-scheme: dark) {
+				body { background: #1e1e1e; color: #fff; }
+				main { background: #2a2a2a; }
+			}
+		</style>
+	</head>
+	<body>
+		<main>
+			<img src="new_logo.svg" alt="OmniOpt2">
+			<h1>You are offline</h1>
+			<p>This page has not been saved locally yet. Pages, documentation and shares that you opened while online are available offline.</p>
+			<div class="actions">
+				<a href="index.php">Go to start page</a>
+				<a class="secondary" href="tutorials.php">Open documentation</a>
+			</div>
+		</main>
+	</body>
+</html>

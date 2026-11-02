@@ -68,6 +68,15 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>OmniOpt2</title>
+		<?php
+			$pwa_base = preg_replace("/\/+/", "/", rtrim(get_main_script_dir(), "/") . "/");
+		?>
+		<link rel="manifest" href="<?php print htmlspecialchars($pwa_base); ?>manifest.webmanifest">
+		<meta name="theme-color" content="#00015a">
+		<meta name="application-name" content="OmniOpt2">
+		<meta name="apple-mobile-web-app-title" content="OmniOpt2">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<link rel="apple-touch-icon" href="<?php print htmlspecialchars($pwa_base); ?>icons/apple-touch-icon.png">
 		<link href="prism.css" rel="stylesheet">
 		<link rel="icon" type="image/x-icon" href="favicon.ico">
 		<?php js("libs/jquery-3.7.1.js"); ?>
@@ -175,6 +184,17 @@
 			}
 
 			document.addEventListener('keydown', handle_key_down);
+		</script>
+		<script>
+			if ("serviceWorker" in navigator) {
+				window.addEventListener("load", function () {
+					navigator.serviceWorker.register("<?php print htmlspecialchars($pwa_base); ?>service-worker.js", {
+						scope: "<?php print htmlspecialchars($pwa_base); ?>"
+					}).catch(function (error) {
+						console.error("Service worker registration failed:", error);
+					});
+				});
+			}
 		</script>
 		<script id="MathJax-script" async src="libs/tex-mml-chtml.js"></script>
 	</head>

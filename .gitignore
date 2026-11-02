@@ -229,3 +229,8 @@ coverage-report/
 .php-coverage/
 .js-coverage/
 coverage
+
+# Progressive Web App assets
+!.gui/offline.html
+!.gui/icons/
+!.gui/icons/*.png

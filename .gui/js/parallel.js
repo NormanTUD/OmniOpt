@@ -25,6 +25,104 @@ function parallel_move_oo_info_first(headers, dataArray) {
 	};
 }
 
+function parallel_capture_ui_state() {
+	const state = {
+		columns: {},
+		min: {},
+		max: {},
+		result: null,
+		brushes: null
+	};
+
+	const checkboxes = document.querySelectorAll('#parallel-plot-controls input[type="checkbox"][id^="chk_"]');
+
+	if (checkboxes.length === 0) {
+		return null;
+	}
+
+	checkboxes.forEach(function (checkbox) {
+		state.columns[checkbox.id.substring(4)] = checkbox.checked;
+	});
+
+	document.querySelectorAll('#parallel-plot-controls input[type="number"][id^="min_"]').forEach(function (input) {
+		state.min[input.id.substring(4)] = input.value;
+	});
+
+	document.querySelectorAll('#parallel-plot-controls input[type="number"][id^="max_"]').forEach(function (input) {
+		state.max[input.id.substring(4)] = input.value;
+	});
+
+	const resultSelect = document.getElementById("result-select");
+
+	if (resultSelect) {
+		state.result = resultSelect.value;
+	}
+
+	if (window.__parallel_plot_state && window.__parallel_plot_state.brushes) {
+		state.brushes = Object.assign({}, window.__parallel_plot_state.brushes);
+	}
+
+	return state;
+}
+
+function parallel_apply_ui_state(state, columnVisibility, minMaxLimits, brushes, resultSelect) {
+	if (!state) {
+		return;
+	}
+
+	Object.keys(state.columns).forEach(function (name) {
+		if (Object.prototype.hasOwnProperty.call(columnVisibility, name)) {
+			columnVisibility[name] = state.columns[name];
+		}
+
+		const checkbox = document.getElementById("chk_" + name);
+
+		if (checkbox) {
+			checkbox.checked = state.columns[name];
+		}
+	});
+
+	Object.keys(state.min).forEach(function (name) {
+		if (minMaxLimits[name]) {
+			const value = parseFloat(state.min[name]);
+			minMaxLimits[name].min = isNaN(value) ? null : value;
+		}
+
+		const input = document.getElementById("min_" + name);
+
+		if (input) {
+			input.value = state.min[name];
+		}
+	});
+
+	Object.keys(state.max).forEach(function (name) {
+		if (minMaxLimits[name]) {
+			const value = parseFloat(state.max[name]);
+			minMaxLimits[name].max = isNaN(value) ? null : value;
+		}
+
+		const input = document.getElementById("max_" + name);
+
+		if (input) {
+			input.value = state.max[name];
+		}
+	});
+
+	if (state.result && resultSelect && resultSelect.find('option[value="' + state.result + '"]').length) {
+		resultSelect.val(state.result);
+	}
+
+	if (state.brushes) {
+		Object.keys(brushes).forEach(function (key) {
+			delete brushes[key];
+		});
+
+		Object.keys(state.brushes).forEach(function (key) {
+			brushes[key] = state.brushes[key];
+		});
+	}
+}
+
 function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [], reload = false) {
 	try {
 		if ($("#parallel-plot").data("loaded") === "true" && !reload) {
@@ -33,6 +131,8 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [],
 
 		dataArray = filterNonEmptyRows(dataArray);
 		({ headers, dataArray } = parallel_move_oo_info_first(headers, dataArray));
+
+		const previousUiState = parallel_capture_ui_state();
 
 		const ignoreSet = new Set(ignoreColumns);
 		const enable_slurm_id_if_exists = $("#enable_slurm_id_if_exists").is(":checked");
@@ -100,6 +200,8 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [],
 
 		const brushes = {};
 
+		parallel_apply_ui_state(previousUiState, columnVisibility, minMaxLimits, brushes, resultSelect);
+
 		let _rafId = null;
 		function updatePlot() {
 			if (_rafId) cancelAnimationFrame(_rafId);
@@ -121,9 +223,23 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [],
 			parallel_handle_color_change(this, numericalCols, dataArray, resultNames, colorValuesRef, updatePlot);
 		});
 
-		if (resultNames.length === 1) {
-			resultSelect.val(resultNames[0]).trigger("change");
+		if (previousUiState && previousUiState.result) {
+			resultSelect.val(previousUiState.result);
 		}
+
+		if (resultNames.length === 1 || (previousUiState && previousUiState.result)) {
+			resultSelect.trigger("change");
+		}
+
+		window.__parallel_plot_state = {
+			brushes: brushes,
+			columnVisibility: columnVisibility,
+			minMaxLimits: minMaxLimits,
+			numericalCols: numericalCols,
+			categoricalCols: categoricalCols,
+			resultSelect: resultSelect,
+			updatePlot: updatePlot
+		};
 
 		updatePlot();
 		$("#parallel-plot").data("loaded", "true");

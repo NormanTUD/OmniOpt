@@ -4,6 +4,26 @@ function plotScatter2d() {
 	}
 
 	var plotDiv = document.getElementById("plotScatter2d");
+	var previousComboState = null;
+	var previousComboCheckboxes = plotDiv.querySelectorAll("#scatter2d_comboList input[type='checkbox'][data-combo-key]");
+
+	if (previousComboCheckboxes.length > 0) {
+		previousComboState = {
+			selectedKeys: new Set(),
+			minValue: (plotDiv.querySelector("#scatter2d_minValue") || {}).value || "",
+			maxValue: (plotDiv.querySelector("#scatter2d_maxValue") || {}).value || "",
+			result: (plotDiv.querySelector("#scatter2d_resultSelect") || {}).value || "",
+			filter: (plotDiv.querySelector("#scatter2d_filterInput") || {}).value || "",
+			open: (plotDiv.querySelector("#scatter2d_comboDetails") || {}).open !== false
+		};
+
+		previousComboCheckboxes.forEach(function (checkbox) {
+			if (checkbox.checked) {
+				previousComboState.selectedKeys.add(checkbox.dataset.comboKey);
+			}
+		});
+	}
+
 	plotDiv.innerHTML = "";
 
 	var controlsDiv = document.createElement("div");
@@ -44,6 +64,7 @@ function plotScatter2d() {
 	}
 
 	var comboDetails = document.createElement("details");
+	comboDetails.id = "scatter2d_comboDetails";
 	comboDetails.open = true;
 	comboDetails.style.marginBottom = "10px";
 
@@ -58,6 +79,7 @@ function plotScatter2d() {
 	comboButtons.style.margin = "8px 0";
 
 	var filterInput = document.createElement("input");
+	filterInput.id = "scatter2d_filterInput";
 	filterInput.type = "search";
 	filterInput.placeholder = "Filter combinations...";
 	filterInput.style.width = "100%";
@@ -65,6 +87,7 @@ function plotScatter2d() {
 	filterInput.style.marginBottom = "8px";
 
 	var comboList = document.createElement("div");
+	comboList.id = "scatter2d_comboList";
 	comboList.style.maxHeight = "260px";
 	comboList.style.overflowY = "auto";
 	comboList.style.border = "1px solid #bbb";
@@ -127,6 +150,24 @@ function plotScatter2d() {
 
 	var defaultKeys = combos.filter(combo => combo.includesResult).map(combo => combo.key);
 	var selectedKeys = new Set(defaultKeys);
+
+	if (previousComboState) {
+		var validKeys = new Set(combos.map(combo => combo.key));
+		selectedKeys = new Set(Array.from(previousComboState.selectedKeys).filter(key => validKeys.has(key)));
+
+		if (selectedKeys.size === 0) {
+			selectedKeys = new Set(defaultKeys);
+		}
+
+		minInput.value = previousComboState.minValue;
+		maxInput.value = previousComboState.maxValue;
+		filterInput.value = previousComboState.filter;
+		comboDetails.open = previousComboState.open;
+
+		if (resultSelect && previousComboState.result) {
+			resultSelect.value = previousComboState.result;
+		}
+	}
 	var checkboxes = {};
 	var updateTimer = null;
 	var updateToken = 0;
@@ -162,6 +203,7 @@ function plotScatter2d() {
 
 			var checkbox = document.createElement("input");
 			checkbox.type = "checkbox";
+			checkbox.dataset.comboKey = combo.key;
 			checkbox.checked = selectedKeys.has(combo.key);
 			checkbox.addEventListener("change", () => {
 				if (checkbox.checked) {
@@ -239,11 +281,10 @@ function plotScatter2d() {
 		if (isNaN(minValue)) minValue = -Infinity;
 		if (isNaN(maxValue)) maxValue = Infinity;
 
-		clearPlotsContainer();
-
 		var selectedResult = getSelectedResult();
 		var resultIndex = getResultIndex(selectedResult);
 		if (resultIndex < 0) {
+			clearPlotsContainer();
 			plotsContainer.textContent = "No result column selected.";
 			return;
 		}
@@ -252,6 +293,7 @@ function plotScatter2d() {
 			.map(row => parseFloat(row[resultIndex]))
 			.filter(value => !isNaN(value));
 		if (resultValues.length === 0) {
+			clearPlotsContainer();
 			plotsContainer.textContent = "No numeric result values available.";
 			return;
 		}
@@ -266,9 +308,12 @@ function plotScatter2d() {
 		var combosToPlot = combos.filter(combo => selectedKeys.has(combo.key));
 
 		if (combosToPlot.length === 0) {
+			clearPlotsContainer();
 			plotsContainer.textContent = "Select at least one combination to display.";
 			return;
 		}
+
+		var comboPlotIndex = 0;
 
 		for (const combo of combosToPlot) {
 			if (token !== updateToken) {
@@ -330,11 +375,38 @@ function plotScatter2d() {
 				showlegend: false
 			};
 
-			var subDiv = document.createElement("div");
-			plotsContainer.appendChild(subDiv);
-			await Plotly.newPlot(subDiv, [trace], add_default_layout_data(layout));
+			var subDiv = plotsContainer.children[comboPlotIndex];
+
+			if (!subDiv) {
+				subDiv = document.createElement("div");
+				plotsContainer.appendChild(subDiv);
+			}
+
+			comboPlotIndex++;
+
+			if (typeof Plotly.react === "function") {
+				await Plotly.react(subDiv, [trace], add_default_layout_data(layout));
+			} else {
+				await Plotly.newPlot(subDiv, [trace], add_default_layout_data(layout));
+			}
+		}
+
+		while (plotsContainer.children.length > comboPlotIndex) {
+			plotsContainer.removeChild(plotsContainer.lastChild);
 		}
 	}
+
+	window.__scatter2d_refresh = function () {
+		var validKeys = new Set(combos.map(combo => combo.key));
+		selectedKeys = new Set(Array.from(selectedKeys).filter(key => validKeys.has(key)));
+
+		if (selectedKeys.size === 0) {
+			selectedKeys = new Set(defaultKeys);
+		}
+
+		renderComboList();
+		updatePlots();
+	};
 
 	$("#plotScatter2d").data("loaded", "true");
 }

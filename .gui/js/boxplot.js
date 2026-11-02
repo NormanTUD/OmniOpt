@@ -2,43 +2,103 @@ function plotBoxplot() {
 	if ($("#plotBoxplot").data("loaded") == "true") {
 		return;
 	}
-	var numericColumns = tab_results_headers_json.filter(col =>
-		!special_col_names.includes(col) && !result_names.includes(col) &&
-		!col.startsWith("OO_Info") &&
-		tab_results_csv_json.every(row => !isNaN(parseFloat(row[tab_results_headers_json.indexOf(col)])))
-	);
+
+	var headers = tab_results_headers_json;
+	var rows = tab_results_csv_json;
+	var headerIndex = new Map();
+
+	for (var i = 0; i < headers.length; i++) {
+		headerIndex.set(headers[i], i);
+	}
+
+	var specialSet = new Set(special_col_names);
+	var resultSet = new Set(result_names);
+	var numericColumns = [];
+
+	for (var c = 0; c < headers.length; c++) {
+		var col = headers[c];
+
+		if (specialSet.has(col) || resultSet.has(col) || col.startsWith("OO_Info")) {
+			continue;
+		}
+
+		var colIndex = headerIndex.get(col);
+		var columnData = new Array(rows.length);
+		var isNumeric = true;
+
+		for (var r = 0; r < rows.length; r++) {
+			var value = parseFloat(rows[r][colIndex]);
+
+			if (isNaN(value)) {
+				isNumeric = false;
+				break;
+			}
+
+			columnData[r] = value;
+		}
+
+		if (isNumeric) {
+			numericColumns.push({
+				name: col,
+				index: colIndex,
+				data: columnData
+			});
+		}
+	}
 
 	if (numericColumns.length < 1) {
 		console.error("Not enough numeric columns for Boxplot");
 		return;
 	}
 
-	var resultIndex = tab_results_headers_json.findIndex(function(header) {
-		return result_names.includes(header.toLowerCase());
+	var lowerResultNames = result_names.map(function (name) {
+		return String(name).toLowerCase();
 	});
-	var resultValues = tab_results_csv_json.map(row => row[resultIndex]);
-	var minResult = Math.min(...resultValues.filter(value => value !== null && value !== ""));
-	var maxResult = Math.max(...resultValues.filter(value => value !== null && value !== ""));
+	var resultIndex = headers.findIndex(function (header) {
+		return result_names.indexOf(header) !== -1 || lowerResultNames.indexOf(String(header).toLowerCase()) !== -1;
+	});
+
+	if (resultIndex < 0) {
+		console.error("No result column found for Boxplot");
+		return;
+	}
+
+	var resultValues = rows
+		.map(function (row) { return parseFloat(row[resultIndex]); })
+		.filter(function (value) { return !isNaN(value); });
+	var minResult = Math.min.apply(null, resultValues);
+	var maxResult = Math.max.apply(null, resultValues);
 
 	var plotDiv = document.getElementById("plotBoxplot");
-	plotDiv.innerHTML = "";
+	var maxBoxplotPoints = 3000;
 
-	let traces = numericColumns.map(col => {
-		let index = tab_results_headers_json.indexOf(col);
-		let data = tab_results_csv_json.map(row => parseFloat(row[index]));
+	var traces = numericColumns.map(function (column) {
+		var values = column.data;
+
+		if (values.length > maxBoxplotPoints) {
+			var sampled = new Array(maxBoxplotPoints);
+			var stride = values.length / maxBoxplotPoints;
+
+			for (var s = 0; s < maxBoxplotPoints; s++) {
+				sampled[s] = values[Math.floor(s * stride)];
+			}
+
+			values = sampled;
+		}
 
 		return {
-			y: data,
+			y: values,
 			type: 'box',
-			name: col,
+			name: column.name,
 			boxmean: 'sd',
+			boxpoints: false,
 			marker: {
 				color: 'rgb(0, 255, 0)'
 			},
 		};
 	});
 
-	let layout = {
+	var layout = {
 		title: 'Boxplot of Numerical Columns',
 		xaxis: {
 			title: get_axis_title_data("Columns")
@@ -49,7 +109,11 @@ function plotBoxplot() {
 		showlegend: false
 	};
 
-	Plotly.newPlot(plotDiv, traces, add_default_layout_data(layout));
+	if (typeof Plotly.react === "function" && plotDiv.classList.contains("js-plotly-plot")) {
+		Plotly.react(plotDiv, traces, add_default_layout_data(layout));
+	} else {
+		Plotly.newPlot(plotDiv, traces, add_default_layout_data(layout));
+	}
+
 	$("#plotBoxplot").data("loaded", "true");
 }
-

@@ -177,6 +177,24 @@ select {
 	border: 1px solid black;
 }
 
+.share-live-toggle {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	margin: 6px 0 10px;
+	padding: 4px 8px;
+	background: #ece9d8;
+	border: 1px solid #919b9c;
+	color: #000;
+	cursor: pointer;
+}
+
+body.dark-mode .share-live-toggle {
+	background: #2a2a2a;
+	color: #fff;
+	border-color: #666;
+}
+
 .results-toolbar {
 	display: flex;
 	flex-wrap: wrap;

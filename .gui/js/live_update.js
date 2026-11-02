@@ -10,10 +10,54 @@
 	var pollIntervalMs = typeof window.SHARE_LIVE_POLL_MS === "number"
 		? window.SHARE_LIVE_POLL_MS
 		: 2500;
+	var debugEnabled = new URL(window.location.href).searchParams.get("live_debug") === "1";
+	var liveEnabledStorageKey = "omniopt-share-live-updates-enabled";
 	var currentVersion = null;
 	var pollTimer = null;
 	var updating = false;
 	var pending = false;
+	var liveEnabled = true;
+	var forceRefreshOnce = false;
+
+	function readLiveEnabled() {
+		try {
+			var value = window.localStorage.getItem(liveEnabledStorageKey);
+			return value === null ? true : value === "1";
+		} catch (error) {
+			return true;
+		}
+	}
+
+	function saveLiveEnabled(value) {
+		try {
+			window.localStorage.setItem(liveEnabledStorageKey, value ? "1" : "0");
+		} catch (error) {
+			// Storage can be unavailable in restricted contexts.
+		}
+	}
+
+	function debugLog(message) {
+		if (!debugEnabled) {
+			return;
+		}
+
+		var element = document.getElementById("share-live-debug");
+
+		if (!element) {
+			element = document.createElement("pre");
+			element.id = "share-live-debug";
+			element.style.display = "none";
+			document.body.appendChild(element);
+		}
+
+		element.textContent += message + "\n";
+	}
+
+	function debugDuration(label, startTime) {
+		if (debugEnabled) {
+			debugLog(label + ": " + (performance.now() - startTime).toFixed(1) + "ms");
+		}
+	}
 
 	function buildLiveUrl(parameter, value) {
 		var url = new URL(window.location.href);
@@ -24,6 +68,15 @@
 	}
 
 	function schedulePoll(delay) {
+		if (!liveEnabled) {
+			if (pollTimer !== null) {
+				clearTimeout(pollTimer);
+				pollTimer = null;
+			}
+
+			return;
+		}
+
 		if (pollTimer !== null) {
 			clearTimeout(pollTimer);
 		}
@@ -151,6 +204,7 @@
 		panel.setAttribute("role", "tabpanel");
 		panel.id = tab.id;
 		panel.hidden = true;
+		panel.dataset.shareContentHash = tab.content_hash || "";
 		panel.innerHTML = tab.content || "";
 		return panel;
 	}
@@ -285,8 +339,13 @@
 
 			if (!panel) {
 				panel = createTabPanel(tab);
-			} else if ((tab.id === "tab_results" && resultsChanged) || panel.innerHTML !== (tab.content || "")) {
-				panel.innerHTML = tab.content || "";
+			} else {
+				var contentChanged = tab.content_hash && panel.dataset.shareContentHash !== tab.content_hash;
+
+				if ((tab.id === "tab_results" && resultsChanged) || contentChanged) {
+					panel.innerHTML = tab.content || "";
+					panel.dataset.shareContentHash = tab.content_hash || "";
+				}
 			}
 
 			clearCachedPlotFlags(panel);
@@ -303,12 +362,6 @@
 			if (!wantedIds.has(id)) {
 				panel.remove();
 			}
-		});
-
-		directPanels(section).forEach(function (panel) {
-			panel.querySelectorAll("pre[data-log-file]").forEach(function (pre) {
-				delete pre.dataset.loaded;
-			});
 		});
 
 		var activeButton = directTabs(menu).find(function (button) {
@@ -341,16 +394,51 @@
 
 		activePanel.hidden = false;
 
+		var lazyStart = performance.now();
+
 		if (typeof load_lazy_panel === "function") {
 			load_lazy_panel(activePanel);
 		}
 
-		if (activeButton.getAttribute("onclick")) {
+		debugDuration("load_lazy_panel", lazyStart);
+
+		var activeTabId = activeButton.getAttribute("aria-controls");
+		var liveRefresher = null;
+
+		if (activeTabId === "tab_scatter_2d" && typeof window.__scatter2d_refresh === "function") {
+			liveRefresher = window.__scatter2d_refresh;
+		} else if (activeTabId === "tab_scatter_3d" && typeof window.__scatter3d_refresh === "function") {
+			liveRefresher = window.__scatter3d_refresh;
+		}
+
+		if (liveRefresher) {
+			var refreshStart = performance.now();
+
+			try {
+				liveRefresher();
+			} catch (error) {
+				console.error("Live update could not refresh the active plot:", error);
+			}
+
+			debugDuration("active plot refresh", refreshStart);
+
+			if (window.jQuery) {
+				if (activeTabId === "tab_scatter_2d") {
+					window.jQuery("#plotScatter2d").data("loaded", "true");
+				} else if (activeTabId === "tab_scatter_3d") {
+					window.jQuery("#plotScatter3d").data("loaded", "true");
+				}
+			}
+		} else if (activeButton.getAttribute("onclick")) {
+			var plotStart = performance.now();
+
 			try {
 				activeButton.onclick();
 			} catch (error) {
 				console.error("Live update could not refresh the active plot:", error);
 			}
+
+			debugDuration("active plot render", plotStart);
 		}
 
 		restoreViewState(view);
@@ -360,18 +448,25 @@
 	async function refreshLiveData(newVersion) {
 		updating = true;
 		var view = captureViewState();
+		var refreshStart = performance.now();
 
 		try {
+			var fetchStart = performance.now();
 			var liveState = await fetchJson(buildLiveUrl("live_state", "1"));
+			debugDuration("live_state fetch+parse", fetchStart);
 
-			if (!liveState || !Array.isArray(liveState.tabs)) {
+			if (!liveEnabled || !liveState || !Array.isArray(liveState.tabs)) {
 				return;
 			}
 
 			var resultsChanged = !liveState.results_version ||
 				liveState.results_version !== window.share_live_results_version;
 
+			var globalsStart = performance.now();
 			updateGlobals(liveState);
+			debugDuration("update globals", globalsStart);
+
+			var reconcileStart = performance.now();
 
 			if (reconcileTabs(liveState.tabs, view, resultsChanged)) {
 				currentVersion = liveState.version || newVersion;
@@ -380,9 +475,12 @@
 					window.share_live_results_version = liveState.results_version;
 				}
 			}
+
+			debugDuration("reconcile tabs", reconcileStart);
 		} catch (error) {
 			console.error("Live update failed:", error);
 		} finally {
+			debugDuration("refresh total", refreshStart);
 			updating = false;
 
 			if (pending) {
@@ -394,6 +492,10 @@
 
 	async function poll() {
 		pollTimer = null;
+
+		if (!liveEnabled) {
+			return;
+		}
 
 		if (document.visibilityState === "hidden") {
 			schedulePoll();
@@ -409,16 +511,47 @@
 		try {
 			var versionData = await fetchJson(buildLiveUrl("live_version", "1"));
 
-			if (currentVersion === null) {
+			if (!liveEnabled) {
+				return;
+			}
+
+			if (currentVersion === null && !forceRefreshOnce) {
 				currentVersion = versionData.version || "";
-			} else if (versionData.version && versionData.version !== currentVersion) {
+			} else if (forceRefreshOnce || (versionData.version && versionData.version !== currentVersion)) {
+				forceRefreshOnce = false;
 				await refreshLiveData(versionData.version);
 			}
 		} catch (error) {
 			// Network hiccups should never disturb the already visible page.
 		}
 
-		schedulePoll();
+		if (liveEnabled) {
+			schedulePoll();
+		}
+	}
+
+	function setLiveEnabled(value, persist) {
+		liveEnabled = value === true;
+
+		if (persist) {
+			saveLiveEnabled(liveEnabled);
+		}
+
+		var toggle = document.getElementById("share_live_update_enabled");
+
+		if (toggle) {
+			toggle.checked = liveEnabled;
+		}
+
+		if (liveEnabled) {
+			forceRefreshOnce = true;
+			schedulePoll(0);
+		} else {
+			if (pollTimer !== null) {
+				clearTimeout(pollTimer);
+				pollTimer = null;
+			}
+		}
 	}
 
 	function startLiveUpdates() {
@@ -436,7 +569,20 @@
 			return;
 		}
 
-		schedulePoll(300);
+		liveEnabled = readLiveEnabled();
+
+		var toggle = document.getElementById("share_live_update_enabled");
+
+		if (toggle) {
+			toggle.checked = liveEnabled;
+			toggle.addEventListener("change", function () {
+				setLiveEnabled(toggle.checked, true);
+			});
+		}
+
+		if (liveEnabled) {
+			schedulePoll(300);
+		}
 	}
 
 	if (document.readyState === "complete") {

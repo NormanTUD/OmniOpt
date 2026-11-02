@@ -371,6 +371,7 @@
 							"name" => $tab_name,
 							"id" => $tab_data["id"] ?? "",
 							"content" => $tab_data["content"] ?? "",
+							"content_hash" => hash("sha256", $tab_data["content"] ?? ""),
 							"onclick" => $tab_data["onclick"] ?? null
 						];
 					}
@@ -629,6 +630,11 @@
 		}
 ?>
 
+		<label class="share-live-toggle" for="share_live_update_enabled">
+			<input type="checkbox" id="share_live_update_enabled" checked>
+			Live updates
+		</label>
+
 		<br>
 		<div id="spinner" class="spinner"></div>
 
@@ -674,8 +680,9 @@
 
 <?php
 						foreach ($tabs as $tab_name => $tab_data) {
-							echo '<article role="tabpanel" id="' . $tab_data['id'] . '" ' . ($tab_name === 'General Info' ? '' : 'hidden') . ">\n";
-							echo $tab_data['content'];
+							$tab_content = $tab_data['content'] ?? "";
+							echo '<article role="tabpanel" id="' . $tab_data['id'] . '" data-share-content-hash="' . hash("sha256", $tab_content) . '" ' . ($tab_name === 'General Info' ? '' : 'hidden') . ">\n";
+							echo $tab_content;
 							echo "</article>\n";
 						}
 ?>

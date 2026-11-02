@@ -1,3 +1,27 @@
+function parallel_move_oo_info_first(headers, dataArray) {
+	const ooInfoIndices = [];
+	const otherIndices = [];
+
+	headers.forEach((header, index) => {
+		if (typeof header === "string" && header.indexOf("OO_Info_") === 0) {
+			ooInfoIndices.push(index);
+		} else {
+			otherIndices.push(index);
+		}
+	});
+
+	if (ooInfoIndices.length === 0) {
+		return { headers: headers, dataArray: dataArray };
+	}
+
+	const order = ooInfoIndices.concat(otherIndices);
+
+	return {
+		headers: order.map(index => headers[index]),
+		dataArray: dataArray.map(row => order.map(index => row[index]))
+	};
+}
+
 function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [], reload = false) {
 	try {
 		if ($("#parallel-plot").data("loaded") === "true" && !reload) {
@@ -5,6 +29,7 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [],
 		}
 
 		dataArray = filterNonEmptyRows(dataArray);
+		({ headers, dataArray } = parallel_move_oo_info_first(headers, dataArray));
 
 		const ignoreSet = new Set(ignoreColumns);
 		const enable_slurm_id_if_exists = $("#enable_slurm_id_if_exists").is(":checked");

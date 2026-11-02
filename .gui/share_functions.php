@@ -1547,7 +1547,7 @@
 				$exit_code[] = $index;
 			} else if (strpos($name, "OO_Info_") === 0) {
 				$oo_info[] = $index;
-			} else if ($name === "trial_index" || $name === "trial_status" || $name === "generation_node") {
+			} else if ($name === "trial_index") {
 				$core[$name] = $index;
 			} else if (isset($result_lookup[$name])) {
 				$results[] = $index;
@@ -1558,13 +1558,12 @@
 			}
 		}
 
-		$order = [];
-		foreach (["trial_index", "trial_status", "generation_node"] as $name) {
-			if (isset($core[$name])) {
-				$order[] = $core[$name];
-			}
+		$core_order = [];
+		if (isset($core["trial_index"])) {
+			$core_order[] = $core["trial_index"];
 		}
-		$order = array_merge($order, $results, $params, $exit_code, $rest, $oo_info);
+
+		$order = array_merge($core_order, $results, $oo_info, $params, $exit_code, $rest);
 
 		$reordered_headers = [];
 		foreach ($order as $index) {

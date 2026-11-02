@@ -157,10 +157,10 @@
 		$reorder_special
 	);
 	is_equal('reorder results columns', [
-		"trial_index", "trial_status", "generation_node", "RESULT", "a", "b",
-		"exit_code", "submit_time", "queue_time", "worker_generator_uuid",
-		"start_time", "end_time", "run_time", "program_string", "signal",
-		"hostname", "arm_name", "OO_Info_b"
+		"trial_index", "RESULT", "OO_Info_b", "a", "b", "exit_code",
+		"submit_time", "queue_time", "worker_generator_uuid", "start_time",
+		"end_time", "run_time", "program_string", "signal", "hostname",
+		"arm_name", "trial_status", "generation_node"
 	], $reordered_headers);
 	is_equal('reorder results row cells', $reordered_headers, $reordered_rows[0]);
 

@@ -304,17 +304,27 @@ function createResultsTable(data, headers, table_name) {
 	info.className = "results-info";
 	toolbar.appendChild(info);
 
+	var actions = document.createElement("div");
+	actions.className = "results-toolbar-actions";
+	toolbar.appendChild(actions);
+
 	var copyButton = document.createElement("button");
 	copyButton.type = "button";
 	copyButton.textContent = "Copy CSV";
 	copyButton.className = "results-button";
-	toolbar.appendChild(copyButton);
+	actions.appendChild(copyButton);
+
+	var copyVisibleButton = document.createElement("button");
+	copyVisibleButton.type = "button";
+	copyVisibleButton.textContent = "Copy visible CSV";
+	copyVisibleButton.className = "results-button";
+	actions.appendChild(copyVisibleButton);
 
 	var downloadButton = document.createElement("button");
 	downloadButton.type = "button";
 	downloadButton.textContent = "Download CSV";
 	downloadButton.className = "results-button";
-	toolbar.appendChild(downloadButton);
+	actions.appendChild(downloadButton);
 
 	container.appendChild(toolbar);
 
@@ -494,6 +504,14 @@ function createResultsTable(data, headers, table_name) {
 
 	copyButton.addEventListener("click", function () {
 		var csv = _resultsCsvString(headers, data);
+		copy_to_clipboard(csv);
+	});
+
+	copyVisibleButton.addEventListener("click", function () {
+		var rows = state.view.map(function (index) {
+			return data[index];
+		});
+		var csv = _resultsCsvString(headers, rows);
 		copy_to_clipboard(csv);
 	});
 

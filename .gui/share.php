@@ -168,6 +168,16 @@
 					}
 				}
 
+				if (isset($GLOBALS["json_data"]["tab_results_headers_json"]) && isset($GLOBALS["json_data"]["tab_results_csv_json"])) {
+					[$GLOBALS["json_data"]["tab_results_headers_json"], $GLOBALS["json_data"]["tab_results_csv_json"]] =
+						reorder_results_table_columns(
+							$GLOBALS["json_data"]["tab_results_headers_json"],
+							$GLOBALS["json_data"]["tab_results_csv_json"],
+							$result_names,
+							$GLOBALS["SPECIAL_COL_NAMES"]
+						);
+				}
+
 				if(count($gpu_usage_files)) {
 					$parsed_gpu_files = parse_gpu_usage_files($gpu_usage_files);
 					if(count($parsed_gpu_files)) {

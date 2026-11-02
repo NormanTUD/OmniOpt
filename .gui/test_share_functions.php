@@ -139,6 +139,31 @@
 		is_equal('remove_duplicate_log_lines test', $expected, $result);
 	}
 
+	$reorder_headers = [
+		"trial_index", "submit_time", "queue_time", "worker_generator_uuid",
+		"start_time", "end_time", "run_time", "program_string", "exit_code",
+		"signal", "hostname", "OO_Info_b", "arm_name", "trial_status",
+		"generation_node", "RESULT", "a", "b"
+	];
+	$reorder_special = [
+		"trial_index", "worker_generator_uuid", "arm_name", "trial_status",
+		"generation_node", "hostname", "run_time", "start_time", "exit_code",
+		"signal", "end_time", "program_string", "submit_time", "queue_time"
+	];
+	[$reordered_headers, $reordered_rows] = reorder_results_table_columns(
+		$reorder_headers,
+		[$reorder_headers],
+		["RESULT"],
+		$reorder_special
+	);
+	is_equal('reorder results columns', [
+		"trial_index", "trial_status", "generation_node", "RESULT", "a", "b",
+		"exit_code", "submit_time", "queue_time", "worker_generator_uuid",
+		"start_time", "end_time", "run_time", "program_string", "signal",
+		"hostname", "arm_name", "OO_Info_b"
+	], $reordered_headers);
+	is_equal('reorder results row cells', $reordered_headers, $reordered_rows[0]);
+
 	$final_errors = min(255, $nr_of_errors);
 
 	if ($final_errors > 0) {

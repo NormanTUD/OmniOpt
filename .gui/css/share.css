@@ -183,6 +183,24 @@ select {
 	gap: 8px;
 	align-items: center;
 	margin-bottom: 10px;
+	position: sticky;
+	left: 0;
+	max-width: calc(100vw - 16px);
+	box-sizing: border-box;
+	z-index: 4;
+}
+
+.results-toolbar-actions {
+	display: flex;
+	gap: 8px;
+	margin-left: auto;
+	position: sticky;
+	right: 0;
+	flex-shrink: 0;
+}
+
+.results-toolbar-actions .results-button {
+	white-space: nowrap;
 }
 
 .results-search {

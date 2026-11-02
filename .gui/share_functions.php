@@ -1241,6 +1241,58 @@
 		return implode("\n", $normalized_lines);
 	}
 
+	function reorder_results_table_columns(array $headers, array $rows, array $result_names, array $special_col_names): array {
+		$result_lookup = array_fill_keys($result_names, true);
+		$special_lookup = array_fill_keys($special_col_names, true);
+
+		$core = [];
+		$results = [];
+		$params = [];
+		$exit_code = [];
+		$rest = [];
+		$oo_info = [];
+
+		foreach ($headers as $index => $name) {
+			if ($name === "exit_code") {
+				$exit_code[] = $index;
+			} else if (strpos($name, "OO_Info_") === 0) {
+				$oo_info[] = $index;
+			} else if ($name === "trial_index" || $name === "trial_status" || $name === "generation_node") {
+				$core[$name] = $index;
+			} else if (isset($result_lookup[$name])) {
+				$results[] = $index;
+			} else if (!isset($special_lookup[$name])) {
+				$params[] = $index;
+			} else {
+				$rest[] = $index;
+			}
+		}
+
+		$order = [];
+		foreach (["trial_index", "trial_status", "generation_node"] as $name) {
+			if (isset($core[$name])) {
+				$order[] = $core[$name];
+			}
+		}
+		$order = array_merge($order, $results, $params, $exit_code, $rest, $oo_info);
+
+		$reordered_headers = [];
+		foreach ($order as $index) {
+			$reordered_headers[] = $headers[$index];
+		}
+
+		$reordered_rows = [];
+		foreach ($rows as $row) {
+			$reordered_row = [];
+			foreach ($order as $index) {
+				$reordered_row[] = array_key_exists($index, $row) ? $row[$index] : null;
+			}
+			$reordered_rows[] = $reordered_row;
+		}
+
+		return [$reordered_headers, $reordered_rows];
+	}
+
 	function add_simple_csv_tab_from_file ($tabs, $warnings, $filename, $name, $id, $header_line = null) {
 		if(is_file($filename) && filesize($filename) && has_real_char($filename) && is_ascii_or_utf8($filename)) {
 			$csv_contents = get_csv_data_as_array($filename, ",", $header_line);

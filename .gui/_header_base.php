@@ -127,6 +127,7 @@
 			<?php js("js/pareto_from_idxs.js"); ?>
 			<?php js("js/results_table.js"); ?>
 			<?php js("js/results_analysis.js"); ?>
+			<?php js("js/live_update.js"); ?>
 			<?php js("js/arm_distribution.js"); ?>
 			<?php js("js/kde_histogram.js"); ?>
 			<?php js("js/stacked_histogram.js"); ?>

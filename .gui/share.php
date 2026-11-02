@@ -87,6 +87,13 @@
 		}
 	}
 
+	if (isset($_GET["live_version"])) {
+		header("Content-Type: application/json; charset=utf-8");
+		header("Cache-Control: no-store, max-age=0");
+		echo json_encode(["version" => get_share_live_version($run_dir)]);
+		exit(0);
+	}
+
 	$share_page_cache_key = null;
 
 	if(
@@ -95,6 +102,7 @@
 		&& !isset($_GET["export"])
 		&& !isset($_GET["export_and_exit"])
 		&& !isset($_GET["filter_tabs_regex"])
+		&& !isset($_GET["live_state"])
 	) {
 		$share_page_cache_key = share_run_page_cache_key($run_dir);
 		$cached_page = share_run_page_cache_read($run_dir, $share_page_cache_key);
@@ -352,6 +360,32 @@
 				if(!count($tabs) && $user_id != "" && $experiment_name != "" && $run_nr != "") {
 					$errors[] = "Could not find plotable files";
 				}
+
+				if (isset($_GET["live_state"])) {
+					header("Content-Type: application/json; charset=utf-8");
+					header("Cache-Control: no-store, max-age=0");
+
+					$live_tabs = [];
+					foreach ($tabs as $tab_name => $tab_data) {
+						$live_tabs[] = [
+							"name" => $tab_name,
+							"id" => $tab_data["id"] ?? "",
+							"content" => $tab_data["content"] ?? "",
+							"onclick" => $tab_data["onclick"] ?? null
+						];
+					}
+
+					echo json_encode([
+						"version" => get_share_live_version($run_dir),
+						"results_version" => get_share_live_results_version($run_dir),
+						"json_data" => $GLOBALS["json_data"],
+						"result_names" => $result_names,
+						"result_min_max" => $result_min_max,
+						"special_col_names" => $GLOBALS["SPECIAL_COL_NAMES"],
+						"tabs" => $live_tabs
+					], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+					exit(0);
+				}
 			} else {
 				$errors[] = "result_names or result_min_max was empty";
 			}
@@ -467,6 +501,7 @@
 		showFullscreenSpinnerWithMessage('Loading OmniOpt2-Share...');
 
 		var special_col_names = <?php print json_encode($GLOBALS["SPECIAL_COL_NAMES"]); ?>;
+		var share_live_results_version = <?php print json_encode(get_share_live_results_version($run_dir)); ?>;
 <?php
 		if(count($GLOBALS["json_data"])) {
 			foreach ($GLOBALS["json_data"] as $json_name => $json_data) {

@@ -164,6 +164,18 @@
 	], $reordered_headers);
 	is_equal('reorder results row cells', $reordered_headers, $reordered_rows[0]);
 
+	$live_test_dir = sys_get_temp_dir() . "/oo_live_version_test_" . uniqid();
+	mkdir($live_test_dir);
+	file_put_contents("$live_test_dir/results.csv", "a");
+	$live_version_a = get_share_live_version($live_test_dir);
+	file_put_contents("$live_test_dir/results.csv", "ab");
+	clearstatcache();
+	$live_version_b = get_share_live_version($live_test_dir);
+	is_not_equal('live version changes when results change', $live_version_a, $live_version_b);
+	is_equal('live version is empty for missing directory', get_share_live_version("$live_test_dir/missing"), "");
+	unlink("$live_test_dir/results.csv");
+	rmdir($live_test_dir);
+
 	$final_errors = min(255, $nr_of_errors);
 
 	if ($final_errors > 0) {

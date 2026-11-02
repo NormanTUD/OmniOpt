@@ -384,6 +384,12 @@ function createResultsTable(data, headers, table_name) {
 	container.innerHTML = "";
 	container.classList.add("results-table-root");
 
+	var restoreState = window.__omniopt_results_restore && window.__omniopt_results_restore[table_name];
+
+	if (restoreState) {
+		delete window.__omniopt_results_restore[table_name];
+	}
+
 	var state = {
 		sortColumn: -1,
 		sortDirection: 1,
@@ -480,6 +486,12 @@ function createResultsTable(data, headers, table_name) {
 	searchInput.type = "search";
 	searchInput.placeholder = "Search results...";
 	searchInput.className = "results-search";
+
+	if (restoreState && restoreState.search) {
+		searchInput.value = restoreState.search;
+		state.search = restoreState.search;
+	}
+
 	toolbar.appendChild(searchInput);
 
 	var info = document.createElement("span");
@@ -1023,6 +1035,11 @@ function createResultsTable(data, headers, table_name) {
 	applyColumnVisibility();
 	updateView();
 	renderWindow(true);
+
+	if (restoreState && typeof restoreState.scrollTop === "number" && restoreState.scrollTop > 0) {
+		scroll.scrollTop = restoreState.scrollTop;
+		renderWindow(true);
+	}
 
 	// The panel is only just becoming visible, so the client height may still be
 	// tiny on the first synchronous render.  Re-render once layout is ready

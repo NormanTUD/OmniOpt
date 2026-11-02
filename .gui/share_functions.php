@@ -1531,6 +1531,61 @@
 		return implode("\n", $normalized_lines);
 	}
 
+	function get_share_live_results_version(string $run_dir): string {
+		$path = $run_dir . "/results.csv";
+
+		if (!is_file($path)) {
+			return "";
+		}
+
+		return (string)@filemtime($path) . ":" . (string)@filesize($path);
+	}
+
+	function get_share_live_version(string $run_dir): string {
+		if (!is_dir($run_dir)) {
+			return "";
+		}
+
+		$live_files = [
+			"results.csv",
+			"job_infos.csv",
+			"worker_usage.csv",
+			"cpu_ram_usage.csv",
+			"eval_nodes_cpu_ram_logs.txt",
+			"pareto_idxs.json",
+			"pareto_front_data.json",
+			"pareto_front_table.txt",
+			"result_names.txt",
+			"result_min_max",
+			"result_min_max.txt",
+			"best_result.txt",
+			"get_next_trials.csv",
+			"arm_evals_results.csv"
+		];
+
+		$parts = [];
+
+		foreach ($live_files as $file) {
+			$path = $run_dir . "/" . $file;
+
+			if (is_file($path)) {
+				$parts[] = $file . ":" . @filemtime($path) . ":" . @filesize($path);
+			}
+		}
+
+		$gpu_files = glob($run_dir . "/gpu_usage__*.csv");
+
+		if (is_array($gpu_files)) {
+			foreach ($gpu_files as $path) {
+				$parts[] = basename($path) . ":" . @filemtime($path) . ":" . @filesize($path);
+			}
+		}
+
+		sort($parts);
+
+		return hash("sha256", implode("|", $parts));
+	}
+
 	function reorder_results_table_columns(array $headers, array $rows, array $result_names, array $special_col_names): array {
 		$result_lookup = array_fill_keys($result_names, true);
 		$special_lookup = array_fill_keys($special_col_names, true);

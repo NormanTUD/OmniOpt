@@ -5,7 +5,7 @@ function show_main_window() {
 	document.getElementById('main_window').style.display = 'contents';
 }
 
-function initialize_tabs () {
+function initialize_tabs (preferredTabId) {
 	function setupTabs(container) {
 		if (container.dataset.tabsInitialized === "true") {
 			return;
@@ -29,14 +29,25 @@ function initialize_tabs () {
 		tabs.forEach(tab => tab.setAttribute("aria-selected", "false"));
 		tabPanels.forEach(panel => panel.hidden = true);
 
-		const firstTab = tabs[0];
-		const firstPanel = tabPanels[0];
+		let initialTab = tabs[0];
+		let initialPanel = tabPanels[0];
 
-		if (firstTab && firstPanel) {
-			firstTab.setAttribute("aria-selected", "true");
-			firstPanel.hidden = false;
+		if (preferredTabId) {
+			const preferredTab = tabs.find(function (tab) {
+				return tab.getAttribute("aria-controls") === preferredTabId;
+			});
+
+			if (preferredTab) {
+				initialTab = preferredTab;
+				initialPanel = document.getElementById(preferredTabId) || initialPanel;
+			}
+		}
+
+		if (initialTab && initialPanel) {
+			initialTab.setAttribute("aria-selected", "true");
+			initialPanel.hidden = false;
 			if (typeof load_lazy_panel === "function") {
-				load_lazy_panel(firstPanel);
+				load_lazy_panel(initialPanel);
 			}
 		}
 

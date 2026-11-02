@@ -1541,10 +1541,13 @@
 		$exit_code = [];
 		$rest = [];
 		$oo_info = [];
+		$oo_info_slurm_job_id = [];
 
 		foreach ($headers as $index => $name) {
 			if ($name === "exit_code") {
 				$exit_code[] = $index;
+			} else if ($name === "OO_Info_SLURM_JOB_ID") {
+				$oo_info_slurm_job_id[] = $index;
 			} else if (strpos($name, "OO_Info_") === 0) {
 				$oo_info[] = $index;
 			} else if ($name === "trial_index") {
@@ -1563,7 +1566,7 @@
 			$core_order[] = $core["trial_index"];
 		}
 
-		$order = array_merge($core_order, $results, $oo_info, $params, $exit_code, $rest);
+		$order = array_merge($core_order, $results, $oo_info, $params, $exit_code, $rest, $oo_info_slurm_job_id);
 
 		$reordered_headers = [];
 		foreach ($order as $index) {

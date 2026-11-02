@@ -1,20 +1,23 @@
 function parallel_move_oo_info_first(headers, dataArray) {
 	const ooInfoIndices = [];
 	const otherIndices = [];
+	const slurmJobIdIndices = [];
 
 	headers.forEach((header, index) => {
-		if (typeof header === "string" && header.indexOf("OO_Info_") === 0) {
+		if (header === "OO_Info_SLURM_JOB_ID") {
+			slurmJobIdIndices.push(index);
+		} else if (typeof header === "string" && header.indexOf("OO_Info_") === 0) {
 			ooInfoIndices.push(index);
 		} else {
 			otherIndices.push(index);
 		}
 	});
 
-	if (ooInfoIndices.length === 0) {
+	if (ooInfoIndices.length === 0 && slurmJobIdIndices.length === 0) {
 		return { headers: headers, dataArray: dataArray };
 	}
 
-	const order = ooInfoIndices.concat(otherIndices);
+	const order = ooInfoIndices.concat(otherIndices, slurmJobIdIndices);
 
 	return {
 		headers: order.map(index => headers[index]),

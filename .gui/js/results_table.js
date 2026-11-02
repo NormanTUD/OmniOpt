@@ -65,6 +65,78 @@ function _resultsCsvString(headers, rows) {
 	return lines.join("\n");
 }
 
+var _RESULTS_TECHNICAL_COLUMNS = [
+	"submit_time",
+	"queue_time",
+	"worker_generator_uuid",
+	"start_time",
+	"end_time",
+	"run_time",
+	"program_string",
+	"exit_code",
+	"signal",
+	"hostname",
+	"arm_name",
+	"trial_status",
+	"generation_node",
+	"generation_method",
+	"idxs",
+	"OO_Info_SLURM_JOB_ID"
+];
+
+function _resultsTechnicalColumnLookup(specialColumns) {
+	var lookup = Object.create(null);
+
+	for (var i = 0; i < _RESULTS_TECHNICAL_COLUMNS.length; i++) {
+		lookup[_RESULTS_TECHNICAL_COLUMNS[i]] = true;
+	}
+
+	if (Array.isArray(specialColumns)) {
+		for (var j = 0; j < specialColumns.length; j++) {
+			lookup[specialColumns[j]] = true;
+		}
+	}
+
+	return lookup;
+}
+
+function _resultsIsInterestingColumn(header, resultNames, technicalLookup) {
+	if (header === "OO_Info_SLURM_JOB_ID") {
+		return false;
+	}
+
+	if (Array.isArray(resultNames) && resultNames.indexOf(header) !== -1) {
+		return true;
+	}
+
+	if (header === "trial_index") {
+		return true;
+	}
+
+	if (String(header).indexOf("OO_Info_") === 0) {
+		return true;
+	}
+
+	return !technicalLookup[header];
+}
+
+function _resultsProjectRows(rows, indices) {
+	var projected = [];
+
+	for (var r = 0; r < rows.length; r++) {
+		var row = rows[r];
+		var projectedRow = [];
+
+		for (var c = 0; c < indices.length; c++) {
+			projectedRow.push(row[indices[c]]);
+		}
+
+		projected.push(projectedRow);
+	}
+
+	return projected;
+}
+
 function _resultsBuildColorizer(data, headers) {
 	var headerIndex = new Map();
 	for (var i = 0; i < headers.length; i++) {
@@ -280,6 +352,7 @@ function createResultsTable(data, headers, table_name) {
 		sortDirection: 1,
 		search: "",
 		externalFilter: null,
+		hiddenColumns: {},
 		view: []
 	};
 
@@ -290,6 +363,9 @@ function createResultsTable(data, headers, table_name) {
 
 	var columnKinds = _resultsColumnKinds(data, headers);
 	var colorize = _resultsBuildColorizer(data, headers);
+	var resultNames = typeof result_names !== "undefined" && Array.isArray(result_names) ? result_names : [];
+	var specialColumns = typeof special_col_names !== "undefined" && Array.isArray(special_col_names) ? special_col_names : [];
+	var technicalLookup = _resultsTechnicalColumnLookup(specialColumns);
 
 	var toolbar = document.createElement("div");
 	toolbar.className = "results-toolbar";
@@ -303,6 +379,59 @@ function createResultsTable(data, headers, table_name) {
 	var info = document.createElement("span");
 	info.className = "results-info";
 	toolbar.appendChild(info);
+
+	var columnsControl = document.createElement("details");
+	columnsControl.className = "results-columns";
+	var columnsToggle = document.createElement("summary");
+	columnsToggle.className = "results-button results-columns-toggle";
+	columnsToggle.textContent = "Columns";
+	columnsControl.appendChild(columnsToggle);
+
+	var columnsPanel = document.createElement("div");
+	columnsPanel.className = "results-columns-panel";
+	columnsControl.appendChild(columnsPanel);
+
+	var columnsActions = document.createElement("div");
+	columnsActions.className = "results-columns-actions";
+	columnsPanel.appendChild(columnsActions);
+
+	var interestingButton = document.createElement("button");
+	interestingButton.type = "button";
+	interestingButton.textContent = "Interesting only";
+	interestingButton.className = "results-button";
+	columnsActions.appendChild(interestingButton);
+
+	var showAllButton = document.createElement("button");
+	showAllButton.type = "button";
+	showAllButton.textContent = "Show all";
+	showAllButton.className = "results-button";
+	columnsActions.appendChild(showAllButton);
+
+	var columnsList = document.createElement("div");
+	columnsList.className = "results-columns-list";
+	columnsPanel.appendChild(columnsList);
+
+	var columnCheckboxes = [];
+
+	for (var hc = 0; hc < headers.length; hc++) {
+		var columnLabel = document.createElement("label");
+		columnLabel.className = "results-column-option";
+		var columnCheckbox = document.createElement("input");
+		columnCheckbox.type = "checkbox";
+		columnCheckbox.checked = true;
+		columnLabel.appendChild(columnCheckbox);
+		columnLabel.appendChild(document.createTextNode(" " + headers[hc]));
+		columnsList.appendChild(columnLabel);
+		columnCheckboxes.push(columnCheckbox);
+
+		(function (columnIndex, checkbox) {
+			checkbox.addEventListener("change", function () {
+				setColumnVisible(columnIndex, checkbox.checked);
+			});
+		})(hc, columnCheckbox);
+	}
+
+	toolbar.appendChild(columnsControl);
 
 	var actions = document.createElement("div");
 	actions.className = "results-toolbar-actions";
@@ -336,9 +465,12 @@ function createResultsTable(data, headers, table_name) {
 	var thead = document.createElement("thead");
 	var headRow = document.createElement("tr");
 	var arrows = [];
+	var headerCells = [];
 
 	for (var c = 0; c < headers.length; c++) {
 		var th = document.createElement("th");
+		th.dataset.columnId = headers[c];
+		headerCells.push(th);
 		var label = document.createElement("span");
 		label.className = "results-column-label";
 		label.textContent = headers[c];
@@ -372,14 +504,79 @@ function createResultsTable(data, headers, table_name) {
 	scroll.appendChild(table);
 	container.appendChild(scroll);
 
+	function visibleColumnIndices() {
+		var indices = [];
+
+		for (var c = 0; c < headers.length; c++) {
+			if (!state.hiddenColumns[c]) {
+				indices.push(c);
+			}
+		}
+
+		return indices;
+	}
+
 	function createSpacer(height) {
 		var tr = document.createElement("tr");
 		tr.className = "results-spacer";
 		var td = document.createElement("td");
-		td.colSpan = headers.length;
+		td.colSpan = Math.max(1, visibleColumnIndices().length);
 		td.style.height = height + "px";
 		tr.appendChild(td);
 		return tr;
+	}
+
+	function applyColumnVisibility() {
+		for (var c = 0; c < headers.length; c++) {
+			var hidden = !!state.hiddenColumns[c];
+
+			if (headerCells[c]) {
+				headerCells[c].style.display = hidden ? "none" : "";
+			}
+
+			if (columnCheckboxes[c]) {
+				columnCheckboxes[c].checked = !hidden;
+			}
+		}
+	}
+
+	function setColumnVisible(columnIndex, visible) {
+		if (visible) {
+			delete state.hiddenColumns[columnIndex];
+		} else {
+			state.hiddenColumns[columnIndex] = true;
+		}
+
+		applyColumnVisibility();
+		renderWindow(true);
+	}
+
+	function setInterestingColumnsOnly() {
+		for (var c = 0; c < headers.length; c++) {
+			if (_resultsIsInterestingColumn(headers[c], resultNames, technicalLookup)) {
+				delete state.hiddenColumns[c];
+			} else {
+				state.hiddenColumns[c] = true;
+			}
+		}
+
+		applyColumnVisibility();
+		renderWindow(true);
+	}
+
+	function showAllColumns() {
+		state.hiddenColumns = {};
+		applyColumnVisibility();
+		renderWindow(true);
+	}
+
+	function exportCsvRows(rows) {
+		var indices = visibleColumnIndices();
+		var visibleHeaders = indices.map(function (index) {
+			return headers[index];
+		});
+
+		return _resultsCsvString(visibleHeaders, _resultsProjectRows(rows, indices));
 	}
 
 	function updateView() {
@@ -458,6 +655,10 @@ function createResultsTable(data, headers, table_name) {
 			var tr = document.createElement("tr");
 			tr.className = "results-row";
 			for (var c = 0; c < headers.length; c++) {
+				if (state.hiddenColumns[c]) {
+					continue;
+				}
+
 				var td = document.createElement("td");
 				td.dataset.columnId = headers[c];
 				var value = source[c];
@@ -502,21 +703,22 @@ function createResultsTable(data, headers, table_name) {
 		}, 120);
 	});
 
+	interestingButton.addEventListener("click", setInterestingColumnsOnly);
+	showAllButton.addEventListener("click", showAllColumns);
+
 	copyButton.addEventListener("click", function () {
-		var csv = _resultsCsvString(headers, data);
-		copy_to_clipboard(csv);
+		copy_to_clipboard(exportCsvRows(data));
 	});
 
 	copyVisibleButton.addEventListener("click", function () {
 		var rows = state.view.map(function (index) {
 			return data[index];
 		});
-		var csv = _resultsCsvString(headers, rows);
-		copy_to_clipboard(csv);
+		copy_to_clipboard(exportCsvRows(rows));
 	});
 
 	downloadButton.addEventListener("click", function () {
-		var csv = _resultsCsvString(headers, data);
+		var csv = exportCsvRows(data);
 		var blob = new Blob([csv], { type: "text/csv" });
 		var link = document.createElement("a");
 		link.href = URL.createObjectURL(blob);
@@ -527,6 +729,7 @@ function createResultsTable(data, headers, table_name) {
 		URL.revokeObjectURL(link.href);
 	});
 
+	applyColumnVisibility();
 	updateView();
 	renderWindow(true);
 

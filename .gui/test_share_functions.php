@@ -142,8 +142,8 @@
 	$reorder_headers = [
 		"trial_index", "submit_time", "queue_time", "worker_generator_uuid",
 		"start_time", "end_time", "run_time", "program_string", "exit_code",
-		"signal", "hostname", "OO_Info_b", "arm_name", "trial_status",
-		"generation_node", "RESULT", "a", "b"
+		"signal", "hostname", "OO_Info_b", "OO_Info_SLURM_JOB_ID", "arm_name",
+		"trial_status", "generation_node", "RESULT", "a", "b"
 	];
 	$reorder_special = [
 		"trial_index", "worker_generator_uuid", "arm_name", "trial_status",
@@ -160,7 +160,7 @@
 		"trial_index", "RESULT", "OO_Info_b", "a", "b", "exit_code",
 		"submit_time", "queue_time", "worker_generator_uuid", "start_time",
 		"end_time", "run_time", "program_string", "signal", "hostname",
-		"arm_name", "trial_status", "generation_node"
+		"arm_name", "trial_status", "generation_node", "OO_Info_SLURM_JOB_ID"
 	], $reordered_headers);
 	is_equal('reorder results row cells', $reordered_headers, $reordered_rows[0]);
 

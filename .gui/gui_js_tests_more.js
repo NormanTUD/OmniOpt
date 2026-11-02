@@ -474,7 +474,8 @@ var fs = require("fs");
 var resultsCode = fs.readFileSync(__dirname + "/js/results_table.js", "utf8");
 var resultsHelpers = new Function(
 	resultsCode + "\nreturn {" +
-	"_resultsColumnKinds, _resultsCompareValues, _resultsCsvEscape, _resultsCsvString};"
+	"_resultsColumnKinds, _resultsCompareValues, _resultsCsvEscape, _resultsCsvString," +
+	"_resultsTechnicalColumnLookup, _resultsIsInterestingColumn, _resultsProjectRows};"
 )();
 
 expect("results column kinds: numeric columns",
@@ -507,6 +508,25 @@ expect("results csv escape: newline",
 expect("results csv string: header and rows",
 	resultsHelpers._resultsCsvString(["a", "b"], [[1, "x,y"]]),
 	"a,b\n1,\"x,y\"");
+
+var technicalLookup = resultsHelpers._resultsTechnicalColumnLookup([]);
+expect("results columns: trial index is interesting",
+	resultsHelpers._resultsIsInterestingColumn("trial_index", [], technicalLookup), true);
+expect("results columns: result name is interesting",
+	resultsHelpers._resultsIsInterestingColumn("score", ["score"], technicalLookup), true);
+expect("results columns: custom parameter is interesting",
+	resultsHelpers._resultsIsInterestingColumn("learning_rate", ["score"], technicalLookup), true);
+expect("results columns: OO_Info is interesting",
+	resultsHelpers._resultsIsInterestingColumn("OO_Info_ZEIT", ["score"], technicalLookup), true);
+expect("results columns: SLURM job id is technical",
+	resultsHelpers._resultsIsInterestingColumn("OO_Info_SLURM_JOB_ID", ["score"], technicalLookup), false);
+expect("results columns: program string is technical",
+	resultsHelpers._resultsIsInterestingColumn("program_string", ["score"], technicalLookup), false);
+expect("results columns: special column is technical",
+	resultsHelpers._resultsIsInterestingColumn("custom_meta", [], resultsHelpers._resultsTechnicalColumnLookup(["custom_meta"])), false);
+expect("results project rows: keeps only selected columns",
+	resultsHelpers._resultsProjectRows([[1, 2, 3], [4, 5, 6]], [0, 2]),
+	[[1, 3], [4, 6]]);
 
 // ============================================================
 // SUMMARY

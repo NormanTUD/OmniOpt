@@ -192,6 +192,8 @@ select {
 
 .results-toolbar-actions {
 	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-end;
 	gap: 8px;
 	margin-left: auto;
 	position: sticky;
@@ -203,11 +205,13 @@ select {
 	white-space: nowrap;
 }
 
-.results-columns {
+.results-columns,
+.results-export-options {
 	position: relative;
 }
 
-.results-columns-toggle {
+.results-columns-toggle,
+.results-export-options-toggle {
 	display: inline-block;
 	list-style: none;
 	border: 1px solid #919b9c;
@@ -216,11 +220,13 @@ select {
 	box-shadow: inset 0 2px #ffc73c;
 }
 
-.results-columns-toggle::-webkit-details-marker {
+.results-columns-toggle::-webkit-details-marker,
+.results-export-options-toggle::-webkit-details-marker {
 	display: none;
 }
 
-.results-columns-panel {
+.results-columns-panel,
+.results-export-options-panel {
 	position: absolute;
 	top: calc(100% + 4px);
 	left: 0;
@@ -249,14 +255,32 @@ select {
 	gap: 4px 12px;
 }
 
-.results-column-option {
+.results-column-option,
+.results-export-option {
 	display: flex;
 	align-items: center;
 	gap: 4px;
 	white-space: nowrap;
 }
 
-body.dark-mode .results-columns-panel {
+.results-export-options-list {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.results-export-select {
+	padding: 2px 4px;
+}
+
+.results-interesting-toggle.active {
+	background: #00015a;
+	color: #fff;
+	box-shadow: inset 0 2px #ffc73c;
+}
+
+body.dark-mode .results-columns-panel,
+body.dark-mode .results-export-options-panel {
 	background: #2a2a2a;
 	color: #fff;
 	border-color: #666;

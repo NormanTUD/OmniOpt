@@ -475,7 +475,7 @@ var resultsCode = fs.readFileSync(__dirname + "/js/results_table.js", "utf8");
 var resultsHelpers = new Function(
 	resultsCode + "\nreturn {" +
 	"_resultsColumnKinds, _resultsCompareValues, _resultsCsvEscape, _resultsCsvString," +
-	"_resultsTechnicalColumnLookup, _resultsIsInterestingColumn, _resultsProjectRows};"
+	"_resultsTechnicalColumnLookup, _resultsIsInterestingColumn, _resultsIsMinimalColumn, _resultsProjectRows};"
 )();
 
 expect("results column kinds: numeric columns",
@@ -524,9 +524,26 @@ expect("results columns: program string is technical",
 	resultsHelpers._resultsIsInterestingColumn("program_string", ["score"], technicalLookup), false);
 expect("results columns: special column is technical",
 	resultsHelpers._resultsIsInterestingColumn("custom_meta", [], resultsHelpers._resultsTechnicalColumnLookup(["custom_meta"])), false);
+expect("results columns: minimal keeps result",
+	resultsHelpers._resultsIsMinimalColumn("score", ["score"], technicalLookup), true);
+expect("results columns: minimal keeps custom parameter",
+	resultsHelpers._resultsIsMinimalColumn("learning_rate", ["score"], technicalLookup), true);
+expect("results columns: minimal hides OO_Info",
+	resultsHelpers._resultsIsMinimalColumn("OO_Info_ZEIT", ["score"], technicalLookup), false);
+expect("results columns: minimal hides technical",
+	resultsHelpers._resultsIsMinimalColumn("program_string", ["score"], technicalLookup), false);
 expect("results project rows: keeps only selected columns",
 	resultsHelpers._resultsProjectRows([[1, 2, 3], [4, 5, 6]], [0, 2]),
 	[[1, 3], [4, 6]]);
+expect("results csv string: custom delimiter",
+	resultsHelpers._resultsCsvString(["a", "b"], [[1, "x;y"]], { delimiter: ";", includeHeader: true, quoteAll: false }),
+	"a;b\n1;\"x;y\"");
+expect("results csv string: without header",
+	resultsHelpers._resultsCsvString(["a", "b"], [[1, 2]], { delimiter: ",", includeHeader: false, quoteAll: false }),
+	"1,2");
+expect("results csv string: quote all",
+	resultsHelpers._resultsCsvString(["a", "b"], [[1, 2]], { delimiter: ",", includeHeader: true, quoteAll: true }),
+	"\"a\",\"b\"\n\"1\",\"2\"");
 
 // ============================================================
 // SUMMARY

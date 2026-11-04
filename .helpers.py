@@ -137,6 +137,9 @@ def flatten_extend(matrix: list) -> list:
         flat_list.extend(row)
     return flat_list
 
+def split_result_names(result_names: list[str]) -> list[str]:
+    return [name for entry in result_names for name in entry.split()]
+
 def convert_string_to_number(input_string: str) -> int | float | None:
     try:
         assert isinstance(input_string, str), "Input must be a string"

@@ -182,6 +182,23 @@ def test_flatten_extend() -> bool:
     return ok
 
 
+def test_split_result_names() -> bool:
+    ok = _check(helpers_util.split_result_names([]) == [],
+                "split_result_names([]) -> []")
+    ok &= _check(helpers_util.split_result_names(["RESULT=min"]) == ["RESULT=min"],
+                 "single result name stays unchanged")
+    ok &= _check(helpers_util.split_result_names(["RESULT=min", "ZEIT=max"]) == ["RESULT=min", "ZEIT=max"],
+                 "separate result names stay separate")
+    ok &= _check(helpers_util.split_result_names(["RESULT=min ZEIT=min"]) == ["RESULT=min", "ZEIT=min"],
+                 "space-separated result names are split")
+    ok &= _check(helpers_util.split_result_names(["  RESULT=min\tZEIT=min  "]) == ["RESULT=min", "ZEIT=min"],
+                 "surrounding and tab whitespace is handled")
+    ok &= _check(helpers_util.split_result_names(["RESULT=min", "ZEIT=min  ACCURACY=max"]) ==
+                 ["RESULT=min", "ZEIT=min", "ACCURACY=max"],
+                 "mixed separate and space-separated result names are split")
+    return ok
+
+
 def test_convert_string_to_number() -> bool:
     ok = _check(helpers_util.convert_string_to_number("10") == 10, "convert_string_to_number('10') -> 10")
     ok &= _check(helpers_util.convert_string_to_number("1.1") == 1.1, "convert_string_to_number('1.1') -> 1.1")
@@ -1090,6 +1107,7 @@ TESTS = [
     test_looks_like_number,
     test_to_int_when_possible,
     test_flatten_extend,
+    test_split_result_names,
     test_convert_string_to_number,
     test_log_error,
     test_print_color,

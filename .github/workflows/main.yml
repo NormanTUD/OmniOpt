@@ -118,13 +118,18 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v5
+    - name: Free disk space
+      run: |
+        python3 -m pip cache purge || true
+        rm -rf ~/.cache/pip
+        df -h /
     - name: Install dependencies
       run: |
         .tools/ci_dependency
 
     - name: main test script
       run: |
-        python3 .tests/install_via_pip --debug --run_with_coverage
+        python3 .tests/install_via_pip --debug --run_with_coverage --cpu-only-torch
 
     - name: Prepare coverage tooling
       if: always()

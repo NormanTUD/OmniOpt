@@ -36,6 +36,11 @@ def build_parser() -> argparse.ArgumentParser:
         "--run_with_coverage", action="store_true",
         help="Measure the installed OmniOpt package with coverage.",
     )
+    parser.add_argument(
+        "--cpu-only-torch", action=argparse.BooleanOptionalAction, default=False,
+        help="Pre-install the CPU-only PyTorch wheel to avoid downloading the multi-gigabyte "
+        "CUDA runtime on machines without a GPU.",
+    )
 
     parser.add_argument(
         "--install-types", nargs="+", default=["omniopt", "git"],
@@ -186,10 +191,16 @@ def main(argv=None) -> int:
         env = {"VIRTUAL_ENV": str(venv_dir), "PATH": f"{venv_dir}/bin:" + os.environ.get("PATH", "")}
         pip = str(venv_dir / "bin" / "pip")
 
+        if args.cpu_only_torch:
+            run(
+                [pip, "install", "--no-cache-dir", "torch", "--index-url", "https://download.pytorch.org/whl/cpu"],
+                env=env, debug=args.debug, desc="pip install CPU-only torch",
+            )
+
         if install_type == "git":
-            run([pip, "install", args.git_url], env=env, debug=args.debug, desc="pip install git")
+            run([pip, "install", "--no-cache-dir", args.git_url], env=env, debug=args.debug, desc="pip install git")
         else:
-            run([pip, "install", args.pip_package], env=env, debug=args.debug, desc="pip install pypi")
+            run([pip, "install", "--no-cache-dir", args.pip_package], env=env, debug=args.debug, desc="pip install pypi")
 
         if args.run_with_coverage:
             if not _coverage_ready(venv_dir, env):

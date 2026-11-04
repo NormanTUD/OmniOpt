@@ -3973,6 +3973,8 @@ def is_skip_search() -> bool:
 
     return False
 
+args.result_names = [name for entry in args.result_names for name in entry.split()]
+
 original_result_names = args.result_names
 
 def _fatal_error(message: str, code: int) -> None:

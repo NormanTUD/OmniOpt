@@ -2583,6 +2583,12 @@ F = TypeVar("F", bound=Callable[..., object])
 _has_run_once = False
 _current_live_share_future = None
 
+_live_share_runtime = None
+_live_share_initial_upload_done = False
+_live_share_command_lock = threading.RLock()
+_liveshare_monitor_thread: Optional[threading.Thread] = None
+_liveshare_monitor_stop = threading.Event()
+
 last_progress_bar_refresh_time = 0.0
 MIN_REFRESH_INTERVAL = 1.0
 
@@ -2927,6 +2933,7 @@ SHOWN_END_TABLE: bool = False
 max_eval: int = 1
 random_steps: int = 1
 progress_bar: Optional[tqdm] = None
+progress_bar_active: bool = False
 error_8_saved: List[str] = []
 
 def get_current_run_folder(name: Optional[str] = None) -> str:
@@ -2999,6 +3006,17 @@ try:
         pareto_front_table_add_rows: FunctionType = pareto.pareto_front_table_add_rows
         pareto_front_filter_complete_points: FunctionType = pareto.pareto_front_filter_complete_points
         pareto_front_select_pareto_points: FunctionType = pareto.pareto_front_select_pareto_points
+    with spinner("Importing live-share markers..."):
+        liveshare_file: str = f"{script_dir}/.liveshare.py"
+        spec = importlib.util.spec_from_file_location(
+            name="liveshare",
+            location=liveshare_file,
+        )
+        if spec is not None and spec.loader is not None:
+            liveshare = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(liveshare)
+        else:
+            raise ImportError(f"Could not load module from {liveshare_file}")
 
 except KeyboardInterrupt:
     print("You pressed CTRL-c while importing the helpers file")
@@ -4614,7 +4632,10 @@ def append_and_read(file: str, nr: int = 0, recursion: int = 0) -> int:
 def run_live_share_command(force: bool = False) -> Tuple[str, str]:
     global shown_run_live_share_command
 
-    if get_current_run_folder():
+    if not get_current_run_folder():
+        return "", ""
+
+    with _live_share_command_lock:
         try:
             _user = get_username()
 
@@ -4644,6 +4665,28 @@ def run_live_share_command(force: bool = False) -> Tuple[str, str]:
 
     return "", ""
 
+def _ensure_live_share_runtime() -> Any:
+    """Return the runtime state, initialising it from ``--live_share``."""
+    global _live_share_runtime
+
+    if _live_share_runtime is None:
+        _live_share_runtime = liveshare.State(active=bool(getattr(args, "live_share", False)))
+
+    return _live_share_runtime
+
+def live_share_enabled() -> bool:
+    """Return whether live-sharing is currently active for this run.
+
+    This combines the start-up flag (``--live_share``) with the runtime
+    marker state.  Marker activations therefore work for runs that were
+    started without ``--live_share``, and marker stops can disable a share
+    that was originally enabled on the command line.
+    """
+    try:
+        return bool(_ensure_live_share_runtime().active)
+    except (NameError, AttributeError):
+        return False
+
 def force_live_share() -> bool:
     """Push live-share updates.
 
@@ -4653,7 +4696,7 @@ def force_live_share() -> bool:
     uses ``--force`` (see ``init_live_share``); subsequent updates are
     incremental and only send files that changed.
     """
-    if args.live_share:
+    if live_share_enabled():
         return live_share(False)
 
     return False
@@ -4665,7 +4708,7 @@ def live_share(force: bool = False, text_and_qr: bool = False) -> bool:
         print(f"live_share: get_current_run_folder was empty or false: {get_current_run_folder()}")
         return False
 
-    if not args.live_share or not get_current_run_folder():
+    if not live_share_enabled() or not get_current_run_folder():
         return False
 
     stdout, stderr = run_live_share_command(force)
@@ -4683,11 +4726,23 @@ def live_share(force: bool = False, text_and_qr: bool = False) -> bool:
     return True
 
 def init_live_share() -> bool:
-    # No cache yet -> full initial upload.  If this run was already shared
-    # (e.g. after restarting OmniOpt), the cache makes this incremental.
-    ret = live_share(False, True)
+    global _live_share_initial_upload_done
 
-    return ret
+    with _live_share_command_lock:
+        # A marker may already have triggered the first upload from the
+        # monitor thread.  Do not upload (and print the URL) a second time.
+        if _live_share_initial_upload_done:
+            return True
+
+        # No cache yet -> full initial upload.  If this run was already
+        # shared (e.g. after restarting OmniOpt), the cache makes this
+        # incremental.
+        ret = live_share(False, True)
+
+        if ret:
+            _live_share_initial_upload_done = True
+
+        return ret
 
 
 _periodic_live_share_thread: Optional[threading.Thread] = None
@@ -4699,12 +4754,12 @@ def start_periodic_live_share(interval_seconds: int = 10) -> Optional[threading.
 
     Spawns a daemon thread which calls `force_live_share()` every
     `interval_seconds` while the program runs.  Returns the thread (or
-    None if `--live_share` is disabled / we're in test mode).
+    None if live-sharing is disabled / we're in test mode).
     """
     global _periodic_live_share_thread
 
     try:
-        if not args.live_share:
+        if not live_share_enabled():
             return None
         if os.environ.get("OO_MAIN_TESTS") == "1":
             return None
@@ -4732,6 +4787,119 @@ def start_periodic_live_share(interval_seconds: int = 10) -> Optional[threading.
 def stop_periodic_live_share() -> None:
     """Signal the periodic share thread to stop (idempotent)."""
     _periodic_live_share_stop.set()
+
+
+def _announce_liveshare(lines: List[str]) -> None:
+    """Print an announcement above the running tqdm bar (once)."""
+    text = "\n".join(lines)
+    bar = progress_bar if progress_bar_active else None
+    liveshare.write_above_progress_bar(bar, text, fallback=original_print)
+
+
+def _share_for_liveshare_marker() -> Tuple[str, str]:
+    """Perform the first share after a marker activated live-sharing."""
+    global _live_share_initial_upload_done
+
+    try:
+        log_data()
+    except Exception as e:
+        print_debug(f"liveshare: log_data failed: {e}")
+
+    start_periodic_live_share()
+
+    with _live_share_command_lock:
+        stdout, stderr = run_live_share_command(False)
+        _live_share_initial_upload_done = True
+
+    return stdout, stderr
+
+
+def _on_liveshare_start() -> None:
+    try:
+        write_state_file("live_share", "1\n")
+    except Exception as e:
+        print_debug(f"liveshare: could not write live_share state file: {e}")
+
+
+def _on_liveshare_stop() -> None:
+    try:
+        write_state_file("live_share", "0\n")
+    except Exception as e:
+        print_debug(f"liveshare: could not write live_share state file: {e}")
+
+
+_live_share_controller = None
+
+
+def _ensure_live_share_controller() -> Any:
+    """Return the controller that carries out marker transitions."""
+    global _live_share_controller
+
+    if _live_share_controller is None:
+        _live_share_controller = liveshare.Controller(
+            state=_ensure_live_share_runtime(),
+            share=_share_for_liveshare_marker,
+            announce=_announce_liveshare,
+            on_start=_on_liveshare_start,
+            on_stop=_on_liveshare_stop,
+        )
+
+    return _live_share_controller
+
+
+def process_liveshare_markers_once() -> Optional[Any]:
+    """Check the marker files once and apply any resulting transition."""
+    run_folder = get_current_run_folder()
+    if not run_folder:
+        return None
+
+    decision = liveshare.decide(
+        run_folder,
+        cwd=os.getcwd(),
+        script_dir=script_dir,
+    )
+
+    return _ensure_live_share_controller().apply(decision)
+
+
+def _liveshare_monitor_loop(interval_seconds: float = 1.0) -> None:
+    while not _liveshare_monitor_stop.wait(interval_seconds):
+        try:
+            process_liveshare_markers_once()
+        except Exception as e:
+            print_debug(f"liveshare marker monitor failed: {e}")
+
+
+def start_liveshare_marker_monitor(interval_seconds: float = 1.0) -> Optional[threading.Thread]:
+    """Start the background thread that watches the marker files.
+
+    The thread is a daemon and is a no-op until a run folder exists, so it
+    can be started before ``main()`` creates the actual run directory.
+    """
+    global _liveshare_monitor_thread
+
+    if IN_TEST_MODE or getattr(args, "tests", False):
+        return None
+
+    if _liveshare_monitor_thread is not None and _liveshare_monitor_thread.is_alive():
+        return _liveshare_monitor_thread
+
+    _liveshare_monitor_stop.clear()
+
+    t = threading.Thread(
+        target=_liveshare_monitor_loop,
+        args=(interval_seconds,),
+        name="liveshare-markers",
+        daemon=True,
+    )
+    t.start()
+    _liveshare_monitor_thread = t
+    return t
+
+
+def stop_liveshare_marker_monitor() -> None:
+    """Signal the marker monitor thread to stop (idempotent)."""
+    _liveshare_monitor_stop.set()
 
 def init_storage(db_url: str) -> None:
     ax_backend.init_database_engine()
@@ -14511,20 +14679,22 @@ def get_calculated_frontier(path_to_calculate: str, metric_x: str, metric_y: str
         return None
 
 def live_share_after_pareto() -> None:
-    if args.calculate_pareto_front_of_job is not None or args.live_share:
-        if not args.live_share:
-            live_share_file = f"{args.calculate_pareto_front_of_job}/state_files/live_share"
-            if os.path.exists(live_share_file):
-                try:
-                    with open(live_share_file, "r", encoding="utf-8") as f:
-                        first_line = f.readline().strip()
-                        if first_line == "1":
-                            args.live_share = True
-                except Exception as e:
-                    print_debug(f"Error reading {live_share_file}: {e}")
-                    args.live_share = False
+    if args.calculate_pareto_front_of_job is None and not live_share_enabled():
+        return
 
-        force_live_share()
+    if not live_share_enabled() and args.calculate_pareto_front_of_job is not None:
+        live_share_file = f"{args.calculate_pareto_front_of_job}/state_files/live_share"
+        if os.path.exists(live_share_file):
+            try:
+                with open(live_share_file, "r", encoding="utf-8") as f:
+                    first_line = f.readline().strip()
+                    if first_line == "1":
+                        _ensure_live_share_runtime().active = True
+            except Exception as e:
+                print_debug(f"Error reading {live_share_file}: {e}")
+                _ensure_live_share_runtime().active = False
+
+    force_live_share()
 
 def get_result_minimize_flag(path_to_calculate: str, resname: str) -> bool:
     result_names_path = os.path.join(path_to_calculate, "result_names.txt")
@@ -14779,7 +14949,7 @@ def write_job_start_file() -> None:
 
 def write_live_share_file_if_needed() -> None:
     with spinner("Writing live_share file if it is present..."):
-        if args.live_share:
+        if live_share_enabled():
             write_state_file("live_share", "1\n")
 
 def write_file_and_make_sure_dir_exists(file_path: str, text: str) -> None:
@@ -15048,6 +15218,10 @@ def main() -> None:
     set_run_folder()
 
     RESULT_CSV_FILE = create_folder_and_file(get_current_run_folder())
+
+    # Check once immediately so very short runs also honour markers that were
+    # already present before start-up (the background monitor polls later).
+    process_liveshare_markers_once()
 
     _init_formula_persist()
 
@@ -15410,7 +15584,7 @@ def _cpu_mon_tick(**kwargs: Any) -> None:
         pass
 
 def run_search_with_progress_bar() -> None:
-    global progress_bar
+    global progress_bar, progress_bar_active
 
     from contextlib import nullcontext
 
@@ -15438,6 +15612,7 @@ def run_search_with_progress_bar() -> None:
 
     with tqdm(total=total_jobs, disable=disable_tqdm, ascii="░▒█") as _progress_bar, cpu_mon_ctx as cpu_mon:
         progress_bar = _progress_bar
+        progress_bar_active = True
         global_vars["cpu_monitor"] = cpu_mon if use_cpu_monitor else None
         write_process_info()
 
@@ -15447,6 +15622,7 @@ def run_search_with_progress_bar() -> None:
 
         run_search()
 
+    progress_bar_active = False
     global_vars["cpu_monitor"] = None
     wait_for_jobs_to_complete()
 
@@ -15918,6 +16094,8 @@ def main_wrapper() -> None:
     fool_linter(args.flame_graph)
     fool_linter(args.memray)
 
+    _ensure_live_share_runtime()
+    start_liveshare_marker_monitor()
     start_periodic_live_share()
 
     with warnings.catch_warnings():
@@ -15950,6 +16128,7 @@ def main_wrapper() -> None:
             else:
                 end_program(True)
         finally:
+            stop_liveshare_marker_monitor()
             stop_periodic_live_share()
 
 def stack_trace_wrapper(func: Any, regex: Any = None) -> Any:

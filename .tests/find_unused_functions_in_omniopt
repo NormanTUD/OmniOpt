@@ -23,6 +23,9 @@ EXCEPTIONS = {
     "parse_fixed_param", "_finish_previous_jobs_helper_wrapper",
     "force_exit", "_cancel_all_tasks_at_exit", "_omniopt_reexec_with_modules",
     "_finish_previous_jobs_helper_check_and_process",
+    "_announce_liveshare", "_share_for_liveshare_marker",
+    "_on_liveshare_start", "_on_liveshare_stop",
+    "_liveshare_monitor_loop",
 }
 
 

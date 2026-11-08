@@ -83,15 +83,19 @@ function quote_variables(input) {
 }
 
 function get_var_names_from_run_program(run_program_string) {
-	const pattern = /(?:\$|\%)?\([a-zA-Z_]+\)|(?:\$|%)[a-zA-Z_]+/g;
+	const pattern = /(?:\$|\%)?\([a-zA-Z_][a-zA-Z0-9_]*\)|(?:\$|%)[a-zA-Z_][a-zA-Z0-9_]*/g;
 	const variableNames = [];
 
 	let match;
 	while ((match = pattern.exec(run_program_string)) !== null) {
+		let previous = match.index > 0 ? run_program_string.charAt(match.index - 1) : "";
+		if (previous === "\\" || (match[0].charAt(0) === "%" && previous === "%") || (match[0].charAt(0) === "$" && previous === "$")) {
+			continue;
+		}
 		let varName = match[0];
 		varName = varName.replace(/^(\$|%)/, "");
 		varName = varName.replace(/^(\$|%)?\(|\)$/g, "");
-		if (/^[a-zA-Z_]+$/.test(varName)) {
+		if (/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(varName)) {
 			variableNames.push(varName);
 		}
 	}
@@ -1179,6 +1183,252 @@ console.log("\n--- Testing: time picker conversion ---");
 	expect("time picker: invalid input becomes zero",
 		time_picker_parts_from_hours_and_minutes("abc", "xyz", 13440), { hours: 0, minutes: 0, totalMinutes: 0 });
 }
+
+// --- Group: run_program keyword suggestions (loaded from gui.js) ---
+console.log("\n--- Testing: run_program keyword suggestions ---");
+(function () {
+	var fs = require("fs");
+	var vm = require("vm");
+	var context = { console: console, btoa: btoa, atob: atob };
+	vm.createContext(context);
+	vm.runInContext(fs.readFileSync(__dirname + "/gui.js", "utf8"), context);
+
+	var placeholders = context.get_run_program_placeholders;
+	var find = context.find_run_program_keyword_suggestion;
+	var definitions = context.RUN_PROGRAM_KEYWORD_SUGGESTIONS;
+
+	expect("run_program placeholders: %name", placeholders("python train.py --lr=%lr"), ["lr"]);
+	expect("run_program placeholders: %(name)", placeholders("python train.py --lr=%(learning_rate)"), ["learning_rate"]);
+	expect("run_program placeholders: $name and $(name)", placeholders("$seed $(epochs)"), ["seed", "epochs"]);
+	expect("run_program placeholders: no placeholder", placeholders("python train.py"), []);
+	expect("run_program placeholders: plain parentheses ignored", placeholders("echo (foo)"), []);
+
+	expect("run_program suggestion: alias lr", find("lr").key, "lr");
+	expect("run_program suggestion: alias learning_rate", find("learning_rate").key, "lr");
+	expect("run_program suggestion: alias learningrate", find("learningrate").key, "lr");
+	expect("run_program suggestion: case-insensitive", find("LR").key, "lr");
+	expect("run_program suggestion: unknown keyword", find("not_a_keyword"), null);
+	expect("run_program suggestion: optimizer is a choice", find("optimizer").kind, "choice");
+	expect("run_program suggestion: optimizer values", find("optimizer").values, "adam,adamax,adamw,sgd,rmsprop,adagrad,adadelta,lion,adafactor");
+	expect("run_program suggestion: lr default range", [find("lr").min, find("lr").max, find("lr").value_type, find("lr").log_scale], ["0.00001", "0.001", "float", true]);
+	expect("run_program suggestion: epochs default range", [find("epochs").min, find("epochs").max, find("epochs").value_type], ["1", "100", "int"]);
+	expect("run_program suggestion: all aliases resolve", definitions.every(function (definition) {
+		return definition.aliases.every(function (alias) {
+			return find(alias) === definition;
+		});
+	}), true);
+
+	var definitionProblems = [];
+	var aliasOwners = Object.create(null);
+	definitions.forEach(function (definition) {
+		if (["range", "choice", "fixed"].indexOf(definition.kind) === -1) definitionProblems.push(definition.key + ": kind");
+		if (!/^[a-zA-Z_]+$/.test(definition.key) && !definition.param_name) definitionProblems.push(definition.key + ": param_name");
+		if (definition.param_name && !/^[a-zA-Z_]+$/.test(definition.param_name)) definitionProblems.push(definition.key + ": bad param_name");
+		if (definition.kind === "range") {
+			var min = Number(definition.min);
+			var max = Number(definition.max);
+			if (!isFinite(min) || !isFinite(max) || min > max) definitionProblems.push(definition.key + ": range");
+			if (["float", "int"].indexOf(definition.value_type) === -1) definitionProblems.push(definition.key + ": value_type");
+			if (definition.log_scale && min <= 0) definitionProblems.push(definition.key + ": log min");
+		}
+		if (definition.kind === "choice" && (!definition.values || definition.values.split(",").some(function (value) { return value.trim() === ""; }))) {
+			definitionProblems.push(definition.key + ": choice");
+		}
+		definition.aliases.forEach(function (alias) {
+			if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(alias)) definitionProblems.push(definition.key + ": alias " + alias);
+			var aliasKey = alias.toLowerCase();
+			if (aliasOwners[aliasKey] && aliasOwners[aliasKey] !== definition.key) definitionProblems.push(definition.key + ": duplicate " + alias);
+			aliasOwners[aliasKey] = definition.key;
+			var target = context._run_program_suggestion_parameter_name(alias, definition);
+			if (!target || !/^[a-zA-Z_]+$/.test(target)) definitionProblems.push(definition.key + ": target " + alias);
+		});
+	});
+	expect("run_program suggestion: definition data is valid", definitionProblems, []);
+	expect("run_program suggestion: abbreviation batchsz", find("batchsz").key, "batch_size");
+	expect("run_program suggestion: abbreviation bsize", find("bsize").key, "batch_size");
+	expect("run_program suggestion: alias size", find("size").key, "batch_size");
+	expect("run_program suggestion: alias batch_sz", find("batch_sz").key, "batch_size");
+	expect("run_program suggestion: abbreviation epochsz", find("epochsz").key, "epochs");
+	expect("run_program suggestion: alias epoch_count", find("epoch_count").key, "epochs");
+	expect("run_program suggestion: alias eta", find("eta").key, "lr");
+	expect("run_program suggestion: full hidden_version", find("hidden_layer_size").key, "hidden_size");
+	expect("run_program suggestion: alias trees", find("trees").key, "n_estimators");
+	expect("run_program suggestion: sklearn random_state", find("random_state").key, "seed");
+	expect("run_program suggestion: sklearn max_features", find("max_features").kind, "choice");
+	expect("run_program suggestion: simulation population_size", find("population_size").key, "population_size");
+	expect("run_program suggestion: simulation mutation_rate", find("mutation_rate").key, "mutation_rate");
+	expect("run_program suggestion: simulation time_step", find("time_step").key, "time_step");
+	expect("run_program suggestion: simulation cfl", find("cfl").key, "cfl");
+	expect("run_program suggestion: LLM max_tokens", find("max_tokens").key, "max_tokens");
+	expect("run_program suggestion: LLM top_p", find("top_p").key, "top_p");
+	expect("run_program suggestion: LoRA rank", find("lora_rank").key, "lora_rank");
+	expect("run_program suggestion: compute n_jobs", find("n_jobs").key, "n_jobs");
+	expect("run_program suggestion: solver is editable choice", find("solver").kind, "choice");
+	expect("run_program suggestion: temperature range", [find("temperature").min, find("temperature").max], ["0", "2"]);
+
+	expect("run_program placeholders: digits after first letter", placeholders("%beta1"), ["beta1"]);
+	expect("run_program placeholders: digit start is ignored", placeholders("%1abc"), []);
+	expect("run_program placeholders: empty placeholder is ignored", placeholders("%()"), []);
+	expect("run_program placeholders: incomplete placeholder is ignored", placeholders("%(lr"), []);
+	expect("run_program placeholders: underscore is allowed", placeholders("%_x"), ["_x"]);
+	expect("run_program placeholders: escaped percent is ignored", placeholders("printf '%%lr'"), []);
+	expect("run_program placeholders: backslash-escaped percent is ignored", placeholders("printf '\\%lr'"), []);
+	expect("run_program placeholders: multiline", placeholders("%lr\n%epochs"), ["lr", "epochs"]);
+	expect("run_program placeholders: duplicate tokens preserved", placeholders("%lr %(lr)"), ["lr", "lr"]);
+
+	expect("run_program suggestion: typo epocs", find("epocs").key, "epochs");
+	expect("run_program suggestion: typo lerning_rate", find("lerning_rate").key, "lr");
+	expect("run_program suggestion: typo optimzer", find("optimzer").key, "optimizer");
+	expect("run_program suggestion: typo batchsze", find("batchsze").key, "batch_size");
+	expect("run_program suggestion: typo dropuot", find("dropuot").key, "dropout");
+	expect("run_program suggestion: typo momemtum", find("momemtum").key, "momentum");
+	expect("run_program suggestion: typo schedulr", find("schedulr").key, "scheduler");
+	expect("run_program suggestion: typo regulrization", find("regulrization").key, "regularization");
+	expect("run_program suggestion: short abbreviation learning", find("learning").key, "lr");
+	expect("run_program suggestion: short abbreviation embedding", find("embedding").key, "embedding_dim");
+	expect("run_program suggestion: fuzzy does not match common word model", find("model"), null);
+	expect("run_program suggestion: fuzzy does not match common word test", find("test"), null);
+	expect("run_program suggestion: ambiguous prefix stays unknown", find("trai"), null);
+	expect("run_program suggestion: prototype key is not a suggestion", find("__proto__"), null);
+	expect("run_program suggestion: constructor key is not a suggestion", find("constructor"), null);
+	expect("run_program suggestion: toString key is not a suggestion", find("toString"), null);
+	expect("run_program suggestion: expired fuzzy budget skips typo", context.find_run_program_keyword_suggestion_match("optimizr", true, Date.now() - 1), null);
+	expect("run_program suggestion: expired fuzzy budget still allows exact aliases", context.find_run_program_keyword_suggestion_match("epochs", true, Date.now() - 1).definition.key, "epochs");
+
+	expect("run_program suggestion: beta1 maps to valid parameter", context._run_program_suggestion_parameter_name("beta1", find("beta1")), "beta_one");
+	expect("run_program suggestion: beta2 maps to valid parameter", context._run_program_suggestion_parameter_name("beta2", find("beta2")), "beta_two");
+	expect("run_program suggestion: c1 maps to valid parameter", context._run_program_suggestion_parameter_name("c1", find("c1")), "cognitive_coeff");
+	expect("run_program suggestion: c2 maps to valid parameter", context._run_program_suggestion_parameter_name("c2", find("c2")), "social_coeff");
+	expect("run_program suggestion: decay0 maps to valid parameter", context._run_program_suggestion_parameter_name("decay0", find("decay0")), "decay");
+	expect("run_program suggestion: lambda_l1 maps to valid parameter", context._run_program_suggestion_parameter_name("lambda_l1", find("lambda_l1")), "lambda_l_one");
+	expect("run_program suggestion: q4bit maps to valid parameter", context._run_program_suggestion_parameter_name("q4bit", find("q4bit")), "load_in_four_bit");
+	expect("run_program suggestion: typo lerning_rate corrected", context._run_program_suggestion_parameter_name("lerning_rate", find("lerning_rate")), "learning_rate");
+	expect("run_program suggestion: case-insensitive Learning_Rate", context._run_program_suggestion_parameter_name("Learning_Rate", find("Learning_Rate"), "learning_rate"), "learning_rate");
+	expect("run_program suggestion: case-insensitive LR", context._run_program_suggestion_parameter_name("LR", find("LR"), "lr"), "lr");
+	expect("run_program suggestion: typo epocs corrected", context._run_program_suggestion_parameter_name("epocs", find("epocs")), "epochs");
+	expect("run_program suggestion: typo optimzer corrected", context._run_program_suggestion_parameter_name("optimzer", find("optimzer")), "optimizer");
+	expect("run_program suggestion: typo batchsze corrected", context._run_program_suggestion_parameter_name("batchsze", find("batchsze")), "batch_size");
+	expect("run_program suggestion: typo sed corrected", context._run_program_suggestion_parameter_name("sed", find("sed")), "seed");
+	expect("run_program suggestion: typo hidden_siz corrected", context._run_program_suggestion_parameter_name("hidden_siz", find("hidden_siz")), "hidden_size");
+	expect("run_program suggestion: uppercase BETA1 normalized", context._run_program_suggestion_parameter_name("BETA1", find("BETA1")), "beta_one");
+	expect("run_program suggestion: unknown digit token has no valid target", context._run_program_suggestion_parameter_name("foo1", null), null);
+	expect("run_program suggestion: sanitize unknown digit token", context._run_program_sanitize_parameter_name("foo1"), "foo_one");
+	expect("run_program placeholder rewrite: bare", context._replace_run_program_placeholder("--x=%beta1", "beta1", "beta_one"), "--x=%(beta_one)");
+	expect("run_program placeholder rewrite: parenthesized", context._replace_run_program_placeholder("--x=%(beta1)", "beta1", "beta_one"), "--x=%(beta_one)");
+	expect("run_program placeholder rewrite: dollar", context._replace_run_program_placeholder("--x=$beta1", "beta1", "beta_one"), "--x=$(beta_one)");
+	expect("run_program placeholder rewrite: boundary", context._replace_run_program_placeholder("--x=%beta1foo", "beta1", "beta_one"), "--x=%beta1foo");
+	expect("run_program placeholder rewrite: uppercase case-insensitive", context._replace_run_program_placeholder("--x=%Learning_Rate", "Learning_Rate", "learning_rate"), "--x=%(learning_rate)");
+	expect("run_program placeholder rewrite: uppercase abbreviation", context._replace_run_program_placeholder("--x=%LR", "LR", "lr"), "--x=%(lr)");
+	expect("run_program placeholder rewrite: typo correction", context._replace_run_program_placeholder("--x=%lerning_rate", "lerning_rate", "learning_rate"), "--x=%(learning_rate)");
+
+	function fakeSuggestionCard(values) {
+		return {
+			length: 1,
+			find: function (selector) {
+				return {
+					val: function () { return values[selector]; },
+					is: function () { return !!values[selector]; }
+				};
+			}
+		};
+	}
+	function setSuggestionCard(values) {
+		context.$ = function () {
+			return { closest: function () { return fakeSuggestionCard(values); } };
+		};
+	}
+
+	setSuggestionCard({
+		"[data-suggestion-field='min']": "10",
+		"[data-suggestion-field='max']": "200",
+		"[data-suggestion-field='value_type']": "int",
+		"[data-suggestion-field='log_scale']": false
+	});
+	var editedRange = context._run_program_suggestion_edited_definition({}, find("epochs"));
+	expect("run_program suggestion: inline edit range", [editedRange.min, editedRange.max, editedRange.value_type, editedRange.log_scale], ["10", "200", "int", false]);
+
+	setSuggestionCard({ "[data-suggestion-field='values']": "adam,sgd,rmsprop" });
+	var editedChoice = context._run_program_suggestion_edited_definition({}, find("optimizer"));
+	expect("run_program suggestion: inline edit choice", editedChoice.values, "adam,sgd,rmsprop");
+
+	var mergedRange = context._run_program_definition_with_current_values(find("epochs"), { kind: "range", min: "10", max: "65", type: "int", log_scale: false });
+	expect("run_program suggestion: existing range values are prefilled", [mergedRange.kind, mergedRange.min, mergedRange.max, mergedRange.value_type, mergedRange.log_scale], ["range", "10", "65", "int", false]);
+	var mergedChoice = context._run_program_definition_with_current_values(find("optimizer"), { kind: "choice", values: "adam,lion" });
+	expect("run_program suggestion: existing choice values are prefilled", [mergedChoice.kind, mergedChoice.values], ["choice", "adam,lion"]);
+	var mergedFixed = context._run_program_definition_with_current_values(find("epochs"), { kind: "fixed", value: "42" });
+	expect("run_program suggestion: existing fixed value is prefilled", [mergedFixed.kind, mergedFixed.value], ["fixed", "42"]);
+	setSuggestionCard({ "[data-suggestion-field='value']": "99" });
+	var editedFixed = context._run_program_suggestion_edited_definition({}, mergedFixed);
+	expect("run_program suggestion: inline edit fixed value", editedFixed.value, "99");
+	var mergedEmpty = context._run_program_definition_with_current_values(find("epochs"), { kind: "range", min: "", max: "", type: "", log_scale: false });
+	expect("run_program suggestion: empty existing values fall back", [mergedEmpty.min, mergedEmpty.max], ["1", "100"]);
+
+	setSuggestionCard({
+		"[data-suggestion-field='min']": "",
+		"[data-suggestion-field='max']": "  ",
+		"[data-suggestion-field='value_type']": "",
+		"[data-suggestion-field='log_scale']": false
+	});
+	var emptyRange = context._run_program_suggestion_edited_definition({}, find("epochs"));
+	expect("run_program suggestion: empty range fields fall back to defaults", [emptyRange.min, emptyRange.max, emptyRange.value_type], ["1", "100", "int"]);
+
+	setSuggestionCard({ "[data-suggestion-field='values']": "" });
+	var emptyChoice = context._run_program_suggestion_edited_definition({}, find("optimizer"));
+	expect("run_program suggestion: empty choice falls back to defaults", emptyChoice.values, find("optimizer").values);
+
+	var requested = [
+		"lr", "learning_rate", "learningrate", "decay", "decay0", "optimizer", "epochs",
+		"batch_size", "dropout", "momentum", "weight_decay", "warmup", "hidden_size",
+		"num_layers", "num_heads", "embedding_dim", "kernel_size", "stride", "padding",
+		"activation", "seed", "gradient_clip", "beta1", "beta2", "epsilon", "patience",
+		"factor", "gamma", "min_lr", "max_lr", "scheduler", "loss", "num_classes",
+		"input_dim", "output_dim", "n_estimators", "max_depth", "min_samples_split",
+		"min_samples_leaf", "learning_rate_init", "alpha", "regularization",
+		"batchsz", "bsize", "size", "batch_sz", "epochsz", "epoch_count", "eta",
+		"hidden_layer_size", "trees", "random_state", "max_features", "population_size",
+		"mutation_rate", "time_step", "cfl", "max_tokens", "top_p", "lora_rank",
+		"n_jobs", "solver", "temperature"
+	];
+	expect("run_program suggestion: all requested keywords covered", requested.every(function (name) {
+		return find(name) !== null;
+	}), true);
+
+	expect("run_program history: ctrl+z is undo", context._run_program_history_shortcut({ ctrlKey: true, key: "z", shiftKey: false }), "undo");
+	expect("run_program history: ctrl+shift+z is redo", context._run_program_history_shortcut({ ctrlKey: true, key: "z", shiftKey: true }), "redo");
+	expect("run_program history: ctrl+y is redo", context._run_program_history_shortcut({ ctrlKey: true, key: "y", shiftKey: false }), "redo");
+	expect("run_program history: cmd+z is undo", context._run_program_history_shortcut({ metaKey: true, key: "z", shiftKey: false }), "undo");
+	expect("run_program history: alt is ignored", context._run_program_history_shortcut({ ctrlKey: true, altKey: true, key: "z" }), null);
+
+	var fakeHistoryValue = "b";
+	context.$ = function (selector) {
+		if (selector === "#run_program") {
+			return {
+				length: 1,
+				0: { setSelectionRange: function () {} },
+				val: function (value) {
+					if (arguments.length) {
+						fakeHistoryValue = value;
+						return this;
+					}
+					return fakeHistoryValue;
+				},
+				trigger: function () { return this; }
+			};
+		}
+		return { length: 0 };
+	};
+	context._run_program_history.ready = true;
+	context._run_program_history.states = ["a", "b"];
+	context._run_program_history.index = 1;
+	context._run_program_history_undo();
+	expect("run_program history: undo restores previous value", fakeHistoryValue, "a");
+	context._run_program_history_redo();
+	expect("run_program history: redo restores next value", fakeHistoryValue, "b");
+	context._run_program_history_record("b");
+	expect("run_program history: repeated value is not duplicated", context._run_program_history.states.length, 2);
+	context._run_program_history_record("c");
+	expect("run_program history: new value appends", [context._run_program_history.states.length, context._run_program_history.index], [3, 2]);
+})();
 
 // ============================================================
 // SUMMARY

@@ -299,20 +299,930 @@ function quote_variables(input) {
 }
 
 function get_var_names_from_run_program(run_program_string) {
-	const pattern = /(?:\$|\%)?\([a-zA-Z_]+\)|(?:\$|%)[a-zA-Z_]+/g;
+	const pattern = /(?:\$|\%)?\([a-zA-Z_][a-zA-Z0-9_]*\)|(?:\$|%)[a-zA-Z_][a-zA-Z0-9_]*/g;
 	const variableNames = [];
 
 	let match;
 	while ((match = pattern.exec(run_program_string)) !== null) {
+		let previous = match.index > 0 ? run_program_string.charAt(match.index - 1) : "";
+		if (previous === "\\" || (match[0].charAt(0) === "%" && previous === "%") || (match[0].charAt(0) === "$" && previous === "$")) {
+			continue;
+		}
 		let varName = match[0];
 		varName = varName.replace(/^(\$|%)/, "");
 		varName = varName.replace(/^(\$|%)?\(|\)$/g, "");
-		if (/^[a-zA-Z_]+$/.test(varName)) {
+		if (/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(varName)) {
 			variableNames.push(varName);
 		}
 	}
 
 	return variableNames;
+}
+
+var RUN_PROGRAM_KEYWORD_SUGGESTIONS = [
+	{ key: "lr", preferred_name: "learning_rate", aliases: ["lr", "learning_rate", "learningrate", "learn_rate", "learnrate", "lrate", "eta", "learn", "learning", "learing_rate", "lerning_rate", "learning_rat", "lr_rate"], kind: "range", min: "0.00001", max: "0.001", value_type: "float", log_scale: true },
+	{ key: "decay", aliases: ["decay", "decay0", "dec", "decay_rate", "decayrate", "dec_rate", "decai", "deacy"], kind: "range", min: "0", max: "0.01", value_type: "float", log_scale: false },
+	{ key: "optimizer", aliases: ["optimizer", "optimiser", "opt", "optim", "optimizer_name", "optimiser_name", "optimization", "optimizer_type", "optimzer", "optmizer", "optimizor", "optimise", "optimize"], kind: "choice", values: "adam,adamax,adamw,sgd,rmsprop,adagrad,adadelta,lion,adafactor" },
+	{ key: "epochs", aliases: ["epochs", "epoch", "num_epochs", "n_epochs", "max_epochs", "epochsz", "epoch_count", "num_epoch", "total_epochs", "epocs", "epoches", "epohcs", "num_epoc", "epch"], kind: "range", min: "1", max: "100", value_type: "int", log_scale: false },
+	{ key: "batch_size", aliases: ["batch_size", "batchsize", "batch", "bs", "batchsz", "bsize", "size", "batch_sz", "bsz", "batch_dim", "batch_n", "nbatch", "batch_count", "bat", "batch_sze", "batch_zise", "batsh_size", "bath_size"], kind: "range", min: "8", max: "512", value_type: "int", log_scale: false },
+	{ key: "dropout", aliases: ["dropout", "dropout_rate", "drop_out", "drop", "drop_rate", "droprate", "dropout_prob", "dropout_p", "p_dropout", "dropuot", "droupout", "droput"], kind: "range", min: "0", max: "0.5", value_type: "float", log_scale: false },
+	{ key: "momentum", aliases: ["momentum", "mom", "momentum_rate", "momentum_coef", "momentum_factor", "momentom", "momemtum", "momntum"], kind: "range", min: "0", max: "0.99", value_type: "float", log_scale: false },
+	{ key: "weight_decay", aliases: ["weight_decay", "wd", "l2_penalty", "weightdecay", "weight_dec", "l2", "l2_reg", "l2_regularization", "weight_decay_rate", "wieght_decay", "weight_deacy"], kind: "range", min: "0", max: "0.01", value_type: "float", log_scale: false },
+	{ key: "warmup", aliases: ["warmup", "warm_up", "warmup_steps", "warmup_step", "warmup_iters", "warmup_epochs", "wu", "warm_up_steps", "warmup_iterations"], kind: "range", min: "0", max: "1000", value_type: "int", log_scale: false },
+	{ key: "hidden_size", aliases: ["hidden_size", "hidden_dim", "hidden_units", "hidden", "hsize", "hdim", "hidden_sz", "hidden_layer_size", "hidden_layers_size", "n_hidden", "num_hidden", "hidden_width", "hid", "hid_size", "hidden_siz", "hidde_size"], kind: "range", min: "16", max: "1024", value_type: "int", log_scale: false },
+	{ key: "num_layers", aliases: ["num_layers", "n_layers", "layers", "num_hidden_layers", "layer_count", "nlayer", "nlayers", "numlayer", "numlayers", "num_layer", "layer_num", "num_layers_total", "num_hidden_layer", "hidden_layer_count"], kind: "range", min: "1", max: "12", value_type: "int", log_scale: false },
+	{ key: "num_heads", aliases: ["num_heads", "n_heads", "heads", "head_count", "nhead", "nheads", "numhead", "numheads", "attention_heads", "num_attention_heads", "n_head"], kind: "range", min: "1", max: "16", value_type: "int", log_scale: false },
+	{ key: "embedding_dim", aliases: ["embedding_dim", "emb_dim", "embedding_size", "emb_size", "embdim", "embeddingdim", "emb", "embedding", "dim_embedding", "embedding_dimension", "embed_dim", "embed_size", "embed_dims", "embedding_dims"], kind: "range", min: "8", max: "512", value_type: "int", log_scale: false },
+	{ key: "kernel_size", aliases: ["kernel_size", "kernel", "ksize", "kernelsize", "kernel_sz", "k_size", "ksz", "filter_size", "filtersize", "filter_dim", "kern", "kernal_size", "kernal", "kerel_size"], kind: "range", min: "1", max: "15", value_type: "int", log_scale: false },
+	{ key: "stride", aliases: ["stride", "strides", "stride_size", "strid"], kind: "range", min: "1", max: "4", value_type: "int", log_scale: false },
+	{ key: "padding", aliases: ["padding", "pad", "padding_size", "padsize", "pad_size", "padding_mode", "padding_type"], kind: "choice", values: "same,valid,causal" },
+	{ key: "activation", aliases: ["activation", "act", "activation_fn", "activation_function", "activation_func", "activation_name", "nonlinearity", "non_linearity", "activ", "actvation", "activaton", "activation_type"], kind: "choice", values: "relu,tanh,sigmoid,gelu,leaky_relu,elu,selu,swish,silu,mish,softplus" },
+	{ key: "seed", aliases: ["seed", "random_seed", "rng_seed", "seed_value", "seedval", "randomseed", "rngseed", "rng", "rand_seed", "random_state", "rand_state", "manual_seed", "sed"], kind: "range", min: "0", max: "100000", value_type: "int", log_scale: false },
+	{ key: "gradient_clip", aliases: ["gradient_clip", "grad_clip", "clip_grad", "gradient_clipping", "gradclip", "grad_clip_value", "clip_value", "clip_norm", "clipnorm", "max_grad_norm", "gradient_clip_norm", "gclip", "gradientclip", "grad_norm", "clip_grad_norm"], kind: "range", min: "0", max: "5", value_type: "float", log_scale: false },
+	{ key: "beta1", param_name: "beta_one", aliases: ["beta1", "beta_1", "adam_beta1", "b1", "beta1_value", "beta_one", "b_1"], kind: "range", min: "0.8", max: "0.999", value_type: "float", log_scale: false },
+	{ key: "beta2", param_name: "beta_two", aliases: ["beta2", "beta_2", "adam_beta2", "b2", "beta2_value", "beta_two", "b_2"], kind: "range", min: "0.9", max: "0.9999", value_type: "float", log_scale: false },
+	{ key: "epsilon", aliases: ["epsilon", "eps", "adam_epsilon", "epsilon_value", "eps_val", "epsilonval", "epsilon0", "epsilion", "epsiolon"], kind: "range", min: "0.00000001", max: "0.001", value_type: "float", log_scale: true },
+	{ key: "patience", aliases: ["patience", "early_stopping_patience", "earlystop_patience", "pat", "patience_epochs", "es_patience", "pacience", "early_stopping_rounds"], kind: "range", min: "1", max: "50", value_type: "int", log_scale: false },
+	{ key: "factor", aliases: ["factor", "lr_factor", "reduce_factor", "factor_lr", "lr_reduce_factor", "reduce_lr_factor", "decay_factor", "factor_value", "fact"], kind: "range", min: "0.1", max: "0.9", value_type: "float", log_scale: false },
+	{ key: "gamma", aliases: ["gamma", "lr_gamma", "gamma_lr", "gamma_value", "gamma_decay", "gamme"], kind: "range", min: "0.1", max: "0.9", value_type: "float", log_scale: false },
+	{ key: "min_lr", aliases: ["min_lr", "min_learning_rate", "min_lr_rate", "minimum_lr", "min_learningrate", "lr_min", "min_lrate", "min_learn_rate", "minlr"], kind: "range", min: "0.0000001", max: "0.00001", value_type: "float", log_scale: true },
+	{ key: "max_lr", aliases: ["max_lr", "max_learning_rate", "max_lr_rate", "maximum_lr", "max_learningrate", "lr_max", "max_lrate", "max_learn_rate", "maxlr"], kind: "range", min: "0.001", max: "0.1", value_type: "float", log_scale: true },
+	{ key: "scheduler", aliases: ["scheduler", "lr_scheduler", "sched", "lr_sched", "schedule", "lr_schedule", "scheduler_type", "scheduler_name", "schedueler", "schedular", "sheduler"], kind: "choice", values: "none,step,cosine,linear,plateau,exponential,polynomial,onecycle,constant" },
+	{ key: "loss", aliases: ["loss", "loss_function", "criterion", "loss_fn", "loss_type", "objective", "cost", "cost_function", "error_function", "objective_function", "losses"], kind: "choice", values: "mse,mae,rmse,huber,logcosh,binary_crossentropy,categorical_crossentropy,sparse_categorical_crossentropy,focal_loss,hinge" },
+	{ key: "num_classes", aliases: ["num_classes", "n_classes", "classes", "class_count", "nclass", "nclasses", "numclass", "numclasses", "ncls", "num_labels", "n_labels", "labels", "num_output_classes", "num_class", "n_class", "output_classes"], kind: "range", min: "2", max: "1000", value_type: "int", log_scale: false },
+	{ key: "input_dim", aliases: ["input_dim", "input_size", "input_features", "input_feature", "inputdim", "input_dimension", "in_dim", "indim", "insize", "input_shape", "n_inputs", "num_inputs", "input_dimension_size", "num_features", "n_features", "n_feature", "feature_dim", "input", "inputs"], kind: "range", min: "1", max: "4096", value_type: "int", log_scale: false },
+	{ key: "output_dim", aliases: ["output_dim", "output_size", "outputdim", "output_dimension", "out_dim", "outdim", "outsize", "output_shape", "n_outputs", "num_outputs", "output_dimension_size", "num_targets", "n_targets", "target_dim", "output_dims", "output", "outputs"], kind: "range", min: "1", max: "4096", value_type: "int", log_scale: false },
+	{ key: "n_estimators", aliases: ["n_estimators", "num_estimators", "estimators", "n_est", "nest", "nestimators", "num_trees", "n_trees", "trees", "tree_count", "num_rounds", "n_rounds", "num_iterations", "n_iter", "num_estimator", "n_estimator"], kind: "range", min: "10", max: "1000", value_type: "int", log_scale: false },
+	{ key: "max_depth", aliases: ["max_depth", "tree_depth", "maxdepth", "max_depth_tree", "depth", "tree_max_depth", "mdepth", "max_tree_depth", "tree_maxdepth"], kind: "range", min: "1", max: "50", value_type: "int", log_scale: false },
+	{ key: "min_samples_split", aliases: ["min_samples_split", "minsamplesplit", "min_sample_split", "min_split", "min_samples", "samples_split", "min_samples_to_split", "minsplit"], kind: "range", min: "2", max: "20", value_type: "int", log_scale: false },
+	{ key: "min_samples_leaf", aliases: ["min_samples_leaf", "minsamplesleaf", "min_sample_leaf", "min_leaf", "min_samples_per_leaf", "samples_leaf", "minleaf"], kind: "range", min: "1", max: "20", value_type: "int", log_scale: false },
+	{ key: "learning_rate_init", aliases: ["learning_rate_init", "init_lr", "init_learning_rate", "lr_init", "learningrate_init", "initial_lr", "initial_learning_rate", "lr_start", "learning_rate_start", "learn_rate_init", "init_learningrate"], kind: "range", min: "0.00001", max: "0.001", value_type: "float", log_scale: true },
+	{ key: "alpha", aliases: ["alpha", "reg_alpha", "alpha_value", "regularization_alpha", "alpha_reg", "l1_alpha", "alpha_l1"], kind: "range", min: "0.000001", max: "1", value_type: "float", log_scale: true },
+	{ key: "regularization", aliases: ["regularization", "reg", "reg_strength", "l2_strength", "regularization_strength", "reg_strength_l2", "l2_lambda", "lambda", "lambda_reg", "reg_lambda", "weight_regularization", "regularization_rate", "regularisation", "regularizaton", "regul", "regularization_factor", "l2_alpha"], kind: "range", min: "0", max: "0.1", value_type: "float", log_scale: false },
+	{ key: "max_features", aliases: ["max_features", "maxfeatures", "feature_fraction", "max_feature"], kind: "choice", values: "sqrt,log2,auto,none" },
+	{ key: "max_leaf_nodes", aliases: ["max_leaf_nodes", "maxleafnodes", "max_leaves", "num_leaves", "n_leaves"], kind: "range", min: "2", max: "10000", value_type: "int", log_scale: false },
+	{ key: "min_weight_fraction_leaf", aliases: ["min_weight_fraction_leaf", "minweightfractionleaf", "min_weight_leaf"], kind: "range", min: "0", max: "0.5", value_type: "float", log_scale: false },
+	{ key: "min_impurity_decrease", aliases: ["min_impurity_decrease", "minimpuritydecrease", "min_impurity"], kind: "range", min: "0", max: "0.1", value_type: "float", log_scale: false },
+	{ key: "bootstrap", aliases: ["bootstrap", "bootstrapping", "boot"], kind: "choice", values: "true,false" },
+	{ key: "oob_score", aliases: ["oob_score", "oobscore", "out_of_bag_score"], kind: "choice", values: "true,false" },
+	{ key: "ccp_alpha", aliases: ["ccp_alpha", "ccpalpha", "pruning_alpha"], kind: "range", min: "0", max: "0.1", value_type: "float", log_scale: false },
+	{ key: "max_samples", aliases: ["max_samples", "maxsamples", "sample_fraction", "sample_ratio"], kind: "range", min: "0.1", max: "1", value_type: "float", log_scale: false },
+	{ key: "subsample", aliases: ["subsample", "sub_sample", "sample_rate"], kind: "range", min: "0.5", max: "1", value_type: "float", log_scale: false },
+	{ key: "colsample_bytree", aliases: ["colsample_bytree", "colsample", "col_sample", "feature_subsample"], kind: "range", min: "0.1", max: "1", value_type: "float", log_scale: false },
+	{ key: "min_child_weight", aliases: ["min_child_weight", "minchildweight", "min_child", "child_weight"], kind: "range", min: "0", max: "20", value_type: "float", log_scale: false },
+	{ key: "scale_pos_weight", aliases: ["scale_pos_weight", "scaleposweight", "pos_weight", "positive_weight"], kind: "range", min: "0.1", max: "10", value_type: "float", log_scale: true },
+	{ key: "C", aliases: ["C", "c", "c_param", "regularization_c"], kind: "range", min: "0.001", max: "100", value_type: "float", log_scale: true },
+	{ key: "tol", aliases: ["tol", "tolerance", "rtol", "atol", "convergence_tolerance"], kind: "range", min: "0.000001", max: "0.01", value_type: "float", log_scale: true },
+	{ key: "solver", aliases: ["solver", "solver_type", "linear_solver"], kind: "choice", values: "lbfgs,adam,sgd,newton-cg,saga,cg,gmres,bicgstab,direct" },
+	{ key: "penalty", aliases: ["penalty", "penalty_type", "regularization_type"], kind: "choice", values: "l2,l1,elasticnet,none" },
+	{ key: "n_neighbors", aliases: ["n_neighbors", "nneighbors", "neighbors", "k_neighbors", "knn"], kind: "range", min: "1", max: "100", value_type: "int", log_scale: false },
+	{ key: "weights", aliases: ["weights", "weighting", "neighbor_weights"], kind: "choice", values: "uniform,distance" },
+	{ key: "leaf_size", aliases: ["leaf_size", "leafsize", "tree_leaf_size"], kind: "range", min: "10", max: "100", value_type: "int", log_scale: false },
+	{ key: "n_components", aliases: ["n_components", "ncomponents", "num_components", "components", "latent_dim"], kind: "range", min: "2", max: "512", value_type: "int", log_scale: false },
+	{ key: "perplexity", aliases: ["perplexity", "perp"], kind: "range", min: "5", max: "100", value_type: "float", log_scale: false },
+	{ key: "max_iter", aliases: ["max_iter", "maxiter", "max_iters", "max_iterations", "iterations", "n_iterations", "num_iters", "iter", "iters", "iteration"], kind: "range", min: "10", max: "10000", value_type: "int", log_scale: false },
+	{ key: "min_child_samples", aliases: ["min_child_samples", "minchildsamples", "min_data_in_leaf", "min_data_leaf"], kind: "range", min: "1", max: "100", value_type: "int", log_scale: false },
+	{ key: "population_size", aliases: ["population_size", "pop_size", "popsize", "n_population", "population", "num_population"], kind: "range", min: "10", max: "1000", value_type: "int", log_scale: false },
+	{ key: "generations", aliases: ["generations", "n_generations", "num_generations", "max_generations", "ngen"], kind: "range", min: "1", max: "1000", value_type: "int", log_scale: false },
+	{ key: "mutation_rate", aliases: ["mutation_rate", "mutation_prob", "mutation_probability", "p_mutation", "mut_rate", "mutrate"], kind: "range", min: "0", max: "1", value_type: "float", log_scale: false },
+	{ key: "crossover_rate", aliases: ["crossover_rate", "crossover_prob", "crossover_probability", "p_crossover", "cx_rate", "cxrate"], kind: "range", min: "0", max: "1", value_type: "float", log_scale: false },
+	{ key: "elitism_rate", aliases: ["elitism_rate", "elite_size", "elitism", "n_elite", "num_elite", "elite_fraction"], kind: "range", min: "0", max: "0.5", value_type: "float", log_scale: false },
+	{ key: "tournament_size", aliases: ["tournament_size", "tournament", "tour_size", "selection_pressure"], kind: "range", min: "2", max: "20", value_type: "int", log_scale: false },
+	{ key: "swarm_size", aliases: ["swarm_size", "n_particles", "num_particles", "particle_count", "particles", "swarm"], kind: "range", min: "10", max: "500", value_type: "int", log_scale: false },
+	{ key: "inertia_weight", aliases: ["inertia_weight", "inertia", "w_inertia", "omega_inertia"], kind: "range", min: "0", max: "1.2", value_type: "float", log_scale: false },
+	{ key: "cognitive_coeff", aliases: ["cognitive_coeff", "c1", "cognitive", "cognitive_weight"], kind: "range", min: "0", max: "4", value_type: "float", log_scale: false },
+	{ key: "social_coeff", aliases: ["social_coeff", "c2", "social", "social_weight"], kind: "range", min: "0", max: "4", value_type: "float", log_scale: false },
+	{ key: "cooling_rate", aliases: ["cooling_rate", "cooling", "cooling_factor", "cool_rate"], kind: "range", min: "0.8", max: "0.999", value_type: "float", log_scale: false },
+	{ key: "initial_temperature", aliases: ["initial_temperature", "initial_temp", "temp_init", "t_start", "t0"], kind: "range", min: "0.1", max: "1000", value_type: "float", log_scale: true },
+	{ key: "final_temperature", aliases: ["final_temperature", "final_temp", "temp_final", "t_end_temp", "temp_min"], kind: "range", min: "0.000001", max: "1", value_type: "float", log_scale: true },
+	{ key: "n_restarts", aliases: ["n_restarts", "num_restarts", "restarts", "restart_count"], kind: "range", min: "1", max: "20", value_type: "int", log_scale: false },
+	{ key: "n_trials", aliases: ["n_trials", "num_trials", "trials", "trial_count"], kind: "range", min: "10", max: "1000", value_type: "int", log_scale: false },
+	{ key: "n_initial_points", aliases: ["n_initial_points", "initial_points", "n_startup_trials", "startup_trials"], kind: "range", min: "5", max: "100", value_type: "int", log_scale: false },
+	{ key: "acquisition_function", aliases: ["acquisition_function", "acquisition", "acq_func", "acq"], kind: "choice", values: "ei,ucb,poi,gp_hedge" },
+	{ key: "kernel_type", aliases: ["kernel_type", "cov_kernel", "covariance", "covariance_function", "gp_kernel"], kind: "choice", values: "rbf,matern,linear,poly" },
+	{ key: "length_scale", aliases: ["length_scale", "lengthscale", "ls", "gp_length_scale"], kind: "range", min: "0.001", max: "1000", value_type: "float", log_scale: true },
+	{ key: "noise_level", aliases: ["noise_level", "noise", "noise_std", "noise_sigma", "measurement_noise"], kind: "range", min: "0", max: "1", value_type: "float", log_scale: false },
+	{ key: "exploration", aliases: ["exploration", "exploration_rate", "explore_fraction"], kind: "range", min: "0", max: "1", value_type: "float", log_scale: false },
+	{ key: "penalty_coeff", aliases: ["penalty_coeff", "constraint_penalty", "penalty_weight", "penalty_factor"], kind: "range", min: "0", max: "100", value_type: "float", log_scale: false },
+	{ key: "time_step", aliases: ["time_step", "timestep", "dt", "delta_t", "delta_time"], kind: "range", min: "0.000001", max: "0.1", value_type: "float", log_scale: true },
+	{ key: "end_time", aliases: ["end_time", "simulation_time", "duration", "t_end", "total_time"], kind: "range", min: "0.1", max: "1000", value_type: "float", log_scale: true },
+	{ key: "mesh_size", aliases: ["mesh_size", "meshsize", "cell_size", "element_size", "dx"], kind: "range", min: "0.0001", max: "1", value_type: "float", log_scale: true },
+	{ key: "grid_size", aliases: ["grid_size", "gridsize", "grid_dim", "grid_points", "n_grid"], kind: "range", min: "8", max: "1024", value_type: "int", log_scale: false },
+	{ key: "resolution", aliases: ["resolution", "res", "image_size", "img_size"], kind: "range", min: "8", max: "4096", value_type: "int", log_scale: false },
+	{ key: "cfl", aliases: ["cfl", "cfl_number", "courant", "courant_number"], kind: "range", min: "0.1", max: "1", value_type: "float", log_scale: false },
+	{ key: "viscosity", aliases: ["viscosity", "kinematic_viscosity", "dynamic_viscosity", "visc"], kind: "range", min: "0.000001", max: "1", value_type: "float", log_scale: true },
+	{ key: "density", aliases: ["density", "rho", "mass_density"], kind: "range", min: "0.1", max: "10000", value_type: "float", log_scale: true },
+	{ key: "diffusivity", aliases: ["diffusivity", "diffusion_coeff", "diffusion_coefficient", "diff_coef"], kind: "range", min: "0.00000001", max: "1", value_type: "float", log_scale: true },
+	{ key: "thermal_conductivity", aliases: ["thermal_conductivity", "conductivity", "heat_conductivity", "k_thermal"], kind: "range", min: "0.01", max: "500", value_type: "float", log_scale: true },
+	{ key: "specific_heat", aliases: ["specific_heat", "heat_capacity", "cp", "specific_heat_capacity"], kind: "range", min: "100", max: "5000", value_type: "float", log_scale: false },
+	{ key: "youngs_modulus", aliases: ["youngs_modulus", "young_modulus", "elastic_modulus", "e_modulus"], kind: "range", min: "1000000", max: "1000000000000", value_type: "float", log_scale: true },
+	{ key: "poisson_ratio", aliases: ["poisson_ratio", "poissons_ratio", "nu_poisson"], kind: "range", min: "0", max: "0.5", value_type: "float", log_scale: false },
+	{ key: "yield_strength", aliases: ["yield_strength", "yield_stress", "sigma_y"], kind: "range", min: "100000", max: "10000000000", value_type: "float", log_scale: true },
+	{ key: "friction_coefficient", aliases: ["friction_coefficient", "friction", "mu_friction"], kind: "range", min: "0", max: "1", value_type: "float", log_scale: false },
+	{ key: "restitution", aliases: ["restitution", "restitution_coefficient", "bounce"], kind: "range", min: "0", max: "1", value_type: "float", log_scale: false },
+	{ key: "damping", aliases: ["damping", "damping_coefficient", "damping_ratio"], kind: "range", min: "0", max: "1", value_type: "float", log_scale: false },
+	{ key: "gravity", aliases: ["gravity", "g", "gravitational_acceleration"], kind: "range", min: "0", max: "20", value_type: "float", log_scale: false },
+	{ key: "relaxation_factor", aliases: ["relaxation_factor", "relaxation", "relax_factor", "omega_relax"], kind: "range", min: "0.1", max: "1.5", value_type: "float", log_scale: false },
+	{ key: "preconditioner", aliases: ["preconditioner", "precond", "preconditioner_type"], kind: "choice", values: "jacobi,ilu,amg,none" },
+	{ key: "scheme", aliases: ["scheme", "discretization", "time_scheme", "integrator"], kind: "choice", values: "euler,rk4,crank_nicolson,upwind" },
+	{ key: "n_steps", aliases: ["n_steps", "num_steps", "steps", "step_count", "timesteps"], kind: "range", min: "1", max: "100000", value_type: "int", log_scale: false },
+	{ key: "n_cells", aliases: ["n_cells", "num_cells", "cells", "cell_count"], kind: "range", min: "10", max: "1000000", value_type: "int", log_scale: false },
+	{ key: "n_samples", aliases: ["n_samples", "num_samples", "samples", "sample_size", "sample_count"], kind: "range", min: "10", max: "100000", value_type: "int", log_scale: false },
+	{ key: "n_jobs", aliases: ["n_jobs", "num_jobs", "jobs", "workers", "num_workers", "n_workers", "n_threads", "num_threads", "threads", "nthread", "nthreads", "n_thread"], kind: "range", min: "-1", max: "128", value_type: "int", log_scale: false },
+	{ key: "num_gpus", aliases: ["num_gpus", "n_gpus", "gpus", "gpu_count"], kind: "range", min: "0", max: "8", value_type: "int", log_scale: false },
+	{ key: "max_tokens", aliases: ["max_tokens", "max_new_tokens", "max_length", "max_seq_len", "max_seq_length", "seq_len", "sequence_length", "context_length", "context_window", "ctx_len", "context", "seq", "ctx", "max_seq", "max_context", "max_len"], kind: "range", min: "16", max: "8192", value_type: "int", log_scale: false },
+	{ key: "temperature", aliases: ["temperature", "temp", "sampling_temperature"], kind: "range", min: "0", max: "2", value_type: "float", log_scale: false },
+	{ key: "top_p", aliases: ["top_p", "nucleus", "nucleus_p", "sampling_p"], kind: "range", min: "0", max: "1", value_type: "float", log_scale: false },
+	{ key: "top_k", aliases: ["top_k", "topk", "k_sampling"], kind: "range", min: "1", max: "100", value_type: "int", log_scale: false },
+	{ key: "repetition_penalty", aliases: ["repetition_penalty", "rep_penalty", "repetition"], kind: "range", min: "1", max: "2", value_type: "float", log_scale: false },
+	{ key: "frequency_penalty", aliases: ["frequency_penalty", "freq_penalty", "frequency_pen"], kind: "range", min: "-2", max: "2", value_type: "float", log_scale: false },
+	{ key: "presence_penalty", aliases: ["presence_penalty", "pres_penalty", "presence"], kind: "range", min: "-2", max: "2", value_type: "float", log_scale: false },
+	{ key: "num_beams", aliases: ["num_beams", "beams", "beam_size", "beam_width", "n_beams"], kind: "range", min: "1", max: "10", value_type: "int", log_scale: false },
+	{ key: "early_stopping", aliases: ["early_stopping", "earlystop", "early_stop"], kind: "choice", values: "true,false" },
+	{ key: "length_penalty", aliases: ["length_penalty", "len_penalty"], kind: "range", min: "0.1", max: "2", value_type: "float", log_scale: false },
+	{ key: "no_repeat_ngram_size", aliases: ["no_repeat_ngram_size", "no_repeat_ngram", "ngram_size", "n_ngram"], kind: "range", min: "1", max: "5", value_type: "int", log_scale: false },
+	{ key: "do_sample", aliases: ["do_sample", "sample", "sampling"], kind: "choice", values: "true,false" },
+	{ key: "lora_rank", aliases: ["lora_rank", "lora_r", "peft_rank", "adapter_rank", "rank_lora"], kind: "range", min: "1", max: "128", value_type: "int", log_scale: false },
+	{ key: "lora_alpha", aliases: ["lora_alpha", "lora_alpha_scale", "peft_alpha", "adapter_alpha"], kind: "range", min: "1", max: "128", value_type: "int", log_scale: false },
+	{ key: "lora_dropout", aliases: ["lora_dropout", "lora_drop", "peft_dropout", "adapter_dropout"], kind: "range", min: "0", max: "0.5", value_type: "float", log_scale: false },
+	{ key: "quantization_bits", aliases: ["quantization_bits", "quant_bits", "bits", "quantization", "precision_bits"], kind: "choice", values: "4,8,16,32" },
+	{ key: "gradient_accumulation_steps", aliases: ["gradient_accumulation_steps", "grad_accum", "gradient_accumulation", "accum_steps", "grad_accum_steps"], kind: "range", min: "1", max: "64", value_type: "int", log_scale: false },
+	{ key: "micro_batch_size", aliases: ["micro_batch_size", "microbatch_size", "micro_bs", "microbs"], kind: "range", min: "1", max: "64", value_type: "int", log_scale: false },
+	{ key: "global_batch_size", aliases: ["global_batch_size", "train_batch_size", "effective_batch_size", "global_bs"], kind: "range", min: "8", max: "4096", value_type: "int", log_scale: false },
+	{ key: "eval_batch_size", aliases: ["eval_batch_size", "validation_batch_size", "eval_bs", "val_batch_size"], kind: "range", min: "8", max: "512", value_type: "int", log_scale: false },
+	{ key: "warmup_ratio", aliases: ["warmup_ratio", "warmup_fraction", "warmup_frac", "warmup_pct"], kind: "range", min: "0", max: "0.2", value_type: "float", log_scale: false },
+	{ key: "min_lr_ratio", aliases: ["min_lr_ratio", "min_lr_scale", "min_lr_fraction"], kind: "range", min: "0", max: "0.1", value_type: "float", log_scale: false },
+	{ key: "max_steps", aliases: ["max_steps", "train_steps", "num_train_steps", "total_steps", "n_train_steps"], kind: "range", min: "100", max: "100000", value_type: "int", log_scale: false },
+	{ key: "save_steps", aliases: ["save_steps", "checkpoint_steps", "save_interval"], kind: "range", min: "50", max: "5000", value_type: "int", log_scale: false },
+	{ key: "eval_steps", aliases: ["eval_steps", "evaluation_steps", "eval_interval"], kind: "range", min: "10", max: "5000", value_type: "int", log_scale: false },
+	{ key: "logging_steps", aliases: ["logging_steps", "log_steps", "log_interval", "logging_interval"], kind: "range", min: "1", max: "1000", value_type: "int", log_scale: false },
+	{ key: "attention_dropout", aliases: ["attention_dropout", "attn_dropout", "attention_dropout_prob", "attn_drop"], kind: "range", min: "0", max: "0.5", value_type: "float", log_scale: false },
+	{ key: "hidden_dropout", aliases: ["hidden_dropout", "hidden_dropout_prob", "hidden_drop"], kind: "range", min: "0", max: "0.5", value_type: "float", log_scale: false },
+	{ key: "layer_norm_eps", aliases: ["layer_norm_eps", "layer_norm_epsilon", "layernorm_eps", "ln_eps"], kind: "range", min: "0.00000001", max: "0.001", value_type: "float", log_scale: true },
+	{ key: "rope_theta", aliases: ["rope_theta", "rotary_theta", "rope_base"], kind: "range", min: "1000", max: "100000", value_type: "float", log_scale: true },
+	{ key: "intermediate_size", aliases: ["intermediate_size", "ffn_dim", "feed_forward_dim", "mlp_dim", "intermediate_dim"], kind: "range", min: "512", max: "16384", value_type: "int", log_scale: false },
+	{ key: "vocab_size", aliases: ["vocab_size", "vocabsize", "vocabulary_size"], kind: "range", min: "1000", max: "200000", value_type: "int", log_scale: false },
+	{ key: "max_position_embeddings", aliases: ["max_position_embeddings", "max_position", "max_positions", "position_size"], kind: "range", min: "128", max: "32768", value_type: "int", log_scale: false },
+	{ key: "adapter_dim", aliases: ["adapter_dim", "bottleneck_dim", "adapter_size"], kind: "range", min: "1", max: "256", value_type: "int", log_scale: false },
+	{ key: "prefix_length", aliases: ["prefix_length", "prompt_length", "prefix_len"], kind: "range", min: "1", max: "100", value_type: "int", log_scale: false },
+	{ key: "use_lora", aliases: ["use_lora", "lora", "enable_lora"], kind: "choice", values: "true,false" },
+	{ key: "freeze_layers", aliases: ["freeze_layers", "frozen_layers", "n_frozen_layers"], kind: "range", min: "0", max: "64", value_type: "int", log_scale: false },
+	{ key: "unfreeze_layers", aliases: ["unfreeze_layers", "trainable_layers", "n_trainable_layers"], kind: "range", min: "0", max: "64", value_type: "int", log_scale: false },
+	{ key: "num_filters", aliases: ["num_filters", "n_filters", "nfilters", "filters", "filter_count", "out_channels"], kind: "range", min: "8", max: "1024", value_type: "int", log_scale: false },
+	{ key: "pool_size", aliases: ["pool_size", "poolsize", "pooling_size", "pool_dim"], kind: "range", min: "2", max: "4", value_type: "int", log_scale: false },
+	{ key: "num_blocks", aliases: ["num_blocks", "n_blocks", "nblocks", "blocks", "num_res_blocks", "res_blocks", "block_count"], kind: "range", min: "1", max: "100", value_type: "int", log_scale: false },
+	{ key: "normalization", aliases: ["normalization", "norm_type", "norm", "normalization_type", "norm_layer"], kind: "choice", values: "batch,layer,group,none" },
+	{ key: "group_size", aliases: ["group_size", "groupsize", "num_groups", "n_groups"], kind: "range", min: "1", max: "64", value_type: "int", log_scale: false },
+	{ key: "drop_path_rate", aliases: ["drop_path_rate", "stochastic_depth", "stochastic_depth_rate", "drop_path"], kind: "range", min: "0", max: "1", value_type: "float", log_scale: false },
+	{ key: "label_smoothing", aliases: ["label_smoothing", "label_smooth", "smoothing"], kind: "range", min: "0", max: "1", value_type: "float", log_scale: false },
+	{ key: "mixup_alpha", aliases: ["mixup_alpha", "mixup", "alpha_mixup"], kind: "range", min: "0", max: "1", value_type: "float", log_scale: false },
+	{ key: "cutmix_alpha", aliases: ["cutmix_alpha", "cutmix"], kind: "range", min: "0", max: "1", value_type: "float", log_scale: false },
+	{ key: "augment_prob", aliases: ["augment_prob", "augmentation_prob", "aug_prob", "augment_probability"], kind: "range", min: "0", max: "1", value_type: "float", log_scale: false },
+	{ key: "patch_size", aliases: ["patch_size", "patchsize", "patch_dim"], kind: "range", min: "1", max: "64", value_type: "int", log_scale: false },
+	{ key: "window_size", aliases: ["window_size", "windowsize", "window_dim"], kind: "range", min: "1", max: "64", value_type: "int", log_scale: false },
+	{ key: "mlp_ratio", aliases: ["mlp_ratio", "mlp_expansion", "ffn_ratio"], kind: "range", min: "1", max: "8", value_type: "float", log_scale: false },
+	{ key: "channels", aliases: ["channels", "num_channels", "in_channels", "n_channels", "channel_count"], kind: "range", min: "1", max: "1024", value_type: "int", log_scale: false },
+	{ key: "num_patches", aliases: ["num_patches", "n_patches", "patches", "patch_count"], kind: "range", min: "4", max: "4096", value_type: "int", log_scale: false },
+	{ key: "qkv_bias", aliases: ["qkv_bias", "use_qkv_bias", "qkv_bias_enabled"], kind: "choice", values: "true,false" },
+	{ key: "layer_scale_init", aliases: ["layer_scale_init", "layer_scale"], kind: "range", min: "0", max: "0.01", value_type: "float", log_scale: false },
+	{ key: "weight_init", aliases: ["weight_init", "init", "initializer", "initialization", "weight_initializer", "param_init"], kind: "choice", values: "xavier,he,normal,uniform,orthogonal,zeros" },
+	{ key: "gradient_checkpointing", aliases: ["gradient_checkpointing", "grad_checkpointing", "use_gradient_checkpointing", "activation_checkpointing"], kind: "choice", values: "true,false" },
+	{ key: "mixed_precision", aliases: ["mixed_precision", "amp", "autocast", "precision_mode"], kind: "choice", values: "no,fp16,bf16" },
+	{ key: "device", aliases: ["device", "compute_device", "hardware"], kind: "choice", values: "cpu,cuda,mps" },
+	{ key: "use_flash_attention", aliases: ["use_flash_attention", "flash_attention", "flash_attn", "attn_implementation", "attention_implementation"], kind: "choice", values: "auto,flash_attention_2,eager,sdpa" },
+	{ key: "torch_dtype", aliases: ["torch_dtype", "dtype", "compute_dtype"], kind: "choice", values: "float32,float16,bfloat16,int8" },
+	{ key: "load_in_4bit", param_name: "load_in_four_bit", aliases: ["load_in_4bit", "use_4bit", "q4bit", "four_bit"], kind: "choice", values: "true,false" },
+	{ key: "load_in_8bit", param_name: "load_in_eight_bit", aliases: ["load_in_8bit", "use_8bit", "q8bit", "eight_bit"], kind: "choice", values: "true,false" },
+	{ key: "zero_stage", aliases: ["zero_stage", "zero", "deepspeed_stage", "zero_optimization_stage"], kind: "choice", values: "0,1,2,3" },
+	{ key: "gpu_memory_utilization", aliases: ["gpu_memory_utilization", "gpu_mem_util", "memory_utilization", "gpu_memory_fraction"], kind: "range", min: "0.1", max: "1", value_type: "float", log_scale: false },
+	{ key: "max_model_len", aliases: ["max_model_len", "model_max_length", "model_context_length"], kind: "range", min: "128", max: "32768", value_type: "int", log_scale: false },
+	{ key: "tensor_parallel_size", aliases: ["tensor_parallel_size", "tp_size", "tensor_parallel"], kind: "range", min: "1", max: "16", value_type: "int", log_scale: false },
+	{ key: "pipeline_parallel_size", aliases: ["pipeline_parallel_size", "pp_size", "pipeline_parallel"], kind: "range", min: "1", max: "16", value_type: "int", log_scale: false },
+	{ key: "data_parallel_size", aliases: ["data_parallel_size", "dp_size", "data_parallel"], kind: "range", min: "1", max: "64", value_type: "int", log_scale: false },
+	{ key: "block_size", aliases: ["block_size", "blocksize", "kv_block_size"], kind: "range", min: "4", max: "128", value_type: "int", log_scale: false },
+	{ key: "swap_space", aliases: ["swap_space", "swap_size"], kind: "range", min: "1", max: "128", value_type: "int", log_scale: false },
+	{ key: "prefetch_factor", aliases: ["prefetch_factor", "prefetch"], kind: "range", min: "1", max: "16", value_type: "int", log_scale: false },
+	{ key: "pin_memory", aliases: ["pin_memory", "pinned_memory"], kind: "choice", values: "true,false" },
+	{ key: "dataloader_workers", aliases: ["dataloader_workers", "loader_workers", "num_dataloader_workers", "data_workers"], kind: "range", min: "0", max: "64", value_type: "int", log_scale: false },
+	{ key: "packing", aliases: ["packing", "pack_sequences", "sequence_packing"], kind: "choice", values: "true,false" },
+	{ key: "per_device_batch_size", aliases: ["per_device_batch_size", "batch_size_per_device", "device_batch_size"], kind: "range", min: "1", max: "64", value_type: "int", log_scale: false },
+	{ key: "boosting", aliases: ["boosting", "boosting_type", "booster", "boost_type"], kind: "choice", values: "gbdt,dart,goss" },
+	{ key: "tree_method", aliases: ["tree_method", "tree_construction", "tree_builder"], kind: "choice", values: "hist,exact,approx,gpu_hist" },
+	{ key: "max_bin", aliases: ["max_bin", "maxbin", "n_bins", "num_bins"], kind: "range", min: "16", max: "1024", value_type: "int", log_scale: false },
+	{ key: "bagging_fraction", aliases: ["bagging_fraction", "bagging_frac", "bag_frac"], kind: "range", min: "0.1", max: "1", value_type: "float", log_scale: false },
+	{ key: "bagging_freq", aliases: ["bagging_freq", "bag_freq"], kind: "range", min: "0", max: "20", value_type: "int", log_scale: false },
+	{ key: "min_gain_to_split", aliases: ["min_gain_to_split", "min_gain", "min_split_gain"], kind: "range", min: "0", max: "10", value_type: "float", log_scale: false },
+	{ key: "lambda_l1", param_name: "lambda_l_one", aliases: ["lambda_l1", "l1_lambda", "reg_lambda_l1"], kind: "range", min: "0", max: "1", value_type: "float", log_scale: false },
+	{ key: "lambda_l2", param_name: "lambda_l_two", aliases: ["lambda_l2", "l2_lambda2", "reg_lambda_l2"], kind: "range", min: "0", max: "1", value_type: "float", log_scale: false },
+	{ key: "num_boost_round", aliases: ["num_boost_round", "n_boost_round", "boosting_rounds", "boost_rounds"], kind: "range", min: "10", max: "10000", value_type: "int", log_scale: false },
+	{ key: "colsample_bylevel", aliases: ["colsample_bylevel", "col_sample_bylevel", "feature_fraction_bylevel"], kind: "range", min: "0.1", max: "1", value_type: "float", log_scale: false },
+	{ key: "colsample_bynode", aliases: ["colsample_bynode", "col_sample_bynode", "feature_fraction_bynode"], kind: "range", min: "0.1", max: "1", value_type: "float", log_scale: false },
+	{ key: "max_delta_step", aliases: ["max_delta_step", "maxdeltastep", "delta_step"], kind: "range", min: "0", max: "10", value_type: "float", log_scale: false },
+	{ key: "base_score", aliases: ["base_score", "basescore", "initial_score"], kind: "range", min: "0", max: "1", value_type: "float", log_scale: false },
+	{ key: "cat_smooth", aliases: ["cat_smooth", "catsmooth"], kind: "range", min: "0", max: "100", value_type: "float", log_scale: false },
+	{ key: "cat_l2", param_name: "cat_l_two", aliases: ["cat_l2", "catl2"], kind: "range", min: "0", max: "100", value_type: "float", log_scale: false },
+	{ key: "max_cat_threshold", aliases: ["max_cat_threshold", "maxcatthreshold", "cat_threshold"], kind: "range", min: "1", max: "100", value_type: "int", log_scale: false },
+	{ key: "domain_size", aliases: ["domain_size", "domain_length", "domain_width", "domain_height", "domain_dim", "domain_extent"], kind: "range", min: "0.001", max: "1000", value_type: "float", log_scale: true },
+	{ key: "pressure", aliases: ["pressure", "p_pressure", "static_pressure"], kind: "range", min: "0.000001", max: "1000000000", value_type: "float", log_scale: true },
+	{ key: "flow_rate", aliases: ["flow_rate", "flowrate", "mass_flow", "volumetric_flow", "flow"], kind: "range", min: "0", max: "1000", value_type: "float", log_scale: false },
+	{ key: "inlet_velocity", aliases: ["inlet_velocity", "inflow_velocity", "velocity", "flow_velocity"], kind: "range", min: "0", max: "1000", value_type: "float", log_scale: false },
+	{ key: "reynolds_number", aliases: ["reynolds_number", "reynolds", "re_number", "reynolds_num"], kind: "range", min: "1", max: "100000000", value_type: "float", log_scale: true },
+	{ key: "mach_number", aliases: ["mach_number", "mach", "mach_num"], kind: "range", min: "0.01", max: "10", value_type: "float", log_scale: true },
+	{ key: "frequency", aliases: ["frequency", "freq", "freq_hz"], kind: "range", min: "0.001", max: "1000000", value_type: "float", log_scale: true },
+	{ key: "amplitude", aliases: ["amplitude", "ampl", "amplitude_value"], kind: "range", min: "0.000001", max: "1000000", value_type: "float", log_scale: true },
+	{ key: "wavelength", aliases: ["wavelength", "wave_length", "lambda_wave"], kind: "range", min: "0.000000001", max: "1000", value_type: "float", log_scale: true },
+	{ key: "period", aliases: ["period", "time_period", "period_length"], kind: "range", min: "0.001", max: "1000", value_type: "float", log_scale: true },
+	{ key: "mass", aliases: ["mass", "body_mass", "weight_mass"], kind: "range", min: "0.000001", max: "1000000", value_type: "float", log_scale: true },
+	{ key: "stiffness", aliases: ["stiffness", "spring_constant", "spring_stiffness", "elastic_stiffness"], kind: "range", min: "0.001", max: "1000000000", value_type: "float", log_scale: true },
+	{ key: "surface_tension", aliases: ["surface_tension", "sigma_surface", "tension"], kind: "range", min: "0.000001", max: "10", value_type: "float", log_scale: true },
+	{ key: "contact_angle", aliases: ["contact_angle", "theta_contact", "wetting_angle"], kind: "range", min: "0", max: "180", value_type: "float", log_scale: false },
+	{ key: "roughness", aliases: ["roughness", "surface_roughness", "roughness_height"], kind: "range", min: "0.000000001", max: "0.1", value_type: "float", log_scale: true },
+	{ key: "porosity", aliases: ["porosity", "void_fraction", "porous_fraction"], kind: "range", min: "0", max: "1", value_type: "float", log_scale: false },
+	{ key: "tortuosity", aliases: ["tortuosity", "tortuosity_factor"], kind: "range", min: "1", max: "10", value_type: "float", log_scale: false },
+	{ key: "reaction_rate", aliases: ["reaction_rate", "rate_constant", "reaction_constant"], kind: "range", min: "0.000000000001", max: "1000", value_type: "float", log_scale: true },
+	{ key: "activation_energy", aliases: ["activation_energy", "e_activation", "activation_energy_value"], kind: "range", min: "0.000001", max: "1000000", value_type: "float", log_scale: true },
+	{ key: "thermal_expansion", aliases: ["thermal_expansion", "expansion_coefficient", "thermal_expansion_coeff"], kind: "range", min: "0.000000001", max: "0.001", value_type: "float", log_scale: true },
+	{ key: "latent_heat", aliases: ["latent_heat", "heat_of_vaporization", "latent_heat_value"], kind: "range", min: "1000", max: "10000000", value_type: "float", log_scale: true },
+	{ key: "melting_temperature", aliases: ["melting_temperature", "melting_point", "tm"], kind: "range", min: "1", max: "5000", value_type: "float", log_scale: false },
+	{ key: "boiling_temperature", aliases: ["boiling_temperature", "boiling_point", "tb"], kind: "range", min: "1", max: "5000", value_type: "float", log_scale: false },
+	{ key: "emissivity", aliases: ["emissivity", "epsilon_thermal", "emissive"], kind: "range", min: "0", max: "1", value_type: "float", log_scale: false },
+	{ key: "absorptivity", aliases: ["absorptivity", "absorbance", "absorption"], kind: "range", min: "0", max: "1", value_type: "float", log_scale: false },
+	{ key: "reflectivity", aliases: ["reflectivity", "reflectance", "reflection"], kind: "range", min: "0", max: "1", value_type: "float", log_scale: false },
+	{ key: "refractive_index", aliases: ["refractive_index", "refraction_index", "index_of_refraction"], kind: "range", min: "1", max: "5", value_type: "float", log_scale: false },
+	{ key: "permittivity", aliases: ["permittivity", "dielectric_constant", "relative_permittivity"], kind: "range", min: "1", max: "10000", value_type: "float", log_scale: false },
+	{ key: "permeability", aliases: ["permeability", "magnetic_permeability", "relative_permeability"], kind: "range", min: "0.000000000001", max: "1", value_type: "float", log_scale: true },
+	{ key: "heat_transfer_coeff", aliases: ["heat_transfer_coeff", "heat_transfer_coefficient", "htc", "convection_coeff"], kind: "range", min: "0.1", max: "10000", value_type: "float", log_scale: true },
+	{ key: "mesh_order", aliases: ["mesh_order", "element_order", "polynomial_order", "fe_order"], kind: "range", min: "1", max: "5", value_type: "int", log_scale: false },
+	{ key: "n_modes", aliases: ["n_modes", "num_modes", "modes", "mode_count"], kind: "range", min: "1", max: "1000", value_type: "int", log_scale: false }
+];
+
+var _run_program_keyword_suggestion_map = Object.create(null);
+RUN_PROGRAM_KEYWORD_SUGGESTIONS.forEach(function (definition) {
+	definition.aliases.forEach(function (alias) {
+		_run_program_keyword_suggestion_map[alias.toLowerCase()] = definition;
+	});
+});
+
+function get_run_program_placeholders(run_program_string) {
+	var pattern = /(?:\$|%)\(([a-zA-Z_][a-zA-Z0-9_]*)\)|(?:\$|%)([a-zA-Z_][a-zA-Z0-9_]*)/g;
+	var names = [];
+	var match;
+	while ((match = pattern.exec(run_program_string)) !== null) {
+		var previous = match.index > 0 ? run_program_string.charAt(match.index - 1) : "";
+		if (previous === "\\" || (match[0].charAt(0) === "%" && previous === "%") || (match[0].charAt(0) === "$" && previous === "$")) {
+			continue;
+		}
+		var name = match[1] || match[2];
+		if (name) {
+			names.push(name);
+		}
+	}
+	return names;
+}
+
+var _run_program_keyword_fuzzy_cache = Object.create(null);
+var _run_program_keyword_fuzzy_by_length = Object.create(null);
+var _run_program_keyword_fuzzy_by_first = Object.create(null);
+var _run_program_fuzzy_deadline = 0;
+var _run_program_keyword_parameter_name_cache = Object.create(null);
+
+RUN_PROGRAM_KEYWORD_SUGGESTIONS.forEach(function (definition) {
+	definition.aliases.forEach(function (alias) {
+		var lower = alias.toLowerCase();
+		if (lower.length < 6) return;
+		var entry = { alias: lower, definition: definition, length: lower.length, first: lower.charAt(0) };
+		var lengthBucket = _run_program_keyword_fuzzy_by_length[lower.length];
+		if (!lengthBucket) {
+			lengthBucket = _run_program_keyword_fuzzy_by_length[lower.length] = [];
+		}
+		lengthBucket.push(entry);
+		var firstBucket = _run_program_keyword_fuzzy_by_first[lower.charAt(0)];
+		if (!firstBucket) {
+			firstBucket = _run_program_keyword_fuzzy_by_first[lower.charAt(0)] = Object.create(null);
+		}
+		var firstLengthBucket = firstBucket[lower.length];
+		if (!firstLengthBucket) {
+			firstLengthBucket = firstBucket[lower.length] = [];
+		}
+		firstLengthBucket.push(entry);
+	});
+});
+
+var _run_program_keyword_distance_buffer_a = new Array(128);
+var _run_program_keyword_distance_buffer_b = new Array(128);
+var _run_program_keyword_distance_buffer_c = new Array(128);
+
+function _run_program_keyword_edit_distance(a, b, maxDistance) {
+	var aLength = a.length;
+	var bLength = b.length;
+	if (a === b) return 0;
+	var limit = maxDistance === undefined ? Math.max(aLength, bLength) : maxDistance;
+	if (Math.abs(aLength - bLength) > limit) return limit + 1;
+	if (limit === 0) return 1;
+	if (bLength >= _run_program_keyword_distance_buffer_a.length) return limit + 1;
+
+	var infinity = limit + 1;
+	var prevPrev = _run_program_keyword_distance_buffer_a;
+	var prev = _run_program_keyword_distance_buffer_b;
+	var curr = _run_program_keyword_distance_buffer_c;
+	var prevPrevStart = 0;
+	var prevPrevEnd = -1;
+	var prevStart = 0;
+	var prevEnd = Math.min(bLength, limit);
+	for (var j = 0; j <= prevEnd; j++) {
+		prev[j] = j;
+	}
+
+	for (var ai = 1; ai <= aLength; ai++) {
+		var start = Math.max(1, ai - limit);
+		var end = Math.min(bLength, ai + limit);
+		curr[0] = ai <= limit ? ai : infinity;
+		if (start > 1) {
+			curr[start - 1] = infinity;
+		}
+		var rowMinimum = curr[0];
+		for (var bi = start; bi <= end; bi++) {
+			var cost = a.charCodeAt(ai - 1) === b.charCodeAt(bi - 1) ? 0 : 1;
+			var deletion = (bi >= prevStart && bi <= prevEnd ? prev[bi] : infinity) + 1;
+			var insertion = curr[bi - 1] + 1;
+			var substitution = (bi - 1 >= prevStart && bi - 1 <= prevEnd ? prev[bi - 1] : infinity) + cost;
+			var value = deletion < insertion ? deletion : insertion;
+			if (substitution < value) value = substitution;
+			if (ai > 1 && bi > 1 && a.charCodeAt(ai - 1) === b.charCodeAt(bi - 2) && a.charCodeAt(ai - 2) === b.charCodeAt(bi - 1)) {
+				var transposition = (bi - 2 >= prevPrevStart && bi - 2 <= prevPrevEnd ? prevPrev[bi - 2] : infinity) + cost;
+				if (transposition < value) value = transposition;
+			}
+			curr[bi] = value;
+			if (value < rowMinimum) rowMinimum = value;
+		}
+		if (rowMinimum > limit) return infinity;
+
+		var spare = prevPrev;
+		prevPrev = prev;
+		prev = curr;
+		curr = spare;
+		prevPrevStart = 0;
+		prevPrevEnd = prevEnd;
+		prevStart = 0;
+		prevEnd = end;
+	}
+
+	return bLength >= prevStart && bLength <= prevEnd ? prev[bLength] : infinity;
+}
+
+function _find_fuzzy_run_program_keyword_match(name, deadline) {
+	var token = String(name || "").toLowerCase();
+	if (token.length < 4 || token.length > 40 || /[0-9]/.test(token)) return null;
+	if (Object.prototype.hasOwnProperty.call(_run_program_keyword_fuzzy_cache, token)) {
+		return _run_program_keyword_fuzzy_cache[token];
+	}
+	if (deadline && Date.now() > deadline) return null;
+
+	var maxDistance = token.length >= 8 ? 2 : 1;
+	var bestDistance = maxDistance + 1;
+	var bestEntry = null;
+	var ambiguous = false;
+	var aborted = false;
+	var first = token.charAt(0);
+
+	function consider(entry) {
+		var lengthDifference = entry.length - token.length;
+		if (lengthDifference < -maxDistance || lengthDifference > maxDistance) return;
+		var distance = _run_program_keyword_edit_distance(token, entry.alias, maxDistance);
+		if (distance > maxDistance) return;
+		if (distance < bestDistance) {
+			bestDistance = distance;
+			bestEntry = entry;
+			ambiguous = false;
+		} else if (distance === bestDistance && bestEntry && entry.definition !== bestEntry.definition) {
+			ambiguous = true;
+		}
+	}
+
+	function expired() {
+		return deadline && Date.now() > deadline;
+	}
+
+	var firstBuckets = _run_program_keyword_fuzzy_by_first[first];
+	if (firstBuckets) {
+		for (var length = token.length - maxDistance; length <= token.length + maxDistance; length++) {
+			var bucket = firstBuckets[length];
+			if (!bucket) continue;
+			for (var i = 0; i < bucket.length; i++) {
+				if ((i & 15) === 0 && expired()) {
+					aborted = true;
+					break;
+				}
+				consider(bucket[i]);
+			}
+			if (aborted) break;
+		}
+	}
+
+	if (!aborted && (!bestEntry || bestDistance > 1)) {
+		for (var fallbackLength = token.length - maxDistance; fallbackLength <= token.length + maxDistance; fallbackLength++) {
+			var fallbackBucket = _run_program_keyword_fuzzy_by_length[fallbackLength];
+			if (!fallbackBucket) continue;
+			for (var j = 0; j < fallbackBucket.length; j++) {
+				if ((j & 15) === 0 && expired()) {
+					aborted = true;
+					break;
+				}
+				if (fallbackBucket[j].first !== first) {
+					consider(fallbackBucket[j]);
+				}
+			}
+			if (aborted) break;
+		}
+	}
+
+	if (aborted) return null;
+
+	var result = ambiguous ? null : (bestEntry ? { definition: bestEntry.definition, alias: bestEntry.alias } : null);
+	_run_program_keyword_fuzzy_cache[token] = result;
+	return result;
+}
+
+function find_run_program_keyword_suggestion_match(name, allow_fuzzy, deadline) {
+	var lower = String(name || "").toLowerCase();
+	var exact = _run_program_keyword_suggestion_map[lower];
+	if (exact) {
+		return { definition: exact, alias: lower };
+	}
+	if (allow_fuzzy === false) return null;
+	return _find_fuzzy_run_program_keyword_match(name, deadline);
+}
+
+function find_run_program_keyword_suggestion(name) {
+	var match = find_run_program_keyword_suggestion_match(name);
+	return match ? match.definition : null;
+}
+
+function _escape_run_program_suggestion_attr(value) {
+	return String(value).replace(/&/g, "&amp;").replace(/'/g, "&#39;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function _run_program_suggestions_signature(suggestions) {
+	return suggestions.map(function (suggestion) {
+		var definition = suggestion.definition || {};
+		return [
+			suggestion.name,
+			suggestion.parameter_name || suggestion.name,
+			definition.key,
+			definition.kind,
+			definition.min,
+			definition.max,
+			definition.value_type,
+			definition.log_scale ? "1" : "0",
+			definition.values,
+			definition.value,
+			suggestion.target_exists ? "1" : "0"
+		].join(":");
+	}).join("|");
+}
+
+function _render_run_program_suggestions(suggestions) {
+	var $box = $("#run_program_suggestions");
+	if (!$box.length) return;
+
+	suggestions = suggestions || [];
+	var signature = _run_program_suggestions_signature(suggestions);
+	if ($box.attr("data-suggestion-signature") === signature) return;
+	$box.attr("data-suggestion-signature", signature);
+
+	if (!suggestions.length) {
+		$box.hide().empty();
+		return;
+	}
+	var html = "<div class='run_program_suggestions_title'>Suggested parameters for detected placeholders</div>";
+	html += "<div class='run_program_suggestion_list'>";
+	suggestions.forEach(function (suggestion) {
+		var definition = suggestion.definition;
+		var parameter_name = suggestion.parameter_name || suggestion.name;
+		var display_name = parameter_name === suggestion.name ? suggestion.name : suggestion.name + " → " + parameter_name;
+		var add_title = suggestion.target_exists ? "Use existing parameter and fix placeholder" : "Add parameter";
+		html += "<div class='run_program_suggestion_chip' data-param-name='" + _escape_run_program_suggestion_attr(suggestion.name) + "'>";
+		html += "<div class='run_program_suggestion_head'>";
+		html += "<span class='run_program_suggestion_name'>+ " + _escape_run_program_suggestion_attr(display_name) + "</span>";
+		html += "<button type='button' class='run_program_suggestion_add' title='" + add_title + "' aria-label='" + add_title + "' data-param-name='" + _escape_run_program_suggestion_attr(suggestion.name) + "' onmousedown='_apply_run_program_suggestion(this); return false;' onclick='_apply_run_program_suggestion(this)'>&#10003;</button>";
+		if (suggestion.target_exists) {
+			html += "<button type='button' class='run_program_suggestion_add_new' title='Add as new parameter' aria-label='Add as new parameter' data-param-name='" + _escape_run_program_suggestion_attr(suggestion.name) + "' onmousedown='_apply_run_program_suggestion_as_new(this); return false;' onclick='_apply_run_program_suggestion_as_new(this)'>+ new</button>";
+		}
+		html += "</div>";
+		html += "<div class='run_program_suggestion_fields'>";
+		if (definition.kind === "choice") {
+			html += "<label><span>values</span><input type='text' data-suggestion-field='values' value='" + _escape_run_program_suggestion_attr(definition.values) + "'></label>";
+		} else if (definition.kind === "fixed") {
+			html += "<label><span>value</span><input type='text' data-suggestion-field='value' value='" + _escape_run_program_suggestion_attr(definition.value) + "'></label>";
+		} else {
+			html += "<label><span>min</span><input type='number' step='any' data-suggestion-field='min' value='" + _escape_run_program_suggestion_attr(definition.min) + "'></label>";
+			html += "<label><span>max</span><input type='number' step='any' data-suggestion-field='max' value='" + _escape_run_program_suggestion_attr(definition.max) + "'></label>";
+			html += "<label><span>type</span><select data-suggestion-field='value_type'>";
+			html += "<option value='float'" + (definition.value_type === "float" ? " selected" : "") + ">float</option>";
+			html += "<option value='int'" + (definition.value_type === "int" ? " selected" : "") + ">int</option>";
+			html += "</select></label>";
+			html += "<label class='run_program_suggestion_log'><input type='checkbox' data-suggestion-field='log_scale'" + (definition.log_scale ? " checked" : "") + "> log</label>";
+		}
+		html += "</div>";
+		html += "</div>";
+	});
+	html += "</div>";
+	$box.html(html).show();
+}
+
+function _run_program_suggestion_edited_definition(button, definition) {
+	var edited = {};
+	Object.keys(definition).forEach(function (key) {
+		edited[key] = definition[key];
+	});
+	var $card = $(button).closest(".run_program_suggestion_chip");
+	if (!$card.length) return edited;
+
+	if (definition.kind === "choice") {
+		var values = $card.find("[data-suggestion-field='values']").val();
+		if (values !== undefined && String(values).trim() !== "") edited.values = values;
+	} else if (definition.kind === "fixed") {
+		var fixed_value = $card.find("[data-suggestion-field='value']").val();
+		if (fixed_value !== undefined && String(fixed_value).trim() !== "") edited.value = fixed_value;
+	} else {
+		var min = $card.find("[data-suggestion-field='min']").val();
+		var max = $card.find("[data-suggestion-field='max']").val();
+		var valueType = $card.find("[data-suggestion-field='value_type']").val();
+		if (min !== undefined && String(min).trim() !== "") edited.min = min;
+		if (max !== undefined && String(max).trim() !== "") edited.max = max;
+		if (valueType) edited.value_type = valueType;
+		edited.log_scale = $card.find("[data-suggestion-field='log_scale']").is(":checked");
+	}
+	return edited;
+}
+
+function _run_program_suggestion_parameter_name(name, definition, matched_alias) {
+	var token = String(name || "").toLowerCase();
+	var cache_key = token + "|" + (definition ? definition.key : "");
+	if (Object.prototype.hasOwnProperty.call(_run_program_keyword_parameter_name_cache, cache_key)) {
+		return _run_program_keyword_parameter_name_cache[cache_key];
+	}
+
+	var alias = String(matched_alias || name || "").toLowerCase();
+	var preferred = definition ? String(definition.preferred_name || definition.param_name || definition.key || "").toLowerCase() : "";
+	var token_is_valid = /^[a-zA-Z_]+$/.test(name);
+	var preferred_is_valid = /^[a-zA-Z_]+$/.test(preferred);
+	var result = null;
+
+	if (!token_is_valid) {
+		if (preferred_is_valid) {
+			result = preferred;
+		} else if (alias && /^[a-zA-Z_]+$/.test(alias)) {
+			result = alias;
+		}
+	} else {
+		var maxDistance = token.length >= 8 ? 2 : 1;
+		if (preferred_is_valid && preferred !== token && Math.abs(preferred.length - token.length) <= maxDistance && _run_program_keyword_edit_distance(token, preferred, maxDistance) <= maxDistance) {
+			result = preferred;
+		} else if (alias && /^[a-zA-Z_]+$/.test(alias) && alias !== token && Math.abs(alias.length - token.length) <= maxDistance && _run_program_keyword_edit_distance(token, alias, maxDistance) <= maxDistance) {
+			result = alias;
+		} else {
+			result = token;
+		}
+	}
+
+	_run_program_keyword_parameter_name_cache[cache_key] = result;
+	return result;
+}
+
+function _run_program_definition_with_current_values(definition, parameter_info) {
+	var merged = {};
+	Object.keys(definition).forEach(function (key) {
+		merged[key] = definition[key];
+	});
+	if (!parameter_info) return merged;
+
+	if (parameter_info.kind === "range") {
+		merged.kind = "range";
+		if (parameter_info.min !== "" && parameter_info.min != null) merged.min = parameter_info.min;
+		if (parameter_info.max !== "" && parameter_info.max != null) merged.max = parameter_info.max;
+		if (parameter_info.type) merged.value_type = parameter_info.type;
+		merged.log_scale = !!parameter_info.log_scale;
+	} else if (parameter_info.kind === "choice") {
+		merged.kind = "choice";
+		if (parameter_info.values !== "" && parameter_info.values != null) merged.values = parameter_info.values;
+	} else if (parameter_info.kind === "fixed") {
+		merged.kind = "fixed";
+		if (parameter_info.value != "" && parameter_info.value != null) merged.value = parameter_info.value;
+	}
+	return merged;
+}
+
+function _run_program_sanitize_parameter_name(name) {
+	var digit_names = { "0": "zero", "1": "one", "2": "two", "3": "three", "4": "four", "5": "five", "6": "six", "7": "seven", "8": "eight", "9": "nine" };
+	var sanitized = String(name || "").replace(/[^a-zA-Z0-9_]/g, "_");
+	sanitized = sanitized.replace(/[0-9]/g, function (digit) {
+		return "_" + digit_names[digit] + "_";
+	});
+	sanitized = sanitized.replace(/_+/g, "_").replace(/^_+|_+$/g, "");
+	if (!/^[a-zA-Z_]/.test(sanitized)) {
+		sanitized = "param_" + sanitized;
+	}
+	return sanitized;
+}
+
+function _replace_run_program_placeholder(value, name, parameter_name) {
+	var escaped_name = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+	var boundary = "(?![A-Za-z0-9_])";
+	value = value.replace(new RegExp("%\\(" + escaped_name + "\\)", "g"), "%(" + parameter_name + ")");
+	value = value.replace(new RegExp("\\$\\(" + escaped_name + "\\)", "g"), "$(" + parameter_name + ")");
+	value = value.replace(new RegExp("%" + escaped_name + boundary, "g"), "%(" + parameter_name + ")");
+	value = value.replace(new RegExp("\\$" + escaped_name + boundary, "g"), "$(" + parameter_name + ")");
+	return value;
+}
+
+function _ensure_run_program_placeholder(name, parameter_name) {
+	var $run_program = $("#run_program");
+	if (!$run_program.length) return;
+
+	var target_name = parameter_name || name;
+	var value = $run_program.val() || "";
+	var original_value = value;
+
+	if (name !== target_name) {
+		value = _replace_run_program_placeholder(value, name, target_name);
+	}
+
+	if (get_run_program_placeholders(value).indexOf(target_name) === -1) {
+		if (value.trim() === "") {
+			value = "--" + target_name + "=%(" + target_name + ")";
+		} else {
+			value = value.replace(/\s+$/, "") + " --" + target_name + "=%(" + target_name + ")";
+		}
+	}
+
+	if (value !== original_value) {
+		_run_program_history_flush();
+		$run_program.val(value).trigger("input").trigger("change");
+	}
+}
+
+function _run_program_parameter_exists(name) {
+	var exists = false;
+	$(".parameterName").each(function () {
+		if ($(this).val() === name) {
+			exists = true;
+			return false;
+		}
+	});
+	return exists;
+}
+
+function _add_run_program_parameter(name, definition) {
+	if (_run_program_parameter_exists(name)) return $();
+
+	var kind = definition ? definition.kind : "range";
+	var $target = $();
+	$(".parameterRow").each(function () {
+		var value = $(this).find(".parameterName").val();
+		if (!value || value.trim() === "") {
+			$target = $(this);
+			return false;
+		}
+	});
+	if (!$target.length) {
+		$("#main_add_row_button").trigger("click");
+		$target = $(".parameterRow").last();
+	}
+	if (!$target.length) return $();
+
+	$target.find(".parameterName").val(name);
+	$target.find(".optionSelect").val(kind).trigger("change");
+
+	if (kind === "range") {
+		$target.find(".minValue").val(definition ? definition.min : "");
+		$target.find(".maxValue").val(definition ? definition.max : "");
+		$target.find(".numberTypeSelect").val(definition ? definition.value_type : "float");
+		$target.find(".log_scale").prop("checked", definition ? !!definition.log_scale : false);
+	} else if (kind === "choice") {
+		$target.find(".choiceValues").val(definition ? definition.values : "");
+	} else if (kind === "fixed") {
+		$target.find(".fixedValue").val(definition ? definition.value : "");
+	}
+
+	return $target;
+}
+
+function _apply_run_program_suggestion(button) {
+	var name = $(button).attr("data-param-name");
+	var match = find_run_program_keyword_suggestion_match(name);
+	if (!match) return;
+
+	var parameter_name = _run_program_suggestion_parameter_name(name, match.definition, match.alias);
+	if (!parameter_name) return;
+
+	var definition = _run_program_suggestion_edited_definition(button, match.definition);
+	_add_run_program_parameter(parameter_name, definition);
+	_ensure_run_program_placeholder(name, parameter_name);
+	update_command();
+}
+
+function _run_program_unique_parameter_name(name) {
+	var candidate = String(name || "").toLowerCase();
+	if (!/^[a-zA-Z_]+$/.test(candidate)) {
+		candidate = _run_program_sanitize_parameter_name(candidate);
+	}
+	if (!candidate) return null;
+	if (typeof is_invalid_parameter_name === "function" && is_invalid_parameter_name(candidate)) {
+		candidate = "param_" + candidate;
+	}
+	if (!_run_program_parameter_exists(candidate)) return candidate;
+
+	var base = candidate;
+	candidate = base + "_new";
+	var index = 2;
+	while (_run_program_parameter_exists(candidate)) {
+		candidate = base + "_new" + index;
+		index++;
+	}
+	return candidate;
+}
+
+function _apply_run_program_suggestion_as_new(button) {
+	var name = $(button).attr("data-param-name");
+	var match = find_run_program_keyword_suggestion_match(name);
+	if (!match) return;
+
+	var parameter_name = _run_program_unique_parameter_name(name);
+	if (!parameter_name) return;
+
+	var definition = _run_program_suggestion_edited_definition(button, match.definition);
+	_add_run_program_parameter(parameter_name, definition);
+	_ensure_run_program_placeholder(name, parameter_name);
+	update_command();
+}
+
+function _add_missing_run_program_parameter(button) {
+	var name = $(button).attr("data-param-name");
+	if (!name) return;
+
+	var parameter_name = _run_program_suggestion_parameter_name(name, null) || _run_program_sanitize_parameter_name(name);
+	if (!parameter_name) return;
+
+	if (typeof is_invalid_parameter_name === "function" && is_invalid_parameter_name(parameter_name)) {
+		parameter_name = "param_" + parameter_name;
+	}
+
+	var $row = _add_run_program_parameter(parameter_name, null);
+	_ensure_run_program_placeholder(name, parameter_name);
+	update_command();
+
+	if ($row.length) {
+		setTimeout(function () {
+			$row.find(".minValue").trigger("focus");
+		}, 0);
+	}
+}
+
+var RUN_PROGRAM_HISTORY_LIMIT = 200;
+var RUN_PROGRAM_HISTORY_DEBOUNCE_MS = 500;
+var _run_program_history = { states: [], index: -1, timer: null, suppress: false, ready: false };
+
+function _run_program_history_value() {
+	return $("#run_program").val() || "";
+}
+
+function _run_program_history_clear_timer() {
+	if (_run_program_history.timer) {
+		clearTimeout(_run_program_history.timer);
+		_run_program_history.timer = null;
+	}
+}
+
+function _run_program_history_record(value) {
+	if (!_run_program_history.ready) return;
+	value = String(value == null ? "" : value);
+	var states = _run_program_history.states;
+	var index = _run_program_history.index;
+	if (index >= 0 && states[index] === value) return;
+	if (index >= 0 && index + 1 < states.length && states[index + 1] === value) {
+		_run_program_history.index = index + 1;
+		return;
+	}
+	states = states.slice(0, index + 1);
+	states.push(value);
+	if (states.length > RUN_PROGRAM_HISTORY_LIMIT) {
+		states.shift();
+	}
+	_run_program_history.states = states;
+	_run_program_history.index = states.length - 1;
+}
+
+function _run_program_history_schedule() {
+	if (!_run_program_history.ready) return;
+	_run_program_history_clear_timer();
+	_run_program_history.timer = setTimeout(function () {
+		_run_program_history.timer = null;
+		_run_program_history_record(_run_program_history_value());
+	}, RUN_PROGRAM_HISTORY_DEBOUNCE_MS);
+}
+
+function _run_program_history_flush() {
+	if (!_run_program_history.ready) return;
+	_run_program_history_clear_timer();
+	_run_program_history_record(_run_program_history_value());
+}
+
+function _run_program_history_apply(value) {
+	var $run_program = $("#run_program");
+	if (!$run_program.length) return;
+	_run_program_history.suppress = true;
+	try {
+		$run_program.val(value).trigger("input").trigger("change");
+		var element = $run_program[0];
+		if (element && typeof element.setSelectionRange === "function") {
+			var length = String(value).length;
+			element.setSelectionRange(length, length);
+		}
+	} finally {
+		_run_program_history.suppress = false;
+	}
+}
+
+function _run_program_history_undo() {
+	if (!_run_program_history.ready) return;
+	_run_program_history_clear_timer();
+	var current = _run_program_history_value();
+	if (_run_program_history.index < 0) {
+		_run_program_history.states = [current];
+		_run_program_history.index = 0;
+	}
+	if (_run_program_history.states[_run_program_history.index] !== current) {
+		_run_program_history_record(current);
+	}
+	if (_run_program_history.index <= 0) return;
+	_run_program_history.index--;
+	_run_program_history_apply(_run_program_history.states[_run_program_history.index]);
+}
+
+function _run_program_history_redo() {
+	if (!_run_program_history.ready) return;
+	_run_program_history_clear_timer();
+	var current = _run_program_history_value();
+	if (_run_program_history.states[_run_program_history.index] !== current) {
+		_run_program_history_record(current);
+		return;
+	}
+	if (_run_program_history.index >= _run_program_history.states.length - 1) return;
+	_run_program_history.index++;
+	_run_program_history_apply(_run_program_history.states[_run_program_history.index]);
+}
+
+function _run_program_history_shortcut(event) {
+	var key = "";
+	if (event.key) {
+		key = String(event.key).toLowerCase();
+	} else if (event.keyCode === 90) {
+		key = "z";
+	} else if (event.keyCode === 89) {
+		key = "y";
+	}
+	if (!(event.ctrlKey || event.metaKey) || event.altKey) return null;
+	if (key === "z") return event.shiftKey ? "redo" : "undo";
+	if (key === "y") return "redo";
+	return null;
+}
+
+function _run_program_history_keydown(event) {
+	var action = _run_program_history_shortcut(event);
+	if (!action) return;
+	event.preventDefault();
+	if (action === "undo") {
+		_run_program_history_undo();
+	} else {
+		_run_program_history_redo();
+	}
+}
+
+function setup_run_program_history() {
+	var $run_program = $("#run_program");
+	if (!$run_program.length) return;
+
+	_run_program_history_clear_timer();
+	_run_program_history.states = [_run_program_history_value()];
+	_run_program_history.index = 0;
+	_run_program_history.suppress = false;
+	_run_program_history.ready = true;
+
+	$run_program.off(".run_program_history");
+	$run_program.on("input.run_program_history", function () {
+		if (_run_program_history.suppress) return;
+		_run_program_history_schedule();
+	});
+	$run_program.on("change.run_program_history", function () {
+		if (_run_program_history.suppress) return;
+		_run_program_history_flush();
+	});
+	$run_program.on("blur.run_program_history", function () {
+		if (_run_program_history.suppress) return;
+		_run_program_history_flush();
+	});
+	$run_program.on("keydown.run_program_history", _run_program_history_keydown);
 }
 
 function update_table_row (item, errors, warnings, command) {
@@ -468,14 +1378,32 @@ function update_table_row (item, errors, warnings, command) {
 				return ret;
 			}).get().filter(Boolean);
 
+			var current_parameter_info = get_current_parameter_info();
 			var new_errors = [];
+			var suggestions = [];
+			var suggested_names = Object.create(null);
 
 			for (var k = 0; k < variables_in_run_program.length; k++) {
 				var test_this_var_name = variables_in_run_program[k];
 
 				if(!existing_parameter_names.includes(test_this_var_name)) {
-					var err_msg = `<img src='i/warning.svg' style='height: 1em' /> <code>%(${test_this_var_name})</code> not in existing defined parameters.`;
-					new_errors.push(err_msg);
+					var suggestion_match = find_run_program_keyword_suggestion_match(test_this_var_name, true, _run_program_fuzzy_deadline);
+					var suggestion_definition = suggestion_match ? suggestion_match.definition : null;
+					var parameter_name = suggestion_match ? _run_program_suggestion_parameter_name(test_this_var_name, suggestion_match.definition, suggestion_match.alias) : null;
+					if (suggestion_definition && parameter_name) {
+						var target_exists = existing_parameter_names.includes(parameter_name);
+						if (target_exists) {
+							suggestion_definition = _run_program_definition_with_current_values(suggestion_definition, current_parameter_info[parameter_name]);
+						}
+						if (!suggested_names[test_this_var_name]) {
+							suggested_names[test_this_var_name] = true;
+							suggestions.push({ name: test_this_var_name, parameter_name: parameter_name, definition: suggestion_definition, target_exists: target_exists });
+						}
+					} else {
+						var add_parameter_button = `<button type='button' class='run_program_error_add_parameter' data-param-name='${test_this_var_name}' onmousedown='_add_missing_run_program_parameter(this); return false;' onclick='_add_missing_run_program_parameter(this)'>Add to parameters</button>`;
+						var err_msg = `<img src='i/warning.svg' style='height: 1em' /> <code>%(${test_this_var_name})</code> not in existing defined parameters. ${add_parameter_button}`;
+						new_errors.push(err_msg);
+					}
 				}
 			}
 
@@ -488,6 +1416,8 @@ function update_table_row (item, errors, warnings, command) {
 				}
 			}
 
+			_render_run_program_suggestions(suggestions);
+
 			if(new_errors.length) {
 				$("#run_program_error").html(string_or_array_to_list(new_errors)).show()
 				errors.push(...new_errors);
@@ -496,6 +1426,7 @@ function update_table_row (item, errors, warnings, command) {
 			}
 		} else {
 			$("#run_program_error").html("").hide()
+			_render_run_program_suggestions([]);
 		}
 
 		value = encode_base64(value);
@@ -576,6 +1507,7 @@ function show_warnings_and_errors(warnings, errors) {
 }
 
 function update_command() {
+	_run_program_fuzzy_deadline = Date.now() + 5;
 	set_min_max();
 
 	var errors = [];
@@ -2835,6 +3767,10 @@ function create_table_row (table, tbody, item) {
 		valueCell.append($(`<div class='error_element invert_in_dark_mode' id="${item.id}_error"></div>`));
 	}
 
+	if (item.id === "run_program") {
+		valueCell.append($("<div class='run_program_suggestions invert_in_dark_mode' id='run_program_suggestions' style='display: none;'></div>"));
+	}
+
 	if (item.info) {
 		valueCell.append($(`<div class='info_element' id="${item.id}_info">${item.info}</div>`));
 	}
@@ -3247,6 +4183,8 @@ function run_when_document_ready () {
 	$('.tooltip').tooltipster();
 
 	apply_theme_based_on_system_preferences();
+
+	setup_run_program_history();
 
 	initialized = true;
 

@@ -82,6 +82,23 @@ Filtering subpages does not work for the export subpage.
 
 When using `--live_share` with OmniOpt2, the job is shared automatically after each finished job. A URL where you can reach the Job and a QR-Code is printed as well, so you can easily access the site from anywhere in the world.
 
+### Enable or stop sharing while a job is running
+
+You do not have to decide before starting the job. Create a `liveshare` file in the
+current working directory, in the OmniOpt2 installation directory, in
+`runs/<experiment>` or in `runs/<experiment>/<run-number>`. OmniOpt2 watches these
+markers and starts sharing the matching running jobs (and future runs for the broader
+scopes). To stop sharing again, create a `stop_liveshare` file in the same places.
+
+```bash
+touch liveshare          # start sharing
+touch stop_liveshare     # stop sharing again
+```
+
+Deleting a marker does not undo its effect; use the opposite marker instead. See
+[Live-share control files](tutorials?tutorial=live_share_markers) for the full scope
+table and examples.
+
 ## Notes on Privacy
 
 <div class="caveat tip">

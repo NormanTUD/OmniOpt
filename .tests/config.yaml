@@ -64,6 +64,13 @@ tests:
     wanted_exit_code: 0
     tags: [suite:meta, quick:false]
 
+  - id: liveshare_markers
+    class: meta
+    name: "File-based live-share markers (liveshare / stop_liveshare)"
+    cmd: "python3 {REPO_ROOT}/.tests/test_liveshare"
+    wanted_exit_code: 0
+    tags: [suite:meta, quick:false]
+
   - id: php_coverage_extra
     class: share
     name: "Extra PHP coverage-path tests"
@@ -818,6 +825,7 @@ smoke_tests:
   - unit_tests
   - unit_tests_coverage_paths
   - unit_tests_coverage_paths_extra
+  - test_liveshare
   - test_formulas
   - test_executor_backend
   - test_share_formula

@@ -10,6 +10,7 @@ WORKDIR /var/opt/omniopt
 COPY ./omniopt ./omniopt
 COPY ./.helpers.py ./.helpers.py
 COPY ./.pareto.py ./.pareto.py
+COPY ./.liveshare.py ./.liveshare.py
 COPY ./.general.py ./.general.py
 COPY ./.shellscript_functions.py ./.shellscript_functions.py
 COPY ./.colorfunctions.py ./.colorfunctions.py

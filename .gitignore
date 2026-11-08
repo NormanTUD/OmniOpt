@@ -161,6 +161,9 @@ cython_debug/
 
 log_test
 runs
+# Runtime live-share control markers (created on demand by the user)
+liveshare
+stop_liveshare
 logs
 __pycache__
 debug*.zip

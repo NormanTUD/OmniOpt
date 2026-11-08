@@ -819,13 +819,23 @@ tests:
 # Smoke test suite - flat list of individual test scripts that smoke_tests
 # runs in sequence. Same as the original smoke_tests bash script.
 # -----------------------------------------------------------------------------
+# The first entries are deliberately the fastest and highest-signal checks.
+# .git/hooks/pre-commit uses `smoke_tests --first 2` to keep commits quick;
+# the complete suite still runs in CI and via `python3 .tests/main`.
 smoke_tests:
+  # --- fast pre-commit subset -------------------------------------------
+  - test_liveshare
+  - find_unused_functions_in_omniopt
+  - find_functions_with_missing_types
+  - find_wrong_order_definitions
+
+  # --- complete suite ----------------------------------------------------
+  - find_missing_f_strings
   - find_typos
   #- test_omniopt_docker_blackbox
   - unit_tests
   - unit_tests_coverage_paths
   - unit_tests_coverage_paths_extra
-  - test_liveshare
   - test_formulas
   - test_executor_backend
   - test_share_formula
@@ -842,8 +852,6 @@ smoke_tests:
   - php_unit_tests
   - php_gui_localhost
   - js_gui_unit_tests
-  - find_missing_f_strings
-  - find_functions_with_missing_types
   - single_quotes_in_configloader
   - find_untyped_cli_args
   - find_unused_params
@@ -852,7 +860,6 @@ smoke_tests:
   - lizard
   - doc_has_outdated_params
   - find_undocumented_exit_codes
-  - find_wrong_order_definitions
   - find_unused_params_in_plots
   - find_functions_that_are_defined_multiple_times
   - php_files
@@ -867,7 +874,6 @@ smoke_tests:
   - find_missing_env_vars_documentation
   - folder_structure
   - find_double_function_thats_already_in_helper
-  - find_unused_functions_in_omniopt
   - php_search
   - missing_plot_metadata
   #- js_syntax

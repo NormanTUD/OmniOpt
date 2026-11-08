@@ -118,22 +118,44 @@ try:
         p.add_argument("--no-summary-table", dest="summary_table",
                        action="store_false", default=True,
                        help="Skip the per-test runtime summary table at the end.")
+        p.add_argument("--first", type=int, default=None, metavar="N",
+                       help="Only run the first N tests from the smoke_tests "
+                            "list.  The list is ordered fastest/most important "
+                            "first, so this is used by the fast pre-commit hook.")
+        p.add_argument("--no-deps", dest="deps", action="store_false", default=True,
+                       help="Skip the dependency bootstrapping step.  Only "
+                            "use this when the test environment is known to be "
+                            "ready (used by the fast pre-commit hook).")
         p.add_argument("--run_with_coverage", action="store_true",
                        help="Measure subprocesses with coverage (COVERAGE_PROCESS_START).")
         return p
 
 
     def main(argv=None) -> int:
-        ensure_dependencies(include_tests=True)
-        config = load_config()
-        repo_root = config.repo_root
-        tests = config.smoke_tests
-
         parser = _build_parser()
         args = parser.parse_args(argv)
         if args.help:
             parser.print_help()
             return 0
+
+        if args.deps:
+            ensure_dependencies(include_tests=True)
+
+        config = load_config()
+        repo_root = config.repo_root
+        tests = config.smoke_tests
+
+        if args.first is not None:
+            if args.first < 0:
+                red_text("--first must be zero or positive")
+                return 2
+            # Safety net: CI and coverage runs must always execute the complete
+            # suite, even if a caller accidentally passes --first.
+            is_ci = args.run_with_coverage or os.environ.get("CI", "").lower() in ("1", "true", "yes")
+            if is_ci:
+                print("Ignoring --first in CI/coverage mode; running the complete smoke suite.")
+            else:
+                tests = tests[:args.first]
 
         if args.run_with_coverage:
             from _framework import coverage_utils

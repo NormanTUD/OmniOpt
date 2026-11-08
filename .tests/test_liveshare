@@ -1,0 +1,721 @@
+#!/usr/bin/env python3
+"""Tests for the file-based live-share marker control (`.liveshare.py`).
+
+The tests cover:
+
+  * marker discovery and scope ordering (run / experiment / global),
+  * ``stop_liveshare`` precedence,
+  * the state machine that guarantees a single activation announcement,
+  * share-URL extraction from ``omniopt_share`` output,
+  * tqdm-aware announcement rendering (including fallbacks).
+"""
+
+from __future__ import annotations
+
+import contextlib
+import io
+import sys
+import tempfile
+from importlib.machinery import SourceFileLoader
+from pathlib import Path
+from typing import List, Tuple
+
+THIS_DIR = Path(__file__).resolve().parent
+REPO_ROOT = THIS_DIR.parent
+
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from _framework.helpers import red_text  # noqa: E402
+
+# pylint: disable-next=deprecated-method
+liveshare = SourceFileLoader(
+    "liveshare_under_test", str(REPO_ROOT / ".liveshare.py")
+).load_module()
+
+
+def _check(condition: bool, message: str) -> bool:
+    if not condition:
+        red_text(f"FAIL: {message}")
+        return False
+    return True
+
+
+def _eq(actual: object, expected: object, message: str) -> bool:
+    return _check(actual == expected, f"{message}: expected {expected!r}, got {actual!r}")
+
+
+def _touch(path: Path) -> Path:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("", encoding="utf-8")
+    return path
+
+
+def _remove(path: Path) -> None:
+    path.unlink()
+
+
+@contextlib.contextmanager
+def _tree():
+    with tempfile.TemporaryDirectory(prefix="oo_liveshare_test_") as tmp:
+        root = Path(tmp)
+        cwd = root / "cwd"
+        script = root / "script"
+        runs = root / "runs"
+        experiment = runs / "exp"
+        run_folder = experiment / "0"
+        for folder in (cwd, script, experiment, run_folder):
+            folder.mkdir(parents=True)
+
+        yield {
+            "root": root,
+            "cwd": cwd,
+            "script": script,
+            "runs": runs,
+            "experiment": experiment,
+            "run": run_folder,
+        }
+
+
+def _decide(tree) -> object:
+    return liveshare.decide(
+        str(tree["run"]),
+        cwd=str(tree["cwd"]),
+        script_dir=str(tree["script"]),
+    )
+
+
+# ---------------------------------------------------------------------------
+# Marker discovery
+# ---------------------------------------------------------------------------
+
+
+def test_marker_locations_order_and_dedup() -> bool:
+    locations = liveshare.marker_locations(
+        "/a/b/exp/0", cwd="/a/b", script_dir="/a/b"
+    )
+    got = [(loc.scope, loc.folder) for loc in locations]
+    expected = [
+        ("run", "/a/b/exp/0"),
+        ("experiment", "/a/b/exp"),
+        ("global", "/a/b"),
+    ]
+    return _eq(got, expected, "deduplicated marker locations")
+
+
+def test_marker_locations_two_global_roots() -> bool:
+    locations = liveshare.marker_locations(
+        "/a/b/exp/0", cwd="/work", script_dir="/opt/omniopt"
+    )
+    got = [(loc.scope, loc.folder) for loc in locations]
+    expected = [
+        ("run", "/a/b/exp/0"),
+        ("experiment", "/a/b/exp"),
+        ("global", "/work"),
+        ("global", "/opt/omniopt"),
+    ]
+    return _eq(got, expected, "cwd before script-dir")
+
+
+def test_marker_locations_without_run_folder() -> bool:
+    locations = liveshare.marker_locations(None, cwd="/work", script_dir="/opt/omniopt")
+    got = [(loc.scope, loc.folder) for loc in locations]
+    return _eq(got, [("global", "/work"), ("global", "/opt/omniopt")], "global only")
+
+
+def test_marker_locations_are_absolute() -> bool:
+    locations = liveshare.marker_locations("relative/exp/0", cwd=".", script_dir="..")
+    return _check(
+        all(Path(loc.folder).is_absolute() for loc in locations),
+        "all marker locations must be absolute",
+    )
+
+
+# ---------------------------------------------------------------------------
+# decide()
+# ---------------------------------------------------------------------------
+
+
+def test_decide_none() -> bool:
+    with _tree() as tree:
+        return _check(_decide(tree) is None, "no marker must yield no decision")
+
+
+def test_decide_global_from_cwd() -> bool:
+    with _tree() as tree:
+        marker = _touch(tree["cwd"] / liveshare.START_MARKER)
+        decision = _decide(tree)
+        return (
+            _check(decision is not None, "cwd marker must be found")
+            and _eq(decision.action, liveshare.MarkerAction.START, "action")
+            and _eq(decision.scope, "global", "scope")
+            and _eq(decision.path, str(marker), "path")
+        )
+
+
+def test_decide_global_from_script_dir() -> bool:
+    with _tree() as tree:
+        marker = _touch(tree["script"] / liveshare.START_MARKER)
+        decision = _decide(tree)
+        return (
+            _check(decision is not None, "script-dir marker must be found")
+            and _eq(decision.scope, "global", "scope")
+            and _eq(decision.path, str(marker), "path")
+        )
+
+
+def test_cwd_global_precedes_script_dir_global() -> bool:
+    with _tree() as tree:
+        cwd_marker = _touch(tree["cwd"] / liveshare.START_MARKER)
+        _touch(tree["script"] / liveshare.START_MARKER)
+        decision = _decide(tree)
+        return _eq(decision.path, str(cwd_marker), "cwd marker wins over script dir")
+
+
+def test_decide_experiment() -> bool:
+    with _tree() as tree:
+        marker = _touch(tree["experiment"] / liveshare.START_MARKER)
+        decision = _decide(tree)
+        return (
+            _check(decision is not None, "experiment marker must be found")
+            and _eq(decision.scope, "experiment", "scope")
+            and _eq(decision.path, str(marker), "path")
+        )
+
+
+def test_decide_run() -> bool:
+    with _tree() as tree:
+        marker = _touch(tree["run"] / liveshare.START_MARKER)
+        decision = _decide(tree)
+        return (
+            _check(decision is not None, "run marker must be found")
+            and _eq(decision.scope, "run", "scope")
+            and _eq(decision.path, str(marker), "path")
+        )
+
+
+def test_start_precedence_most_specific() -> bool:
+    with _tree() as tree:
+        _touch(tree["cwd"] / liveshare.START_MARKER)
+        _touch(tree["experiment"] / liveshare.START_MARKER)
+        run_marker = _touch(tree["run"] / liveshare.START_MARKER)
+        decision = _decide(tree)
+        return (
+            _eq(decision.scope, "run", "most specific start marker wins")
+            and _eq(decision.path, str(run_marker), "run marker path")
+        )
+
+
+def test_stop_wins_over_start_in_same_scope() -> bool:
+    with _tree() as tree:
+        _touch(tree["run"] / liveshare.START_MARKER)
+        stop_marker = _touch(tree["run"] / liveshare.STOP_MARKER)
+        decision = _decide(tree)
+        return (
+            _eq(decision.action, liveshare.MarkerAction.STOP, "stop wins in same scope")
+            and _eq(decision.path, str(stop_marker), "stop marker path")
+        )
+
+
+def test_stop_wins_over_more_specific_start() -> bool:
+    with _tree() as tree:
+        _touch(tree["run"] / liveshare.START_MARKER)
+        stop_marker = _touch(tree["cwd"] / liveshare.STOP_MARKER)
+        decision = _decide(tree)
+        return (
+            _eq(decision.action, liveshare.MarkerAction.STOP, "global stop wins")
+            and _eq(decision.scope, "global", "global stop scope")
+            and _eq(decision.path, str(stop_marker), "global stop path")
+        )
+
+
+def test_stop_precedence_most_specific() -> bool:
+    with _tree() as tree:
+        _touch(tree["cwd"] / liveshare.STOP_MARKER)
+        _touch(tree["experiment"] / liveshare.STOP_MARKER)
+        run_stop = _touch(tree["run"] / liveshare.STOP_MARKER)
+        decision = _decide(tree)
+        return (
+            _eq(decision.scope, "run", "most specific stop marker wins")
+            and _eq(decision.path, str(run_stop), "run stop path")
+        )
+
+
+# ---------------------------------------------------------------------------
+# State machine
+# ---------------------------------------------------------------------------
+
+
+def test_state_activation_only_once() -> bool:
+    with _tree() as tree:
+        state = liveshare.State()
+        _touch(tree["cwd"] / liveshare.START_MARKER)
+
+        first = state.apply(_decide(tree))
+        second = state.apply(_decide(tree))
+        return (
+            _eq(first, liveshare.MarkerAction.START, "first poll activates")
+            and _check(second is None, "second poll must be a no-op")
+            and _check(state.active, "state must be active")
+        )
+
+
+def test_deleting_start_marker_does_not_stop() -> bool:
+    with _tree() as tree:
+        state = liveshare.State()
+        marker = _touch(tree["cwd"] / liveshare.START_MARKER)
+        state.apply(_decide(tree))
+
+        _remove(marker)
+        action = state.apply(_decide(tree))
+        return (
+            _check(action is None, "deleting liveshare must not stop sharing")
+            and _check(state.active, "state must stay active")
+        )
+
+
+def test_stop_marker_stops_once() -> bool:
+    with _tree() as tree:
+        state = liveshare.State(active=True)
+        stop_marker = _touch(tree["run"] / liveshare.STOP_MARKER)
+
+        first = state.apply(_decide(tree))
+        second = state.apply(_decide(tree))
+        return (
+            _eq(first, liveshare.MarkerAction.STOP, "stop marker deactivates")
+            and _check(second is None, "stop must only be announced once")
+            and _check(not state.active, "state must be inactive")
+            and _eq(_decide(tree).path, str(stop_marker), "stop path")
+        )
+
+
+def test_deleting_stop_marker_does_not_restart() -> bool:
+    with _tree() as tree:
+        state = liveshare.State(active=True)
+        stop_marker = _touch(tree["cwd"] / liveshare.STOP_MARKER)
+        state.apply(_decide(tree))
+
+        _remove(stop_marker)
+        action = state.apply(_decide(tree))
+        return (
+            _check(action is None, "deleting stop_liveshare must not restart")
+            and _check(not state.active, "state must stay inactive")
+        )
+
+
+def test_full_lifecycle() -> bool:
+    with _tree() as tree:
+        state = liveshare.State()
+        global_start = _touch(tree["cwd"] / liveshare.START_MARKER)
+        run_stop = tree["run"] / liveshare.STOP_MARKER
+
+        steps: List[Tuple[object, object]] = []
+        steps.append((state.apply(_decide(tree)), liveshare.MarkerAction.START))
+        steps.append((state.apply(_decide(tree)), None))
+
+        _remove(global_start)
+        steps.append((state.apply(_decide(tree)), None))
+
+        _touch(run_stop)
+        steps.append((state.apply(_decide(tree)), liveshare.MarkerAction.STOP))
+        steps.append((state.apply(_decide(tree)), None))
+
+        _remove(run_stop)
+        steps.append((state.apply(_decide(tree)), None))
+
+        _touch(tree["run"] / liveshare.START_MARKER)
+        steps.append((state.apply(_decide(tree)), liveshare.MarkerAction.START))
+
+        return all(_eq(actual, expected, "lifecycle step") for actual, expected in steps)
+
+
+def test_initial_active_from_cli_flag() -> bool:
+    with _tree() as tree:
+        state = liveshare.State(active=True)
+
+        _touch(tree["cwd"] / liveshare.START_MARKER)
+        no_op = state.apply(_decide(tree))
+
+        _touch(tree["run"] / liveshare.STOP_MARKER)
+        stop = state.apply(_decide(tree))
+
+        return (
+            _check(no_op is None, "an already running CLI share is not re-announced")
+            and _eq(stop, liveshare.MarkerAction.STOP, "stop marker may stop CLI share")
+            and _check(not state.active, "CLI share must be off")
+        )
+
+
+# ---------------------------------------------------------------------------
+# URL extraction and message building
+# ---------------------------------------------------------------------------
+
+
+def test_extract_share_url_typical_output() -> bool:
+    text = "See https://imageseg.scads.de/omniax/share?user_id=u&experiment_name=e&run_nr=0 for live-results."
+    expected = "https://imageseg.scads.de/omniax/share?user_id=u&experiment_name=e&run_nr=0"
+    return _eq(liveshare.extract_share_url(text), expected, "typical server URL")
+
+
+def test_extract_share_url_success_message() -> bool:
+    text = (
+        "Run was successfully shared. See https://example.org/share?user_id=u&"
+        "experiment_name=e&run_nr=1\nYou can share the link. It is valid for 90 days.\n"
+    )
+    expected = "https://example.org/share?user_id=u&experiment_name=e&run_nr=1"
+    return _eq(liveshare.extract_share_url(text), expected, "success message URL")
+
+
+def test_extract_share_url_picks_first() -> bool:
+    text = "First https://one.example/a then https://two.example/b"
+    return _eq(liveshare.extract_share_url(text), "https://one.example/a", "first URL")
+
+
+def test_extract_share_url_strips_trailing_punctuation() -> bool:
+    return _eq(
+        liveshare.extract_share_url("See (https://example.org/share?x=1)."),
+        "https://example.org/share?x=1",
+        "trailing punctuation",
+    )
+
+
+def test_extract_share_url_http() -> bool:
+    return _eq(
+        liveshare.extract_share_url("see http://localhost:1234/share?x=1"),
+        "http://localhost:1234/share?x=1",
+        "http URLs",
+    )
+
+
+def test_extract_share_url_missing() -> bool:
+    return (
+        _eq(liveshare.extract_share_url(""), "", "empty output")
+        and _eq(liveshare.extract_share_url("no link here"), "", "no URL")
+    )
+
+
+def test_build_activation_lines() -> bool:
+    decision = liveshare.MarkerDecision(
+        liveshare.MarkerAction.START, "run", "/runs/exp/0/liveshare"
+    )
+    lines = liveshare.build_activation_lines(decision, url="https://example.org/x")
+    joined = "\n".join(lines)
+    return (
+        _check("LiveShare activated" in joined, "activation line")
+        and _check("/runs/exp/0/liveshare" in joined, "marker path")
+        and _check("https://example.org/x" in joined, "URL")
+    )
+
+
+def test_build_activation_lines_without_url() -> bool:
+    decision = liveshare.MarkerDecision(
+        liveshare.MarkerAction.START, "global", "/work/liveshare"
+    )
+    joined = "\n".join(liveshare.build_activation_lines(decision))
+    with_error = "\n".join(
+        liveshare.build_activation_lines(decision, error="server unreachable")
+    )
+    return (
+        _check("not available yet" in joined, "missing URL hint")
+        and _check("server unreachable" in with_error, "error hint")
+    )
+
+
+def test_build_stop_lines() -> bool:
+    decision = liveshare.MarkerDecision(
+        liveshare.MarkerAction.STOP, "experiment", "/runs/exp/stop_liveshare"
+    )
+    joined = "\n".join(liveshare.build_stop_lines(decision))
+    return (
+        _check("LiveShare stopped" in joined, "stop line")
+        and _check("/runs/exp/stop_liveshare" in joined, "stop path")
+    )
+
+
+# ---------------------------------------------------------------------------
+# Controller
+# ---------------------------------------------------------------------------
+
+
+class _Recorder:
+    def __init__(self) -> None:
+        self.events: List[str] = []
+        self.lines: List[List[str]] = []
+
+    def on_start(self) -> None:
+        self.events.append("start")
+
+    def on_stop(self) -> None:
+        self.events.append("stop")
+
+    def announce(self, lines: List[str]) -> None:
+        self.events.append("announce")
+        self.lines.append(list(lines))
+
+
+def test_controller_activation() -> bool:
+    recorder = _Recorder()
+    state = liveshare.State()
+    decision = liveshare.MarkerDecision(
+        liveshare.MarkerAction.START, "run", "/runs/exp/0/liveshare"
+    )
+    controller = liveshare.Controller(
+        state=state,
+        share=lambda: (
+            "See https://example.org/share?run_nr=0 for live-results.",
+            "",
+        ),
+        announce=recorder.announce,
+        on_start=recorder.on_start,
+    )
+
+    action = controller.apply(decision)
+    joined = "\n".join(recorder.lines[0])
+
+    return (
+        _eq(action, liveshare.MarkerAction.START, "activation action")
+        and _eq(recorder.events, ["start", "announce"], "callback order")
+        and _check("https://example.org/share?run_nr=0" in joined, "URL announced")
+        and _check(state.active, "state active")
+    )
+
+
+def test_controller_activation_only_once() -> bool:
+    recorder = _Recorder()
+    state = liveshare.State()
+    decision = liveshare.MarkerDecision(
+        liveshare.MarkerAction.START, "global", "/work/liveshare"
+    )
+    calls = {"share": 0}
+
+    def share() -> Tuple[str, str]:
+        calls["share"] += 1
+        return "https://example.org/x", ""
+
+    controller = liveshare.Controller(
+        state=state,
+        share=share,
+        announce=recorder.announce,
+        on_start=recorder.on_start,
+    )
+
+    first = controller.apply(decision)
+    second = controller.apply(decision)
+
+    return (
+        _eq(first, liveshare.MarkerAction.START, "first activation")
+        and _check(second is None, "second poll is a no-op")
+        and _eq(calls["share"], 1, "share command runs exactly once")
+        and _eq(recorder.events, ["start", "announce"], "one announcement")
+    )
+
+
+def test_controller_share_error_still_announces() -> bool:
+    recorder = _Recorder()
+    state = liveshare.State()
+    decision = liveshare.MarkerDecision(
+        liveshare.MarkerAction.START, "experiment", "/runs/exp/liveshare"
+    )
+
+    def broken_share() -> Tuple[str, str]:
+        raise RuntimeError("offline")
+
+    controller = liveshare.Controller(
+        state=state,
+        share=broken_share,
+        announce=recorder.announce,
+    )
+
+    action = controller.apply(decision)
+    joined = "\n".join(recorder.lines[0])
+
+    return (
+        _eq(action, liveshare.MarkerAction.START, "activation despite error")
+        and _check("offline" in joined, "error text announced")
+        and _check(state.active, "state still active")
+    )
+
+
+def test_controller_stop() -> bool:
+    recorder = _Recorder()
+    state = liveshare.State(active=True)
+    decision = liveshare.MarkerDecision(
+        liveshare.MarkerAction.STOP, "run", "/runs/exp/0/stop_liveshare"
+    )
+    controller = liveshare.Controller(
+        state=state,
+        share=lambda: ("", ""),
+        announce=recorder.announce,
+        on_stop=recorder.on_stop,
+    )
+
+    action = controller.apply(decision)
+    joined = "\n".join(recorder.lines[0])
+
+    return (
+        _eq(action, liveshare.MarkerAction.STOP, "stop action")
+        and _eq(recorder.events, ["stop", "announce"], "stop callback order")
+        and _check("LiveShare stopped" in joined, "stop announcement")
+        and _check(not state.active, "state inactive")
+    )
+
+
+def test_controller_no_decision_has_no_side_effects() -> bool:
+    recorder = _Recorder()
+    state = liveshare.State(active=True)
+    controller = liveshare.Controller(
+        state=state,
+        share=lambda: ("unexpected", ""),
+        announce=recorder.announce,
+        on_start=recorder.on_start,
+        on_stop=recorder.on_stop,
+    )
+
+    action = controller.apply(None)
+
+    return (
+        _check(action is None, "no action")
+        and _eq(recorder.events, [], "no callbacks")
+        and _check(state.active, "state unchanged")
+    )
+
+
+# ---------------------------------------------------------------------------
+# tqdm-aware writing
+# ---------------------------------------------------------------------------
+
+
+class _FakeProgressBar:
+    def __init__(self, disable: bool = False, raise_on_write: bool = False):
+        self.disable = disable
+        self.fp = io.StringIO()
+        self.raise_on_write = raise_on_write
+        self.writes: List[Tuple[str, object]] = []
+
+    def write(self, text: str, file: object = None) -> None:
+        if self.raise_on_write:
+            raise RuntimeError("write failed")
+        self.writes.append((text, file))
+
+
+def test_write_above_progress_bar_uses_tqdm() -> bool:
+    progress = _FakeProgressBar()
+    fallback: List[str] = []
+    ok = liveshare.write_above_progress_bar(progress, "hello", fallback=fallback.append)
+    return (
+        _check(ok, "must report tqdm usage")
+        and _eq(progress.writes, [("hello", progress.fp)], "text and stream passed to tqdm")
+        and _eq(fallback, [], "fallback must not be used")
+    )
+
+
+def test_write_above_progress_bar_none_falls_back() -> bool:
+    fallback: List[str] = []
+    ok = liveshare.write_above_progress_bar(None, "hello", fallback=fallback.append)
+    return (
+        _check(not ok, "no tqdm usage")
+        and _eq(fallback, ["hello"], "fallback used")
+    )
+
+
+def test_write_above_progress_bar_disabled_falls_back() -> bool:
+    progress = _FakeProgressBar(disable=True)
+    fallback: List[str] = []
+    ok = liveshare.write_above_progress_bar(progress, "hello", fallback=fallback.append)
+    return (
+        _check(not ok, "disabled bar must not be used")
+        and _eq(fallback, ["hello"], "fallback used")
+        and _eq(progress.writes, [], "disabled bar not written")
+    )
+
+
+def test_write_above_progress_bar_without_write_falls_back() -> bool:
+    fallback: List[str] = []
+    ok = liveshare.write_above_progress_bar(object(), "hello", fallback=fallback.append)
+    return (
+        _check(not ok, "missing write method")
+        and _eq(fallback, ["hello"], "fallback used")
+    )
+
+
+def test_write_above_progress_bar_write_error_falls_back() -> bool:
+    progress = _FakeProgressBar(raise_on_write=True)
+    fallback: List[str] = []
+    ok = liveshare.write_above_progress_bar(progress, "hello", fallback=fallback.append)
+    return (
+        _check(not ok, "write error must not propagate")
+        and _eq(fallback, ["hello"], "fallback used after error")
+    )
+
+
+TESTS = [
+    test_marker_locations_order_and_dedup,
+    test_marker_locations_two_global_roots,
+    test_marker_locations_without_run_folder,
+    test_marker_locations_are_absolute,
+    test_decide_none,
+    test_decide_global_from_cwd,
+    test_decide_global_from_script_dir,
+    test_cwd_global_precedes_script_dir_global,
+    test_decide_experiment,
+    test_decide_run,
+    test_start_precedence_most_specific,
+    test_stop_wins_over_start_in_same_scope,
+    test_stop_wins_over_more_specific_start,
+    test_stop_precedence_most_specific,
+    test_state_activation_only_once,
+    test_deleting_start_marker_does_not_stop,
+    test_stop_marker_stops_once,
+    test_deleting_stop_marker_does_not_restart,
+    test_full_lifecycle,
+    test_initial_active_from_cli_flag,
+    test_extract_share_url_typical_output,
+    test_extract_share_url_success_message,
+    test_extract_share_url_picks_first,
+    test_extract_share_url_strips_trailing_punctuation,
+    test_extract_share_url_http,
+    test_extract_share_url_missing,
+    test_build_activation_lines,
+    test_build_activation_lines_without_url,
+    test_build_stop_lines,
+    test_controller_activation,
+    test_controller_activation_only_once,
+    test_controller_share_error_still_announces,
+    test_controller_stop,
+    test_controller_no_decision_has_no_side_effects,
+    test_write_above_progress_bar_uses_tqdm,
+    test_write_above_progress_bar_none_falls_back,
+    test_write_above_progress_bar_disabled_falls_back,
+    test_write_above_progress_bar_without_write_falls_back,
+    test_write_above_progress_bar_write_error_falls_back,
+]
+
+
+def main() -> int:
+    failures = 0
+    for test in TESTS:
+        print(f"running {test.__name__} ...", end=" ", flush=True)
+        try:
+            ok = test()
+        except Exception as exc:  # noqa: BLE001
+            ok = False
+            red_text(f"\n  EXCEPTION: {exc!r}")
+        if ok:
+            print("ok")
+        else:
+            failures += 1
+            print("FAIL")
+
+    if failures:
+        red_text(f"\n{failures} test(s) failed")
+        return 1
+
+    print(f"\nAll {len(TESTS)} live-share marker tests passed")
+    return 0
+
+
+if __name__ == "__main__":
+    try:
+        sys.exit(main())
+    except KeyboardInterrupt:
+        sys.exit(0)

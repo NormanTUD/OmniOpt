@@ -1252,6 +1252,186 @@
 		};
 	}
 
+	function pointRangeForSegments(segments, dimension) {
+		var min = Infinity;
+		var max = -Infinity;
+
+		for (var s = 0; s < segments.length; s++) {
+			for (var i = 0; i < segments[s].length; i++) {
+				var value = segments[s][i][dimension];
+
+				if (!isFinite(value)) {
+					continue;
+				}
+
+				min = Math.min(min, value);
+				max = Math.max(max, value);
+			}
+		}
+
+		if (!isFinite(min) || !isFinite(max)) {
+			return { min: 0, max: 1 };
+		}
+
+		return { min: min, max: max };
+	}
+
+	function buildArrowheadTrace(segments, dimensions, colors) {
+		var ranges = [];
+		var i;
+		var s;
+
+		for (i = 0; i < dimensions; i++) {
+			ranges.push(pointRangeForSegments(segments, i === 0 ? "x" : (i === 1 ? "y" : "z")));
+		}
+
+		var coordinates = [];
+
+		for (i = 0; i < dimensions; i++) {
+			coordinates.push([]);
+		}
+
+		function normalize(point) {
+			var result = [];
+
+			for (var d = 0; d < dimensions; d++) {
+				var key = d === 0 ? "x" : (d === 1 ? "y" : "z");
+				var range = ranges[d];
+				var span = range.max - range.min;
+				result.push(span > 1e-12 ? (point[key] - range.min) / span : 0);
+			}
+
+			return result;
+		}
+
+		function denormalize(normalizedPoint) {
+			var result = {};
+
+			for (var d = 0; d < dimensions; d++) {
+				var key = d === 0 ? "x" : (d === 1 ? "y" : "z");
+				var range = ranges[d];
+				result[key] = range.min + normalizedPoint[d] * (range.max - range.min);
+			}
+
+			return result;
+		}
+
+		function pushCoordinate(values) {
+			coordinates[0].push(values.x);
+			coordinates[1].push(values.y);
+
+			if (dimensions === 3) {
+				coordinates[2].push(values.z);
+			}
+		}
+
+		function pushGap() {
+			for (var c = 0; c < dimensions; c++) {
+				coordinates[c].push(null);
+			}
+		}
+
+		for (s = 0; s < segments.length; s++) {
+			var segment = segments[s];
+
+			for (var p = 1; p < segment.length; p++) {
+				var previous = normalize(segment[p - 1]);
+				var current = normalize(segment[p]);
+				var direction = [];
+
+				for (var d = 0; d < dimensions; d++) {
+					direction.push(current[d] - previous[d]);
+				}
+
+				var length = 0;
+
+				for (d = 0; d < dimensions; d++) {
+					length += direction[d] * direction[d];
+				}
+
+				length = Math.sqrt(length);
+
+				if (length < 1e-9) {
+					continue;
+				}
+
+				for (d = 0; d < dimensions; d++) {
+					direction[d] /= length;
+				}
+
+				var perpendicular = [];
+
+				if (dimensions === 2) {
+					perpendicular = [-direction[1], direction[0]];
+				} else {
+					var helper = Math.abs(direction[2]) > 0.9 ? [1, 0, 0] : [0, 0, 1];
+					perpendicular = [
+						direction[1] * helper[2] - direction[2] * helper[1],
+						direction[2] * helper[0] - direction[0] * helper[2],
+						direction[0] * helper[1] - direction[1] * helper[0]
+					];
+					var perpendicularLength = Math.sqrt(
+						perpendicular[0] * perpendicular[0] +
+						perpendicular[1] * perpendicular[1] +
+						perpendicular[2] * perpendicular[2]
+					);
+
+					if (perpendicularLength < 1e-12) {
+						continue;
+					}
+
+					for (d = 0; d < dimensions; d++) {
+						perpendicular[d] /= perpendicularLength;
+					}
+				}
+
+				var headLength = Math.min(length * 0.35, 0.035);
+				var headWidth = headLength * 0.55;
+				var tip = current.slice();
+				var wing1 = [];
+				var wing2 = [];
+
+				for (d = 0; d < dimensions; d++) {
+					wing1.push(tip[d] - direction[d] * headLength + perpendicular[d] * headWidth);
+					wing2.push(tip[d] - direction[d] * headLength - perpendicular[d] * headWidth);
+				}
+
+				pushCoordinate(denormalize(tip));
+				pushCoordinate(denormalize(wing1));
+				pushGap();
+				pushCoordinate(denormalize(tip));
+				pushCoordinate(denormalize(wing2));
+				pushGap();
+			}
+		}
+
+		if (!coordinates[0].length) {
+			return null;
+		}
+
+		var trace = {
+			type: dimensions === 3 ? "scatter3d" : "scatter",
+			mode: "lines",
+			name: "Path direction",
+			x: coordinates[0],
+			y: coordinates[1],
+			line: {
+				color: colors.path,
+				width: dimensions === 3 ? 3 : 2
+			},
+			opacity: 0.95,
+			showlegend: false,
+			hoverinfo: "skip",
+			connectgaps: false
+		};
+
+		if (dimensions === 3) {
+			trace.z = coordinates[2];
+		}
+
+		return trace;
+	}
+
 	function landscapeSignature(mode, paramNames, resultEntries, showFailed, showPoints) {
 		var signatureResults = (resultEntries || []).map(function (entry) {
 			return entry.resultName;
@@ -2616,6 +2796,7 @@
 		surfaceHeightAt: surfaceHeightAt,
 		surfaceInterpolationOptions: surfaceInterpolationOptions,
 		filterDataBySlice: filterDataBySlice,
+		buildArrowheadTrace: buildArrowheadTrace,
 		landscapeSignature: landscapeSignature,
 		sampleEvenly: sampleEvenly,
 		getResultLabel: getResultLabel,

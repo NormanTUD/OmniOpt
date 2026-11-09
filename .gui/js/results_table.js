@@ -501,7 +501,7 @@ function createResultsTable(data, headers, table_name) {
 	var interestingToggleButton = document.createElement("button");
 	interestingToggleButton.type = "button";
 	interestingToggleButton.className = "results-button results-interesting-toggle";
-	interestingToggleButton.textContent = "Show only interesting columns";
+	interestingToggleButton.textContent = "Hide technical columns";
 	toolbar.appendChild(interestingToggleButton);
 
 	var columnsControl = document.createElement("div");
@@ -768,7 +768,7 @@ function createResultsTable(data, headers, table_name) {
 	function updateColumnControls() {
 		var visibleCount = visibleColumnIndices().length;
 		columnsToggle.textContent = "Columns (" + visibleCount + "/" + headers.length + ")";
-		interestingToggleButton.textContent = state.interestingOnly ? "Show all columns" : "Show only interesting columns";
+		interestingToggleButton.textContent = state.interestingOnly ? "Show technical columns" : "Hide technical columns";
 		interestingToggleButton.setAttribute("aria-pressed", state.interestingOnly ? "true" : "false");
 		interestingToggleButton.classList.toggle("active", state.interestingOnly);
 	}

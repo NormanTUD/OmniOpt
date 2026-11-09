@@ -4931,12 +4931,64 @@ def try_saving_to_db() -> None:
     except Exception as e:
         print_debug(f"Failed trying to save sqlite3-DB: {e}")
 
+def _previous_job_infos_paths(continue_previous_job: str) -> List[str]:
+    paths: List[str] = []
+    seen = set()
+    current = continue_previous_job
+
+    while current:
+        current_abs = os.path.abspath(current)
+        if current_abs in seen:
+            break
+        seen.add(current_abs)
+
+        job_infos_path = os.path.join(current, "job_infos.csv")
+        if os.path.exists(job_infos_path):
+            paths.append(job_infos_path)
+
+        load_source_file = os.path.join(current, "checkpoint_load_source")
+        next_job = None
+
+        if os.path.exists(load_source_file):
+            try:
+                with open(load_source_file, mode="r", encoding="utf-8") as f:
+                    content = f.read().strip()
+                marker = "Continuation from checkpoint"
+                if content.startswith(marker):
+                    next_job = content[len(marker):].strip().rstrip("/")
+            except Exception as e:
+                print_debug(f"Could not read {load_source_file}: {e}")
+
+        current = next_job
+
+    return paths
+
 def merge_with_job_infos(df: pd.DataFrame) -> pd.DataFrame:
-    job_infos_path = os.path.join(get_current_run_folder(), "job_infos.csv")
-    if not os.path.exists(job_infos_path):
+    job_infos_paths: List[str] = []
+
+    current_job_infos_path = os.path.join(get_current_run_folder(), "job_infos.csv")
+    if os.path.exists(current_job_infos_path):
+        job_infos_paths.append(current_job_infos_path)
+
+    continue_previous_job = getattr(args, "continue_previous_job", None)
+    if continue_previous_job:
+        job_infos_paths.extend(_previous_job_infos_paths(continue_previous_job))
+
+    if not job_infos_paths:
         return df
 
-    job_df = pd.read_csv(job_infos_path)
+    job_dfs = []
+    for job_infos_path in job_infos_paths:
+        try:
+            job_dfs.append(pd.read_csv(job_infos_path))
+        except Exception as e:
+            print_red(f"Could not read {job_infos_path}: {e}")
+
+    if not job_dfs:
+        return df
+
+    job_df = pd.concat(job_dfs, ignore_index=True)
+    job_df = job_df.drop_duplicates(subset=["trial_index"], keep="first")
 
     if 'trial_index' not in df.columns or 'trial_index' not in job_df.columns:
         raise ValueError("Both DataFrames must contain a 'trial_index' column.")

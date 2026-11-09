@@ -461,14 +461,24 @@
 			}
 		} else if (activeButton.getAttribute("onclick")) {
 			var plotStart = performance.now();
+			var onclickCode = activeButton.getAttribute("onclick") || "";
+			var needsPlotly = /(^|[^A-Za-z0-9_])(plot[A-Za-z0-9_]*|Plot[A-Za-z0-9_]*|load_pareto_graph_from_idxs|createParallelPlot)\b/.test(onclickCode);
 
-			try {
-				activeButton.onclick();
-			} catch (error) {
-				console.error("Live update could not refresh the active plot:", error);
+			function runPlotOnclick() {
+				try {
+					activeButton.onclick();
+				} catch (error) {
+					console.error("Live update could not refresh the active plot:", error);
+				}
+
+				debugDuration("active plot render", plotStart);
 			}
 
-			debugDuration("active plot render", plotStart);
+			if (needsPlotly && typeof window.ensurePlotlyLoaded === "function") {
+				window.ensurePlotlyLoaded(runPlotOnclick);
+			} else {
+				runPlotOnclick();
+			}
 		}
 
 		restoreViewState(view);

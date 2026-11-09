@@ -56,6 +56,9 @@
 			$link = get_main_script_dir()."/$_p";
 
 			$link = preg_replace("/^\/\/*/", "/", $link);
+
+			$version = @filemtime($_p) . "-" . @filesize($_p);
+			$link .= "?v=" . rawurlencode($version);
 ?>
 			<script src="<?php print $link; ?>"></script>
 <?php
@@ -104,7 +107,151 @@
 <?php
 			if ($is_share_run_view) {
 ?>
-			<?php js("libs/plotly-latest.min.js"); ?>
+			<script>
+				(function () {
+					window.__omnioptPlotlyQueue = [];
+
+					window.__omnioptPlotlyEnqueue = function (method, args) {
+						return new Promise(function (resolve, reject) {
+							window.__omnioptPlotlyQueue.push({
+								method: method,
+								args: Array.prototype.slice.call(args),
+								resolve: resolve,
+								reject: reject
+							});
+						});
+					};
+
+					window.Plotly = window.Plotly || {};
+
+					if (typeof window.Plotly.newPlot !== "function") {
+						window.Plotly.__isStub = true;
+						window.Plotly.newPlot = function () {
+							return window.__omnioptPlotlyEnqueue("newPlot", arguments);
+						};
+						window.Plotly.react = function () {
+							return window.__omnioptPlotlyEnqueue("react", arguments);
+						};
+						window.Plotly.purge = function () {};
+					}
+
+					window.__omnioptFlushPlotlyQueue = function () {
+						if (!window.Plotly || window.Plotly.__isStub) {
+							return;
+						}
+
+						var queue = window.__omnioptPlotlyQueue || [];
+						window.__omnioptPlotlyQueue = [];
+
+						for (var i = 0; i < queue.length; i++) {
+							(function (item) {
+								try {
+									var result = window.Plotly[item.method].apply(window.Plotly, item.args);
+									Promise.resolve(result).then(item.resolve, item.reject);
+								} catch (error) {
+									item.reject(error);
+								}
+							})(queue[i]);
+						}
+					};
+
+					window.__omnioptPlotlyUrl = "<?php print preg_replace('/^\/\/*/', '/', get_main_script_dir().'/libs/plotly-latest.min.js'); ?>?v=<?php print rawurlencode(@filemtime(__DIR__ . '/libs/plotly-latest.min.js') . '-' . @filesize(__DIR__ . '/libs/plotly-latest.min.js')); ?>";
+
+					window.ensurePlotlyLoaded = function (callback) {
+						function done() {
+							if (typeof callback === "function") {
+								callback();
+							}
+						}
+
+						if (window.Plotly && !window.Plotly.__isStub) {
+							done();
+							return;
+						}
+
+						if (!window.__omnioptPlotlyLoading) {
+							window.__omnioptPlotlyLoading = new Promise(function (resolve, reject) {
+								var script = document.createElement("script");
+								script.src = window.__omnioptPlotlyUrl;
+								script.async = true;
+								script.onload = function () {
+									if (window.Plotly) {
+										window.Plotly.__isStub = false;
+									}
+									window.__omnioptFlushPlotlyQueue();
+									resolve();
+								};
+								script.onerror = function () {
+									reject(new Error("Could not load Plotly"));
+								};
+								document.head.appendChild(script);
+							});
+						}
+
+						window.__omnioptPlotlyLoading.then(done, function (error) {
+							console.error(error);
+							done();
+						});
+					};
+
+					var plotHandlerPattern = /(^|[^A-Za-z0-9_])(plot[A-Za-z0-9_]*|Plot[A-Za-z0-9_]*|load_pareto_graph_from_idxs|createParallelPlot)\b/;
+
+					function warmPlotlyInBackground() {
+						if (typeof window.ensurePlotlyLoaded === "function") {
+							window.ensurePlotlyLoaded();
+						}
+					}
+
+					window.addEventListener("load", function () {
+						setTimeout(warmPlotlyInBackground, 1200);
+					});
+
+					document.addEventListener("click", function (event) {
+						var target = event.target;
+
+						if (!target || typeof target.closest !== "function") {
+							return;
+						}
+
+						var button = target.closest("[onclick]");
+
+						if (!button) {
+							return;
+						}
+
+						var code = button.getAttribute("onclick") || "";
+
+						if (!plotHandlerPattern.test(code)) {
+							return;
+						}
+
+						if (window.Plotly && !window.Plotly.__isStub) {
+							return;
+						}
+
+						if (button.dataset.plotlyWaiting === "true") {
+							return;
+						}
+
+						var originalOnclick = code;
+						button.removeAttribute("onclick");
+						button.dataset.plotlyWaiting = "true";
+
+						// Let the click continue so the tab can become visible and
+						// show its own loading state while Plotly is fetched.
+						window.ensurePlotlyLoaded(function () {
+							delete button.dataset.plotlyWaiting;
+							button.setAttribute("onclick", originalOnclick);
+
+							try {
+								(new Function("event", originalOnclick)).call(button, event);
+							} catch (error) {
+								console.error("Could not execute plot handler:", error);
+							}
+						});
+					}, true);
+				})();
+			</script>
 			<?php js("js/gridjs.umd.js"); ?>
 
 			<?php js("js/heatmap.js"); ?>
@@ -120,6 +267,7 @@
 			<?php js("js/cpu_and_ram.js"); ?>
 			<?php js("js/scatter2d.js"); ?>
 			<?php js("js/scatter3d.js"); ?>
+			<?php js("js/landscape.js"); ?>
 			<?php js("js/boxplot.js"); ?>
 			<?php js("js/exit_pie_chart.js"); ?>
 			<?php js("js/result_distribution_generation_method.js"); ?>

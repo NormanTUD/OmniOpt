@@ -1,7 +1,7 @@
 "use strict";
 
 const CACHE_PREFIX = "omniopt-pwa-";
-const CACHE_NAME = CACHE_PREFIX + "v3";
+const CACHE_NAME = CACHE_PREFIX + "v5";
 const OFFLINE_PAGE = "offline.html";
 const PRECACHE_LIST = "offline_assets.php";
 
@@ -32,6 +32,7 @@ const CORE_ASSETS = [
 	"./share.js",
 	"./js/results_table.js",
 	"./js/results_analysis.js",
+	"./js/landscape.js",
 	"./js/share_functions.js",
 	"./js/gridjs.umd.js",
 	"./js/parallel.js",

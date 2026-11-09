@@ -235,6 +235,57 @@
 					if (count($result_names) >= 1) {
 						/* Calculating the difference of the sets of columns to find how many parameters have been used, except the special column names and result column names. */
 
+						$numerical_parameter_columns = [];
+						foreach ($non_special_columns_without_result_columns as $column_name) {
+							$column_types = $nr_of_numerical_and_non_numerical_columns[$column_name] ?? null;
+
+							if (!$column_types || empty($column_types["numeric"]) || !empty($column_types["string"])) {
+								continue;
+							}
+
+							$column_index = array_search($column_name, $GLOBALS["json_data"]["tab_results_headers_json"], true);
+							$first_value = null;
+							$has_variation = false;
+
+							if ($column_index !== false) {
+								foreach ($GLOBALS["json_data"]["tab_results_csv_json"] as $row) {
+									$raw_value = $row[$column_index] ?? null;
+
+									if (!is_numeric($raw_value)) {
+										continue;
+									}
+
+									$value = (float)$raw_value;
+
+									if ($first_value === null) {
+										$first_value = $value;
+									} elseif ($value != $first_value) {
+										$has_variation = true;
+										break;
+									}
+								}
+							}
+
+							if ($has_variation) {
+								$numerical_parameter_columns[] = $column_name;
+							}
+						}
+
+						$renderable_result_columns = 0;
+						foreach ($result_names as $result_name) {
+							$result_types = $nr_of_numerical_and_non_numerical_columns[$result_name] ?? null;
+
+							if ($result_types && !empty($result_types["numeric"])) {
+								$renderable_result_columns++;
+							}
+						}
+
+						if (count($numerical_parameter_columns) >= 1 && $renderable_result_columns >= 1) {
+							[$tabs, $warnings] = add_landscape_tab($tabs, $warnings, $result_names);
+						} else {
+							$warnings[] = "Cannot add result-landscape tab: no numeric parameter/result columns are available.";
+						}
+
 						if(count($non_special_columns_without_result_columns) >= 2) {
 							if($nr_numerical_cols >= 2) {
 								$tabs = add_scatter_2d_plots($tabs, "$run_dir/results.csv", "Scatter-2D", "tab_scatter_2d");
@@ -539,15 +590,19 @@
 				}
 			});
 
-			const hash = window.location.hash.substring(1);
-			if (hash) {
-				const $button = $('.share_nav_button[aria-controls="' + hash + '"]');
-				if ($button.length) {
-					$button.trigger('click');
+			try {
+				const hash = window.location.hash.substring(1);
+				if (hash) {
+					const $button = $('.share_nav_button[aria-controls="' + hash + '"]');
+					if ($button.length) {
+						$button.trigger('click');
+					}
 				}
+			} catch (error) {
+				console.error('Could not open the tab from the URL hash:', error);
+			} finally {
+				hideFullscreenSpinner();
 			}
-
-			hideFullscreenSpinner();
 
 			insertSortableSelectForSingleLogsTabs();
 		});

@@ -817,6 +817,30 @@
 		return [$tabs, $warnings];
 	}
 
+	function add_landscape_tab($tabs, $warnings, $result_names) {
+		if (!count($result_names)) {
+			$warnings[] = "Cannot add result-landscape tab without result names.";
+			return [$tabs, $warnings];
+		}
+
+		if (!isset($GLOBALS["json_data"]["tab_results_headers_json"]) || !isset($GLOBALS["json_data"]["tab_results_csv_json"])) {
+			$warnings[] = "Cannot add result-landscape tab: result table data is missing.";
+			return [$tabs, $warnings];
+		}
+
+		$html = "<div class='invert_in_dark_mode' id='plotLandscape'><div class='landscape-loading'><div class='landscape-loading-spinner'></div><div class='landscape-loading-text'>Loading result landscape…</div></div></div>";
+
+		$svg_icon = get_icon_html("3d_scatter.svg");
+
+		$tabs["{$svg_icon}Result-Landscape"] = [
+			'id' => 'tab_landscape',
+			'content' => $html,
+			"onclick" => "plotLandscape();"
+		];
+
+		return [$tabs, $warnings];
+	}
+
 	function add_scatter_3d_plots($tabs, $filename, $name, $id) {
 		if(is_file($filename)) {
 			$html = "<div class='invert_in_dark_mode' id='plotScatter3d'></div>";

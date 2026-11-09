@@ -50,6 +50,13 @@ def main(argv=None) -> int:  # pylint: disable=unused-argument
             red_text("At least one results-analysis test failed")
             return 1
 
+    landscape_test_file = GUI_DIR / "gui_landscape_tests.js"
+    if landscape_test_file.exists():
+        proc4 = subprocess.run(["node", str(landscape_test_file)], cwd=str(GUI_DIR))
+        if proc4.returncode != 0:
+            red_text("At least one landscape test failed")
+            return 1
+
     if os.environ.get("SHOW_SUCCESS"):
         green_text("JS-Unit-Tests OK")
     return 0

@@ -265,14 +265,6 @@ var tableData = [
 		info: `With <i>Follow</i>, the job's .out file will automatically be <code style="white-space: pre" class="highlight_me dark_code_bg invert_in_dark_mode">tail -f</code>'d on Slurm-systems. Having this set or not does not change the output of your calculations.`
 	},
 	{
-		label: "Wait until ended",
-		id: "wait_until_ended",
-		type: "checkbox",
-		value: 0,
-		help: "Wait until the SLURM job has ended and then print its full log. While waiting, a transient spinner shows the job's estimated start time when available.",
-		info: `With <i>Wait until ended</i>, OmniOpt2 stays on the login node until the submitted SLURM job finishes, then dumps the job's log and exits.`
-	},
-	{
 		label: "Live-Share",
 		id: "live_share",
 		type: "checkbox",
@@ -961,6 +953,14 @@ var hiddenTableData = [
 		value: "",
 		placeholder: "e.g. f(x, y) = x**2 + 2*x*y + y**2",
 		help: "An optional math formula that defines the objective. When set, OmniOpt2 will auto-generate a run-program and derive hyperparameter suggestions. Use LaTeX (\\\\sigma, \\\\sum, \\\\frac) or Python-style infix (sin(x), 2*x + y). Switching to this field hides the run_program textarea; exactly one of the two must be filled."
+	},
+	{
+		label: "Wait until ended",
+		id: "wait_until_ended",
+		type: "checkbox",
+		value: 0,
+		help: "Wait until the SLURM job has ended and then print its full log. While waiting, a transient spinner shows the job's estimated start time when available.",
+		info: `With <i>Wait until ended</i>, OmniOpt2 stays on the login node until the submitted SLURM job finishes, then dumps the job's log and exits.`
 	},
 	{
 		label: "Formula mode",

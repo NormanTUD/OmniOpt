@@ -376,6 +376,18 @@ console.log("\n--- Testing: slicing and helpers ---");
 	expect("format: very large", landscape.formatNumber(1e7), "1.000e+7");
 }
 
+console.log("\n--- Testing: live-update signature ---");
+{
+	var entries = [{ resultName: "RESULT1" }, { resultName: "RESULT2" }];
+	var base = landscape.landscapeSignature(3, ["x", "y"], entries, false, false);
+	expect("signature: stable", landscape.landscapeSignature(3, ["x", "y"], entries, false, false), base);
+	expectTrue("signature: mode changes", landscape.landscapeSignature(2, ["x", "y"], entries, false, false) !== base);
+	expectTrue("signature: params change", landscape.landscapeSignature(3, ["x", "z"], entries, false, false) !== base);
+	expectTrue("signature: result changes", landscape.landscapeSignature(3, ["x", "y"], [{ resultName: "RESULT1" }], false, false) !== base);
+	expectTrue("signature: failed toggle changes", landscape.landscapeSignature(3, ["x", "y"], entries, true, false) !== base);
+	expectTrue("signature: points toggle changes", landscape.landscapeSignature(3, ["x", "y"], entries, false, true) !== base);
+}
+
 console.log("\n--- SUMMARY ---");
 
 if (failedTests === 0) {

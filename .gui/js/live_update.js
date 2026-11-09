@@ -435,7 +435,16 @@
 		var activeTabId = activeButton.getAttribute("aria-controls");
 		var liveRefresher = null;
 
-		if (activeTabId === "tab_scatter_2d" && typeof window.__scatter2d_refresh === "function") {
+		var landscapeTab = activeTabId === "tab_landscape";
+
+		if (landscapeTab) {
+			// Never rebuild the whole landscape tab on a live update. The
+			// dedicated refresher reuses the existing cards and Plotly plots
+			// and only runs when the result data actually changed.
+			if (resultsChanged && typeof window.__omnioptLandscapeLiveRefresh === "function") {
+				liveRefresher = window.__omnioptLandscapeLiveRefresh;
+			}
+		} else if (activeTabId === "tab_scatter_2d" && typeof window.__scatter2d_refresh === "function") {
 			liveRefresher = window.__scatter2d_refresh;
 		} else if (activeTabId === "tab_scatter_3d" && typeof window.__scatter3d_refresh === "function") {
 			liveRefresher = window.__scatter3d_refresh;
@@ -459,7 +468,7 @@
 					window.jQuery("#plotScatter3d").data("loaded", "true");
 				}
 			}
-		} else if (activeButton.getAttribute("onclick")) {
+		} else if (!landscapeTab && activeButton.getAttribute("onclick")) {
 			var plotStart = performance.now();
 			var onclickCode = activeButton.getAttribute("onclick") || "";
 			var needsPlotly = /(^|[^A-Za-z0-9_])(plot[A-Za-z0-9_]*|Plot[A-Za-z0-9_]*|load_pareto_graph_from_idxs|createParallelPlot)\b/.test(onclickCode);

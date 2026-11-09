@@ -1252,6 +1252,20 @@
 		};
 	}
 
+	function landscapeSignature(mode, paramNames, resultEntries, showFailed, showPoints) {
+		var signatureResults = (resultEntries || []).map(function (entry) {
+			return entry.resultName;
+		});
+
+		return [
+			mode,
+			(paramNames || []).join(","),
+			signatureResults.join(","),
+			showFailed ? "1" : "0",
+			showPoints ? "1" : "0"
+		].join("|");
+	}
+
 	function markerTrace2D(colors, name, symbol, color, size, point) {
 		return {
 			type: "scatter",
@@ -1862,10 +1876,15 @@
 	}
 
 	function showLoading(container, message) {
+		var previousHeight = container.offsetHeight;
 		container.innerHTML = "";
 
 		var loading = document.createElement("div");
 		loading.className = "landscape-loading";
+
+		if (previousHeight > 0) {
+			loading.style.minHeight = previousHeight + "px";
+		}
 
 		var spinner = document.createElement("div");
 		spinner.className = "landscape-loading-spinner";
@@ -2209,18 +2228,20 @@
 			}
 		}
 
-		function scheduleRender(delay) {
+		function scheduleRender(delay, silent) {
 			if (updateTimer !== null) {
 				clearTimeout(updateTimer);
 			}
 
 			updateTimer = setTimeout(function () {
 				updateTimer = null;
-				render();
+				render(silent === true);
 			}, typeof delay === "number" ? delay : 80);
 		}
 
-		function render() {
+		function render(silent) {
+			silent = silent === true;
+
 			if (plotDiv.offsetParent === null) {
 				markUnloaded(plotDiv);
 				return;
@@ -2240,9 +2261,11 @@
 				return;
 			}
 
-			purgePlots(plotsContainer);
-			showLoading(plotsContainer, "Building result landscape…");
-			status.textContent = "Rendering…";
+			if (!silent) {
+				purgePlots(plotsContainer);
+				showLoading(plotsContainer, "Building result landscape…");
+				status.textContent = "Rendering…";
+			}
 
 			// Let the browser paint the spinner before the potentially expensive
 			// interpolation and Plotly rendering starts.
@@ -2251,7 +2274,7 @@
 					return;
 				}
 
-				Promise.resolve(renderPreparedData(token, mode, paramNames, selectedResult, showFailed, showPoints)).catch(function (error) {
+				Promise.resolve(renderPreparedData(token, mode, paramNames, selectedResult, showFailed, showPoints, silent)).catch(function (error) {
 					console.error("Could not render the result landscape:", error);
 					purgePlots(plotsContainer);
 					showPlotMessage(plotsContainer, "Could not render the result landscape: " + error.message);
@@ -2265,7 +2288,7 @@
 			status.textContent = message;
 		}
 
-		async function renderPreparedData(token, mode, paramNames, selectedResult, showFailed, showPoints) {
+		async function renderPreparedData(token, mode, paramNames, selectedResult, showFailed, showPoints, silent) {
 			if (token !== renderToken) {
 				return;
 			}
@@ -2273,8 +2296,10 @@
 			var resultsToRender = mode >= 3 ? [selectedResult] : resultNames.slice();
 			var paramLabel = mode >= 2 ? paramNames[0] + " × " + paramNames[1] : paramNames[0];
 
-			setRenderProgress("Collecting trials for " + paramLabel + "…");
-			await nextPaint();
+			if (!silent) {
+				setRenderProgress("Collecting trials for " + paramLabel + "…");
+				await nextPaint();
+			}
 
 			if (token !== renderToken) {
 				return;
@@ -2309,15 +2334,26 @@
 				return;
 			}
 
-			setRenderProgress("Interpolating " + paramLabel + "…");
-			await nextPaint();
+			if (!silent) {
+				setRenderProgress("Interpolating " + paramLabel + "…");
+				await nextPaint();
+			}
 
 			if (token !== renderToken) {
 				return;
 			}
 
-			purgePlots(plotsContainer);
-			plotsContainer.innerHTML = "";
+			var signature = landscapeSignature(mode, paramNames, prepared, showFailed, showPoints);
+
+			var canReuse = silent &&
+				plotsContainer.dataset.landscapeSignature === signature &&
+				plotsContainer.children.length === prepared.length;
+
+			if (!canReuse) {
+				purgePlots(plotsContainer);
+				plotsContainer.innerHTML = "";
+				plotsContainer.dataset.landscapeSignature = signature;
+			}
 
 			var failedStatus = showFailed
 				? failedTotal + " failed trial" + (failedTotal === 1 ? "" : "s") + " marked"
@@ -2327,7 +2363,9 @@
 				? prepared.length + " result" + (prepared.length === 1 ? "" : "s") + " · " + failedStatus
 				: "Showing " + prepared[0].label + " · " + failedStatus;
 
-			status.textContent = finalStatus;
+			if (!silent) {
+				status.textContent = finalStatus;
+			}
 
 			for (var p = 0; p < prepared.length; p++) {
 				if (token !== renderToken) {
@@ -2335,39 +2373,59 @@
 				}
 
 				var entry = prepared[p];
+				var card;
+				var cardTitle;
+				var cardMeta;
+				var plot;
 
-				setRenderProgress("Rendering " + entry.label + " (" + (p + 1) + "/" + prepared.length + ")…");
-				await nextPaint();
+				if (canReuse) {
+					card = plotsContainer.children[p];
+					cardTitle = card.querySelector(".landscape-card-title");
+					cardMeta = card.querySelector(".landscape-card-meta");
+					plot = card.querySelector(".landscape-plot");
+				} else {
+					if (!silent) {
+						setRenderProgress("Rendering " + entry.label + " (" + (p + 1) + "/" + prepared.length + ")…");
+						await nextPaint();
 
-				if (token !== renderToken) {
-					return;
+						if (token !== renderToken) {
+							return;
+						}
+					}
+
+					card = document.createElement("div");
+					card.className = "landscape-card";
+
+					var cardHeader = document.createElement("div");
+					cardHeader.className = "landscape-card-header";
+
+					cardTitle = document.createElement("div");
+					cardTitle.className = "landscape-card-title";
+
+					cardMeta = document.createElement("div");
+					cardMeta.className = "landscape-card-meta";
+
+					cardHeader.appendChild(cardTitle);
+					cardHeader.appendChild(cardMeta);
+					card.appendChild(cardHeader);
+
+					plot = document.createElement("div");
+					plot.className = "landscape-plot";
+					plot.id = "landscape_plot_" + sanitizeIdPart(entry.resultName) + "_" + p;
+					card.appendChild(plot);
+					plotsContainer.appendChild(card);
 				}
-				var card = document.createElement("div");
-				card.className = "landscape-card";
-
-				var cardHeader = document.createElement("div");
-				cardHeader.className = "landscape-card-header";
-
-				var cardTitle = document.createElement("div");
-				cardTitle.className = "landscape-card-title";
-				cardTitle.textContent = entry.label;
 
 				var best = findBestPoint(entry.data.valid, entry.goal);
 
-				var cardMeta = document.createElement("div");
-				cardMeta.className = "landscape-card-meta";
-				cardMeta.textContent = entry.data.valid.length + " valid trials" +
-					(best ? " · best " + formatNumber(best.loss) + " at trial " + best.trial : "");
+				if (cardTitle) {
+					cardTitle.textContent = entry.label;
+				}
 
-				cardHeader.appendChild(cardTitle);
-				cardHeader.appendChild(cardMeta);
-				card.appendChild(cardHeader);
-
-				var plot = document.createElement("div");
-				plot.className = "landscape-plot";
-				plot.id = "landscape_plot_" + sanitizeIdPart(entry.resultName) + "_" + p;
-				card.appendChild(plot);
-				plotsContainer.appendChild(card);
+				if (cardMeta) {
+					cardMeta.textContent = entry.data.valid.length + " valid trials" +
+						(best ? " · best " + formatNumber(best.loss) + " at trial " + best.trial : "");
+				}
 
 				var context = {
 					colors: colors,
@@ -2390,8 +2448,22 @@
 
 			if (token === renderToken) {
 				status.textContent = finalStatus;
+				markLoaded(plotDiv);
 			}
 		}
+
+		window.__omnioptLandscapeLiveRefresh = function () {
+			if (plotDiv.offsetParent === null) {
+				return;
+			}
+
+			if (!plotDiv.querySelector("#landscape_dimension")) {
+				plotLandscape();
+				return;
+			}
+
+			render(true);
+		};
 
 		dimensionSelect.addEventListener("change", function () {
 			updateVisibility();
@@ -2544,6 +2616,7 @@
 		surfaceHeightAt: surfaceHeightAt,
 		surfaceInterpolationOptions: surfaceInterpolationOptions,
 		filterDataBySlice: filterDataBySlice,
+		landscapeSignature: landscapeSignature,
 		sampleEvenly: sampleEvenly,
 		getResultLabel: getResultLabel,
 		getLossColorscale: getLossColorscale,

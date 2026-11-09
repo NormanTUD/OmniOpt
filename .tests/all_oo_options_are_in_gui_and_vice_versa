@@ -41,7 +41,10 @@ HELP_EXCEPTIONS = {
     "ui_url", "load_data_from_existing_jobs", "run_dir",
     "signed_weighted_euclidean_weights", "experiment_constraints", "minkowski_p",
     "max_parallelism", "show_ram_every_n_seconds", "runtime_debug",
-    "show_func_name", "worker_generator_path", "help", "install", "formula_python_path"
+    "show_func_name", "worker_generator_path", "help", "install", "formula_python_path",
+    # Wrapper-only option of .tests/start_demo_3d_live_share. It is not an
+    # OmniOpt or GUI option and is deliberately excluded from the parity check.
+    "live_share_url", "live-share-url"
 }
 
 

@@ -1,0 +1,152 @@
+#!/usr/bin/env bash
+# Start a real optimization demo that is large enough for the 3D
+# Result-Landscape tab and live-share it to an OmniOpt2-GUI.
+#
+# The default run uses the standard optimization example with three varying
+# numeric parameters (int_param, float_param, int_param_two) and one
+# categorical parameter (choice_param). The Result-Landscape tab therefore
+# has exactly three numeric dimensions and opens in the 3D surface mode.
+#
+# The live-share target is taken from --live-share-url (or
+# OMNIOPT_BASE_URL). It is exported only for this child process, so neither
+# ~/.oo_base_url nor any other file is created or modified.
+#
+# This wrapper-only option is intentionally not an OmniOpt/GUI option. It is
+# exempt from the GUI/CLI parameter-parity checks.
+#
+# Examples:
+#   .tests/start_demo_3d_live_share
+#   .tests/start_demo_3d_live_share --live-share-url http://localhost/oo2_gui
+#   .tests/start_demo_3d_live_share --live-share-url http://127.0.0.1:1234 --max-eval 100
+#
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+LIVE_SHARE_URL="${OMNIOPT_BASE_URL:-http://localhost/oo2_gui}"
+MAX_EVAL="100"
+PARALLEL_JOBS="10"
+RANDOM_STEPS="10"
+TESTNAME="demo_3d_real_100"
+MODEL="BOTORCH_MODULAR"
+EXTRA_ARGS=()
+
+usage() {
+	cat <<USAGE
+Usage: $(basename "$0") [options] [-- extra args for start_simple_optimization_run]
+
+Options:
+  --live-share-url URL   GUI base URL for live sharing.
+                         Default: \$OMNIOPT_BASE_URL or http://localhost/oo2_gui
+  --max-eval N           Number of evaluations (default: 100)
+  --parallel-jobs N      Parallel local jobs (default: 10)
+  --random-steps N       Random exploration steps (default: 10)
+  --testname NAME        Experiment name (default: demo_3d_real_100)
+  --model NAME           OmniOpt model (default: BOTORCH_MODULAR)
+  --help, -h             Show this help
+
+The live-share URL is exported as OMNIOPT_BASE_URL only for this run.
+USAGE
+}
+
+while [[ $# -gt 0 ]]; do
+	case "$1" in
+		--live-share-url)
+			LIVE_SHARE_URL="${2:?--live-share-url needs a value}"
+			shift 2
+			;;
+		--live-share-url=*)
+			LIVE_SHARE_URL="${1#*=}"
+			shift
+			;;
+		--max-eval)
+			MAX_EVAL="${2:?--max-eval needs a value}"
+			shift 2
+			;;
+		--max-eval=*)
+			MAX_EVAL="${1#*=}"
+			shift
+			;;
+		--parallel-jobs)
+			PARALLEL_JOBS="${2:?--parallel-jobs needs a value}"
+			shift 2
+			;;
+		--parallel-jobs=*)
+			PARALLEL_JOBS="${1#*=}"
+			shift
+			;;
+		--random-steps)
+			RANDOM_STEPS="${2:?--random-steps needs a value}"
+			shift 2
+			;;
+		--random-steps=*)
+			RANDOM_STEPS="${1#*=}"
+			shift
+			;;
+		--testname)
+			TESTNAME="${2:?--testname needs a value}"
+			shift 2
+			;;
+		--testname=*)
+			TESTNAME="${1#*=}"
+			shift
+			;;
+		--model)
+			MODEL="${2:?--model needs a value}"
+			shift 2
+			;;
+		--model=*)
+			MODEL="${1#*=}"
+			shift
+			;;
+		--help|-h)
+			usage
+			exit 0
+			;;
+		--)
+			shift
+			EXTRA_ARGS+=("$@")
+			break
+			;;
+		*)
+			EXTRA_ARGS+=("$1")
+			shift
+			;;
+	esac
+done
+
+# Avoid a double slash in URL values like http://host/gui//share_internal.php.
+LIVE_SHARE_URL="${LIVE_SHARE_URL%/}"
+
+if [[ -z "$LIVE_SHARE_URL" ]]; then
+	echo "Error: --live-share-url must not be empty." >&2
+	exit 1
+fi
+
+export OMNIOPT_BASE_URL="$LIVE_SHARE_URL"
+
+CMD=(
+	"$SCRIPT_DIR/start_simple_optimization_run"
+	--max_eval "$MAX_EVAL"
+	--num_parallel_jobs "$PARALLEL_JOBS"
+	--num_random_steps "$RANDOM_STEPS"
+	--force_local_execution
+	--gpus=0
+	--testname "$TESTNAME"
+	--follow
+	--model "$MODEL"
+)
+CMD+=(${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"})
+
+echo "Live-share base URL: $LIVE_SHARE_URL"
+echo "Experiment name:     $TESTNAME"
+echo "Evaluations:         $MAX_EVAL (parallel jobs: $PARALLEL_JOBS, random steps: $RANDOM_STEPS)"
+echo
+echo "The exact GUI URL is printed by OmniOpt after the first upload. It looks like:"
+echo "  $LIVE_SHARE_URL/share.php?user_id=<your-user>&experiment_name=$TESTNAME&run_nr=<run>"
+echo
+echo "Starting: ${CMD[*]}"
+echo
+
+exec "${CMD[@]}"

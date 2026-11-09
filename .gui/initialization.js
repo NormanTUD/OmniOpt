@@ -42,6 +42,8 @@ $(document).ready(function() {
 		}
 	});
 
-	Prism.highlightAll();
+	if (typeof Prism !== "undefined") {
+		Prism.highlightAll();
+	}
 	generateTOC();
 });

@@ -4004,3 +4004,6 @@ optimizr
 plotLandscape
 sendDataToCloud
 isosurface
+cmin
+cmax
+customdata

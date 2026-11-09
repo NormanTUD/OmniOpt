@@ -18,6 +18,74 @@
 		[1.0, "#dc2626"]
 	];
 
+	var TRIAL_COLORSCALE = [
+		[0.0, "#7c3aed"],
+		[0.25, "#3b82f6"],
+		[0.5, "#06b6d4"],
+		[0.75, "#a78bfa"],
+		[1.0, "#f472b6"]
+	];
+
+	function parseColorChannels(color) {
+		if (typeof color !== "string") {
+			return [0, 0, 0];
+		}
+
+		var text = color.trim();
+
+		if (text.charAt(0) === "#") {
+			if (text.length === 4) {
+				return [
+					parseInt(text.charAt(1) + text.charAt(1), 16),
+					parseInt(text.charAt(2) + text.charAt(2), 16),
+					parseInt(text.charAt(3) + text.charAt(3), 16)
+				];
+			}
+
+			return [
+				parseInt(text.slice(1, 3), 16),
+				parseInt(text.slice(3, 5), 16),
+				parseInt(text.slice(5, 7), 16)
+			];
+		}
+
+		var match = text.match(/rgba?\(([^)]+)\)/i);
+
+		if (match) {
+			var parts = match[1].split(",").map(function (part) { return parseFloat(part); });
+			return [parts[0] || 0, parts[1] || 0, parts[2] || 0];
+		}
+
+		return [0, 0, 0];
+	}
+
+	function interpolateColorscale(scale, value) {
+		var t = Math.max(0, Math.min(1, value));
+
+		for (var i = 1; i < scale.length; i++) {
+			if (t <= scale[i][0]) {
+				var left = scale[i - 1];
+				var right = scale[i];
+				var span = right[0] - left[0] || 1;
+				var local = (t - left[0]) / span;
+				var leftRgb = parseColorChannels(left[1]);
+				var rightRgb = parseColorChannels(right[1]);
+				return "rgb(" +
+					Math.round(leftRgb[0] + (rightRgb[0] - leftRgb[0]) * local) + "," +
+					Math.round(leftRgb[1] + (rightRgb[1] - leftRgb[1]) * local) + "," +
+					Math.round(leftRgb[2] + (rightRgb[2] - leftRgb[2]) * local) + ")";
+			}
+		}
+
+		return scale[scale.length - 1][1];
+	}
+
+	function trialOrderGradientCss(scale) {
+		return "linear-gradient(to right, " + scale.map(function (stop) {
+			return stop[1] + " " + Math.round(stop[0] * 100) + "%";
+		}).join(", ") + ")";
+	}
+
 	function trimString(value) {
 		return value === null || value === undefined ? "" : String(value).trim();
 	}
@@ -1252,6 +1320,41 @@
 		};
 	}
 
+	function updateTrialOrderLegend(card, trialMin, trialMax) {
+		var element = card.querySelector(".landscape-trial-order");
+
+		if (!element) {
+			element = document.createElement("div");
+			element.className = "landscape-trial-order";
+
+			var header = card.querySelector(".landscape-card-header");
+
+			if (header && header.nextSibling) {
+				card.insertBefore(element, header.nextSibling);
+			} else {
+				card.appendChild(element);
+			}
+		}
+
+		element.innerHTML = "";
+
+		var label = document.createElement("span");
+		label.textContent = "Trial order";
+
+		var bar = document.createElement("span");
+		bar.className = "landscape-trial-gradient";
+		bar.style.background = trialOrderGradientCss(TRIAL_COLORSCALE);
+
+		var range = document.createElement("span");
+		range.textContent = (isFinite(trialMin) ? String(Math.round(trialMin)) : "–") +
+			" → " +
+			(isFinite(trialMax) ? String(Math.round(trialMax)) : "–");
+
+		element.appendChild(label);
+		element.appendChild(bar);
+		element.appendChild(range);
+	}
+
 	function pointRangeForSegments(segments, dimension) {
 		var min = Infinity;
 		var max = -Infinity;
@@ -1432,6 +1535,313 @@
 		return trace;
 	}
 
+	function buildColoredArrowTraces(segments, dimensions, colors, options) {
+		options = options || {};
+
+		var ranges = [];
+		var i;
+		var s;
+
+		for (i = 0; i < dimensions; i++) {
+			ranges.push(pointRangeForSegments(segments, i === 0 ? "x" : (i === 1 ? "y" : "z")));
+		}
+
+		function normalize(point) {
+			var result = [];
+
+			for (var d = 0; d < dimensions; d++) {
+				var key = d === 0 ? "x" : (d === 1 ? "y" : "z");
+				var range = ranges[d];
+				var span = range.max - range.min;
+				result.push(span > 1e-12 ? (point[key] - range.min) / span : 0);
+			}
+
+			return result;
+		}
+
+		function denormalize(normalizedPoint) {
+			var result = {};
+
+			for (var d = 0; d < dimensions; d++) {
+				var key = d === 0 ? "x" : (d === 1 ? "y" : "z");
+				var range = ranges[d];
+				result[key] = range.min + normalizedPoint[d] * (range.max - range.min);
+			}
+
+			return result;
+		}
+
+		var records = [];
+		var fallbackIndex = 0;
+
+		for (s = 0; s < segments.length; s++) {
+			var segment = segments[s];
+
+			for (var p = 1; p < segment.length; p++) {
+				var previous = normalize(segment[p - 1]);
+				var current = normalize(segment[p]);
+				var direction = [];
+
+				for (var d = 0; d < dimensions; d++) {
+					direction.push(current[d] - previous[d]);
+				}
+
+				var length = 0;
+
+				for (d = 0; d < dimensions; d++) {
+					length += direction[d] * direction[d];
+				}
+
+				length = Math.sqrt(length);
+
+				if (length < 1e-9) {
+					continue;
+				}
+
+				for (d = 0; d < dimensions; d++) {
+					direction[d] /= length;
+				}
+
+				var perpendicular = [];
+
+				if (dimensions === 2) {
+					perpendicular = [-direction[1], direction[0]];
+				} else {
+					var helper = Math.abs(direction[2]) > 0.9 ? [1, 0, 0] : [0, 0, 1];
+					perpendicular = [
+						direction[1] * helper[2] - direction[2] * helper[1],
+						direction[2] * helper[0] - direction[0] * helper[2],
+						direction[0] * helper[1] - direction[1] * helper[0]
+					];
+					var perpendicularLength = Math.sqrt(
+						perpendicular[0] * perpendicular[0] +
+						perpendicular[1] * perpendicular[1] +
+						perpendicular[2] * perpendicular[2]
+					);
+
+					if (perpendicularLength < 1e-12) {
+						continue;
+					}
+
+					for (d = 0; d < dimensions; d++) {
+						perpendicular[d] /= perpendicularLength;
+					}
+				}
+
+				var headLength = Math.min(length * 0.35, 0.035);
+				var headWidth = headLength * 0.55;
+				var tip = current.slice();
+				var wing1 = [];
+				var wing2 = [];
+
+				for (d = 0; d < dimensions; d++) {
+					wing1.push(tip[d] - direction[d] * headLength + perpendicular[d] * headWidth);
+					wing2.push(tip[d] - direction[d] * headLength - perpendicular[d] * headWidth);
+				}
+
+				var trial = segment[p].trial;
+
+				if (!isFinite(trial)) {
+					trial = fallbackIndex;
+				}
+
+				fallbackIndex++;
+
+				records.push({
+					trial: trial,
+					points: [
+						denormalize(previous),
+						denormalize(current),
+						null,
+						denormalize(tip),
+						denormalize(wing1),
+						null,
+						denormalize(tip),
+						denormalize(wing2),
+						null
+					]
+				});
+			}
+		}
+
+		if (!records.length) {
+			return { traces: [], trialMin: 0, trialMax: 0 };
+		}
+
+		var trialMin = options.trialMin;
+		var trialMax = options.trialMax;
+
+		if (!isFinite(trialMin) || !isFinite(trialMax)) {
+			trialMin = Infinity;
+			trialMax = -Infinity;
+
+			for (i = 0; i < records.length; i++) {
+				trialMin = Math.min(trialMin, records[i].trial);
+				trialMax = Math.max(trialMax, records[i].trial);
+			}
+		}
+
+		var bucketCount = options.bucketCount || 4;
+		var buckets = [];
+
+		for (i = 0; i < bucketCount; i++) {
+			buckets.push([]);
+		}
+
+		var span = trialMax - trialMin;
+
+		for (i = 0; i < records.length; i++) {
+			var normalizedTrial = span > 1e-12 ? (records[i].trial - trialMin) / span : 0.5;
+			var bucketIndex = Math.max(0, Math.min(bucketCount - 1, Math.floor(normalizedTrial * bucketCount)));
+
+			for (var pointIndex = 0; pointIndex < records[i].points.length; pointIndex++) {
+				buckets[bucketIndex].push(records[i].points[pointIndex]);
+			}
+		}
+
+		var traces = [];
+
+		for (i = 0; i < bucketCount; i++) {
+			if (!buckets[i].length) {
+				continue;
+			}
+
+			var xs = [];
+			var ys = [];
+			var zs = [];
+
+			for (var q = 0; q < buckets[i].length; q++) {
+				var point = buckets[i][q];
+
+				if (point === null) {
+					xs.push(null);
+					ys.push(null);
+
+					if (dimensions === 3) {
+						zs.push(null);
+					}
+
+					continue;
+				}
+
+				xs.push(point.x);
+				ys.push(point.y);
+
+				if (dimensions === 3) {
+					zs.push(point.z);
+				}
+			}
+
+			var trace = {
+				type: dimensions === 3 ? "scatter3d" : "scatter",
+				mode: "lines",
+				name: "Trial order",
+				x: xs,
+				y: ys,
+				line: {
+					color: interpolateColorscale(TRIAL_COLORSCALE, bucketCount <= 1 ? 0.5 : (i + 0.5) / bucketCount),
+					width: dimensions === 3 ? 3 : 2
+				},
+				opacity: 0.95,
+				showlegend: false,
+				hoverinfo: "skip",
+				connectgaps: false
+			};
+
+			if (dimensions === 3) {
+				trace.z = zs;
+			}
+
+			traces.push(trace);
+		}
+
+		return {
+			traces: traces,
+			trialMin: trialMin,
+			trialMax: trialMax
+		};
+	}
+
+	function buildPathMarkerTrace(segments, dimensions, colors, options) {
+		options = options || {};
+
+		var xs = [];
+		var ys = [];
+		var zs = [];
+		var trials = [];
+		var losses = [];
+
+		for (var s = 0; s < segments.length; s++) {
+			for (var i = 0; i < segments[s].length; i++) {
+				var point = segments[s][i];
+				xs.push(point.x);
+				ys.push(point.y);
+
+				if (dimensions === 3) {
+					zs.push(point.z);
+				}
+
+				trials.push(point.trial);
+				losses.push(isFinite(point.loss) ? point.loss : null);
+			}
+		}
+
+		if (!xs.length) {
+			return null;
+		}
+
+		var marker = {
+			size: dimensions === 3 ? 4 : 5,
+			color: losses,
+			colorscale: options.colorscale,
+			cmin: options.cmin,
+			cmax: options.cmax,
+			showscale: options.showscale === true,
+			opacity: 0.95,
+			line: {
+				color: colors.dark ? "#111827" : "#ffffff",
+				width: 1
+			}
+		};
+
+		if (marker.showscale) {
+			marker.colorbar = {
+				title: options.resultLabel,
+				thickness: 12,
+				len: 0.62,
+				outlinewidth: 0,
+				tickfont: {
+					color: colors.muted,
+					size: 10
+				},
+				titlefont: {
+					color: colors.text,
+					size: 11
+				}
+			};
+		}
+
+		var trace = {
+			type: dimensions === 3 ? "scatter3d" : "scatter",
+			mode: "markers",
+			name: "Trial points",
+			x: xs,
+			y: ys,
+			marker: marker,
+			customdata: trials.map(function (trial, index) {
+				return [trial, losses[index]];
+			}),
+			hovertemplate: "trial %{customdata[0]}<br>result: %{customdata[1]:.6g}<extra></extra>",
+			showlegend: true
+		};
+
+		if (dimensions === 3) {
+			trace.z = zs;
+		}
+
+		return trace;
+	}
+
 	function landscapeSignature(mode, paramNames, resultEntries, showFailed, showPoints) {
 		var signatureResults = (resultEntries || []).map(function (entry) {
 			return entry.resultName;
@@ -1588,54 +1998,54 @@
 			hoverinfo: "skip"
 		});
 
-		traces.push({
-			type: "scatter",
-			mode: "markers",
-			name: "Observed trials",
-			x: valid.map(function (point) { return point.values[0]; }),
-			y: valid.map(function (point) { return point.loss; }),
-			marker: {
-				size: 5,
-				color: valid.map(function (point) { return point.loss; }),
-				colorscale: colorscale,
-				showscale: true,
-				colorbar: {
-					title: resultLabel,
-					thickness: 12,
-					len: 0.62,
-					outlinewidth: 0,
-					tickfont: {
-						color: colors.muted,
-						size: 10
+		if (context.showPoints) {
+			traces.push({
+				type: "scatter",
+				mode: "markers",
+				name: "Trial points",
+				x: path.map(function (point) { return point.values[0]; }),
+				y: path.map(curveHeightForPoint),
+				marker: {
+					size: 5,
+					color: path.map(function (point) { return point.loss; }),
+					colorscale: colorscale,
+					showscale: true,
+					colorbar: {
+						title: resultLabel,
+						thickness: 12,
+						len: 0.62,
+						outlinewidth: 0,
+						tickfont: {
+							color: colors.muted,
+							size: 10
+						},
+						titlefont: {
+							color: colors.text,
+							size: 11
+						}
 					},
-					titlefont: {
-						color: colors.text,
-						size: 11
+					line: {
+						color: colors.dark ? "#111827" : "#ffffff",
+						width: 0.5
 					}
 				},
-				line: {
-					color: colors.dark ? "#111827" : "#ffffff",
-					width: 0.5
-				}
-			},
-			customdata: valid.map(function (point) { return point.trial; }),
-			hovertemplate: "trial %{customdata}<br>" + resultLabel + ": %{y:.6g}<extra></extra>",
-			showlegend: false
+				customdata: path.map(function (point) { return point.trial; }),
+				hovertemplate: "trial %{customdata}<br>" + resultLabel + ": %{y:.6g}<extra></extra>",
+				showlegend: false
+			});
+		}
+
+		var arrowSegments = [path.map(function (point) {
+			return { x: point.values[0], y: curveHeightForPoint(point), trial: point.trial };
+		})];
+		var arrowData = buildColoredArrowTraces(arrowSegments, 2, colors, {
+			trialMin: context.trialMin,
+			trialMax: context.trialMax
 		});
 
-		traces.push({
-			type: "scatter",
-			mode: "lines",
-			name: "Training path",
-			x: path.map(function (point) { return point.values[0]; }),
-			y: path.map(curveHeightForPoint),
-			line: {
-				color: colors.path,
-				width: 2
-			},
-			opacity: 0.8,
-			hoverinfo: "skip"
-		});
+		for (var arrowIndex = 0; arrowIndex < arrowData.traces.length; arrowIndex++) {
+			traces.push(arrowData.traces[arrowIndex]);
+		}
 
 		traces.push(markerTrace(colors, "Start", "circle", colors.start, 11, valid[0], 1, curveHeightForPoint(valid[0])));
 		traces.push(markerTrace(colors, "End", "square", colors.end, 10, valid[valid.length - 1], 1, curveHeightForPoint(valid[valid.length - 1])));
@@ -1696,7 +2106,7 @@
 		var colors = context.colors;
 		var valid = data.valid;
 		var failed = data.failed;
-		var surfaceOptions = surfaceInterpolationOptions(valid, failed, 64);
+		var surfaceOptions = surfaceInterpolationOptions(valid, failed, 56);
 		var interpolation = interpolate2D(valid, surfaceOptions.gridSize, surfaceOptions);
 
 		if (!interpolation) {
@@ -1757,19 +2167,30 @@
 				resultLabel + ": %{z:.5g}<extra></extra>"
 		});
 
-		traces.push({
-			type: "scatter",
-			mode: "lines",
-			name: "Training path",
-			x: path.map(function (point) { return point.values[0]; }),
-			y: path.map(function (point) { return point.values[1]; }),
-			line: {
-				color: colors.path,
-				width: 2.5
-			},
-			opacity: 0.9,
-			hoverinfo: "skip"
+		var pathSegments = [path.map(function (point) {
+			return { x: point.values[0], y: point.values[1], loss: point.loss, trial: point.trial };
+		})];
+		var arrowData = buildColoredArrowTraces(pathSegments, 2, colors, {
+			trialMin: context.trialMin,
+			trialMax: context.trialMax
 		});
+
+		for (var arrowIndex2 = 0; arrowIndex2 < arrowData.traces.length; arrowIndex2++) {
+			traces.push(arrowData.traces[arrowIndex2]);
+		}
+
+		if (context.showPoints) {
+			var pointTrace = buildPathMarkerTrace(pathSegments, 2, colors, {
+				colorscale: colorscale,
+				cmin: lossMin,
+				cmax: lossMax,
+				showscale: false
+			});
+
+			if (pointTrace) {
+				traces.push(pointTrace);
+			}
+		}
 
 		traces.push(markerTrace2D(colors, "Start", "circle", colors.start, 9, valid[0]));
 		traces.push(markerTrace2D(colors, "End", "square", colors.end, 9, valid[valid.length - 1]));
@@ -1836,7 +2257,7 @@
 			return;
 		}
 
-		var surfaceOptions = surfaceInterpolationOptions(valid, failed, 56);
+		var surfaceOptions = surfaceInterpolationOptions(valid, failed, 48);
 		var interpolation = interpolate2D(valid, surfaceOptions.gridSize, surfaceOptions);
 
 		if (!interpolation) {
@@ -1920,28 +2341,40 @@
 			segments.push(currentSegment);
 		}
 
+		var pathSegments = [];
+
 		for (var s = 0; s < segments.length && s < 40; s++) {
-			var segment = segments[s];
+			pathSegments.push(segments[s].map(function (item) {
+				return {
+					x: item.point.values[0],
+					y: item.point.values[1],
+					z: item.height + surfaceLineOffset,
+					loss: item.point.loss,
+					trial: item.point.trial
+				};
+			}));
+		}
 
-			if (segment.length < 2) {
-				continue;
-			}
+		var arrowData = buildColoredArrowTraces(pathSegments, 3, colors, {
+			trialMin: context.trialMin,
+			trialMax: context.trialMax
+		});
 
-			traces.push({
-				type: "scatter3d",
-				mode: "lines",
-				name: "Training path",
-				x: segment.map(function (item) { return item.point.values[0]; }),
-				y: segment.map(function (item) { return item.point.values[1]; }),
-				z: segment.map(function (item) { return item.height + surfaceLineOffset; }),
-				line: {
-					color: colors.path,
-					width: 4
-				},
-				opacity: 0.95,
-				showlegend: s === 0,
-				hoverinfo: "skip"
+		for (var arrowIndex3 = 0; arrowIndex3 < arrowData.traces.length; arrowIndex3++) {
+			traces.push(arrowData.traces[arrowIndex3]);
+		}
+
+		if (context.showPoints) {
+			var pointTrace = buildPathMarkerTrace(pathSegments, 3, colors, {
+				colorscale: colorscale,
+				cmin: lossMin,
+				cmax: lossMax,
+				showscale: false
 			});
+
+			if (pointTrace) {
+				traces.push(pointTrace);
+			}
 		}
 
 		function heightFor(point) {
@@ -1954,34 +2387,6 @@
 
 		if (best) {
 			traces.push(markerTrace3DAt(colors, "Best", "diamond", colors.best, 10, best, heightFor(best)));
-		}
-
-		if (context.showPoints) {
-			var scatterPoints = sampleEvenly(valid, MAX_MARKER_POINTS);
-
-			traces.push({
-				type: "scatter3d",
-				mode: "markers",
-				name: "Trials",
-				x: scatterPoints.map(function (point) { return point.values[0]; }),
-				y: scatterPoints.map(function (point) { return point.values[1]; }),
-				z: scatterPoints.map(function (point) { return point.loss; }),
-				marker: {
-					size: 3,
-					color: scatterPoints.map(function (point) { return point.loss; }),
-					colorscale: colorscale,
-					showscale: false,
-					opacity: 0.45,
-					line: {
-						color: colors.dark ? "#111827" : "#ffffff",
-						width: 0
-					}
-				},
-				customdata: scatterPoints.map(function (point) {
-					return [point.trial, point.loss];
-				}),
-				hovertemplate: "trial %{customdata[0]}<br>" + resultLabel + ": %{customdata[1]:.6g}<extra></extra>"
-			});
 		}
 
 		if (context.showFailed && failed.length) {
@@ -2156,14 +2561,14 @@
 			result: value("landscape_result"),
 			slice: value("landscape_slice"),
 			showFailed: false,
-			showPoints: false
+			showPoints: true
 		};
 
 		var failed = plotDiv.querySelector("#landscape_show_failed");
 		state.showFailed = !!(failed && failed.checked);
 
 		var points = plotDiv.querySelector("#landscape_show_points");
-		state.showPoints = !!(points && points.checked);
+		state.showPoints = points ? !!points.checked : true;
 
 		return state.mode ? state : null;
 	}
@@ -2177,7 +2582,7 @@
 				result: resultNames[0] || "",
 				slice: "all",
 				showFailed: false,
-				showPoints: false
+				showPoints: true
 			};
 		}
 
@@ -2197,7 +2602,7 @@
 			result: resultNames.indexOf(state.result) >= 0 ? state.result : resultNames[0] || "",
 			slice: ["all", "low", "middle", "high"].indexOf(state.slice) >= 0 ? state.slice : "all",
 			showFailed: !!state.showFailed,
-			showPoints: !!state.showPoints
+			showPoints: state.showPoints !== false
 		};
 	}
 
@@ -2315,7 +2720,7 @@
 		var pointsInput = document.createElement("input");
 		pointsInput.type = "checkbox";
 		pointsInput.id = "landscape_show_points";
-		pointsInput.checked = initialState.showPoints;
+		pointsInput.checked = initialState.showPoints !== false;
 
 		var pointsText = document.createElement("span");
 		pointsText.textContent = "Show trial points";
@@ -2475,6 +2880,27 @@
 
 			var resultsToRender = mode >= 3 ? [selectedResult] : resultNames.slice();
 			var paramLabel = mode >= 2 ? paramNames[0] + " × " + paramNames[1] : paramNames[0];
+			var needsFullPlotly = mode === 2;
+			var plotlyReady = window.__omnioptPlotlyMode === "full" ||
+				(!needsFullPlotly && window.__omnioptPlotlyMode === "3d");
+
+			if (!plotlyReady) {
+				setRenderProgress(needsFullPlotly ? "Loading full Plotly for 2D contour…" : "Loading Plotly 3D…");
+
+				await new Promise(function (resolve) {
+					if (needsFullPlotly && typeof window.ensurePlotlyLoaded === "function") {
+						window.ensurePlotlyLoaded(resolve);
+					} else if (typeof window.ensurePlotly3DLoaded === "function") {
+						window.ensurePlotly3DLoaded(resolve);
+					} else {
+						resolve();
+					}
+				});
+
+				if (token !== renderToken) {
+					return;
+				}
+			}
 
 			if (!silent) {
 				setRenderProgress("Collecting trials for " + paramLabel + "…");
@@ -2597,6 +3023,24 @@
 				}
 
 				var best = findBestPoint(entry.data.valid, entry.goal);
+				var trialMin = Infinity;
+				var trialMax = -Infinity;
+
+				for (var trialIndex = 0; trialIndex < entry.data.valid.length; trialIndex++) {
+					var trialValue = entry.data.valid[trialIndex].trial;
+
+					if (isFinite(trialValue)) {
+						trialMin = Math.min(trialMin, trialValue);
+						trialMax = Math.max(trialMax, trialValue);
+					}
+				}
+
+				if (!isFinite(trialMin) || !isFinite(trialMax)) {
+					trialMin = 0;
+					trialMax = Math.max(0, entry.data.valid.length - 1);
+				}
+
+				updateTrialOrderLegend(card, trialMin, trialMax);
 
 				if (cardTitle) {
 					cardTitle.textContent = entry.label;
@@ -2614,7 +3058,9 @@
 					resultName: entry.resultName,
 					resultLabel: entry.label,
 					showFailed: showFailed,
-					showPoints: showPoints
+					showPoints: showPoints,
+					trialMin: trialMin,
+					trialMax: trialMax
 				};
 
 				if (mode === 1) {
@@ -2797,6 +3243,8 @@
 		surfaceInterpolationOptions: surfaceInterpolationOptions,
 		filterDataBySlice: filterDataBySlice,
 		buildArrowheadTrace: buildArrowheadTrace,
+		buildColoredArrowTraces: buildColoredArrowTraces,
+		buildPathMarkerTrace: buildPathMarkerTrace,
 		landscapeSignature: landscapeSignature,
 		sampleEvenly: sampleEvenly,
 		getResultLabel: getResultLabel,

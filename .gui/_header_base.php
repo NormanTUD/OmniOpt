@@ -84,7 +84,12 @@
 		<link rel="icon" type="image/x-icon" href="favicon.ico">
 		<?php js("libs/jquery-3.7.1.js"); ?>
 		<?php js("libs/jquery-ui.min.js"); ?>
-		<?php js("libs/prism.js"); ?>
+		<?php
+			$__is_share_script = isset($_SERVER["SCRIPT_FILENAME"]) && strpos($_SERVER["SCRIPT_FILENAME"], 'share.php') !== false;
+			if (!$__is_share_script) {
+				js("libs/prism.js");
+			}
+		?>
 		<?php js("libs/tooltipster.bundle.min.js"); ?>
 		<?php js("darkmode.js"); ?>
 		<?php js("libs/ansi_up.js"); ?>
@@ -155,60 +160,78 @@
 						}
 					};
 
-					window.__omnioptPlotlyUrl = "<?php print preg_replace('/^\/\/*/', '/', get_main_script_dir().'/libs/plotly-latest.min.js'); ?>?v=<?php print rawurlencode(@filemtime(__DIR__ . '/libs/plotly-latest.min.js') . '-' . @filesize(__DIR__ . '/libs/plotly-latest.min.js')); ?>";
+					window.__omnioptPlotlyMode = null;
+					window.__omnioptPlotlyLoading = null;
+					window.__omnioptPlotlyFullUrl = "<?php print preg_replace('/^\/\/*/', '/', get_main_script_dir().'/libs/plotly-latest.min.js'); ?>?v=<?php print rawurlencode(@filemtime(__DIR__ . '/libs/plotly-latest.min.js') . '-' . @filesize(__DIR__ . '/libs/plotly-latest.min.js')); ?>";
+					window.__omnioptPlotly3DUrl = "<?php print preg_replace('/^\/\/*/', '/', get_main_script_dir().'/libs/plotly-gl3d.min.js'); ?>?v=<?php print rawurlencode(@filemtime(__DIR__ . '/libs/plotly-gl3d.min.js') . '-' . @filesize(__DIR__ . '/libs/plotly-gl3d.min.js')); ?>";
 
-					window.ensurePlotlyLoaded = function (callback) {
+					function loadPlotlyBundle(mode, url, callback) {
 						function done() {
 							if (typeof callback === "function") {
 								callback();
 							}
 						}
 
-						if (window.Plotly && !window.Plotly.__isStub) {
+						if (window.__omnioptPlotlyMode === "full" ||
+							(mode === "3d" && window.__omnioptPlotlyMode === "3d")) {
 							done();
 							return;
 						}
 
-						if (!window.__omnioptPlotlyLoading) {
-							window.__omnioptPlotlyLoading = new Promise(function (resolve, reject) {
-								var script = document.createElement("script");
-								script.src = window.__omnioptPlotlyUrl;
-								script.async = true;
-								script.onload = function () {
-									if (window.Plotly) {
-										window.Plotly.__isStub = false;
-									}
-									window.__omnioptFlushPlotlyQueue();
-									resolve();
-								};
-								script.onerror = function () {
-									reject(new Error("Could not load Plotly"));
-								};
-								document.head.appendChild(script);
+						if (window.__omnioptPlotlyLoading) {
+							window.__omnioptPlotlyLoading.then(function () {
+								if (mode === "full" && window.__omnioptPlotlyMode !== "full") {
+									setTimeout(function () {
+										loadPlotlyBundle("full", window.__omnioptPlotlyFullUrl, callback);
+									}, 0);
+								} else {
+									done();
+								}
+							}, function () {
+								done();
 							});
+							return;
 						}
 
-						window.__omnioptPlotlyLoading.then(done, function (error) {
+						window.__omnioptPlotlyLoading = new Promise(function (resolve, reject) {
+							var script = document.createElement("script");
+							script.src = url;
+							script.async = true;
+							script.onload = function () {
+								window.__omnioptPlotlyMode = mode;
+
+								if (window.Plotly) {
+									window.Plotly.__isStub = false;
+								}
+
+								window.__omnioptFlushPlotlyQueue();
+								resolve();
+							};
+							script.onerror = function () {
+								reject(new Error("Could not load Plotly " + mode));
+							};
+							document.head.appendChild(script);
+						});
+
+						window.__omnioptPlotlyLoading.then(function () {
+							window.__omnioptPlotlyLoading = null;
+							done();
+						}, function (error) {
+							window.__omnioptPlotlyLoading = null;
 							console.error(error);
 							done();
 						});
+					}
+
+					window.ensurePlotly3DLoaded = function (callback) {
+						loadPlotlyBundle("3d", window.__omnioptPlotly3DUrl, callback);
+					};
+
+					window.ensurePlotlyLoaded = function (callback) {
+						loadPlotlyBundle("full", window.__omnioptPlotlyFullUrl, callback);
 					};
 
 					var plotHandlerPattern = /(^|[^A-Za-z0-9_])(plot[A-Za-z0-9_]*|Plot[A-Za-z0-9_]*|load_pareto_graph_from_idxs|createParallelPlot)\b/;
-
-					function warmPlotlyInBackground() {
-						if (typeof window.ensurePlotlyLoaded === "function") {
-							window.ensurePlotlyLoaded();
-						}
-					}
-
-					window.addEventListener("load", function () {
-						if (typeof window.requestIdleCallback === "function") {
-							window.requestIdleCallback(warmPlotlyInBackground, { timeout: 4000 });
-						} else {
-							setTimeout(warmPlotlyInBackground, 2000);
-						}
-					});
 
 					document.addEventListener("click", function (event) {
 						var target = event.target;
@@ -229,7 +252,13 @@
 							return;
 						}
 
-						if (window.Plotly && !window.Plotly.__isStub) {
+						// The result landscape chooses between the small 3D build and
+						// the full build itself, depending on the selected mode.
+						if (/plotLandscape\s*\(/.test(code)) {
+							return;
+						}
+
+						if (window.__omnioptPlotlyMode === "full") {
 							return;
 						}
 
@@ -349,7 +378,17 @@
 				});
 			}
 		</script>
+		<?php
+			$__share_has_formula = false;
+
+			if ($__is_share_script && isset($run_dir) && is_string($run_dir) && $run_dir !== "") {
+				$__share_has_formula = is_file($run_dir . "/formula_underbraces.txt") || is_file($run_dir . "/formula.txt");
+			}
+
+			if (!$__is_share_script || $__share_has_formula) {
+		?>
 		<script id="MathJax-script" async src="libs/tex-mml-chtml.js"></script>
+		<?php } ?>
 	</head>
 	<body>
 		<div id="scads_bar" class="header-container">

@@ -551,6 +551,12 @@
 			return;
 		}
 
+		// Do not compete with a landscape plot that is still loading.
+		if (document.querySelector("#plotLandscape .landscape-loading")) {
+			schedulePoll();
+			return;
+		}
+
 		if (updating) {
 			pending = true;
 			schedulePoll();
@@ -630,7 +636,7 @@
 		}
 
 		if (liveEnabled) {
-			schedulePoll(300);
+			schedulePoll(4000);
 		}
 	}
 

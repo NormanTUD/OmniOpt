@@ -859,3 +859,25 @@ body.dark-mode .analysis-tree-condition {
 	font-size: 13px;
 	font-weight: 600;
 }
+
+.landscape-trial-order {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 6px 14px 5px;
+	font-size: 11px;
+	font-weight: 600;
+	color: #475569;
+}
+
+.landscape-dark .landscape-trial-order {
+	color: #cbd5e1;
+}
+
+.landscape-trial-gradient {
+	flex: 1;
+	min-width: 80px;
+	height: 8px;
+	border-radius: 999px;
+	border: 1px solid rgba(100, 116, 139, 0.35);
+}

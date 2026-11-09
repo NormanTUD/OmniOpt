@@ -388,6 +388,66 @@ console.log("\n--- Testing: live-update signature ---");
 	expectTrue("signature: points toggle changes", landscape.landscapeSignature(3, ["x", "y"], entries, false, true) !== base);
 }
 
+console.log("\n--- Testing: colored arrows and trial points ---");
+{
+	var segments2d = [[
+		{ x: 0, y: 0, loss: 10, trial: 0 },
+		{ x: 1, y: 0, loss: 8, trial: 1 },
+		{ x: 2, y: 1, loss: 4, trial: 2 }
+	]];
+	var arrows2d = landscape.buildColoredArrowTraces(segments2d, 2, { path: "#ff0000" }, { trialMin: 0, trialMax: 2 });
+
+	expectTrue("arrows: produces traces", arrows2d.traces.length > 0);
+	expect("arrows: trial min", arrows2d.trialMin, 0);
+	expect("arrows: trial max", arrows2d.trialMax, 2);
+	expectTrue("arrows: traces are line traces", arrows2d.traces.every(function (trace) {
+		return trace.type === "scatter" && trace.mode === "lines" && trace.connectgaps === false && trace.name === "Trial order";
+	}));
+	expectTrue("arrows: colors are rgb strings", arrows2d.traces.every(function (trace) {
+		return /^rgb\(/.test(trace.line.color);
+	}));
+	expectTrue("arrows: contains null separators", arrows2d.traces.some(function (trace) {
+		return trace.x.indexOf(null) !== -1;
+	}));
+
+	var allArrowXs = [];
+	arrows2d.traces.forEach(function (trace) { allArrowXs = allArrowXs.concat(trace.x); });
+	expectTrue("arrows: includes long path source", allArrowXs.indexOf(0) !== -1);
+	expectTrue("arrows: includes long path destination", allArrowXs.indexOf(2) !== -1);
+
+	var segments3d = [[
+		{ x: 0, y: 0, z: 0, loss: 10, trial: 0 },
+		{ x: 1, y: 0, z: 1, loss: 8, trial: 1 }
+	]];
+	var arrows3d = landscape.buildColoredArrowTraces(segments3d, 3, { path: "#ff0000" }, {});
+	expectTrue("arrows: 3D traces", arrows3d.traces.length > 0);
+	expectTrue("arrows: 3D has z", arrows3d.traces[0].type === "scatter3d" && arrows3d.traces[0].z.length > 0);
+	expect("arrows: fallback trial min", arrows3d.trialMin, 1);
+	expect("arrows: fallback trial max", arrows3d.trialMax, 1);
+
+	var emptyArrows = landscape.buildColoredArrowTraces([[{ x: 1, y: 1, trial: 0 }]], 2, {}, {});
+	expect("arrows: single point has no traces", emptyArrows.traces.length, 0);
+
+	var points2d = landscape.buildPathMarkerTrace([[{
+		x: 1,
+		y: 2,
+		loss: 42,
+		trial: 7
+	}]], 2, { path: "#ff0000", dark: false }, {
+		colorscale: landscape.getLossColorscale("min"),
+		cmin: 10,
+		cmax: 50,
+		showscale: false
+	});
+
+	expectTrue("points: trace exists", !!points2d);
+	expect("points: result color array", points2d.marker.color, [42]);
+	expect("points: cmin", points2d.marker.cmin, 10);
+	expect("points: cmax", points2d.marker.cmax, 50);
+	expect("points: no extra colorbar", points2d.marker.showscale, false);
+	expect("points: customdata", points2d.customdata, [[7, 42]]);
+}
+
 console.log("\n--- SUMMARY ---");
 
 if (failedTests === 0) {

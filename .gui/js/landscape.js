@@ -26,6 +26,11 @@
 		[1.0, "#f472b6"]
 	];
 
+	var TRIAL_POINT_COLORSCALE = [
+		[0.0, "#ffffff"],
+		[1.0, "#020617"]
+	];
+
 	function parseColorChannels(color) {
 		if (typeof color !== "string") {
 			return [0, 0, 0];
@@ -1280,7 +1285,8 @@
 					width: 1
 				}
 			},
-			hoverinfo: "skip",
+			customdata: [[points.trial, points.loss]],
+			hovertemplate: name + "<br>trial %{customdata[0]}<br>result: %{customdata[1]:.6g}<extra></extra>",
 			showlegend: true
 		};
 
@@ -1320,7 +1326,7 @@
 		};
 	}
 
-	function updateTrialOrderLegend(card, trialMin, trialMax) {
+	function updateTrialOrderLegend(card, trialMin, trialMax, showArrows) {
 		var element = card.querySelector(".landscape-trial-order");
 
 		if (!element) {
@@ -1338,21 +1344,33 @@
 
 		element.innerHTML = "";
 
-		var label = document.createElement("span");
-		label.textContent = "Trial order";
+		function addRow(labelText, gradient) {
+			var row = document.createElement("div");
+			row.className = "landscape-trial-order-row";
 
-		var bar = document.createElement("span");
-		bar.className = "landscape-trial-gradient";
-		bar.style.background = trialOrderGradientCss(TRIAL_COLORSCALE);
+			var label = document.createElement("span");
+			label.textContent = labelText;
 
-		var range = document.createElement("span");
-		range.textContent = (isFinite(trialMin) ? String(Math.round(trialMin)) : "–") +
-			" → " +
-			(isFinite(trialMax) ? String(Math.round(trialMax)) : "–");
+			var bar = document.createElement("span");
+			bar.className = "landscape-trial-gradient";
+			bar.style.background = gradient;
 
-		element.appendChild(label);
-		element.appendChild(bar);
-		element.appendChild(range);
+			var range = document.createElement("span");
+			range.textContent = (isFinite(trialMin) ? String(Math.round(trialMin)) : "–") +
+				" → " +
+				(isFinite(trialMax) ? String(Math.round(trialMax)) : "–");
+
+			row.appendChild(label);
+			row.appendChild(bar);
+			row.appendChild(range);
+			element.appendChild(row);
+		}
+
+		addRow("Trial points (light → dark)", trialOrderGradientCss(TRIAL_POINT_COLORSCALE));
+
+		if (showArrows) {
+			addRow("Arrows", trialOrderGradientCss(TRIAL_COLORSCALE));
+		}
 	}
 
 	function pointRangeForSegments(segments, dimension) {
@@ -1573,6 +1591,8 @@
 
 		var records = [];
 		var fallbackIndex = 0;
+		var includePath = options.includePath !== false;
+		var includeArrowheads = options.includeArrowheads !== false;
 
 		for (s = 0; s < segments.length; s++) {
 			var segment = segments[s];
@@ -1647,20 +1667,29 @@
 
 				fallbackIndex++;
 
-				records.push({
-					trial: trial,
-					points: [
-						denormalize(previous),
-						denormalize(current),
-						null,
-						denormalize(tip),
-						denormalize(wing1),
-						null,
-						denormalize(tip),
-						denormalize(wing2),
-						null
-					]
-				});
+				var arrowPoints = [];
+
+				if (includePath) {
+					arrowPoints.push(denormalize(previous));
+					arrowPoints.push(denormalize(current));
+					arrowPoints.push(null);
+				}
+
+				if (includeArrowheads) {
+					arrowPoints.push(denormalize(tip));
+					arrowPoints.push(denormalize(wing1));
+					arrowPoints.push(null);
+					arrowPoints.push(denormalize(tip));
+					arrowPoints.push(denormalize(wing2));
+					arrowPoints.push(null);
+				}
+
+				if (arrowPoints.length) {
+					records.push({
+						trial: trial,
+						points: arrowPoints
+					});
+				}
 			}
 		}
 
@@ -1790,16 +1819,46 @@
 			return null;
 		}
 
+		var colorMode = options.colorMode || "result";
+		var colorValues = colorMode === "trial" ? trials : losses;
+		var cmin = colorMode === "trial" ? options.trialMin : options.cmin;
+		var cmax = colorMode === "trial" ? options.trialMax : options.cmax;
+
+		if (colorMode === "trial") {
+			if (!isFinite(cmin) || !isFinite(cmax)) {
+				cmin = Infinity;
+				cmax = -Infinity;
+
+				for (var t = 0; t < trials.length; t++) {
+					if (isFinite(trials[t])) {
+						cmin = Math.min(cmin, trials[t]);
+						cmax = Math.max(cmax, trials[t]);
+					}
+				}
+			}
+		}
+
+		var outlineColors = [];
+
+		for (var o = 0; o < colorValues.length; o++) {
+			if (colorMode === "trial" && isFinite(colorValues[o]) && isFinite(cmin) && isFinite(cmax) && cmax > cmin) {
+				var normalizedTrial = (colorValues[o] - cmin) / (cmax - cmin);
+				outlineColors.push(normalizedTrial > 0.55 ? "#ffffff" : "#111827");
+			} else {
+				outlineColors.push(colors.dark ? "#111827" : "#ffffff");
+			}
+		}
+
 		var marker = {
 			size: dimensions === 3 ? 4 : 5,
-			color: losses,
-			colorscale: options.colorscale,
-			cmin: options.cmin,
-			cmax: options.cmax,
+			color: colorValues,
+			colorscale: colorMode === "trial" ? TRIAL_POINT_COLORSCALE : options.colorscale,
+			cmin: cmin,
+			cmax: cmax,
 			showscale: options.showscale === true,
 			opacity: 0.95,
 			line: {
-				color: colors.dark ? "#111827" : "#ffffff",
+				color: outlineColors,
 				width: 1
 			}
 		};
@@ -1842,7 +1901,7 @@
 		return trace;
 	}
 
-	function landscapeSignature(mode, paramNames, resultEntries, showFailed, showPoints) {
+	function landscapeSignature(mode, paramNames, resultEntries) {
 		var signatureResults = (resultEntries || []).map(function (entry) {
 			return entry.resultName;
 		});
@@ -1850,9 +1909,7 @@
 		return [
 			mode,
 			(paramNames || []).join(","),
-			signatureResults.join(","),
-			showFailed ? "1" : "0",
-			showPoints ? "1" : "0"
+			signatureResults.join(",")
 		].join("|");
 	}
 
@@ -1872,7 +1929,8 @@
 					width: 1
 				}
 			},
-			hoverinfo: "skip",
+			customdata: [[point.trial, point.loss]],
+			hovertemplate: name + "<br>trial %{customdata[0]}<br>result: %{customdata[1]:.6g}<extra></extra>",
 			showlegend: true
 		};
 	}
@@ -1894,7 +1952,8 @@
 					width: 1
 				}
 			},
-			hoverinfo: "skip",
+			customdata: [[point.trial, point.loss]],
+			hovertemplate: name + "<br>trial %{customdata[0]}<br>result: %{customdata[1]:.6g}<extra></extra>",
 			showlegend: true
 		};
 	}
@@ -1998,53 +2057,37 @@
 			hoverinfo: "skip"
 		});
 
+		var pathSegments = [path.map(function (point) {
+			return {
+				x: point.values[0],
+				y: curveHeightForPoint(point),
+				loss: point.loss,
+				trial: point.trial
+			};
+		})];
+
 		if (context.showPoints) {
-			traces.push({
-				type: "scatter",
-				mode: "markers",
-				name: "Trial points",
-				x: path.map(function (point) { return point.values[0]; }),
-				y: path.map(curveHeightForPoint),
-				marker: {
-					size: 5,
-					color: path.map(function (point) { return point.loss; }),
-					colorscale: colorscale,
-					showscale: true,
-					colorbar: {
-						title: resultLabel,
-						thickness: 12,
-						len: 0.62,
-						outlinewidth: 0,
-						tickfont: {
-							color: colors.muted,
-							size: 10
-						},
-						titlefont: {
-							color: colors.text,
-							size: 11
-						}
-					},
-					line: {
-						color: colors.dark ? "#111827" : "#ffffff",
-						width: 0.5
-					}
-				},
-				customdata: path.map(function (point) { return point.trial; }),
-				hovertemplate: "trial %{customdata}<br>" + resultLabel + ": %{y:.6g}<extra></extra>",
-				showlegend: false
+			var pointTrace = buildPathMarkerTrace(pathSegments, 2, colors, {
+				colorMode: "trial",
+				trialMin: context.trialMin,
+				trialMax: context.trialMax
 			});
+
+			if (pointTrace) {
+				traces.push(pointTrace);
+			}
 		}
 
-		var arrowSegments = [path.map(function (point) {
-			return { x: point.values[0], y: curveHeightForPoint(point), trial: point.trial };
-		})];
-		var arrowData = buildColoredArrowTraces(arrowSegments, 2, colors, {
-			trialMin: context.trialMin,
-			trialMax: context.trialMax
-		});
+		if (context.showArrows) {
+			var arrowData = buildColoredArrowTraces(pathSegments, 2, colors, {
+				trialMin: context.trialMin,
+				trialMax: context.trialMax,
+				includePath: false
+			});
 
-		for (var arrowIndex = 0; arrowIndex < arrowData.traces.length; arrowIndex++) {
-			traces.push(arrowData.traces[arrowIndex]);
+			for (var arrowIndex = 0; arrowIndex < arrowData.traces.length; arrowIndex++) {
+				traces.push(arrowData.traces[arrowIndex]);
+			}
 		}
 
 		traces.push(markerTrace(colors, "Start", "circle", colors.start, 11, valid[0], 1, curveHeightForPoint(valid[0])));
@@ -2170,25 +2213,28 @@
 		var pathSegments = [path.map(function (point) {
 			return { x: point.values[0], y: point.values[1], loss: point.loss, trial: point.trial };
 		})];
-		var arrowData = buildColoredArrowTraces(pathSegments, 2, colors, {
-			trialMin: context.trialMin,
-			trialMax: context.trialMax
-		});
-
-		for (var arrowIndex2 = 0; arrowIndex2 < arrowData.traces.length; arrowIndex2++) {
-			traces.push(arrowData.traces[arrowIndex2]);
-		}
 
 		if (context.showPoints) {
 			var pointTrace = buildPathMarkerTrace(pathSegments, 2, colors, {
-				colorscale: colorscale,
-				cmin: lossMin,
-				cmax: lossMax,
-				showscale: false
+				colorMode: "trial",
+				trialMin: context.trialMin,
+				trialMax: context.trialMax
 			});
 
 			if (pointTrace) {
 				traces.push(pointTrace);
+			}
+		}
+
+		if (context.showArrows) {
+			var arrowData = buildColoredArrowTraces(pathSegments, 2, colors, {
+				trialMin: context.trialMin,
+				trialMax: context.trialMax,
+				includePath: false
+			});
+
+			for (var arrowIndex2 = 0; arrowIndex2 < arrowData.traces.length; arrowIndex2++) {
+				traces.push(arrowData.traces[arrowIndex2]);
 			}
 		}
 
@@ -2344,7 +2390,9 @@
 		var pathSegments = [];
 
 		for (var s = 0; s < segments.length && s < 40; s++) {
-			pathSegments.push(segments[s].map(function (item) {
+			var segment = segments[s];
+
+			pathSegments.push(segment.map(function (item) {
 				return {
 					x: item.point.values[0],
 					y: item.point.values[1],
@@ -2355,25 +2403,27 @@
 			}));
 		}
 
-		var arrowData = buildColoredArrowTraces(pathSegments, 3, colors, {
-			trialMin: context.trialMin,
-			trialMax: context.trialMax
-		});
-
-		for (var arrowIndex3 = 0; arrowIndex3 < arrowData.traces.length; arrowIndex3++) {
-			traces.push(arrowData.traces[arrowIndex3]);
-		}
-
 		if (context.showPoints) {
 			var pointTrace = buildPathMarkerTrace(pathSegments, 3, colors, {
-				colorscale: colorscale,
-				cmin: lossMin,
-				cmax: lossMax,
-				showscale: false
+				colorMode: "trial",
+				trialMin: context.trialMin,
+				trialMax: context.trialMax
 			});
 
 			if (pointTrace) {
 				traces.push(pointTrace);
+			}
+		}
+
+		if (context.showArrows) {
+			var arrowData = buildColoredArrowTraces(pathSegments, 3, colors, {
+				trialMin: context.trialMin,
+				trialMax: context.trialMax,
+				includePath: false
+			});
+
+			for (var arrowIndex3 = 0; arrowIndex3 < arrowData.traces.length; arrowIndex3++) {
+				traces.push(arrowData.traces[arrowIndex3]);
 			}
 		}
 
@@ -2491,6 +2541,47 @@
 		}
 	}
 
+	function showOverlayLoading(plotDiv, message) {
+		var overlay = plotDiv.querySelector(".landscape-loading-overlay");
+
+		if (!overlay) {
+			overlay = document.createElement("div");
+			overlay.className = "landscape-loading-overlay";
+
+			var spinner = document.createElement("div");
+			spinner.className = "landscape-loading-spinner";
+
+			var text = document.createElement("div");
+			text.className = "landscape-loading-text";
+
+			overlay.appendChild(spinner);
+			overlay.appendChild(text);
+			plotDiv.appendChild(overlay);
+		}
+
+		var textElement = overlay.querySelector(".landscape-loading-text");
+
+		if (textElement) {
+			textElement.textContent = message;
+		}
+	}
+
+	function updateOverlayLoading(plotDiv, message) {
+		var textElement = plotDiv.querySelector(".landscape-loading-overlay .landscape-loading-text");
+
+		if (textElement) {
+			textElement.textContent = message;
+		}
+	}
+
+	function hideOverlayLoading(plotDiv) {
+		var overlay = plotDiv.querySelector(".landscape-loading-overlay");
+
+		if (overlay) {
+			overlay.remove();
+		}
+	}
+
 	function nextPaint() {
 		return new Promise(function (resolve) {
 			if (typeof requestAnimationFrame === "function") {
@@ -2561,7 +2652,8 @@
 			result: value("landscape_result"),
 			slice: value("landscape_slice"),
 			showFailed: false,
-			showPoints: true
+			showPoints: true,
+			showArrows: false
 		};
 
 		var failed = plotDiv.querySelector("#landscape_show_failed");
@@ -2569,6 +2661,9 @@
 
 		var points = plotDiv.querySelector("#landscape_show_points");
 		state.showPoints = points ? !!points.checked : true;
+
+		var arrows = plotDiv.querySelector("#landscape_show_arrows");
+		state.showArrows = !!(arrows && arrows.checked);
 
 		return state.mode ? state : null;
 	}
@@ -2582,7 +2677,8 @@
 				result: resultNames[0] || "",
 				slice: "all",
 				showFailed: false,
-				showPoints: true
+				showPoints: true,
+				showArrows: false
 			};
 		}
 
@@ -2602,7 +2698,8 @@
 			result: resultNames.indexOf(state.result) >= 0 ? state.result : resultNames[0] || "",
 			slice: ["all", "low", "middle", "high"].indexOf(state.slice) >= 0 ? state.slice : "all",
 			showFailed: !!state.showFailed,
-			showPoints: state.showPoints !== false
+			showPoints: state.showPoints !== false,
+			showArrows: !!state.showArrows
 		};
 	}
 
@@ -2728,11 +2825,26 @@
 		pointsLabel.appendChild(pointsInput);
 		pointsLabel.appendChild(pointsText);
 
+		var arrowsLabel = document.createElement("label");
+		arrowsLabel.className = "landscape-toggle";
+
+		var arrowsInput = document.createElement("input");
+		arrowsInput.type = "checkbox";
+		arrowsInput.id = "landscape_show_arrows";
+		arrowsInput.checked = !!initialState.showArrows;
+
+		var arrowsText = document.createElement("span");
+		arrowsText.textContent = "Show arrows";
+
+		arrowsLabel.appendChild(arrowsInput);
+		arrowsLabel.appendChild(arrowsText);
+
 		controls.appendChild(createField("Dimension", dimensionSelect));
 		controls.appendChild(xField);
 		controls.appendChild(yField);
 		controls.appendChild(resultField);
 		controls.appendChild(pointsLabel);
+		controls.appendChild(arrowsLabel);
 		controls.appendChild(failedLabel);
 
 		var hint = document.createElement("div");
@@ -2838,18 +2950,25 @@
 			var selectedResult = resultSelect.value;
 			var showFailed = failedInput.checked;
 			var showPoints = pointsInput.checked;
+			var showArrows = arrowsInput.checked;
 			var requiredParams = mode === 1 ? 1 : 2;
 
 			if (paramNames.length !== requiredParams || paramNames.some(function (name) { return !name; })) {
+				hideOverlayLoading(plotDiv);
 				purgePlots(plotsContainer);
 				showPlotMessage(plotsContainer, "Please choose a parameter for every dimension.");
 				return;
 			}
 
 			if (!silent) {
-				purgePlots(plotsContainer);
-				showLoading(plotsContainer, "Building result landscape…");
-				status.textContent = "Rendering…";
+				var hasExistingPlot = !!plotsContainer.querySelector(".landscape-card, .js-plotly-plot");
+
+				if (hasExistingPlot) {
+					showOverlayLoading(plotDiv, "Updating result landscape…");
+				} else {
+					purgePlots(plotsContainer);
+					showLoading(plotsContainer, "Building result landscape…");
+				}
 			}
 
 			// Let the browser paint the spinner before the potentially expensive
@@ -2859,8 +2978,9 @@
 					return;
 				}
 
-				Promise.resolve(renderPreparedData(token, mode, paramNames, selectedResult, showFailed, showPoints, silent)).catch(function (error) {
+				Promise.resolve(renderPreparedData(token, mode, paramNames, selectedResult, showFailed, showPoints, showArrows, silent)).catch(function (error) {
 					console.error("Could not render the result landscape:", error);
+					hideOverlayLoading(plotDiv);
 					purgePlots(plotsContainer);
 					showPlotMessage(plotsContainer, "Could not render the result landscape: " + error.message);
 					status.textContent = "";
@@ -2870,10 +2990,10 @@
 
 		function setRenderProgress(message) {
 			updateLoading(plotsContainer, message);
-			status.textContent = message;
+			updateOverlayLoading(plotDiv, message);
 		}
 
-		async function renderPreparedData(token, mode, paramNames, selectedResult, showFailed, showPoints, silent) {
+		async function renderPreparedData(token, mode, paramNames, selectedResult, showFailed, showPoints, showArrows, silent) {
 			if (token !== renderToken) {
 				return;
 			}
@@ -2934,6 +3054,7 @@
 			}
 
 			if (!prepared.length) {
+				hideOverlayLoading(plotDiv);
 				purgePlots(plotsContainer);
 				showPlotMessage(plotsContainer, "No numeric trials are available for the selected parameters.");
 				status.textContent = "";
@@ -2949,11 +3070,10 @@
 				return;
 			}
 
-			var signature = landscapeSignature(mode, paramNames, prepared, showFailed, showPoints);
+			var signature = landscapeSignature(mode, paramNames, prepared);
 
-			var canReuse = silent &&
-				plotsContainer.dataset.landscapeSignature === signature &&
-				plotsContainer.children.length === prepared.length;
+			var canReuse = plotsContainer.dataset.landscapeSignature === signature &&
+				plotsContainer.querySelectorAll(".landscape-card").length === prepared.length;
 
 			if (!canReuse) {
 				purgePlots(plotsContainer);
@@ -3040,7 +3160,7 @@
 					trialMax = Math.max(0, entry.data.valid.length - 1);
 				}
 
-				updateTrialOrderLegend(card, trialMin, trialMax);
+				updateTrialOrderLegend(card, trialMin, trialMax, showArrows);
 
 				if (cardTitle) {
 					cardTitle.textContent = entry.label;
@@ -3059,6 +3179,7 @@
 					resultLabel: entry.label,
 					showFailed: showFailed,
 					showPoints: showPoints,
+					showArrows: showArrows,
 					trialMin: trialMin,
 					trialMax: trialMax
 				};
@@ -3073,6 +3194,7 @@
 			}
 
 			if (token === renderToken) {
+				hideOverlayLoading(plotDiv);
 				status.textContent = finalStatus;
 				markLoaded(plotDiv);
 			}
@@ -3107,6 +3229,7 @@
 		resultSelect.addEventListener("change", scheduleRender);
 		failedInput.addEventListener("change", scheduleRender);
 		pointsInput.addEventListener("change", scheduleRender);
+		arrowsInput.addEventListener("change", scheduleRender);
 
 		installLandscapeVisibilityWatcher(plotDiv);
 		updateVisibility();
@@ -3245,6 +3368,8 @@
 		buildArrowheadTrace: buildArrowheadTrace,
 		buildColoredArrowTraces: buildColoredArrowTraces,
 		buildPathMarkerTrace: buildPathMarkerTrace,
+		markerTrace2D: markerTrace2D,
+		markerTrace3DAt: markerTrace3DAt,
 		landscapeSignature: landscapeSignature,
 		sampleEvenly: sampleEvenly,
 		getResultLabel: getResultLabel,

@@ -881,3 +881,38 @@ body.dark-mode .analysis-tree-condition {
 	border-radius: 999px;
 	border: 1px solid rgba(100, 116, 139, 0.35);
 }
+
+.landscape-trial-order {
+	flex-direction: column;
+	align-items: stretch;
+	gap: 4px;
+}
+
+.landscape-trial-order-row {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+#plotLandscape {
+	position: relative;
+}
+
+.landscape-loading-overlay {
+	position: absolute;
+	inset: 0;
+	z-index: 30;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 12px;
+	border-radius: 10px;
+	background: rgba(127, 127, 127, 0.16);
+	backdrop-filter: blur(1px);
+	color: #475569;
+}
+
+.landscape-dark .landscape-loading-overlay {
+	color: #cbd5e1;
+}

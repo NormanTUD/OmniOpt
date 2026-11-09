@@ -27,6 +27,10 @@ var expectTrue = function (label, actual) {
 	expect(label, !!actual, true);
 };
 
+var expectFalse = function (label, actual) {
+	expect(label, !!actual, false);
+};
+
 var expectClose = function (label, actual, expected, tolerance) {
 	totalTests++;
 	var ok = typeof actual === "number" && Math.abs(actual - expected) <= tolerance;
@@ -384,8 +388,8 @@ console.log("\n--- Testing: live-update signature ---");
 	expectTrue("signature: mode changes", landscape.landscapeSignature(2, ["x", "y"], entries, false, false) !== base);
 	expectTrue("signature: params change", landscape.landscapeSignature(3, ["x", "z"], entries, false, false) !== base);
 	expectTrue("signature: result changes", landscape.landscapeSignature(3, ["x", "y"], [{ resultName: "RESULT1" }], false, false) !== base);
-	expectTrue("signature: failed toggle changes", landscape.landscapeSignature(3, ["x", "y"], entries, true, false) !== base);
-	expectTrue("signature: points toggle changes", landscape.landscapeSignature(3, ["x", "y"], entries, false, true) !== base);
+	expectFalse("signature: failed toggle keeps signature", landscape.landscapeSignature(3, ["x", "y"], entries, true, false) !== base);
+	expectFalse("signature: points toggle keeps signature", landscape.landscapeSignature(3, ["x", "y"], entries, false, true) !== base);
 }
 
 console.log("\n--- Testing: colored arrows and trial points ---");
@@ -446,6 +450,64 @@ console.log("\n--- Testing: colored arrows and trial points ---");
 	expect("points: cmax", points2d.marker.cmax, 50);
 	expect("points: no extra colorbar", points2d.marker.showscale, false);
 	expect("points: customdata", points2d.customdata, [[7, 42]]);
+}
+
+console.log("\n--- Testing: opt-in arrows, grayscale trial points and hover ---");
+{
+	var segments = [[
+		{ x: 0, y: 0, loss: 10, trial: 0 },
+		{ x: 1, y: 1, loss: 8, trial: 1 },
+		{ x: 2, y: 0, loss: 4, trial: 2 }
+	]];
+
+	var withPath = landscape.buildColoredArrowTraces(segments, 2, {}, { trialMin: 0, trialMax: 2 });
+	var arrowsOnly = landscape.buildColoredArrowTraces(segments, 2, {}, { trialMin: 0, trialMax: 2, includePath: false });
+	var pathOnly = landscape.buildColoredArrowTraces(segments, 2, {}, { trialMin: 0, trialMax: 2, includeArrowheads: false });
+
+	var withPathXs = [];
+	withPath.traces.forEach(function (trace) { withPathXs = withPathXs.concat(trace.x); });
+	var arrowsOnlyXs = [];
+	arrowsOnly.traces.forEach(function (trace) { arrowsOnlyXs = arrowsOnlyXs.concat(trace.x); });
+	var pathOnlyXs = [];
+	pathOnly.traces.forEach(function (trace) { pathOnlyXs = pathOnlyXs.concat(trace.x); });
+
+	expectTrue("arrows: default contains long path", withPathXs.indexOf(0) !== -1);
+	expectFalse("arrows: includePath=false has no long path start", arrowsOnlyXs.indexOf(0) !== -1);
+	expectTrue("arrows: path-only contains long path", pathOnlyXs.indexOf(0) !== -1);
+	expectTrue("arrows: path-only has fewer points than default", pathOnlyXs.length < withPathXs.length);
+
+	var trialPoints = landscape.buildPathMarkerTrace(segments, 2, { dark: false, muted: "#555", text: "#000" }, {
+		colorMode: "trial",
+		trialMin: 0,
+		trialMax: 2
+	});
+	expect("points: grayscale uses trial values", trialPoints.marker.color, [0, 1, 2]);
+	expect("points: grayscale colorscale start", trialPoints.marker.colorscale[0][1], "#ffffff");
+	expect("points: grayscale colorscale end", trialPoints.marker.colorscale[1][1], "#020617");
+	expectTrue("points: per-point outline array", Array.isArray(trialPoints.marker.line.color));
+	expectTrue("points: customdata still has result", JSON.stringify(trialPoints.customdata[0]), JSON.stringify([0, 10]));
+
+	var start3d = landscape.markerTrace3DAt({ dark: false }, "Start", "circle", "#00ff00", 8, {
+		values: [1, 2, 3],
+		trial: 7,
+		loss: 42
+	}, 3.5);
+	expect("hover: start marker has no skip", start3d.hoverinfo, undefined);
+	expect("hover: start marker customdata", start3d.customdata, [[7, 42]]);
+	expectTrue("hover: start marker template", /trial/.test(start3d.hovertemplate) && /result/.test(start3d.hovertemplate));
+	expect("hover: start marker z", start3d.z, [3.5]);
+
+	var end2d = landscape.markerTrace2D({ dark: false }, "End", "square", "#ff0000", 9, {
+		values: [4, 5],
+		trial: 9,
+		loss: 12
+	});
+	expect("hover: end marker customdata", end2d.customdata, [[9, 12]]);
+	expectTrue("hover: end marker template", /trial/.test(end2d.hovertemplate) && /result/.test(end2d.hovertemplate));
+
+	expectFalse("signature: arrows toggle keeps signature",
+		landscape.landscapeSignature(3, ["x", "y"], [{ resultName: "R" }], false, true, true) !==
+		landscape.landscapeSignature(3, ["x", "y"], [{ resultName: "R" }], false, true, false));
 }
 
 console.log("\n--- SUMMARY ---");

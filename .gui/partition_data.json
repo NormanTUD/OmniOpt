@@ -1,47 +1,79 @@
 {
 	"alpha": {
-		"number_of_workers": 40,
-		"computation_time": 13440,
+		"number_of_workers": 160,
+		"computation_time": 10080,
 		"max_number_of_gpus": 8,
 		"min_number_of_gpus": 1,
-		"max_mem_per_core": 49500,
-		"mem_per_cpu": 49500,
-		"name": "alpha (Alpha Centauri, amd64)",
-		"warning": "",
+		"max_mem_per_core": 990000,
+		"mem_per_cpu": 10312,
+		"name": "alpha (Alpha Centauri, NVIDIA A100)",
+		"warning": "Alpha Centauri is no longer covered by vendor support. Faulty GPUs and nodes cannot be replaced, so node configurations may be inhomogeneous (e.g. fewer than 8 GPUs).",
 		"link": "https://doc.zih.tu-dresden.de/jobs_and_resources/alpha_centauri/"
 	},
-	"ml": {
-		"number_of_workers": 40,
-		"computation_time": 13440,
-		"max_number_of_gpus": 6,
-		"min_number_of_gpus": 0,
-		"max_mem_per_core": 63500,
-		"mem_per_cpu": 63500,
-		"name": "ml (Machine Learning, ppc64le)",
-		"warning": "It is not recommended to use the /scratch or /lustre-filesystem on the ML partition",
-		"link": "https://doc.zih.tu-dresden.de/jobs_and_resources/hardware_overview/#ibm-power9-nodes-for-machine-learning"
+	"alpha-interactive": {
+		"number_of_workers": 2,
+		"computation_time": 720,
+		"max_number_of_gpus": 1,
+		"min_number_of_gpus": 1,
+		"max_mem_per_core": 20000,
+		"mem_per_cpu": 10312,
+		"name": "alpha-interactive (Alpha Centauri, interactive/MIG)",
+		"warning": "Interactive partition on the login nodes: at most 1 GPU, 1 CPU and 20 GB RAM per job and a maximum runtime of 12 hours. Intended for small tests and compilation.",
+		"link": "https://doc.zih.tu-dresden.de/jobs_and_resources/alpha_centauri/#partition-alpha-interactive"
 	},
-
+	"capella": {
+		"number_of_workers": 284,
+		"computation_time": 10080,
+		"max_number_of_gpus": 4,
+		"min_number_of_gpus": 1,
+		"max_mem_per_core": 773000,
+		"mem_per_cpu": 13437,
+		"name": "capella (Capella, NVIDIA H100)",
+		"warning": "Use /data/cat as working filesystem. 12 of the 154 nodes have 1.5 TiB RAM; Slurm allocates them automatically for jobs requesting more than 768 GiB.",
+		"link": "https://doc.zih.tu-dresden.de/jobs_and_resources/capella/"
+	},
+	"capella-interactive": {
+		"number_of_workers": 2,
+		"computation_time": 720,
+		"max_number_of_gpus": 1,
+		"min_number_of_gpus": 1,
+		"max_mem_per_core": 20000,
+		"mem_per_cpu": 14141,
+		"name": "capella-interactive (Capella, interactive/MIG)",
+		"warning": "Interactive partition on the login nodes: at most 1 GPU (1/7 MIG), 1 CPU and 20 GB RAM per job and a maximum runtime of 12 hours. Intended for small tests and compilation.",
+		"link": "https://doc.zih.tu-dresden.de/jobs_and_resources/capella/#partition-capella-interactive"
+	},
 	"barnard": {
-		"number_of_workers": 1000,
-		"computation_time": 13440,
+		"number_of_workers": 720,
+		"computation_time": 10080,
 		"max_number_of_gpus": 0,
 		"min_number_of_gpus": 0,
-		"max_mem_per_core": 10000,
-		"mem_per_cpu": 1000,
-		"name": "Barnard",
-		"warning": "",
-		"link": "https://doc.zih.tu-dresden.de/jobs_and_resources/hardware_overview/#island-4-to-6-intel-haswell-cpus"
+		"max_mem_per_core": 985000,
+		"mem_per_cpu": 2403,
+		"name": "barnard (Barnard, CPU)",
+		"warning": "90 of the 720 nodes have 1 TiB RAM; Slurm allocates them automatically for jobs requesting more than 512 GiB. Most other nodes have no or very limited local /tmp storage.",
+		"link": "https://doc.zih.tu-dresden.de/jobs_and_resources/barnard/"
+	},
+	"julia": {
+		"number_of_workers": 420,
+		"computation_time": 10080,
+		"max_number_of_gpus": 0,
+		"min_number_of_gpus": 0,
+		"max_mem_per_core": 22858674,
+		"mem_per_cpu": 54425,
+		"name": "julia (Julia, SMP)",
+		"warning": "Single SMP node with 420 usable cores and about 21.8 TiB RAM. Half of the original hardware is reserved for DZA. There is no node-local /tmp; use /data/nvme instead.",
+		"link": "https://doc.zih.tu-dresden.de/jobs_and_resources/julia/"
 	},
 	"romeo": {
-		"number_of_workers": 40,
-		"computation_time": 13440,
+		"number_of_workers": 185,
+		"computation_time": 10080,
 		"max_number_of_gpus": 0,
 		"min_number_of_gpus": 0,
-		"max_mem_per_core": 10000,
-		"mem_per_cpu": 256000,
-		"name": "Romeo",
-		"warning": "",
-		"link": "https://doc.zih.tu-dresden.de/jobs_and_resources/hardware_overview/#romeo"
+		"max_mem_per_core": 505000,
+		"mem_per_cpu": 1972,
+		"name": "romeo (Romeo, CPU)",
+		"warning": "Multithreading is disabled by default. Use --hint=multithread or SLURM_HINT=multithread to enable SMT.",
+		"link": "https://doc.zih.tu-dresden.de/jobs_and_resources/romeo/"
 	}
 }

@@ -39,8 +39,8 @@
 			'Computation Time (min)' => 'computation_time',
 			'Max GPUs' => 'max_number_of_gpus',
 			'Min GPUs' => 'min_number_of_gpus',
-			'Max Memory per Core (MB)' => 'max_mem_per_core',
-			'Memory per CPU (MB)' => 'mem_per_cpu',
+			'Max Memory per Worker (MB)' => 'max_mem_per_core',
+			'Memory per (SMT) Core (MB)' => 'mem_per_cpu',
 			'Warning' => 'warning',
 			'Link' => 'link'
 		];

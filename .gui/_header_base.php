@@ -203,7 +203,11 @@
 					}
 
 					window.addEventListener("load", function () {
-						setTimeout(warmPlotlyInBackground, 1200);
+						if (typeof window.requestIdleCallback === "function") {
+							window.requestIdleCallback(warmPlotlyInBackground, { timeout: 4000 });
+						} else {
+							setTimeout(warmPlotlyInBackground, 2000);
+						}
 					});
 
 					document.addEventListener("click", function (event) {

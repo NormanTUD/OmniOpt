@@ -228,6 +228,154 @@ console.log("\n--- Testing: colorscale direction and formatting ---");
 	expect("label: max", landscape.getResultLabel("RESULT2", ["RESULT1", "RESULT2"], ["min", "max"]), "RESULT2 (max)");
 }
 
+console.log("\n--- Testing: additional landscape edge cases ---");
+{
+	var headers = ["TRIAL_INDEX", "X", "Y", "RESULT", "trial_status", "OO_Info_X", "name"];
+	var rows = [
+		[0, "1", "2", "3", "COMPLETED", "4", "a"],
+		[1, "2", "3", "4", "COMPLETED", "5", "b"],
+		[2, "3", "4", "5", "COMPLETED", "6", "c"]
+	];
+
+	expect("edge: case-insensitive exclusion",
+		landscape.getNumericParameterColumns(headers, rows, ["result"], ["trial_index", "trial_status"]),
+		["X", "Y"]);
+
+	var mixedRows = [
+		[0, "1", "2", "3", "COMPLETED", "4", "a"],
+		[1, "nope", "3", "4", "COMPLETED", "5", "b"]
+	];
+	expect("edge: mixed numeric/string column excluded",
+		landscape.getNumericParameterColumns(["trial_index", "mixed", "ok"], mixedRows, ["RESULT"], ["trial_index"]),
+		["ok"]);
+
+	expect("edge: single observation excluded",
+		landscape.getNumericParameterColumns(["trial_index", "x"], [[0, 1]], ["RESULT"], ["trial_index"]),
+		[]);
+
+	expect("goal: object max", landscape.getResultGoal("R", ["R"], { "R": "max" }), "max");
+	expect("goal: case-insensitive max", landscape.getResultGoal("r", ["R"], ["MAX"]), "max");
+	expect("goal: missing defaults to min", landscape.getResultGoal("missing", ["R"], ["max"]), "min");
+	expect("goal: malformed defaults to min", landscape.getResultGoal("R", ["R"], null), "min");
+
+	var collectHeaders = ["Trial_Index", "x", "trial_status", "RESULT"];
+	var collectRows = [
+		[2, 1, "COMPLETED", 5],
+		[1, 2, "COMPLETED", 4],
+		[3, 3, "FAILED", 9],
+		[4, 4, "COMPLETED", ""]
+	];
+	var collected = landscape.collectLandscapeData(collectHeaders, collectRows, ["x"], "result");
+	expect("collect: case-insensitive result", collected.valid.length, 2);
+	expect("collect: sorted trials", collected.valid.map(function (point) { return point.trial; }), [1, 2]);
+	expect("collect: failed with numeric result stays failed", collected.failed.length, 1);
+	expect("collect: missing result column", landscape.collectLandscapeData(collectHeaders, collectRows, ["x"], "NOPE").valid.length, 0);
+}
+
+console.log("\n--- Testing: interpolation null / boundary cases ---");
+{
+	expect("1D: empty returns null", landscape.interpolate1D([]), null);
+	expect("1D: one point returns null", landscape.interpolate1D([{ values: [1], loss: 2 }]), null);
+	expect("1D: equal x returns null", landscape.interpolate1D([
+		{ values: [1], loss: 2 },
+		{ values: [1], loss: 3 }
+	]), null);
+
+	var linearPoints = [];
+	for (var i = 0; i <= 10; i++) {
+		linearPoints.push({ values: [i], loss: 2 * i + 1, trial: i });
+	}
+	var linearCurve = landscape.interpolate1D(linearPoints);
+	expectClose("1D: linear midpoint", landscape.interpolate1DHeightAt(linearCurve, 5.5), 12, 0.25);
+	expect("1D: below range returns null", landscape.interpolate1DHeightAt(linearCurve, -1), null);
+	expect("1D: above range returns null", landscape.interpolate1DHeightAt(linearCurve, 11), null);
+
+	expect("2D: fewer than 3 points returns null", landscape.interpolate2D([
+		{ values: [0, 0], loss: 1 },
+		{ values: [1, 1], loss: 2 }
+	], 20), null);
+	expect("2D: equal x returns null", landscape.interpolate2D([
+		{ values: [1, 0], loss: 1 },
+		{ values: [1, 1], loss: 2 },
+		{ values: [1, 2], loss: 3 }
+	], 20), null);
+
+	var sparse = [
+		{ values: [0, 0], loss: 1 },
+		{ values: [5, 5], loss: 2 },
+		{ values: [10, 0], loss: 3 }
+	];
+	var sparseSurface = landscape.interpolate2D(sparse, 20, { maxGapCells: 0 });
+	var sparseHasNaN = false;
+	for (var sy = 0; sy < sparseSurface.z.length; sy++) {
+		for (var sx = 0; sx < sparseSurface.z[sy].length; sx++) {
+			if (!isFinite(sparseSurface.z[sy][sx])) {
+				sparseHasNaN = true;
+			}
+		}
+	}
+	expectTrue("2D: coverage mask leaves holes", sparseHasNaN);
+
+	var dense = [];
+	for (var dx = 0; dx <= 10; dx += 0.5) {
+		for (var dy = 0; dy <= 10; dy += 0.5) {
+			dense.push({ values: [dx, dy], loss: dx + 2 * dy, trial: dense.length });
+		}
+	}
+	var plane = landscape.interpolate2D(dense, 60);
+	expectClose("2D: bilinear height on a plane", landscape.surfaceHeightAt(plane, 3.3, 4.4), 12.1, 0.5);
+	expect("2D: outside range returns null", landscape.surfaceHeightAt(plane, -1, 4), null);
+
+	var optionsDense = landscape.surfaceInterpolationOptions(dense, [], 56);
+	var optionsSparse = landscape.surfaceInterpolationOptions(sparse, [], 56);
+	expect("options: grid size is honoured", optionsDense.gridSize, 56);
+	expectTrue("options: failed radius is finite", optionsDense.failedRadiusCells >= 2);
+	expectTrue("options: sparse data allows larger gaps", optionsSparse.maxGapCells >= optionsDense.maxGapCells);
+
+	expect("3D: fewer than 4 points returns null", landscape.interpolate3D([
+		{ values: [0, 0, 0], loss: 1 },
+		{ values: [1, 1, 1], loss: 2 },
+		{ values: [2, 2, 2], loss: 3 }
+	], 20), null);
+}
+
+console.log("\n--- Testing: slicing and helpers ---");
+{
+	var data = {
+		valid: [],
+		failed: []
+	};
+
+	for (var i = 0; i < 10; i++) {
+		data.valid.push({ values: [i, i, i], loss: i, trial: i });
+	}
+	data.failed.push({ values: [5, 5, 5], loss: null, trial: 100 });
+
+	var all = landscape.filterDataBySlice(data, "all");
+	var low = landscape.filterDataBySlice(data, "low");
+	var middle = landscape.filterDataBySlice(data, "middle");
+	var high = landscape.filterDataBySlice(data, "high");
+
+	expect("slice: all keeps all", all.valid.length, 10);
+	expectTrue("slice: low keeps at least one", low.valid.length >= 1);
+	expectTrue("slice: middle keeps at least one", middle.valid.length >= 1);
+	expectTrue("slice: high keeps at least one", high.valid.length >= 1);
+	expect("slice: partitions all valid points", low.valid.length + middle.valid.length + high.valid.length, 10);
+	expectTrue("slice: low values", low.valid.every(function (point) { return point.values[2] <= 4; }));
+	expectTrue("slice: high values", high.valid.every(function (point) { return point.values[2] >= 6; }));
+
+	expect("sample: returns all when short", landscape.sampleEvenly([1, 2, 3], 5).length, 3);
+	var sampled = landscape.sampleEvenly([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 4);
+	expect("sample: respects max count", sampled.length, 4);
+	expect("sample: keeps first", sampled[0], 0);
+	expect("sample: keeps last", sampled[sampled.length - 1], 9);
+
+	expect("format: zero", landscape.formatNumber(0), "0");
+	expect("format: negative", landscape.formatNumber(-1.23456789), "-1.23457");
+	expect("format: not available", landscape.formatNumber(NaN), "–");
+	expect("format: very large", landscape.formatNumber(1e7), "1.000e+7");
+}
+
 console.log("\n--- SUMMARY ---");
 
 if (failedTests === 0) {

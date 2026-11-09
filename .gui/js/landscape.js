@@ -1048,7 +1048,7 @@
 			zValues[zi] = rangeZ.min + (rangeZ.max - rangeZ.min) * zi / (nz - 1);
 		}
 
-		// Plotly's isosurface trace expects four equally long 1-D arrays with
+		// The Plotly isosurface trace expects four equally long 1-D arrays with
 		// the x, y, z coordinates and the value of every grid vertex.
 		var vertexCount = nx * ny * nz;
 		var xFlat = new Array(vertexCount);
@@ -1232,8 +1232,8 @@
 		return trace;
 	}
 
-	function surfaceInterpolationOptions(valid, failed) {
-		var gridSize = DEFAULT_GRID_SIZE;
+	function surfaceInterpolationOptions(valid, failed, gridSize) {
+		gridSize = gridSize || DEFAULT_GRID_SIZE;
 		var extentX = computeExtent(valid, 0);
 		var extentY = computeExtent(valid, 1);
 		var rangeX = Math.max(1e-9, extentX.max - extentX.min);
@@ -1502,7 +1502,7 @@
 		var colors = context.colors;
 		var valid = data.valid;
 		var failed = data.failed;
-		var surfaceOptions = surfaceInterpolationOptions(valid, failed);
+		var surfaceOptions = surfaceInterpolationOptions(valid, failed, 64);
 		var interpolation = interpolate2D(valid, surfaceOptions.gridSize, surfaceOptions);
 
 		if (!interpolation) {
@@ -1642,7 +1642,7 @@
 			return;
 		}
 
-		var surfaceOptions = surfaceInterpolationOptions(valid, failed);
+		var surfaceOptions = surfaceInterpolationOptions(valid, failed, 56);
 		var interpolation = interpolate2D(valid, surfaceOptions.gridSize, surfaceOptions);
 
 		if (!interpolation) {
@@ -1689,12 +1689,6 @@
 				titlefont: {
 					color: colors.text,
 					size: 11
-				}
-			},
-			contours: {
-				z: {
-					show: true,
-					usecolormap: true
 				}
 			},
 			opacity: 0.96,
@@ -1885,6 +1879,26 @@
 		container.appendChild(loading);
 	}
 
+	function updateLoading(container, message) {
+		var text = container.querySelector(".landscape-loading-text");
+
+		if (text) {
+			text.textContent = message;
+		}
+	}
+
+	function nextPaint() {
+		return new Promise(function (resolve) {
+			if (typeof requestAnimationFrame === "function") {
+				requestAnimationFrame(function () {
+					setTimeout(resolve, 0);
+				});
+			} else {
+				setTimeout(resolve, 0);
+			}
+		});
+	}
+
 	function purgePlots(container) {
 		if (!root || typeof root.Plotly === "undefined" || typeof root.Plotly.purge !== "function") {
 			return;
@@ -1940,7 +1954,6 @@
 			mode: value("landscape_dimension"),
 			x: value("landscape_param_x"),
 			y: value("landscape_param_y"),
-			z: value("landscape_param_z"),
 			result: value("landscape_result"),
 			slice: value("landscape_slice"),
 			showFailed: false,
@@ -1962,7 +1975,6 @@
 				mode: maxDimension,
 				x: numericParams[0] || "",
 				y: numericParams[1] || "",
-				z: numericParams[2] || "",
 				result: resultNames[0] || "",
 				slice: "all",
 				showFailed: false,
@@ -1978,13 +1990,11 @@
 
 		var x = numericParams.indexOf(state.x) >= 0 ? state.x : numericParams[0] || "";
 		var y = numericParams.indexOf(state.y) >= 0 ? state.y : numericParams[1] || "";
-		var z = numericParams.indexOf(state.z) >= 0 ? state.z : numericParams[2] || "";
 
 		return {
 			mode: mode,
 			x: x,
 			y: y,
-			z: z,
 			result: resultNames.indexOf(state.result) >= 0 ? state.result : resultNames[0] || "",
 			slice: ["all", "low", "middle", "high"].indexOf(state.slice) >= 0 ? state.slice : "all",
 			showFailed: !!state.showFailed,
@@ -2037,6 +2047,10 @@
 		var maxDimension = Math.min(3, numericParams.length);
 		var initialState = applyPreviousState(previousState, numericParams, resultNames, maxDimension);
 		var renderToken = 0;
+
+		window.__omnioptLandscapeInvalidate = function () {
+			renderToken++;
+		};
 		var updateTimer = null;
 
 		var controls = document.createElement("div");
@@ -2050,7 +2064,7 @@
 			if (dimension === 2) {
 				dimensionLabel = "2D contour";
 			} else if (dimension === 3) {
-				dimensionLabel = "3D surface (height = result)";
+				dimensionLabel = "3D surface (2 params + result)";
 			}
 
 			dimensionOptions.push({
@@ -2070,31 +2084,16 @@
 			return { value: name, label: name };
 		}));
 
-		var zSelect = createSelect("landscape_param_z", numericParams.map(function (name) {
-			return { value: name, label: name };
-		}));
-
 		xSelect.value = initialState.x;
 		ySelect.value = initialState.y;
-		zSelect.value = initialState.z;
 
 		var resultSelect = createSelect("landscape_result", resultNames.map(function (name) {
 			return { value: name, label: getResultLabel(name, resultNames, resultMinMax) };
 		}));
 		resultSelect.value = initialState.result;
 
-		var sliceSelect = createSelect("landscape_slice", [
-			{ value: "all", label: "All (average)" },
-			{ value: "low", label: "Low third" },
-			{ value: "middle", label: "Middle third" },
-			{ value: "high", label: "High third" }
-		]);
-		sliceSelect.value = initialState.slice || "all";
-
 		var xField = createField("Parameter X", xSelect);
 		var yField = createField("Parameter Y", ySelect);
-		var zField = createField("Slice parameter", zSelect);
-		var sliceField = createField("Slice", sliceSelect);
 		var resultField = createField("RESULT (3D)", resultSelect);
 
 		var failedLabel = document.createElement("label");
@@ -2128,8 +2127,6 @@
 		controls.appendChild(createField("Dimension", dimensionSelect));
 		controls.appendChild(xField);
 		controls.appendChild(yField);
-		controls.appendChild(zField);
-		controls.appendChild(sliceField);
 		controls.appendChild(resultField);
 		controls.appendChild(pointsLabel);
 		controls.appendChild(failedLabel);
@@ -2145,7 +2142,7 @@
 			hintText += " 2D shows a flat result contour. 3D shows a result surface whose height and color are the result.";
 
 			if (maxDimension >= 3) {
-				hintText += " The third parameter is used as a slice selector.";
+				hintText += " Choose two parameters (X/Y) and one result; the remaining parameter is not plotted.";
 			}
 
 			hintText += " White gaps are regions without data; red X marks failed trials, which are cut out as holes.";
@@ -2172,10 +2169,6 @@
 				names.push(ySelect.value);
 			}
 
-			if (mode >= 3) {
-				names.push(zSelect.value);
-			}
-
 			return names;
 		}
 
@@ -2183,15 +2176,13 @@
 			var mode = parseInt(dimensionSelect.value, 10);
 
 			yField.style.display = mode >= 2 ? "" : "none";
-			zField.style.display = mode >= 3 ? "" : "none";
-			sliceField.style.display = mode >= 3 ? "" : "none";
 			resultField.style.display = mode >= 3 ? "" : "none";
 			pointsLabel.style.display = mode >= 3 ? "" : "none";
 		}
 
 		function ensureDistinctSelections() {
 			var mode = parseInt(dimensionSelect.value, 10);
-			var selects = [xSelect, ySelect, zSelect].slice(0, mode);
+			var selects = [xSelect, ySelect].slice(0, mode === 1 ? 1 : 2);
 			var used = {};
 
 			for (var i = 0; i < selects.length; i++) {
@@ -2241,9 +2232,9 @@
 			var selectedResult = resultSelect.value;
 			var showFailed = failedInput.checked;
 			var showPoints = pointsInput.checked;
-			var slice = sliceSelect.value;
+			var requiredParams = mode === 1 ? 1 : 2;
 
-			if (paramNames.length !== mode || paramNames.some(function (name) { return !name; })) {
+			if (paramNames.length !== requiredParams || paramNames.some(function (name) { return !name; })) {
 				purgePlots(plotsContainer);
 				showPlotMessage(plotsContainer, "Please choose a parameter for every dimension.");
 				return;
@@ -2260,19 +2251,35 @@
 					return;
 				}
 
-				try {
-					renderPreparedData(token, mode, paramNames, selectedResult, showFailed, showPoints, slice);
-				} catch (error) {
+				Promise.resolve(renderPreparedData(token, mode, paramNames, selectedResult, showFailed, showPoints)).catch(function (error) {
 					console.error("Could not render the result landscape:", error);
 					purgePlots(plotsContainer);
 					showPlotMessage(plotsContainer, "Could not render the result landscape: " + error.message);
 					status.textContent = "";
-				}
+				});
 			}, 30);
 		}
 
-		function renderPreparedData(token, mode, paramNames, selectedResult, showFailed, showPoints, slice) {
+		function setRenderProgress(message) {
+			updateLoading(plotsContainer, message);
+			status.textContent = message;
+		}
+
+		async function renderPreparedData(token, mode, paramNames, selectedResult, showFailed, showPoints) {
+			if (token !== renderToken) {
+				return;
+			}
+
 			var resultsToRender = mode >= 3 ? [selectedResult] : resultNames.slice();
+			var paramLabel = mode >= 2 ? paramNames[0] + " × " + paramNames[1] : paramNames[0];
+
+			setRenderProgress("Collecting trials for " + paramLabel + "…");
+			await nextPaint();
+
+			if (token !== renderToken) {
+				return;
+			}
+
 			var collected = collectLandscapeDataForResults(headers, rows, paramNames, resultsToRender);
 			var prepared = [];
 			var failedTotal = collected.failed.length;
@@ -2280,10 +2287,6 @@
 			for (var i = 0; i < resultsToRender.length; i++) {
 				var resultName = resultsToRender[i];
 				var data = collected.buckets[i];
-
-				if (mode >= 3) {
-					data = filterDataBySlice(data, slice);
-				}
 
 				if (!data.valid.length) {
 					continue;
@@ -2306,6 +2309,13 @@
 				return;
 			}
 
+			setRenderProgress("Interpolating " + paramLabel + "…");
+			await nextPaint();
+
+			if (token !== renderToken) {
+				return;
+			}
+
 			purgePlots(plotsContainer);
 			plotsContainer.innerHTML = "";
 
@@ -2313,14 +2323,11 @@
 				? failedTotal + " failed trial" + (failedTotal === 1 ? "" : "s") + " marked"
 				: "failed trials hidden";
 
-			if (mode < 3) {
-				status.textContent = prepared.length + " result" + (prepared.length === 1 ? "" : "s") +
-					" · " + failedStatus;
-			} else {
-				status.textContent = "Showing " + prepared[0].label +
-					(slice !== "all" ? " · slice: " + slice : "") +
-					" · " + failedStatus;
-			}
+			var finalStatus = mode < 3
+				? prepared.length + " result" + (prepared.length === 1 ? "" : "s") + " · " + failedStatus
+				: "Showing " + prepared[0].label + " · " + failedStatus;
+
+			status.textContent = finalStatus;
 
 			for (var p = 0; p < prepared.length; p++) {
 				if (token !== renderToken) {
@@ -2328,6 +2335,13 @@
 				}
 
 				var entry = prepared[p];
+
+				setRenderProgress("Rendering " + entry.label + " (" + (p + 1) + "/" + prepared.length + ")…");
+				await nextPaint();
+
+				if (token !== renderToken) {
+					return;
+				}
 				var card = document.createElement("div");
 				card.className = "landscape-card";
 
@@ -2373,6 +2387,10 @@
 					render3D(plot, entry.data, context);
 				}
 			}
+
+			if (token === renderToken) {
+				status.textContent = finalStatus;
+			}
 		}
 
 		dimensionSelect.addEventListener("change", function () {
@@ -2381,7 +2399,7 @@
 			scheduleRender();
 		});
 
-		[xSelect, ySelect, zSelect].forEach(function (select) {
+		[xSelect, ySelect].forEach(function (select) {
 			select.addEventListener("change", function () {
 				ensureDistinctSelections();
 				scheduleRender();
@@ -2389,10 +2407,10 @@
 		});
 
 		resultSelect.addEventListener("change", scheduleRender);
-		sliceSelect.addEventListener("change", scheduleRender);
 		failedInput.addEventListener("change", scheduleRender);
 		pointsInput.addEventListener("change", scheduleRender);
 
+		installLandscapeVisibilityWatcher(plotDiv);
 		updateVisibility();
 		ensureDistinctSelections();
 		scheduleRender(0);
@@ -2414,6 +2432,59 @@
 		}
 
 		plotDiv.dataset.loaded = "false";
+	}
+
+	function disposeLandscapePlots(plotDiv) {
+		if (!plotDiv) {
+			return;
+		}
+
+		if (typeof window.__omnioptLandscapeInvalidate === "function") {
+			window.__omnioptLandscapeInvalidate();
+		}
+
+		purgePlots(plotDiv);
+
+		var plotsContainer = plotDiv.querySelector(".landscape-plots");
+		if (plotsContainer) {
+			plotsContainer.innerHTML = "";
+		}
+
+		markUnloaded(plotDiv);
+	}
+
+	function installLandscapeVisibilityWatcher(plotDiv) {
+		var panel = plotDiv.closest('[role="tabpanel"]');
+
+		if (!panel || panel.dataset.landscapeVisibilityWatched === "true") {
+			return;
+		}
+
+		panel.dataset.landscapeVisibilityWatched = "true";
+
+		if (typeof MutationObserver === "undefined") {
+			return;
+		}
+
+		var observer = new MutationObserver(function () {
+			if (panel.hidden) {
+				disposeLandscapePlots(plotDiv);
+				return;
+			}
+
+			var loaded = window.jQuery
+				? window.jQuery(plotDiv).data("loaded") === "true"
+				: plotDiv.dataset.loaded === "true";
+
+			if (!loaded) {
+				plotLandscape();
+			}
+		});
+
+		observer.observe(panel, {
+			attributes: true,
+			attributeFilter: ["hidden"]
+		});
 	}
 
 	function refreshLandscape() {
@@ -2469,8 +2540,11 @@
 		interpolate1D: interpolate1D,
 		interpolate2D: interpolate2D,
 		interpolate3D: interpolate3D,
+		interpolate1DHeightAt: interpolate1DHeightAt,
 		surfaceHeightAt: surfaceHeightAt,
+		surfaceInterpolationOptions: surfaceInterpolationOptions,
 		filterDataBySlice: filterDataBySlice,
+		sampleEvenly: sampleEvenly,
 		getResultLabel: getResultLabel,
 		getLossColorscale: getLossColorscale,
 		formatNumber: formatNumber,

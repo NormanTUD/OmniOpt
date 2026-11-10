@@ -1228,6 +1228,7 @@
 		var layout = {
 			autosize: true,
 			height: height,
+			uirevision: "omniopt-landscape",
 			paper_bgcolor: "rgba(0,0,0,0)",
 			plot_bgcolor: "rgba(0,0,0,0)",
 			font: {
@@ -2142,7 +2143,7 @@
 			}
 		};
 
-		plotlyReact(container, traces, layout);
+		return plotlyReact(container, traces, layout);
 	}
 
 	function render2D(container, data, context) {
@@ -2290,7 +2291,50 @@
 			}
 		};
 
-		plotlyReact(container, traces, layout);
+		return plotlyReact(container, traces, layout);
+	}
+
+	function cloneCamera(camera) {
+		if (!camera || !camera.eye) {
+			return null;
+		}
+
+		function vector(value) {
+			return value && isFinite(value.x) && isFinite(value.y) && isFinite(value.z)
+				? { x: value.x, y: value.y, z: value.z }
+				: null;
+		}
+
+		var eye = vector(camera.eye);
+
+		if (!eye) {
+			return null;
+		}
+
+		var copy = { eye: eye };
+		var center = vector(camera.center);
+		var up = vector(camera.up);
+
+		if (center) {
+			copy.center = center;
+		}
+
+		if (up) {
+			copy.up = up;
+		}
+
+		if (camera.projection && camera.projection.type) {
+			copy.projection = { type: camera.projection.type };
+		}
+
+		return copy;
+	}
+
+	function currentSceneCamera(container) {
+		var fullLayout = container && container._fullLayout;
+		var scene = fullLayout && fullLayout.scene;
+
+		return cloneCamera(scene && scene.camera);
 	}
 
 	function render3D(container, data, context) {
@@ -2303,7 +2347,7 @@
 			return;
 		}
 
-		var surfaceOptions = surfaceInterpolationOptions(valid, failed, 48);
+		var surfaceOptions = surfaceInterpolationOptions(valid, failed, 32);
 		var interpolation = interpolate2D(valid, surfaceOptions.gridSize, surfaceOptions);
 
 		if (!interpolation) {
@@ -2466,23 +2510,25 @@
 		}
 
 		var layout = baseLayout(colors, 680, 3);
+		var camera = currentSceneCamera(container);
 		layout.scene = {
 			xaxis: sceneAxis(context.paramNames[0], colors),
 			yaxis: sceneAxis(context.paramNames[1], colors),
 			zaxis: sceneAxis(resultLabel, colors),
 			aspectmode: "auto",
-			camera: {
+			uirevision: "omniopt-landscape",
+			camera: camera || {
 				eye: { x: 1.55, y: 1.55, z: 1.15 }
 			}
 		};
 
-		plotlyReact(container, traces, layout);
+		return plotlyReact(container, traces, layout);
 	}
 
 	function plotlyReact(container, traces, layout) {
 		if (!root || typeof root.Plotly === "undefined") {
 			showPlotMessage(container, "Plotly is not available.");
-			return;
+			return Promise.resolve();
 		}
 
 		var config = {
@@ -2491,15 +2537,22 @@
 			modeBarButtonsToRemove: ["sendDataToCloud", "lasso2d", "select2d"]
 		};
 
+		var renderCall;
+
 		try {
 			if (typeof root.Plotly.react === "function") {
-				root.Plotly.react(container, traces, layout, config);
+				renderCall = root.Plotly.react(container, traces, layout, config);
 			} else {
-				root.Plotly.newPlot(container, traces, layout, config);
+				renderCall = root.Plotly.newPlot(container, traces, layout, config);
 			}
 		} catch (error) {
 			showPlotMessage(container, "Could not render the landscape: " + error.message);
+			return Promise.resolve();
 		}
+
+		return Promise.resolve(renderCall).catch(function (error) {
+			showPlotMessage(container, "Could not render the landscape: " + error.message);
+		});
 	}
 
 	function showPlotMessage(container, message) {
@@ -2508,37 +2561,6 @@
 		note.className = "landscape-message";
 		note.textContent = message;
 		container.appendChild(note);
-	}
-
-	function showLoading(container, message) {
-		var previousHeight = container.offsetHeight;
-		container.innerHTML = "";
-
-		var loading = document.createElement("div");
-		loading.className = "landscape-loading";
-
-		if (previousHeight > 0) {
-			loading.style.minHeight = previousHeight + "px";
-		}
-
-		var spinner = document.createElement("div");
-		spinner.className = "landscape-loading-spinner";
-
-		var text = document.createElement("div");
-		text.className = "landscape-loading-text";
-		text.textContent = message;
-
-		loading.appendChild(spinner);
-		loading.appendChild(text);
-		container.appendChild(loading);
-	}
-
-	function updateLoading(container, message) {
-		var text = container.querySelector(".landscape-loading-text");
-
-		if (text) {
-			text.textContent = message;
-		}
 	}
 
 	function showOverlayLoading(plotDiv, message) {
@@ -2963,12 +2985,10 @@
 			if (!silent) {
 				var hasExistingPlot = !!plotsContainer.querySelector(".landscape-card, .js-plotly-plot");
 
-				if (hasExistingPlot) {
-					showOverlayLoading(plotDiv, "Updating result landscape…");
-				} else {
-					purgePlots(plotsContainer);
-					showLoading(plotsContainer, "Building result landscape…");
-				}
+				showOverlayLoading(
+					plotDiv,
+					hasExistingPlot ? "Updating result landscape…" : "Building result landscape…"
+				);
 			}
 
 			// Let the browser paint the spinner before the potentially expensive
@@ -2989,7 +3009,6 @@
 		}
 
 		function setRenderProgress(message) {
-			updateLoading(plotsContainer, message);
 			updateOverlayLoading(plotDiv, message);
 		}
 
@@ -3031,7 +3050,9 @@
 				return;
 			}
 
-			var collected = collectLandscapeDataForResults(headers, rows, paramNames, resultsToRender);
+			var currentHeaders = Array.isArray(root.tab_results_headers_json) ? root.tab_results_headers_json : headers;
+			var currentRows = Array.isArray(root.tab_results_csv_json) ? root.tab_results_csv_json : rows;
+			var collected = collectLandscapeDataForResults(currentHeaders, currentRows, paramNames, resultsToRender);
 			var prepared = [];
 			var failedTotal = collected.failed.length;
 
@@ -3081,17 +3102,19 @@
 				plotsContainer.dataset.landscapeSignature = signature;
 			}
 
-			var failedStatus = showFailed
-				? failedTotal + " failed trial" + (failedTotal === 1 ? "" : "s") + " marked"
-				: "failed trials hidden";
+			var failedStatus;
+
+			if (showFailed) {
+				failedStatus = failedTotal + " failed trial" + (failedTotal === 1 ? "" : "s") + " shown";
+			} else if (failedTotal > 0) {
+				failedStatus = failedTotal + " failed trial" + (failedTotal === 1 ? "" : "s") + " hidden";
+			} else {
+				failedStatus = "no failed trials";
+			}
 
 			var finalStatus = mode < 3
 				? prepared.length + " result" + (prepared.length === 1 ? "" : "s") + " · " + failedStatus
 				: "Showing " + prepared[0].label + " · " + failedStatus;
-
-			if (!silent) {
-				status.textContent = finalStatus;
-			}
 
 			for (var p = 0; p < prepared.length; p++) {
 				if (token !== renderToken) {
@@ -3184,12 +3207,22 @@
 					trialMax: trialMax
 				};
 
+				var renderPromise;
+
 				if (mode === 1) {
-					render1D(plot, entry.data, context);
+					renderPromise = render1D(plot, entry.data, context);
 				} else if (mode === 2) {
-					render2D(plot, entry.data, context);
+					renderPromise = render2D(plot, entry.data, context);
 				} else {
-					render3D(plot, entry.data, context);
+					renderPromise = render3D(plot, entry.data, context);
+				}
+
+				if (renderPromise) {
+					await renderPromise;
+
+					if (token !== renderToken) {
+						return;
+					}
 				}
 			}
 
@@ -3255,25 +3288,6 @@
 		plotDiv.dataset.loaded = "false";
 	}
 
-	function disposeLandscapePlots(plotDiv) {
-		if (!plotDiv) {
-			return;
-		}
-
-		if (typeof window.__omnioptLandscapeInvalidate === "function") {
-			window.__omnioptLandscapeInvalidate();
-		}
-
-		purgePlots(plotDiv);
-
-		var plotsContainer = plotDiv.querySelector(".landscape-plots");
-		if (plotsContainer) {
-			plotsContainer.innerHTML = "";
-		}
-
-		markUnloaded(plotDiv);
-	}
-
 	function installLandscapeVisibilityWatcher(plotDiv) {
 		var panel = plotDiv.closest('[role="tabpanel"]');
 
@@ -3287,18 +3301,24 @@
 			return;
 		}
 
+		var wasHidden = panel.hidden;
+
 		var observer = new MutationObserver(function () {
 			if (panel.hidden) {
-				disposeLandscapePlots(plotDiv);
+				wasHidden = true;
 				return;
 			}
 
-			var loaded = window.jQuery
-				? window.jQuery(plotDiv).data("loaded") === "true"
-				: plotDiv.dataset.loaded === "true";
+			if (!wasHidden) {
+				return;
+			}
 
-			if (!loaded) {
+			wasHidden = false;
+
+			if (!plotDiv.querySelector(".landscape-card, .js-plotly-plot")) {
 				plotLandscape();
+			} else if (typeof window.__omnioptLandscapeLiveRefresh === "function") {
+				window.__omnioptLandscapeLiveRefresh();
 			}
 		});
 

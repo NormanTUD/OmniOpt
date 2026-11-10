@@ -337,20 +337,26 @@
 			existingButtons.set(tab.id, button);
 
 			var panel = existingPanels.get(tab.id);
+			var contentReplaced = false;
 
 			if (!panel) {
 				panel = createTabPanel(tab);
 				section.appendChild(panel);
+				contentReplaced = true;
 			} else {
 				var contentChanged = tab.content_hash && panel.dataset.shareContentHash !== tab.content_hash;
 
 				if ((tab.id === "tab_results" && resultsChanged) || contentChanged) {
 					panel.innerHTML = tab.content || "";
 					panel.dataset.shareContentHash = tab.content_hash || "";
+					contentReplaced = true;
 				}
 			}
 
-			clearCachedPlotFlags(panel);
+			if (contentReplaced || (resultsChanged && tab.id !== "tab_landscape")) {
+				clearCachedPlotFlags(panel);
+			}
+
 			existingPanels.set(tab.id, panel);
 		});
 
@@ -406,23 +412,25 @@
 			button.setAttribute("aria-selected", "false");
 		});
 
-		directPanels(section).forEach(function (panel) {
-			panel.hidden = true;
-		});
-
 		if (!activeButton) {
+			directPanels(section).forEach(function (panel) {
+				panel.hidden = true;
+			});
 			return true;
 		}
 
 		activeButton.setAttribute("aria-selected", "true");
 
-		var activePanel = document.getElementById(activeButton.getAttribute("aria-controls"));
+		var activePanelId = activeButton.getAttribute("aria-controls");
+		var activePanel = document.getElementById(activePanelId);
 
 		if (!activePanel) {
 			return true;
 		}
 
-		activePanel.hidden = false;
+		directPanels(section).forEach(function (panel) {
+			panel.hidden = panel.id !== activePanelId;
+		});
 
 		var lazyStart = performance.now();
 
@@ -552,7 +560,7 @@
 		}
 
 		// Do not compete with a landscape plot that is still loading.
-		if (document.querySelector("#plotLandscape .landscape-loading")) {
+		if (document.querySelector("#plotLandscape .landscape-loading, #plotLandscape .landscape-loading-overlay")) {
 			schedulePoll();
 			return;
 		}

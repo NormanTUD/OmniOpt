@@ -1,7 +1,7 @@
 "use strict";
 
 const CACHE_PREFIX = "omniopt-pwa-";
-const CACHE_NAME = CACHE_PREFIX + "v6";
+const CACHE_NAME = CACHE_PREFIX + "v7";
 const OFFLINE_PAGE = "offline.html";
 const PRECACHE_LIST = "offline_assets.php";
 

@@ -2872,7 +2872,7 @@
 		var hint = document.createElement("div");
 		hint.className = "landscape-hint";
 
-		var hintText = "Height is the result value. The pink line is the training trajectory in trial order.";
+		var hintText = "Height is the result value. Trial points are shaded from light to dark in trial order; enable arrows to show the trajectory.";
 
 		if (maxDimension === 1) {
 			hintText += " Only one varying numeric parameter is available, so only 1D landscapes can be rendered for this run.";

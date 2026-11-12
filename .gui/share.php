@@ -411,13 +411,17 @@
 						"label" => "Additional plots",
 						"icon" => "plot.svg",
 						"ids" => [
+							"tab_insights",
 							"tab_boxplots",
 							"tab_violin",
 							"tab_histogram",
 							"tab_heatmap",
 							"tab_kde_histogram",
 							"tab_stacked_histogram",
-							"tab_exit_codes_plot"
+							"tab_exit_codes_plot",
+							"tab_job_info_charts",
+							"tab_plot_job_status_distribution",
+							"tab_plot_results_distribution_by_generation_method"
 						]
 					],
 					[
@@ -434,7 +438,9 @@
 							"tab_progressbar_log",
 							"tab_job_submit_durations",
 							"tab_job_generation_times",
-							"tab_logs"
+							"tab_logs",
+							"tab_main_worker_cpu_ram",
+							"tab_worker_cpu_ram_graphs"
 						]
 					]
 				]);

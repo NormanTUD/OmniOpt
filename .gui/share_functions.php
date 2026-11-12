@@ -1323,7 +1323,7 @@
 	}
 
 	function add_pareto_cloud_tab ($tabs) {
-		$html = '<div class="invert_in_dark_mode" id="plotParetoCloud"></div>';
+		$html = '<div class="invert_in_dark_mode" id="plotParetoCloud"></div><div class="invert_in_dark_mode" id="paretoCloudTable"></div>';
 
 		$svg_icon = get_icon_html("pareto.svg");
 

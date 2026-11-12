@@ -65,6 +65,12 @@ function plotParetoCloud() {
 
 	plotDiv.innerHTML = "";
 
+	var tableDiv = document.getElementById("paretoCloudTable");
+
+	if (tableDiv) {
+		tableDiv.innerHTML = "";
+	}
+
 	if (!Array.isArray(result_names) || result_names.length < 2) {
 		plotDiv.innerHTML = "<div class='caveat warning'>At least two result values are needed to plot a Pareto cloud.</div>";
 		return;
@@ -113,43 +119,37 @@ function plotParetoCloud() {
 			var yMinimize = String(result_min_max[j]).toLowerCase() === "min";
 			var frontFlags = paretoCloudFrontFlags(points, xMinimize, yMinimize);
 
-			var allPoints = points;
-			var frontPoints = [];
+			var frontPointCount = 0;
 
 			for (var p = 0; p < points.length; p++) {
 				if (frontFlags[p]) {
-					frontPoints.push(points[p]);
+					frontPointCount++;
 				}
 			}
 
-			var regularTrace = {
-				x: allPoints.map(function (point) { return point.x; }),
-				y: allPoints.map(function (point) { return point.y; }),
-				text: allPoints.map(function (point) { return paretoCloudHoverText(point, xName, yName, trialIndex, statusIndex); }),
+			var cloudTrace = {
+				x: points.map(function (point) { return point.x; }),
+				y: points.map(function (point) { return point.y; }),
+				text: points.map(function (point) { return paretoCloudHoverText(point, xName, yName, trialIndex, statusIndex); }),
 				hoverinfo: "text",
 				mode: "markers",
 				type: "scatter",
 				name: "All results",
+				showlegend: false,
 				marker: {
-					size: get_marker_size() * 1.5,
-					color: "rgba(31, 119, 180, 0.75)"
-				}
-			};
-
-			var frontTrace = {
-				x: frontPoints.map(function (point) { return point.x; }),
-				y: frontPoints.map(function (point) { return point.y; }),
-				text: frontPoints.map(function (point) { return paretoCloudHoverText(point, xName, yName, trialIndex, statusIndex); }),
-				hoverinfo: "text",
-				mode: "markers",
-				type: "scatter",
-				name: "Pareto front",
-				marker: {
-					size: get_marker_size() * 2.5,
-					color: "rgb(255, 127, 14)",
+					size: points.map(function (point, idx) {
+						return frontFlags[idx] ? get_marker_size() * 2.5 : get_marker_size() * 1.5;
+					}),
+					color: points.map(function (point, idx) {
+						return frontFlags[idx] ? "rgb(255, 127, 14)" : "rgba(31, 119, 180, 0.75)";
+					}),
 					line: {
-						width: 2,
-						color: "black"
+						width: points.map(function (point, idx) {
+							return frontFlags[idx] ? 2 : 0;
+						}),
+						color: points.map(function (point, idx) {
+							return frontFlags[idx] ? "black" : "rgba(31, 119, 180, 0.75)";
+						})
 					}
 				}
 			};
@@ -162,7 +162,7 @@ function plotParetoCloud() {
 			wrapper.appendChild(titleEl);
 
 			var infoEl = document.createElement("div");
-			infoEl.textContent = frontPoints.length + " of " + points.length + " points are on the Pareto front.";
+			infoEl.textContent = "Showing all " + points.length + " results; " + frontPointCount + " of them are on the Pareto front (bold).";
 			wrapper.appendChild(infoEl);
 
 			var plotElement = document.createElement("div");
@@ -176,11 +176,11 @@ function plotParetoCloud() {
 				yaxis: { title: get_axis_title_data(yName) },
 				margin: { t: 10, l: 60, r: 20, b: 50 },
 				hovermode: "closest",
-				showlegend: true,
+				showlegend: false,
 				height: 500
 			};
 
-			Plotly.newPlot(plotElement, [regularTrace, frontTrace], add_default_layout_data(layout, 1));
+			Plotly.newPlot(plotElement, [cloudTrace], add_default_layout_data(layout, 1));
 			rendered++;
 		}
 	}
@@ -192,7 +192,53 @@ function plotParetoCloud() {
 
 	$("#plotParetoCloud").data("loaded", "true");
 
+	renderParetoCloudTable();
+
 	if (typeof apply_theme_based_on_system_preferences === 'function') {
 		apply_theme_based_on_system_preferences();
 	}
+}
+
+function renderParetoCloudTable() {
+	var tableDiv = document.getElementById("paretoCloudTable");
+
+	if (!tableDiv) {
+		return;
+	}
+
+	tableDiv.innerHTML = "";
+
+	if (
+		typeof computeParetoIdxsFromTabResults !== "function" ||
+		typeof get_pareto_table_data_from_idx !== "function" ||
+		typeof createParetoTablesFromData !== "function"
+	) {
+		tableDiv.innerHTML = "<div class='caveat warning'>Pareto front table is not available.</div>";
+		return;
+	}
+
+	var computedParetoIdxs = computeParetoIdxsFromTabResults();
+
+	if (!computedParetoIdxs) {
+		tableDiv.innerHTML = "<div class='caveat warning'>Pareto front table could not be computed.</div>";
+		return;
+	}
+
+	window.pareto_idxs = computedParetoIdxs;
+
+	var tableData;
+
+	try {
+		tableData = get_pareto_table_data_from_idx();
+	} catch (e) {
+		console.error("Could not build Pareto front table data:", e);
+		tableDiv.innerHTML = "<div class='caveat warning'>Pareto front table could not be built.</div>";
+		return;
+	}
+
+	if (!tableData) {
+		return;
+	}
+
+	tableDiv.appendChild(createParetoTablesFromData(tableData));
 }

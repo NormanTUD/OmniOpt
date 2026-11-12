@@ -113,28 +113,26 @@ function plotParetoCloud() {
 			var yMinimize = String(result_min_max[j]).toLowerCase() === "min";
 			var frontFlags = paretoCloudFrontFlags(points, xMinimize, yMinimize);
 
-			var regularPoints = [];
+			var allPoints = points;
 			var frontPoints = [];
 
 			for (var p = 0; p < points.length; p++) {
 				if (frontFlags[p]) {
 					frontPoints.push(points[p]);
-				} else {
-					regularPoints.push(points[p]);
 				}
 			}
 
 			var regularTrace = {
-				x: regularPoints.map(function (point) { return point.x; }),
-				y: regularPoints.map(function (point) { return point.y; }),
-				text: regularPoints.map(function (point) { return paretoCloudHoverText(point, xName, yName, trialIndex, statusIndex); }),
+				x: allPoints.map(function (point) { return point.x; }),
+				y: allPoints.map(function (point) { return point.y; }),
+				text: allPoints.map(function (point) { return paretoCloudHoverText(point, xName, yName, trialIndex, statusIndex); }),
 				hoverinfo: "text",
 				mode: "markers",
 				type: "scatter",
-				name: "All points",
+				name: "All results",
 				marker: {
-					size: get_marker_size(),
-					color: "rgba(31, 119, 180, 0.55)"
+					size: get_marker_size() * 1.5,
+					color: "rgba(31, 119, 180, 0.75)"
 				}
 			};
 

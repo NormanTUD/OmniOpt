@@ -328,8 +328,8 @@ console.log("\n--- Testing: interpolation null / boundary cases ---");
 	var optionsDense = landscape.surfaceInterpolationOptions(dense, [], 56);
 	var optionsSparse = landscape.surfaceInterpolationOptions(sparse, [], 56);
 	expect("options: grid size is honoured", optionsDense.gridSize, 56);
-	expectFalse("options: failures do not cut holes", "failedPoints" in optionsDense || "failedRadiusCells" in optionsDense);
-	expectFalse("options: no data-gap masking", "maxGapCells" in optionsDense || "maxGapCells" in optionsSparse);
+	expect("options: sparse grid size is honoured", optionsSparse.gridSize, 56);
+	expect("options: no hole or gap keys remain", Object.keys(optionsDense).sort(), ["gridSize"]);
 
 	expect("3D: fewer than 4 points returns null", landscape.interpolate3D([
 		{ values: [0, 0, 0], loss: 1 },

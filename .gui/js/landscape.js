@@ -658,22 +658,9 @@
 		}
 	}
 
-	function interpolate2D(points, gridSize, options) {
+	function interpolate2D(points, gridSize) {
 		if (!Array.isArray(points) || points.length < 3) {
 			return null;
-		}
-
-		options = options || {};
-
-		var maxGapCells = options.maxGapCells;
-		if (maxGapCells === undefined) {
-			maxGapCells = Infinity;
-		}
-
-		var failedPoints = Array.isArray(options.failedPoints) ? options.failedPoints : [];
-		var failedRadiusCells = options.failedRadiusCells;
-		if (failedRadiusCells === undefined) {
-			failedRadiusCells = Math.max(1, Math.round((gridSize || DEFAULT_GRID_SIZE) * 0.03));
 		}
 
 		var extentX = computeExtent(points, 0);
@@ -723,18 +710,14 @@
 
 		var grid = new Float64Array(total);
 		var filled = new Uint8Array(total);
-		var distance = new Int32Array(total);
 		var queue = new Int32Array(total);
 		var head = 0;
 		var tail = 0;
 
 		for (var i = 0; i < total; i++) {
-			distance[i] = -1;
-
 			if (weightGrid[i] > 1e-12) {
 				grid[i] = weightedLoss[i] / weightGrid[i];
 				filled[i] = 1;
-				distance[i] = 0;
 				queue[tail++] = i;
 			}
 		}
@@ -760,49 +743,12 @@
 				if (neighbor >= 0 && !filled[neighbor]) {
 					filled[neighbor] = 1;
 					grid[neighbor] = grid[index2];
-					distance[neighbor] = distance[index2] + 1;
 					queue[tail++] = neighbor;
 				}
 			}
 		}
 
 		smoothGrid(grid, nx, ny, 2);
-
-		if (isFinite(maxGapCells)) {
-			for (var gapIndex = 0; gapIndex < total; gapIndex++) {
-				if (distance[gapIndex] > maxGapCells) {
-					grid[gapIndex] = NaN;
-				}
-			}
-		}
-
-		for (var failedIndex = 0; failedIndex < failedPoints.length; failedIndex++) {
-			var failedPoint = failedPoints[failedIndex];
-			var failedGridX = (failedPoint.values[0] - rangeX.min) / (rangeX.max - rangeX.min) * (nx - 1);
-			var failedGridY = (failedPoint.values[1] - rangeY.min) / (rangeY.max - rangeY.min) * (ny - 1);
-			var failedCenterX = Math.round(failedGridX);
-			var failedCenterY = Math.round(failedGridY);
-
-			for (var holeY = -failedRadiusCells; holeY <= failedRadiusCells; holeY++) {
-				var holeGridY = failedCenterY + holeY;
-
-				if (holeGridY < 0 || holeGridY >= ny) {
-					continue;
-				}
-
-				for (var holeX = -failedRadiusCells; holeX <= failedRadiusCells; holeX++) {
-					var holeGridX = failedCenterX + holeX;
-
-					if (holeGridX < 0 || holeGridX >= nx) {
-						continue;
-					}
-
-					if (holeX * holeX + holeY * holeY <= failedRadiusCells * failedRadiusCells) {
-						grid[holeGridY * nx + holeGridX] = NaN;
-					}
-				}
-			}
-		}
 
 		var xValues = new Array(nx);
 		var yValues = new Array(ny);
@@ -1309,21 +1255,9 @@
 
 	function surfaceInterpolationOptions(valid, failed, gridSize) {
 		gridSize = gridSize || DEFAULT_GRID_SIZE;
-		var extentX = computeExtent(valid, 0);
-		var extentY = computeExtent(valid, 1);
-		var rangeX = Math.max(1e-9, extentX.max - extentX.min);
-		var rangeY = Math.max(1e-9, extentY.max - extentY.min);
-		var area = rangeX * rangeY;
-		var spacing = Math.sqrt(area / Math.max(1, valid.length));
-		var cellSize = (rangeX / (gridSize - 1) + rangeY / (gridSize - 1)) / 2;
-		var maxGapCells = Math.max(3, Math.round((spacing / cellSize) * 1.1));
-		maxGapCells = Math.min(maxGapCells, Math.round(gridSize * 0.18));
 
 		return {
-			gridSize: gridSize,
-			maxGapCells: maxGapCells,
-			failedPoints: failed,
-			failedRadiusCells: Math.max(2, Math.round(maxGapCells * 0.45))
+			gridSize: gridSize
 		};
 	}
 
@@ -2251,7 +2185,7 @@
 			traces.push({
 				type: "scatter",
 				mode: "markers",
-				name: "Failed (hole)",
+				name: "Failed (no result)",
 				x: failedPoints.map(function (point) { return point.values[0]; }),
 				y: failedPoints.map(function (point) { return point.values[1]; }),
 				marker: {
@@ -2264,7 +2198,7 @@
 					}
 				},
 				customdata: failedPoints.map(function (point) { return point.trial; }),
-				hovertemplate: "failed trial %{customdata}<br>topological hole, no result value<extra></extra>",
+				hovertemplate: "failed trial %{customdata}<br>no result value<extra></extra>",
 				showlegend: true
 			});
 		}
@@ -2485,15 +2419,17 @@
 
 		if (context.showFailed && failed.length) {
 			var failedPoints = sampleEvenly(failed, MAX_MARKER_POINTS);
-			var holeBase = lossMin - (lossRange > 0 ? lossRange * 0.15 : 1);
 
 			traces.push({
 				type: "scatter3d",
 				mode: "markers",
-				name: "Failed (hole)",
+				name: "Failed (no result)",
 				x: failedPoints.map(function (point) { return point.values[0]; }),
 				y: failedPoints.map(function (point) { return point.values[1]; }),
-				z: failedPoints.map(function () { return holeBase; }),
+				z: failedPoints.map(function (point) {
+					var height = surfaceHeightAt(interpolation, point.values[0], point.values[1]);
+					return (height === null ? lossMin : height) + surfaceLineOffset;
+				}),
 				marker: {
 					symbol: "x",
 					color: colors.failed,
@@ -2504,7 +2440,7 @@
 					}
 				},
 				customdata: failedPoints.map(function (point) { return point.trial; }),
-				hovertemplate: "failed trial %{customdata}<br>topological hole, no result value<extra></extra>",
+				hovertemplate: "failed trial %{customdata}<br>no result value<extra></extra>",
 				showlegend: true
 			});
 		}
@@ -2883,7 +2819,7 @@
 				hintText += " Choose two parameters (X/Y) and one result; the remaining parameter is not plotted.";
 			}
 
-			hintText += " White gaps are regions without data; red X marks failed trials, which are cut out as holes.";
+			hintText += " The interpolated surface spans the full parameter range; red X marks failed trials that have no result.";
 		}
 
 		hint.textContent = hintText;

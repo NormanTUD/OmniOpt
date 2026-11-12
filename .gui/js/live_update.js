@@ -438,6 +438,12 @@
 			load_lazy_panel(activePanel);
 		}
 
+		var nestedTabs = activePanel.querySelector(".tabs");
+
+		if (nestedTabs && typeof initialize_tabs === "function") {
+			initialize_tabs();
+		}
+
 		debugDuration("load_lazy_panel", lazyStart);
 
 		var activeTabId = activeButton.getAttribute("aria-controls");

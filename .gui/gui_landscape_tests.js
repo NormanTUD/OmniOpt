@@ -184,7 +184,7 @@ console.log("\n--- Testing: 3D interpolation ---");
 	expectClose("3D: interpolates a linear field", mid, expected, 0.6);
 }
 
-console.log("\n--- Testing: surface holes and slice filtering ---");
+console.log("\n--- Testing: full surface and slice filtering ---");
 {
 	var points = [];
 
@@ -198,16 +198,11 @@ console.log("\n--- Testing: surface holes and slice filtering ---");
 		}
 	}
 
-	var failed = [{ values: [5, 5], loss: null, trial: 999 }];
-	var surface = landscape.interpolate2D(points, 40, {
-		maxGapCells: 4,
-		failedPoints: failed,
-		failedRadiusCells: 2
-	});
+	var surface = landscape.interpolate2D(points, 40);
 
-	expectTrue("holes: surface exists", !!surface);
-	expectTrue("holes: failed position has no height", landscape.surfaceHeightAt(surface, 5, 5) === null);
-	expectTrue("holes: valid position has a height", isFinite(landscape.surfaceHeightAt(surface, 2, 2)));
+	expectTrue("surface: exists", !!surface);
+	expectTrue("surface: failed positions keep a height", isFinite(landscape.surfaceHeightAt(surface, 5, 5)));
+	expectTrue("surface: valid position has a height", isFinite(landscape.surfaceHeightAt(surface, 2, 2)));
 
 	var sliced = landscape.filterDataBySlice({
 		valid: [
@@ -309,7 +304,7 @@ console.log("\n--- Testing: interpolation null / boundary cases ---");
 		{ values: [5, 5], loss: 2 },
 		{ values: [10, 0], loss: 3 }
 	];
-	var sparseSurface = landscape.interpolate2D(sparse, 20, { maxGapCells: 0 });
+	var sparseSurface = landscape.interpolate2D(sparse, 20);
 	var sparseHasNaN = false;
 	for (var sy = 0; sy < sparseSurface.z.length; sy++) {
 		for (var sx = 0; sx < sparseSurface.z[sy].length; sx++) {
@@ -318,7 +313,7 @@ console.log("\n--- Testing: interpolation null / boundary cases ---");
 			}
 		}
 	}
-	expectTrue("2D: coverage mask leaves holes", sparseHasNaN);
+	expectFalse("2D: surface covers the whole extent", sparseHasNaN);
 
 	var dense = [];
 	for (var dx = 0; dx <= 10; dx += 0.5) {
@@ -333,8 +328,8 @@ console.log("\n--- Testing: interpolation null / boundary cases ---");
 	var optionsDense = landscape.surfaceInterpolationOptions(dense, [], 56);
 	var optionsSparse = landscape.surfaceInterpolationOptions(sparse, [], 56);
 	expect("options: grid size is honoured", optionsDense.gridSize, 56);
-	expectTrue("options: failed radius is finite", optionsDense.failedRadiusCells >= 2);
-	expectTrue("options: sparse data allows larger gaps", optionsSparse.maxGapCells >= optionsDense.maxGapCells);
+	expectFalse("options: failures do not cut holes", "failedPoints" in optionsDense || "failedRadiusCells" in optionsDense);
+	expectFalse("options: no data-gap masking", "maxGapCells" in optionsDense || "maxGapCells" in optionsSparse);
 
 	expect("3D: fewer than 4 points returns null", landscape.interpolate3D([
 		{ values: [0, 0, 0], loss: 1 },

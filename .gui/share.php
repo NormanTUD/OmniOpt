@@ -393,6 +393,7 @@
 				$warnings[] = "No successful or failed jobs found, cannot show plot for exit-codes";
 			}
 
+			$tabs = add_debug_exit_codes_tab($tabs);
 
 				[$tabs, $warnings] = get_outfiles_tab_from_run_dir($run_dir, $tabs, $warnings, $result_names);
 
@@ -403,6 +404,40 @@
 				}
 
 				[$tabs, $warnings] = get_export_tab($tabs, $warnings, $run_dir, $run_nr);
+
+				$tabs = group_share_tabs($tabs, [
+					[
+						"id" => "tab_additional_plots",
+						"label" => "Additional plots",
+						"icon" => "plot.svg",
+						"ids" => [
+							"tab_boxplots",
+							"tab_violin",
+							"tab_histogram",
+							"tab_heatmap",
+							"tab_kde_histogram",
+							"tab_stacked_histogram",
+							"tab_exit_codes_plot"
+						]
+					],
+					[
+						"id" => "tab_debug",
+						"label" => "Debug",
+						"icon" => "debug.svg",
+						"ids" => [
+							"tab_debug_logs",
+							"tab_errors",
+							"tab_args_overview",
+							"tab_debug_exit_codes",
+							"tab_main_log",
+							"tab_verbose_log",
+							"tab_progressbar_log",
+							"tab_job_submit_durations",
+							"tab_job_generation_times",
+							"tab_logs"
+						]
+					]
+				]);
 
 				if(!count($tabs) && $run_dir != "" && count($errors) && $run_nr != "") {
 					$errors[] = "Cannot plot any data in <tt>".htmlentities($run_dir)."</tt>";
@@ -592,10 +627,26 @@
 
 			try {
 				const hash = window.location.hash.substring(1);
+
+				function openTabButton($button) {
+					const $panel = $button.closest('[role="tabpanel"]');
+
+					if ($panel.length) {
+						const panelId = $panel.attr('id');
+						const $parentButton = $('.share_nav_button[aria-controls="' + panelId + '"]').not($button).first();
+
+						if ($parentButton.length) {
+							openTabButton($parentButton);
+						}
+					}
+
+					$button.trigger('click');
+				}
+
 				if (hash) {
 					const $button = $('.share_nav_button[aria-controls="' + hash + '"]');
 					if ($button.length) {
-						$button.trigger('click');
+						openTabButton($button);
 					}
 				}
 			} catch (error) {

@@ -1434,6 +1434,160 @@
 		return $tabs;
 	}
 
+	function build_nested_tabs_html($child_names, $tabs, $aria_label) {
+		$html = '<section class="tabs" style="width: 100%">';
+		$html .= '<menu role="tablist" aria-label="' . my_htmlentities($aria_label) . '">';
+
+		$first = true;
+
+		foreach ($child_names as $name) {
+			$data = $tabs[$name];
+			$onclick = isset($data["onclick"]) ? " onclick='" . $data["onclick"] . "'" : "";
+			$selected = $first ? ' aria-selected="true"' : '';
+			$tab_id = $data["id"];
+
+			$html .= "<button class='share_nav_button' role='tab'$onclick aria-controls='$tab_id'$selected>$name</button>";
+
+			$first = false;
+		}
+
+		$html .= '</menu>';
+
+		foreach ($child_names as $name) {
+			$data = $tabs[$name];
+			$content = $data["content"] ?? "";
+
+			$html .= '<article role="tabpanel" id="' . $data["id"] . '" data-share-content-hash="' . hash("sha256", $content) . '" hidden>' . $content . '</article>';
+		}
+
+		$html .= '</section>';
+
+		return $html;
+	}
+
+	function group_share_tabs($tabs, $groups) {
+		$name_by_id = [];
+
+		foreach ($tabs as $name => $data) {
+			if (isset($data["id"])) {
+				$name_by_id[$data["id"]] = $name;
+			}
+		}
+
+		$replacements = [];
+		$consumed = [];
+
+		foreach ($groups as $group) {
+			if (!isset($group["id"], $group["label"], $group["ids"])) {
+				continue;
+			}
+
+			$child_names = [];
+
+			foreach ($group["ids"] as $child_id) {
+				$child_name = $name_by_id[$child_id] ?? null;
+
+				if ($child_name !== null && isset($tabs[$child_name])) {
+					$child_names[] = $child_name;
+				}
+			}
+
+			if (!count($child_names)) {
+				continue;
+			}
+
+			$group_key = (isset($group["icon"]) ? get_icon_html($group["icon"]) : "") . $group["label"];
+
+			$replacements[$child_names[0]] = [
+				"key" => $group_key,
+				"data" => [
+					"id" => $group["id"],
+					"content" => build_nested_tabs_html($child_names, $tabs, $group["label"])
+				]
+			];
+
+			foreach ($child_names as $child_name) {
+				$consumed[$child_name] = true;
+			}
+		}
+
+		$grouped = [];
+
+		foreach ($tabs as $name => $data) {
+			if (isset($replacements[$name])) {
+				$replacement = $replacements[$name];
+				$grouped[$replacement["key"]] = $replacement["data"];
+				continue;
+			}
+
+			if (isset($consumed[$name])) {
+				continue;
+			}
+
+			$grouped[$name] = $data;
+		}
+
+		return $grouped;
+	}
+
+	function add_debug_exit_codes_tab($tabs) {
+		if (!isset($GLOBALS["json_data"]["tab_results_headers_json"], $GLOBALS["json_data"]["tab_results_csv_json"])) {
+			return $tabs;
+		}
+
+		$headers = $GLOBALS["json_data"]["tab_results_headers_json"];
+		$exit_code_index = array_search("exit_code", $headers, true);
+
+		if ($exit_code_index === false) {
+			return $tabs;
+		}
+
+		$counts = [];
+
+		foreach ($GLOBALS["json_data"]["tab_results_csv_json"] as $row) {
+			$exit_code = trim((string)($row[$exit_code_index] ?? ""));
+
+			if ($exit_code === "") {
+				$exit_code = "None";
+			}
+
+			$counts[$exit_code] = ($counts[$exit_code] ?? 0) + 1;
+		}
+
+		if (!count($counts)) {
+			return $tabs;
+		}
+
+		uksort($counts, function ($left, $right) {
+			$left_num = is_numeric($left);
+			$right_num = is_numeric($right);
+
+			if ($left_num && $right_num) {
+				return (float)$left <=> (float)$right;
+			}
+
+			return strcmp($left, $right);
+		});
+
+		$html = "<h2>Exit Codes</h2>";
+		$html .= "<table><thead class='invert_in_dark_mode'><tr><th>Exit Code</th><th>Count</th></tr></thead><tbody>";
+
+		foreach ($counts as $exit_code => $count) {
+			$html .= "<tr><td>" . my_htmlentities((string)$exit_code) . "</td><td>" . $count . "</td></tr>";
+		}
+
+		$html .= "</tbody></table>";
+
+		$svg_icon = get_icon_html("terminal.svg");
+
+		$tabs["{$svg_icon}Exit-Codes"] = [
+			'id' => 'tab_debug_exit_codes',
+			'content' => $html
+		];
+
+		return $tabs;
+	}
+
 	function add_job_info_charts_tab($tabs, $warnings, $run_dir) {
 		$job_infos_file = "$run_dir/job_infos.csv";
 

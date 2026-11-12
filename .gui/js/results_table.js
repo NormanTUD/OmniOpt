@@ -425,18 +425,6 @@ function createResultsTable(data, headers, table_name) {
 		}
 	}
 
-	function columnIsEmpty(columnIndex) {
-		for (var r = 0; r < data.length; r++) {
-			var value = data[r][columnIndex];
-
-			if (value !== null && value !== undefined && String(value).trim() !== "") {
-				return false;
-			}
-		}
-
-		return true;
-	}
-
 	var columnKinds = _resultsColumnKinds(data, headers);
 	var colorize = _resultsBuildColorizer(data, headers);
 	var resultNames = typeof result_names !== "undefined" && Array.isArray(result_names) ? result_names : [];
@@ -473,7 +461,7 @@ function createResultsTable(data, headers, table_name) {
 		}
 	} else {
 		for (var ec = 0; ec < headers.length; ec++) {
-			if (!_resultsIsInterestingColumn(headers[ec], resultNames, technicalLookup) && columnIsEmpty(ec)) {
+			if (!_resultsIsInterestingColumn(headers[ec], resultNames, technicalLookup)) {
 				state.hiddenColumns[ec] = true;
 			}
 		}

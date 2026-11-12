@@ -240,5 +240,21 @@ function renderParetoCloudTable() {
 		return;
 	}
 
+	if (Array.isArray(result_names)) {
+		var uniqueTableData = {};
+
+		for (var i = 0; i < result_names.length; i++) {
+			for (var j = i + 1; j < result_names.length; j++) {
+				var tableKey = "Pareto front for " + result_names[i] + "/" + result_names[j];
+
+				if (tableData.hasOwnProperty(tableKey)) {
+					uniqueTableData[tableKey] = tableData[tableKey];
+				}
+			}
+		}
+
+		tableData = uniqueTableData;
+	}
+
 	tableDiv.appendChild(createParetoTablesFromData(tableData));
 }

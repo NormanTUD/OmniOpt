@@ -306,6 +306,7 @@
 			<?php js("js/result_distribution_generation_method.js"); ?>
 			<?php js("js/plot_parameter_distribution_by_status.js"); ?>
 			<?php js("js/pareto_from_idxs.js"); ?>
+			<?php js("js/pareto_cloud.js"); ?>
 			<?php js("js/results_table.js"); ?>
 			<?php js("js/results_analysis.js"); ?>
 			<?php js("js/live_update.js"); ?>

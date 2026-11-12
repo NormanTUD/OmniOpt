@@ -337,6 +337,7 @@
 
 					if (count($result_names) > 1) {
 						$tabs = add_plot_result_pairs($tabs);
+						$tabs = add_pareto_cloud_tab($tabs);
 					} else {
 						$warnings[] = "Not enough result-names for result-pairs";
 					}
@@ -419,6 +420,7 @@
 							"tab_kde_histogram",
 							"tab_stacked_histogram",
 							"tab_exit_codes_plot",
+							"tab_pareto_cloud",
 							"tab_job_info_charts",
 							"tab_plot_job_status_distribution",
 							"tab_plot_results_distribution_by_generation_method"
@@ -444,6 +446,51 @@
 						]
 					]
 				]);
+
+				$tabs_to_move_to_end = ["tab_additional_plots", "tab_debug"];
+				$tabs_moved_to_end = [];
+				$tabs_remaining = [];
+
+				foreach ($tabs as $tab_name => $tab_data) {
+					$tab_id = $tab_data["id"] ?? "";
+
+					if (in_array($tab_id, $tabs_to_move_to_end, true)) {
+						$tabs_moved_to_end[$tab_id] = [$tab_name, $tab_data];
+					} else {
+						$tabs_remaining[$tab_name] = $tab_data;
+					}
+				}
+
+				if (count($tabs_moved_to_end)) {
+					$tabs_reordered = [];
+					$tabs_moved_to_end_inserted = false;
+
+					foreach ($tabs_remaining as $tab_name => $tab_data) {
+						if (($tab_data["id"] ?? "") === "tab_export" && !$tabs_moved_to_end_inserted) {
+							foreach ($tabs_to_move_to_end as $tab_id) {
+								if (isset($tabs_moved_to_end[$tab_id])) {
+									[$moved_name, $moved_data] = $tabs_moved_to_end[$tab_id];
+									$tabs_reordered[$moved_name] = $moved_data;
+								}
+							}
+
+							$tabs_moved_to_end_inserted = true;
+						}
+
+						$tabs_reordered[$tab_name] = $tab_data;
+					}
+
+					if (!$tabs_moved_to_end_inserted) {
+						foreach ($tabs_to_move_to_end as $tab_id) {
+							if (isset($tabs_moved_to_end[$tab_id])) {
+								[$moved_name, $moved_data] = $tabs_moved_to_end[$tab_id];
+								$tabs_reordered[$moved_name] = $moved_data;
+							}
+						}
+					}
+
+					$tabs = $tabs_reordered;
+				}
 
 				if(!count($tabs) && $run_dir != "" && count($errors) && $run_nr != "") {
 					$errors[] = "Cannot plot any data in <tt>".htmlentities($run_dir)."</tt>";

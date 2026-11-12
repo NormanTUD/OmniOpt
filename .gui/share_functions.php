@@ -1322,6 +1322,20 @@
 		return $tabs;
 	}
 
+	function add_pareto_cloud_tab ($tabs) {
+		$html = '<div class="invert_in_dark_mode" id="plotParetoCloud"></div>';
+
+		$svg_icon = get_icon_html("pareto.svg");
+
+		$tabs["{$svg_icon}Pareto-Cloud"] = [
+			'id' => 'tab_pareto_cloud',
+			'content' => $html,
+			"onclick" => "plotParetoCloud();"
+		];
+
+		return $tabs;
+	}
+
 	function add_histogram_plot ($tabs) {
 		$html = '<div class="invert_in_dark_mode" id="plotHistogram"></div>';
 

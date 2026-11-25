@@ -1,0 +1,89 @@
+{
+  "detector": "SPLL",
+  "dataset": "PokerHand",
+  "model": "HoeffdingTreeClassifier",
+  "metric_code": "ACC_RT",
+  "source_html": "SPLL_PokerHand_HoeffdingTreeClassifier_ACCURACY-RUNTIME.html",
+  "overview": {
+    "title": "Experiment overview",
+    "columns": [
+      "Setting",
+      "Value"
+    ],
+    "rows": [
+      [
+        "Max. nr. evaluations",
+        "50452"
+      ],
+      [
+        "Max. nr. evaluations (from arguments)",
+        "50000"
+      ],
+      [
+        "Number random steps",
+        "20"
+      ],
+      [
+        "Nr. of workers (parameter)",
+        "20"
+      ],
+      [
+        "Main process memory (GB)",
+        "8"
+      ],
+      [
+        "Worker memory (GB)",
+        "16"
+      ],
+      [
+        "Nr. imported jobs",
+        "452"
+      ]
+    ]
+  },
+  "parameters": {
+    "title": "Experiment parameters",
+    "columns": [
+      "Name",
+      "Type",
+      "Lower bound",
+      "Upper bound",
+      "Type",
+      "Log Scale?"
+    ],
+    "rows": [
+      [
+        "recent_samples_size",
+        "int",
+        "1",
+        "5000",
+        "int",
+        "No"
+      ],
+      [
+        "n_samples",
+        "int",
+        "1",
+        "5000",
+        "int",
+        "No"
+      ],
+      [
+        "n_clusters",
+        "int",
+        "1",
+        "10",
+        "int",
+        "No"
+      ],
+      [
+        "threshold",
+        "float",
+        "0.001",
+        "0.999",
+        "float",
+        "No"
+      ]
+    ]
+  }
+}

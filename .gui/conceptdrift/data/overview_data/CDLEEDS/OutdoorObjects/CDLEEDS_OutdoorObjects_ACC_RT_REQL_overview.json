@@ -1,0 +1,112 @@
+{
+  "detector": "CDLEEDS",
+  "dataset": "OutdoorObjects",
+  "model": "HoeffdingTreeClassifier",
+  "metric_code": "ACC_RT_REQL",
+  "source_html": "CDLEEDS_OutdoorObjects_HoeffdingTreeClassifier_ACCURACY-RUNTIME-REQLABELS.html",
+  "overview": {
+    "title": "Experiment overview",
+    "columns": [
+      "Setting",
+      "Value"
+    ],
+    "rows": [
+      [
+        "Model for non-random steps",
+        "SOBOL"
+      ],
+      [
+        "Max. nr. evaluations (from arguments)",
+        "50000"
+      ],
+      [
+        "Number random steps",
+        "50000"
+      ],
+      [
+        "Number random steps (from arguments)",
+        "20"
+      ],
+      [
+        "Nr. of workers (parameter)",
+        "50"
+      ],
+      [
+        "Main process memory (GB)",
+        "8"
+      ],
+      [
+        "Worker memory (GB)",
+        "64"
+      ]
+    ]
+  },
+  "parameters": {
+    "title": "Experiment parameters",
+    "columns": [
+      "Name",
+      "Type",
+      "Lower bound",
+      "Upper bound",
+      "Values",
+      "Type",
+      "Log Scale?"
+    ],
+    "rows": [
+      [
+        "recent_samples_size",
+        "int",
+        "1",
+        "5000",
+        "",
+        "int",
+        "No"
+      ],
+      [
+        "significance",
+        "float",
+        "0.001",
+        "0.999",
+        "",
+        "float",
+        "No"
+      ],
+      [
+        "gamma",
+        "float",
+        "0.001",
+        "0.999",
+        "",
+        "float",
+        "No"
+      ],
+      [
+        "max_node_size",
+        "int",
+        "1",
+        "5000",
+        "",
+        "int",
+        "No"
+      ],
+      [
+        "max_tree_depth",
+        "int",
+        "1",
+        "5000",
+        "",
+        "int",
+        "No"
+      ],
+      [
+        "max_time_stationary",
+        "int",
+        "1",
+        "5000",
+        "",
+        "int",
+        "No"
+      ]
+    ]
+  }
+}

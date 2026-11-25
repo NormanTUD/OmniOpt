@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Interactive Plotly Image Stack</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src='https://cdn.jsdelivr.net/npm/plotly.js-dist@3.0.1/plotly.min.js'></script>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+    }
+    #plot {
+      height: 100vh;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div id="plot"></div>
+
+  <script>
+    // Image paths relative to the current directory (ensemble/)
+    const imagePaths = [
+      'single_predictions/HDDDM_GasSensor_11910.png',
+      'single_predictions/IBDD_PokerHand_827201.png',
+      'single_predictions/D3_Electricity_43312.png',
+      'single_predictions/CDBD_SensorStream_2217803.png',
+      'single_predictions/DAWIDD_PokerHand_827201.png',
+      'single_predictions/IBDD_SensorStream_2217803.png',
+      'single_predictions/STUDD_ForestCovertype_579012.png',
+      'single_predictions/STUDD_Ozone_534.png',
+      'single_predictions/EDFS_NOAAWeather_16159.png',
+      'single_predictions/UCDD_Electricity_43312.png',
+      'single_predictions/WindowKDE_NOAAWeather_16159.png',
+      'single_predictions/CSDDM_PokerHand_827201.png',
+      'single_predictions/DDAL_Electricity_43312.png',
+      'single_predictions/EDFS_OutdoorObjects_2000.png',
+      'single_predictions/IKS_NOAAWeather_16159.png',
+      'single_predictions/PCACD_ForestCovertype_579012.png',
+      'single_predictions/CSDDM_Electricity_43312.png',
+      'single_predictions/IKS_Ozone_534.png',
+      'single_predictions/HDDDM_OutdoorObjects_2000.png',
+      'single_predictions/DAWIDD_RialtoBridgeTimelapse_80250.png',
+      'single_predictions/SPLL_NOAAWeather_16159.png',
+      'single_predictions/SPLL_OutdoorObjects_2000.png',
+      'single_predictions/BNDM_Electricity_43312.png',
+      'single_predictions/HDDDM_NOAAWeather_16159.png',
+      'single_predictions/BNDM_RialtoBridgeTimelapse_80250.png',
+      'single_predictions/DAWIDD_Electricity_43312.png',
+      'single_predictions/UCDD_Ozone_534.png',
+      'single_predictions/IBDD_GasSensor_11910.png',
+      'single_predictions/WindowKDE_Electricity_43312.png',
+      'single_predictions/NNDVI_NOAAWeather_16159.png',
+      'single_predictions/BNDM_NOAAWeather_16159.png',
+      'single_predictions/CSDDM_ForestCovertype_579012.png',
+      'single_predictions/IKS_OutdoorObjects_2000.png',
+      'single_predictions/OCDD_RialtoBridgeTimelapse_80250.png',
+      'single_predictions/EDFS_Electricity_43312.png',
+      'single_predictions/UCDD_NOAAWeather_16159.png',
+      'single_predictions/CDLEEDS_OutdoorObjects_2000.png',
+      'single_predictions/NNDVI_Electricity_43312.png',
+      'single_predictions/D3_ForestCovertype_579012.png',
+      'single_predictions/IKS_RialtoBridgeTimelapse_80250.png',
+      'single_predictions/OCDD_PokerHand_827201.png',
+      'single_predictions/SPLL_SensorStream_2217803.png',
+      'single_predictions/SPLL_Ozone_534.png',
+      'single_predictions/DAWIDD_SensorStream_2217803.png',
+      'single_predictions/HDDDM_SensorStream_2217803.png',
+      'single_predictions/DDAL_OutdoorObjects_2000.png',
+      'single_predictions/WindowKDE_OutdoorObjects_2000.png',
+      'single_predictions/IBDD_Ozone_534.png',
+      'single_predictions/CDBD_RialtoBridgeTimelapse_80250.png',
+      'single_predictions/UDetect_OutdoorObjects_2000.png',
+      'single_predictions/DAWIDD_Ozone_534.png',
+      'single_predictions/SPLL_Electricity_43312.png',
+      'single_predictions/STUDD_RialtoBridgeTimelapse_80250.png',
+      'single_predictions/CDBD_OutdoorObjects_2000.png',
+      'single_predictions/UDetect_RialtoBridgeTimelapse_80250.png',
+      'single_predictions/CDBD_Ozone_534.png',
+      'single_predictions/HDDDM_Ozone_534.png',
+      'single_predictions/CSDDM_RialtoBridgeTimelapse_80250.png',
+      'single_predictions/BNDM_OutdoorObjects_2000.png',
+      'single_predictions/CDBD_ForestCovertype_579012.png',
+      'single_predictions/NNDVI_Ozone_534.png',
+      'single_predictions/EDFS_GasSensor_11910.png',
+      'single_predictions/STUDD_GasSensor_11910.png',
+      'single_predictions/HDDDM_ForestCovertype_579012.png',
+      'single_predictions/UDetect_GasSensor_11910.png',
+      'single_predictions/BNDM_GasSensor_11910.png',
+      'single_predictions/STUDD_NOAAWeather_16159.png',
+      'single_predictions/UDetect_Electricity_43312.png',
+      'single_predictions/STUDD_PokerHand_827201.png',
+      'single_predictions/WindowKDE_PokerHand_827201.png',
+      'single_predictions/IKS_GasSensor_11910.png',
+      'single_predictions/EDFS_RialtoBridgeTimelapse_80250.png',
+      'single_predictions/SlidShaps_NOAAWeather_16159.png',
+      'single_predictions/OCDD_Ozone_534.png',
+      'single_predictions/DAWIDD_NOAAWeather_16159.png',
+      'single_predictions/WindowKDE_ForestCovertype_579012.png',
+      'single_predictions/CDLEEDS_Electricity_43312.png',
+      'single_predictions/CDLEEDS_Ozone_534.png',
+      'single_predictions/OCDD_OutdoorObjects_2000.png',
+      'single_predictions/BNDM_ForestCovertype_579012.png',
+      'single_predictions/SPLL_GasSensor_11910.png',
+      'single_predictions/CSDDM_SensorStream_2217803.png',
+      'single_predictions/SlidShaps_PokerHand_827201.png',
+      'single_predictions/UCDD_OutdoorObjects_2000.png',
+      'single_predictions/D3_GasSensor_11910.png',
+      'single_predictions/D3_NOAAWeather_16159.png',
+      'single_predictions/IBDD_Electricity_43312.png',
+      'single_predictions/PCACD_Electricity_43312.png',
+      'single_predictions/UCDD_GasSensor_11910.png',
+      'single_predictions/STUDD_Electricity_43312.png',
+      'single_predictions/DDAL_RialtoBridgeTimelapse_80250.png',
+      'single_predictions/EDFS_ForestCovertype_579012.png',
+      'single_predictions/DAWIDD_GasSensor_11910.png',
+      'single_predictions/IKS_Electricity_43312.png',
+      'single_predictions/IBDD_ForestCovertype_579012.png',
+      'single_predictions/OCDD_Electricity_43312.png',
+      'single_predictions/CDLEEDS_NOAAWeather_16159.png',
+      'single_predictions/NNDVI_RialtoBridgeTimelapse_80250.png',
+      'single_predictions/IBDD_RialtoBridgeTimelapse_80250.png',
+      'single_predictions/CDBD_Electricity_43312.png',
+      'single_predictions/DDAL_GasSensor_11910.png',
+      'single_predictions/IBDD_OutdoorObjects_2000.png',
+      'single_predictions/BNDM_Ozone_534.png',
+      'single_predictions/PCACD_SensorStream_2217803.png',
+      'single_predictions/CSDDM_Ozone_534.png',
+      'single_predictions/D3_OutdoorObjects_2000.png',
+      'single_predictions/SPLL_ForestCovertype_579012.png',
+      'single_predictions/HDDDM_PokerHand_827201.png',
+      'single_predictions/DDAL_PokerHand_827201.png',
+      'single_predictions/UDetect_ForestCovertype_579012.png',
+      'single_predictions/DDAL_ForestCovertype_579012.png',
+      'single_predictions/NNDVI_OutdoorObjects_2000.png',
+      'single_predictions/UDetect_Ozone_534.png',
+      'single_predictions/EDFS_SensorStream_2217803.png',
+      'single_predictions/DDAL_Ozone_534.png',
+      'single_predictions/CSDDM_OutdoorObjects_2000.png',
+      'single_predictions/DAWIDD_ForestCovertype_579012.png',
+      'single_predictions/OCDD_SensorStream_2217803.png',
+      'single_predictions/CDBD_PokerHand_827201.png',
+      'single_predictions/CSDDM_GasSensor_11910.png',
+      'single_predictions/SPLL_PokerHand_827201.png',
+      'single_predictions/OCDD_ForestCovertype_579012.png',
+      'single_predictions/CDBD_GasSensor_11910.png',
+      'single_predictions/D3_SensorStream_2217803.png',
+      // Missing images added below
+      'single_predictions/BNDM_PokerHand_827201.png',
+      'single_predictions/BNDM_SensorStream_2217803.png',
+      'single_predictions/CDBD_NOAAWeather_16159.png',
+      'single_predictions/CDLEEDS_RialtoBridgeTimelapse_80250.png',
+      'single_predictions/CSDDM_NOAAWeather_16159.png',
+      'single_predictions/D3_Ozone_534.png',
+      'single_predictions/D3_PokerHand_827201.png',
+      'single_predictions/D3_RialtoBridgeTimelapse_80250.png',
+      'single_predictions/DAWIDD_OutdoorObjects_2000.png',
+      'single_predictions/DDAL_NOAAWeather_16159.png',
+      'single_predictions/DDAL_SensorStream_2217803.png',
+      'single_predictions/EDFS_Ozone_534.png',
+      'single_predictions/EDFS_PokerHand_827201.png',
+      'single_predictions/HDDDM_Electricity_43312.png',
+      'single_predictions/IBDD_NOAAWeather_16159.png',
+      'single_predictions/IKS_ForestCovertype_579012.png',
+      'single_predictions/IKS_SensorStream_2217803.png',
+      'single_predictions/OCDD_GasSensor_11910.png',
+      'single_predictions/OCDD_NOAAWeather_16159.png',
+      'single_predictions/PCACD_OutdoorObjects_2000.png',
+      'single_predictions/SlidShaps_Electricity_43312.png',
+      'single_predictions/SPLL_RialtoBridgeTimelapse_80250.png',
+      'single_predictions/STUDD_OutdoorObjects_2000.png',
+      'single_predictions/STUDD_SensorStream_2217803.png',
+      'single_predictions/UDetect_NOAAWeather_16159.png',
+      'single_predictions/UDetect_PokerHand_827201.png',
+      'single_predictions/UDetect_SensorStream_2217803.png',
+      'single_predictions/WindowKDE_RialtoBridgeTimelapse_80250.png'
+    ];
+    
+    // Remove duplicates by creating a Set and converting back to array
+    const uniqueImagePaths = [...new Set(imagePaths)];
+
+    // Get dataset from URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    var target_dataset = urlParams.get('dataset');
+    
+    if (!target_dataset) {
+      document.body.innerHTML = '<div style="padding: 20px; font-family: Arial, sans-serif;"><h2>Error: No dataset specified</h2><p>Please select a dataset from the main page.</p></div>';
+      throw new Error('No dataset specified in URL parameters');
+    }
+    
+    var dataset_dd_images = new Map();
+    var tickyvalues=new Map();
+    var tickxvalues=new Map();
+    var tickys = new Map();
+    // set a tick at the following values for x axis
+    //let tickxs = []
+    var tickxs = [0,0.25,0.5,0.75,1]
+    var y_height = 1.5;
+    var n_y_ticks;
+    // Process only unique image paths
+    console.log('Total unique image paths:', uniqueImagePaths.length);
+    for (var i = 0; i < uniqueImagePaths.length; i++) {
+      const imagePath = uniqueImagePaths[i];
+      // Extract filename from path (handles both / and \ as separators)
+      const filename = imagePath.split(/[\\/]/).pop();
+      // Split filename by underscore and extract components
+      const parts = filename.split('_');
+      dataset = parts[1];  // e.g., 'GasSensor' from 'HDDDM_GasSensor_11910.png'
+      dataset_len = parts[2].split('.')[0];  // e.g., '11910' from '11910.png'
+      dd = parts[0];  // e.g., 'HDDDM'
+
+      // Debug logging
+      if (i < 5) {
+        console.log(`Processing image ${i}: ${filename}, dataset: ${dataset}, dd: ${dd}`);
+      }
+
+      // Create a full path relative to the current page's location
+      const fullImagePath = new URL(imagePath, window.location.href).href;
+      
+      if (dataset_dd_images.has(dataset)) {
+        dataset_dd_images.get(dataset).push(fullImagePath);
+      } else {
+        dataset_dd_images.set(dataset, [fullImagePath]);
+      }
+
+      if (tickyvalues.has(dataset)) {
+        const currentIndex = tickyvalues.get(dataset).length;
+        tickyvalues.get(dataset).push(dd);
+        tickys.get(dataset).push(currentIndex * y_height);
+      } else {
+        tickyvalues.set(dataset, [dd]);
+        tickys.set(dataset, [0]);
+      }
+      /*
+      if (tickxvalues.has(dataset) === false) {
+        let tmp_ticks_list = []
+      for (let j = 0; j < dataset_len; j+=1000) {
+        tickxs.push(j/dataset_len)
+        tmp_ticks_list.push(j)
+        }
+        tickxvalues.set(dataset, tmp_ticks_list);
+      }
+      */
+
+
+      if (tickxvalues.has(dataset) === false) {
+        tickxvalues.set(dataset, [0, 0.25 * dataset_len, 0.5 * dataset_len, 0.75 * dataset_len, dataset_len]);
+      }
+    }
+
+    // Debug: Log all datasets found and their image counts
+    console.log('All datasets found:', Array.from(dataset_dd_images.keys()));
+    console.log('Target dataset:', target_dataset);
+    for (let [key, value] of dataset_dd_images) {
+      console.log(`Dataset ${key}: ${value.length} images`);
+    }
+    
+    // Check if we have any images for the target dataset
+    if (!dataset_dd_images.has(target_dataset) || dataset_dd_images.get(target_dataset).length === 0) {
+      document.body.innerHTML = `
+        <div style="padding: 20px; font-family: Arial, sans-serif;">
+          <h2>No visualizations available for dataset: ${target_dataset}</h2>
+          <p>There are no visualizations available for the selected dataset.</p>
+          <p>Available datasets: ${Array.from(dataset_dd_images.keys()).join(', ')}</p>
+        </div>
+      `;
+      throw new Error(`No visualizations available for dataset: ${target_dataset}`);
+    }
+    
+    console.log(`Found ${dataset_dd_images.get(target_dataset).length} images for dataset: ${target_dataset}`);
+    
+    // Debug: Log the tick values and DD names for the target dataset
+    console.log('Y-tick values for target dataset:', tickys.get(target_dataset));
+    console.log('Y-tick labels (DD names) for target dataset:', tickyvalues.get(target_dataset));
+    console.log('Unique DD names:', [...new Set(tickyvalues.get(target_dataset))]);
+    console.log('Image paths for target dataset:', dataset_dd_images.get(target_dataset));
+    
+    // One image per Y "band" — assume one unit per image height
+    var layout = {
+      width: 1200,
+      height: 50*dataset_dd_images.get(target_dataset).length,
+      margin: { l: 120, r: 50, t: 50, b: 50 },
+      xaxis: {
+        range: [0, 1],
+        maxallowed: 1,
+        minallowed:0,
+        showgrid: false,
+        zeroline: false,
+        tickvals: tickxs,
+        ticktext: tickxvalues.get(target_dataset),
+      },
+      yaxis: {
+        range: [-1, (dataset_dd_images.get(target_dataset).length - 1) * y_height + y_height + 2],
+        fixedrange: true,
+        showgrid: false,
+        zeroline: false,
+        tickvals: tickys.get(target_dataset),
+        ticktext: tickyvalues.get(target_dataset),
+      },
+      images: dataset_dd_images.get(target_dataset).map((path, i) => {
+        const filename = path.split('/').pop();
+        const dd_name = filename.split('_')[0];
+        console.log(`Image ${i}: ${dd_name} at Y position ${y_height*i}, path: ${filename}`);
+        return {
+          source: path,
+          x: 0,
+          y: y_height*i,
+          sizex: 1,
+          sizey: 1,
+          xref: 'x',
+          yref: 'y',
+          sizing: "fill",
+          xanchor: 'left',
+          yanchor: 'middle',
+          layer: 'below',
+          opacity: 1
+        };
+      })
+    };
+
+    // Dummy traces for interactivity (e.g., hover/pan/zoom)
+    var traces = dataset_dd_images.get(target_dataset).map((path, _) => ({
+      x: [],
+      y: [],
+      text: [],
+      mode: 'none',
+      marker: { size: 1, opacity: 0 },
+      hoverinfo: 'text',
+      visible: 'False'
+    }));
+
+    Plotly.newPlot('plot', traces, layout, { responsive: true });
+  </script>
+</body>
+</html>

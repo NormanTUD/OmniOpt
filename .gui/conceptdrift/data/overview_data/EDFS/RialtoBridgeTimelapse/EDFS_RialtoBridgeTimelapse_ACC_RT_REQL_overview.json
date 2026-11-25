@@ -1,0 +1,121 @@
+{
+  "detector": "EDFS",
+  "dataset": "RialtoBridgeTimelapse",
+  "model": "HoeffdingTreeClassifier",
+  "metric_code": "ACC_RT_REQL",
+  "source_html": "EDFS_RialtoBridgeTimelapse_HoeffdingTreeClassifier_ACCURACY-RUNTIME-REQLABELS.html",
+  "overview": {
+    "title": "Experiment overview",
+    "columns": [],
+    "rows": [
+      [
+        "Setting",
+        "Value"
+      ],
+      [
+        "Model for non-random steps",
+        "SOBOL"
+      ],
+      [
+        "Max. nr. evaluations",
+        "50478"
+      ],
+      [
+        "Max. nr. evaluations (from arguments)",
+        "50000"
+      ],
+      [
+        "Number random steps",
+        "50478"
+      ],
+      [
+        "Number random steps (from arguments)",
+        "20"
+      ],
+      [
+        "Nr. of workers (parameter)",
+        "30"
+      ],
+      [
+        "Main process memory (GB)",
+        "8"
+      ],
+      [
+        "Worker memory (GB)",
+        "128"
+      ],
+      [
+        "Nr. imported jobs",
+        "478"
+      ]
+    ]
+  },
+  "parameters": {
+    "title": "Experiment parameters",
+    "columns": [
+      "Name",
+      "Type",
+      "Lower bound",
+      "Upper bound",
+      "Values",
+      "Type",
+      "Log Scale?"
+    ],
+    "rows": [
+      [
+        "recent_samples_size",
+        "int",
+        "1",
+        "5000",
+        "",
+        "int",
+        "No"
+      ],
+      [
+        "n_subspaces",
+        "int",
+        "1",
+        "100",
+        "",
+        "int",
+        "No"
+      ],
+      [
+        "feature_percentage",
+        "float",
+        "0.001",
+        "0.999",
+        "",
+        "float",
+        "No"
+      ],
+      [
+        "alpha",
+        "float",
+        "0.001",
+        "0.999",
+        "",
+        "float",
+        "No"
+      ],
+      [
+        "window_size",
+        "int",
+        "100",
+        "1000",
+        "",
+        "int",
+        "No"
+      ],
+      [
+        "mode",
+        "unknown",
+        "",
+        "",
+        "",
+        "unknown",
+        "No"
+      ]
+    ]
+  }
+}

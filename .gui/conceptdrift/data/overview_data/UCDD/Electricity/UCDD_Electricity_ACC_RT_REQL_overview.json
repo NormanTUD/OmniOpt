@@ -1,0 +1,103 @@
+{
+  "detector": "UCDD",
+  "dataset": "Electricity",
+  "model": "HoeffdingTreeClassifier",
+  "metric_code": "ACC_RT_REQL",
+  "source_html": "UCDD_Electricity_HoeffdingTreeClassifier_ACCURACY-RUNTIME-REQLABELS.html",
+  "overview": {
+    "title": "Experiment overview",
+    "columns": [
+      "Setting",
+      "Value"
+    ],
+    "rows": [
+      [
+        "Model for non-random steps",
+        "SOBOL"
+      ],
+      [
+        "Max. nr. evaluations (from arguments)",
+        "50000"
+      ],
+      [
+        "Number random steps",
+        "50000"
+      ],
+      [
+        "Number random steps (from arguments)",
+        "20"
+      ],
+      [
+        "Nr. of workers (parameter)",
+        "50"
+      ],
+      [
+        "Main process memory (GB)",
+        "8"
+      ],
+      [
+        "Worker memory (GB)",
+        "64"
+      ]
+    ]
+  },
+  "parameters": {
+    "title": "Experiment parameters",
+    "columns": [
+      "Name",
+      "Type",
+      "Lower bound",
+      "Upper bound",
+      "Values",
+      "Type",
+      "Log Scale?"
+    ],
+    "rows": [
+      [
+        "recent_samples_size",
+        "int",
+        "1",
+        "5000",
+        "",
+        "int",
+        "No"
+      ],
+      [
+        "n_reference_samples",
+        "int",
+        "1",
+        "5000",
+        "",
+        "int",
+        "No"
+      ],
+      [
+        "n_recent_samples",
+        "int",
+        "1",
+        "5000",
+        "",
+        "int",
+        "No"
+      ],
+      [
+        "threshold",
+        "float",
+        "0.001",
+        "0.999",
+        "",
+        "float",
+        "No"
+      ],
+      [
+        "stability_offset",
+        "choice",
+        "",
+        "",
+        "0, 0, 0, 0, 0, 0, 0, 0, 0.0001, 0.001, 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9",
+        "",
+        ""
+      ]
+    ]
+  }
+}

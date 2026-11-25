@@ -1,0 +1,130 @@
+{
+  "detector": "CDBD",
+  "dataset": "OutdoorObjects",
+  "model": "HoeffdingTreeClassifier",
+  "metric_code": "ACC_RT_REQL",
+  "source_html": "CDBD_OutdoorObjects_HoeffdingTreeClassifier_ACCURACY-RUNTIME-REQLABELS.html",
+  "overview": {
+    "title": "Experiment overview",
+    "columns": [
+      "Setting",
+      "Value"
+    ],
+    "rows": [
+      [
+        "Model for non-random steps",
+        "SOBOL"
+      ],
+      [
+        "Max. nr. evaluations (from arguments)",
+        "50000"
+      ],
+      [
+        "Number random steps",
+        "50000"
+      ],
+      [
+        "Number random steps (from arguments)",
+        "20"
+      ],
+      [
+        "Nr. of workers (parameter)",
+        "50"
+      ],
+      [
+        "Main process memory (GB)",
+        "8"
+      ],
+      [
+        "Worker memory (GB)",
+        "64"
+      ]
+    ]
+  },
+  "parameters": {
+    "title": "Experiment parameters",
+    "columns": [
+      "Name",
+      "Type",
+      "Lower bound",
+      "Upper bound",
+      "Values",
+      "Type",
+      "Log Scale?"
+    ],
+    "rows": [
+      [
+        "recent_samples_size",
+        "int",
+        "1",
+        "5000",
+        "",
+        "int",
+        "No"
+      ],
+      [
+        "feature_id",
+        "int",
+        "0",
+        "20",
+        "",
+        "int",
+        "No"
+      ],
+      [
+        "batch_size",
+        "int",
+        "1",
+        "5000",
+        "",
+        "int",
+        "No"
+      ],
+      [
+        "divergence",
+        "choice",
+        "",
+        "",
+        "str\\(\\'H\\'\\), str\\(\\'KL\\'\\)",
+        "",
+        ""
+      ],
+      [
+        "detect_batch",
+        "choice",
+        "",
+        "",
+        "1, 2, 3",
+        "",
+        ""
+      ],
+      [
+        "statistic",
+        "choice",
+        "",
+        "",
+        "str\\(\\'stdev\\'\\), str\\(\\'tstat\\'\\)",
+        "",
+        ""
+      ],
+      [
+        "significance",
+        "float",
+        "0.001",
+        "0.999",
+        "",
+        "float",
+        "No"
+      ],
+      [
+        "subsets",
+        "int",
+        "1",
+        "100",
+        "",
+        "int",
+        "No"
+      ]
+    ]
+  }
+}

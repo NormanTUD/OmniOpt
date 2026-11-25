@@ -1,0 +1,112 @@
+{
+  "detector": "HDDDM",
+  "dataset": "NOAAWeather",
+  "model": "HoeffdingTreeClassifier",
+  "metric_code": "ACC_RT_REQL",
+  "source_html": "HDDDM_NOAAWeather_HoeffdingTreeClassifier_ACCURACY-RUNTIME-REQLABELS.html",
+  "overview": {
+    "title": "Experiment overview",
+    "columns": [
+      "Setting",
+      "Value"
+    ],
+    "rows": [
+      [
+        "Model for non-random steps",
+        "SOBOL"
+      ],
+      [
+        "Max. nr. evaluations (from arguments)",
+        "50484"
+      ],
+      [
+        "Number random steps",
+        "50484"
+      ],
+      [
+        "Number random steps (from arguments)",
+        "20"
+      ],
+      [
+        "Nr. of workers (parameter)",
+        "30"
+      ],
+      [
+        "Main process memory (GB)",
+        "8"
+      ],
+      [
+        "Worker memory (GB)",
+        "128"
+      ]
+    ]
+  },
+  "parameters": {
+    "title": "Experiment parameters",
+    "columns": [
+      "Name",
+      "Type",
+      "Lower bound",
+      "Upper bound",
+      "Values",
+      "Type",
+      "Log Scale?"
+    ],
+    "rows": [
+      [
+        "recent_samples_size",
+        "int",
+        "1",
+        "5000",
+        "",
+        "int",
+        "No"
+      ],
+      [
+        "batch_size",
+        "int",
+        "2",
+        "5000",
+        "",
+        "int",
+        "No"
+      ],
+      [
+        "gamma",
+        "float",
+        "0.001",
+        "10",
+        "",
+        "float",
+        "No"
+      ],
+      [
+        "alpha",
+        "float",
+        "0.0005",
+        "0.05",
+        "",
+        "float",
+        "No"
+      ],
+      [
+        "use_mmd2",
+        "choice",
+        "",
+        "",
+        "True, False",
+        "",
+        ""
+      ],
+      [
+        "use_k2s_test",
+        "choice",
+        "",
+        "",
+        "True, False",
+        "",
+        ""
+      ]
+    ]
+  }
+}

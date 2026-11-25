@@ -1,0 +1,140 @@
+{
+  "detector": "SlidShaps",
+  "dataset": "GasSensor",
+  "model": "HoeffdingTreeClassifier",
+  "metric_code": "ACC_RT_REQL",
+  "source_html": "SlidShaps_GasSensor_HoeffdingTreeClassifier_ACCURACY-RUNTIME-REQLABELS.html",
+  "overview": {
+    "title": "Experiment overview",
+    "columns": [],
+    "rows": [
+      [
+        "Setting",
+        "Value"
+      ],
+      [
+        "Model for non-random steps",
+        "SOBOL"
+      ],
+      [
+        "Max. nr. evaluations",
+        "50000"
+      ],
+      [
+        "Number random steps",
+        "50000"
+      ],
+      [
+        "Number random steps (from arguments)",
+        "20"
+      ],
+      [
+        "Nr. of workers (parameter)",
+        "50"
+      ],
+      [
+        "Main process memory (GB)",
+        "8"
+      ],
+      [
+        "Worker memory (GB)",
+        "64"
+      ]
+    ]
+  },
+  "parameters": {
+    "title": "Experiment parameters",
+    "columns": [
+      "Name",
+      "Type",
+      "Lower bound",
+      "Upper bound",
+      "Values",
+      "Type",
+      "Log Scale?"
+    ],
+    "rows": [
+      [
+        "recent_samples_size",
+        "range",
+        "1",
+        "5000",
+        "",
+        "int",
+        "No"
+      ],
+      [
+        "batch_size",
+        "range",
+        "1",
+        "5000",
+        "",
+        "int",
+        "No"
+      ],
+      [
+        "detection_buf_size",
+        "range",
+        "1",
+        "5000",
+        "",
+        "int",
+        "No"
+      ],
+      [
+        "overlap",
+        "range",
+        "0.001",
+        "0.999",
+        "",
+        "float",
+        "No"
+      ],
+      [
+        "alpha",
+        "range",
+        "0.001",
+        "0.999",
+        "",
+        "float",
+        "No"
+      ],
+      [
+        "gamma",
+        "range",
+        "0.001",
+        "10",
+        "",
+        "float",
+        "No"
+      ],
+      [
+        "statistical_test",
+        "choice",
+        "",
+        "",
+        "'t-test', 'ks-test'",
+        "str",
+        "No"
+      ],
+      [
+        "approximation_type",
+        "choice",
+        "",
+        "",
+        "'bounded'",
+        "str",
+        "No"
+      ],
+      [
+        "subset_bound",
+        "range",
+        "1",
+        "50",
+        "",
+        "int",
+        "No"
+      ]
+    ]
+  }
+}

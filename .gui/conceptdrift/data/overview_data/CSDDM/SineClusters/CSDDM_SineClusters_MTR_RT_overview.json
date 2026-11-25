@@ -1,0 +1,103 @@
+{
+  "detector": "CSDDM",
+  "dataset": "SineClusters",
+  "model": "HoeffdingTreeClassifier",
+  "metric_code": "MTR_RT",
+  "source_html": "CSDDM_SineClusters_HoeffdingTreeClassifier_MEANTIMERATIO-RUNTIME.html",
+  "overview": {
+    "title": "Experiment overview",
+    "columns": [
+      "Setting",
+      "Value"
+    ],
+    "rows": [
+      [
+        "Model for non-random steps",
+        "SOBOL"
+      ],
+      [
+        "Max. nr. evaluations",
+        "50000"
+      ],
+      [
+        "Number random steps",
+        "50000"
+      ],
+      [
+        "Number random steps (from arguments) 20",
+        ""
+      ],
+      [
+        "Nr. of workers (parameter)",
+        "30"
+      ],
+      [
+        "Main process memory (GB)",
+        "8"
+      ],
+      [
+        "Worker memory (GB)",
+        "64"
+      ]
+    ]
+  },
+  "parameters": {
+    "title": "Experiment parameters",
+    "columns": [
+      "Name",
+      "Type",
+      "Lower bound",
+      "Upper bound",
+      "Values",
+      "Type",
+      "Log Scale?"
+    ],
+    "rows": [
+      [
+        "recent_samples_size",
+        "int",
+        "1",
+        "5000",
+        "",
+        "int",
+        "No"
+      ],
+      [
+        "n_samples",
+        "int",
+        "1",
+        "5000",
+        "",
+        "int",
+        "No"
+      ],
+      [
+        "confidence",
+        "choice",
+        "",
+        "",
+        "0.25, 0.1, 0.05, 0.025, 0.01, 0.005, 0.001",
+        "",
+        ""
+      ],
+      [
+        "feature_proportion",
+        "float",
+        "0.001",
+        "0.999",
+        "",
+        "float",
+        "No"
+      ],
+      [
+        "n_clusters",
+        "int",
+        "1",
+        "50",
+        "",
+        "int",
+        "No"
+      ]
+    ]
+  }
+}

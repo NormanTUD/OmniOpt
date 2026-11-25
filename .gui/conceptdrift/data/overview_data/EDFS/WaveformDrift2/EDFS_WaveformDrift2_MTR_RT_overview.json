@@ -1,0 +1,112 @@
+{
+  "detector": "EDFS",
+  "dataset": "WaveformDrift2",
+  "model": "HoeffdingTreeClassifier",
+  "metric_code": "MTR_RT",
+  "source_html": "EDFS_WaveformDrift2_HoeffdingTreeClassifier_MEANTIMERATIO-RUNTIME.html",
+  "overview": {
+    "title": "Experiment overview",
+    "columns": [
+      "Setting",
+      "Value"
+    ],
+    "rows": [
+      [
+        "Model for non-random steps",
+        "SOBOL"
+      ],
+      [
+        "Max. nr. evaluations",
+        "50000"
+      ],
+      [
+        "Number random steps",
+        "50000"
+      ],
+      [
+        "Number random steps (from arguments)",
+        "20"
+      ],
+      [
+        "Nr. of workers (parameter)",
+        "30"
+      ],
+      [
+        "Main process memory (GB)",
+        "8"
+      ],
+      [
+        "Worker memory (GB)",
+        "64"
+      ]
+    ]
+  },
+  "parameters": {
+    "title": "Experiment parameters",
+    "columns": [
+      "Name",
+      "Type",
+      "Lower bound",
+      "Upper bound",
+      "Values",
+      "Type",
+      "Log Scale?"
+    ],
+    "rows": [
+      [
+        "recent_samples_size",
+        "range",
+        "1",
+        "5000",
+        "",
+        "int",
+        "No"
+      ],
+      [
+        "n_subspaces",
+        "range",
+        "1",
+        "100",
+        "",
+        "int",
+        "No"
+      ],
+      [
+        "feature_percentage",
+        "range",
+        "0.001",
+        "0.999",
+        "",
+        "float",
+        "No"
+      ],
+      [
+        "alpha",
+        "range",
+        "0.001",
+        "0.999",
+        "",
+        "float",
+        "No"
+      ],
+      [
+        "window_size",
+        "range",
+        "100",
+        "1000",
+        "",
+        "int",
+        "No"
+      ],
+      [
+        "mode",
+        "fixed",
+        "",
+        "",
+        "EDFSMode.RANDOM",
+        "",
+        ""
+      ]
+    ]
+  }
+}

@@ -1,0 +1,137 @@
+{
+  "detector": "SlidShaps",
+  "dataset": "Ozone",
+  "model": "HoeffdingTreeClassifier",
+  "metric_code": "ACC_RT",
+  "source_html": "SlidShaps_Ozone_HoeffdingTreeClassifier_ACCURACY-RUNTIME.html",
+  "overview": {
+    "title": "Experiment overview",
+    "columns": [
+      "Setting",
+      "Value"
+    ],
+    "rows": [
+      [
+        "Model for non-random steps",
+        "SOBOL"
+      ],
+      [
+        "Max. nr. evaluations",
+        "50054"
+      ],
+      [
+        "Max. nr. evaluations (from arguments)",
+        "50000"
+      ],
+      [
+        "Number random steps",
+        "50054"
+      ],
+      [
+        "Number random steps (from arguments)",
+        "20"
+      ],
+      [
+        "Nr. of workers (parameter)",
+        "30"
+      ],
+      [
+        "Main process memory (GB)",
+        "8"
+      ],
+      [
+        "Worker memory (GB)",
+        "128"
+      ],
+      [
+        "Nr. imported jobs",
+        "54"
+      ]
+    ]
+  },
+  "parameters": {
+    "title": "Experiment parameters",
+    "columns": [
+      "Name",
+      "Type",
+      "Lower bound",
+      "Upper bound",
+      "Type",
+      "Log Scale?"
+    ],
+    "rows": [
+      [
+        "recent_samples_size",
+        "numeric",
+        "1",
+        "5000",
+        "numeric",
+        "No"
+      ],
+      [
+        "batch_size",
+        "numeric",
+        "4",
+        "4999",
+        "numeric",
+        "No"
+      ],
+      [
+        "detection_buf_size",
+        "numeric",
+        "1",
+        "4998",
+        "numeric",
+        "No"
+      ],
+      [
+        "overlap",
+        "numeric",
+        "0.001279745131731",
+        "0.9981494856085628",
+        "numeric",
+        "No"
+      ],
+      [
+        "alpha",
+        "numeric",
+        "0.001167682936415",
+        "0.998950649395585",
+        "numeric",
+        "No"
+      ],
+      [
+        "gamma",
+        "numeric",
+        "0.0031019431604072",
+        "9.997915303208863",
+        "numeric",
+        "No"
+      ],
+      [
+        "statistical_test",
+        "categorical",
+        "-",
+        "-",
+        "categorical",
+        "No"
+      ],
+      [
+        "subset_bound",
+        "numeric",
+        "1",
+        "50",
+        "numeric",
+        "No"
+      ],
+      [
+        "approximation_type",
+        "categorical",
+        "-",
+        "-",
+        "categorical",
+        "No"
+      ]
+    ]
+  }
+}

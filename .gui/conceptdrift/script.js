@@ -196,6 +196,20 @@ function parseCsvText(csvText) {
   return { headers, rows };
 }
 
+function deriveMtrStatus(parsed) {
+  if (parsed.headers.includes('Status') || !parsed.headers.includes('MTR')) {
+    return parsed;
+  }
+
+  return {
+    headers: ['Status', ...parsed.headers],
+    rows: parsed.rows.map(row => ({
+      Status: typeof row.MTR === 'number' ? 'COMPLETED' : 'FAILED',
+      ...row
+    }))
+  };
+}
+
 function computeParetoFront(rows) {
   const sortableRows = rows
     .filter(row => typeof row.ACCURACY === 'number' && typeof row.RUNTIME === 'number')
@@ -788,9 +802,10 @@ function renderInteractiveResultsTable(containerId, headers, rows, emptyMessage)
 
 function buildParallelPlotRows(rows, headers, metricKey = 'ACCURACY') {
   const candidateHeaders = headers.filter(header => header !== 'Status');
+  const requiresRuntime = headers.includes('RUNTIME');
   return rows
     .filter(row => candidateHeaders.every(header => row[header] !== '' && row[header] != null))
-    .filter(row => typeof row[metricKey] === 'number' && typeof row.RUNTIME === 'number');
+    .filter(row => typeof row[metricKey] === 'number' && (!requiresRuntime || typeof row.RUNTIME === 'number'));
 }
 
 function renderParallelPlot(containerId, rows, headers, options = {}) {
@@ -1185,7 +1200,9 @@ async function loadParetoCsvDataByDetector(dataset, metrics) {
           return null;
         }
 
-        const parsed = parseCsvText(csvText);
+        const parsed = pathBuilder === buildMtrRuntimeCsvPath
+          ? deriveMtrStatus(parseCsvText(csvText))
+          : parseCsvText(csvText);
 
         if (!parsed.rows.length) {
           return null;
@@ -1434,7 +1451,70 @@ function renderParetoReqLabelsView(dataset, detectorData) {
   content.classList.add('visible');
 }
 
+function renderBestMtrPerDetectorView(dataset, detectorData) {
+  ensureCsvResultStyles();
+  const content = document.getElementById('content');
+  const bestEntries = detectorData
+    .map(({ detector, rows, headers }) => {
+      const candidateRows = (headers.includes('Status')
+        ? rows.filter(row => String(row.Status || '').toLowerCase() === 'completed')
+        : rows
+      ).filter(row => typeof row.MTR === 'number');
+      if (!candidateRows.length) {
+        return null;
+      }
+      const bestRow = candidateRows.reduce((best, row) => (row.MTR > best.MTR ? row : best));
+      return { detector, row: bestRow, headers };
+    })
+    .filter(Boolean)
+    .sort((left, right) => right.row.MTR - left.row.MTR);
+
+  content.innerHTML = createParetoSectionHtml(
+    'Best MTR per Detector',
+    'Runtime information is not available for this synthetic dataset, so the best (maximum) MTR configuration of each detector is shown instead.',
+    'pareto-plot',
+    680
+  );
+
+  if (!bestEntries.length) {
+    document.getElementById('pareto-plot').innerHTML = '<p class="csv-muted-note">No MTR values are available for this selection.</p>';
+    content.style.visibility = 'visible';
+    content.classList.add('visible');
+    return;
+  }
+
+  if (typeof Plotly !== 'undefined') {
+    Plotly.newPlot('pareto-plot', [{
+      type: 'bar',
+      x: bestEntries.map(entry => entry.detector),
+      y: bestEntries.map(entry => entry.row.MTR),
+      text: bestEntries.map(entry => buildParetoPointDetailText(entry.row, entry.headers, entry.detector)),
+      textposition: 'none',
+      hovertemplate: '%{text}<extra></extra>',
+      marker: {
+        color: bestEntries.map(entry => DETECTOR_COLOR_SCHEME[entry.detector] || '#015E80'),
+        line: { color: '#002D3F', width: 1 }
+      }
+    }], applyCommonPlotLayout({
+      title: { text: dataset, x: 0.5, xanchor: 'center' },
+      xaxis: { title: { text: 'Detector' } },
+      yaxis: { title: { text: 'MTR (max)' }, rangemode: 'tozero' },
+      showlegend: false,
+      paper_bgcolor: 'white',
+      plot_bgcolor: 'white'
+    }), { responsive: true });
+  }
+
+  content.style.visibility = 'visible';
+  content.classList.add('visible');
+}
+
 function renderParetoMtrRuntimeView(dataset, detectorData) {
+  if (!detectorData.some(({ headers }) => headers.includes('RUNTIME'))) {
+    renderBestMtrPerDetectorView(dataset, detectorData);
+    return;
+  }
+
   ensureCsvResultStyles();
   const content = document.getElementById('content');
   const traces = [];
@@ -1898,18 +1978,23 @@ function renderCsvReqLabelsExperiment({ detector, dataset, model, rows: rawRows,
 function renderCsvMtrRuntimeExperiment({ detector, dataset, model, rows: rawRows, headers, metadata }) {
   ensureCsvResultStyles();
   const content = document.getElementById('content');
+  const hasStatus = headers.includes('Status');
+  const hasRuntime = headers.includes('RUNTIME');
   const rows = rawRows.filter(row => String(row.Status || '').toLowerCase() !== 'abandoned');
-  const completedRows = rows.filter(row => String(row.Status || '').toLowerCase() === 'completed');
+  const completedRows = hasStatus
+    ? rows.filter(row => String(row.Status || '').toLowerCase() === 'completed')
+    : rows;
   const failedRows = rows.filter(row => String(row.Status || '').toLowerCase() === 'failed');
-  const plotRows = completedRows.length ? completedRows : rows.filter(row => typeof row.MTR === 'number' && typeof row.RUNTIME === 'number');
-  const paretoRows = computeMetricRuntimeParetoFront(plotRows, 'MTR');
+  const plotRows = (completedRows.length ? completedRows : rows)
+    .filter(row => typeof row.MTR === 'number' && (!hasRuntime || typeof row.RUNTIME === 'number'));
+  const paretoRows = hasRuntime ? computeMetricRuntimeParetoFront(plotRows, 'MTR') : [];
   const overviewData = metadata || {};
 
   const bestMtr = plotRows.length
-    ? Math.max(...plotRows.map(row => row.MTR).filter(value => typeof value === 'number'))
+    ? Math.max(...plotRows.map(row => row.MTR))
     : null;
-  const minRuntime = plotRows.length
-    ? Math.min(...plotRows.map(row => row.RUNTIME).filter(value => typeof value === 'number'))
+  const minRuntime = hasRuntime && plotRows.length
+    ? Math.min(...plotRows.map(row => row.RUNTIME))
     : null;
 
   content.innerHTML = `
@@ -1924,6 +2009,7 @@ function renderCsvMtrRuntimeExperiment({ detector, dataset, model, rows: rawRows
           <div class="csv-summary-label">Total Runs</div>
           <div class="csv-summary-value">${rows.length}</div>
         </div>
+        ${hasStatus ? `
         <div class="csv-summary-card">
           <div class="csv-summary-label">Completed Runs</div>
           <div class="csv-summary-value">${completedRows.length}</div>
@@ -1931,15 +2017,16 @@ function renderCsvMtrRuntimeExperiment({ detector, dataset, model, rows: rawRows
         <div class="csv-summary-card">
           <div class="csv-summary-label">Failed Runs</div>
           <div class="csv-summary-value">${failedRows.length}</div>
-        </div>
+        </div>` : ''}
         <div class="csv-summary-card">
           <div class="csv-summary-label">Best MTR</div>
           <div class="csv-summary-value">${formatMetricValue(bestMtr, 3)}</div>
         </div>
+        ${hasRuntime ? `
         <div class="csv-summary-card">
           <div class="csv-summary-label">Best Runtime</div>
           <div class="csv-summary-value">${formatMetricValue(minRuntime, 0)}</div>
-        </div>
+        </div>` : ''}
       </div>
       <h2>Scatter Plot</h2>
       <div id="csv-accuracy-runtime-plot" class="csv-plot-block" style="width:100%; height:520px;"></div>
@@ -1949,7 +2036,7 @@ function renderCsvMtrRuntimeExperiment({ detector, dataset, model, rows: rawRows
         <select id="parallel-color-mode">
           <option value="none">Default</option>
           <option value="mtr">MTR (max)</option>
-          <option value="runtime">Runtime (min)</option>
+          ${hasRuntime ? '<option value="runtime">Runtime (min)</option>' : ''}
         </select>
       </div>
       <div id="csv-parallel-plot" class="csv-plot-block" style="width:100%; height:860px;"></div>
@@ -1970,11 +2057,12 @@ function renderCsvMtrRuntimeExperiment({ detector, dataset, model, rows: rawRows
   });
 
   if (typeof Plotly !== 'undefined') {
-    const runtimeRange = computeAxisRange(plotRows.map(row => row.RUNTIME), { floor: 0 });
+    const xValues = hasRuntime ? plotRows.map(row => row.RUNTIME) : plotRows.map((row, index) => index + 1);
+    const runtimeRange = computeAxisRange(xValues, { floor: 0 });
     const mtrRange = computeAxisRange(plotRows.map(row => row.MTR), { floor: 0 });
 
     const allTrialsTrace = {
-      x: plotRows.map(row => row.RUNTIME),
+      x: xValues,
       y: plotRows.map(row => row.MTR),
       text: plotRows.map(row => buildPointDetailText(row, headers)),
       mode: 'markers',
@@ -2004,10 +2092,10 @@ function renderCsvMtrRuntimeExperiment({ detector, dataset, model, rows: rawRows
 
     Plotly.newPlot(
       'csv-accuracy-runtime-plot',
-      [allTrialsTrace, paretoTrace],
+      hasRuntime ? [allTrialsTrace, paretoTrace] : [allTrialsTrace],
       applyCommonPlotLayout({
         title: `${detector} on ${dataset}`,
-        xaxis: { title: { text: 'Runtime (min)' }, range: runtimeRange || undefined },
+        xaxis: { title: { text: hasRuntime ? 'Runtime (min)' : 'Trial' }, range: runtimeRange || undefined },
         yaxis: { title: { text: 'MTR (max)' }, range: mtrRange || undefined },
         hovermode: 'closest',
         paper_bgcolor: 'white',
@@ -2161,7 +2249,7 @@ function loadCsvMtrRuntimeExperiment({ detector, dataset, model, button }) {
       .catch(() => null)
   ])
     .then(([csvText, overviewData]) => {
-      const parsed = parseCsvText(csvText);
+      const parsed = deriveMtrStatus(parseCsvText(csvText));
       renderCsvMtrRuntimeExperiment({
         detector,
         dataset,
